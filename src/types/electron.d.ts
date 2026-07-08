@@ -1,0 +1,104 @@
+export interface ElectronAPI {
+  // Auth
+  login: (email: string, password: string) => Promise<any>;
+  logout: () => Promise<any>;
+  getCurrentUser: () => Promise<any>;
+
+  // Products
+  getProducts: (params: any) => Promise<any>;
+  getProductById: (id: string) => Promise<any>;
+  createProduct: (data: any) => Promise<any>;
+  updateProduct: (id: string, data: any) => Promise<any>;
+  deleteProduct: (id: string) => Promise<any>;
+  searchProductByBarcode: (barcode: string) => Promise<any>;
+
+  // Sales
+  getSales: (params: any) => Promise<any>;
+  getSaleById: (id: string) => Promise<any>;
+  createSale: (data: any) => Promise<any>;
+
+  // Purchases
+  getPurchases: (params: any) => Promise<any>;
+  getPurchaseById: (id: string) => Promise<any>;
+  createPurchase: (data: any) => Promise<any>;
+
+  // Inventory
+  getInventoryHistory: (params: any) => Promise<any>;
+  adjustInventory: (data: any) => Promise<any>;
+  getLowStock: () => Promise<any>;
+
+  // Expenses
+  getExpenses: (params: any) => Promise<any>;
+  createExpense: (data: any) => Promise<any>;
+  updateExpense: (id: string, data: any) => Promise<any>;
+  deleteExpense: (id: string) => Promise<any>;
+  getExpenseCategories: () => Promise<any>;
+  createExpenseCategory: (data: any) => Promise<any>;
+
+  // Users
+  getUsers: (params: any) => Promise<any>;
+  createUser: (data: any) => Promise<any>;
+  updateUser: (id: string, data: any) => Promise<any>;
+  deleteUser: (id: string) => Promise<any>;
+  getRoles: () => Promise<any>;
+
+  // Dashboard
+  getDashboardStats: () => Promise<any>;
+  getSalesChart: (days: number) => Promise<any>;
+  getTopProducts: (limit: number) => Promise<any>;
+  getRecentTransactions: (limit: number) => Promise<any>;
+
+  // Categories
+  getCategories: () => Promise<any>;
+  createCategory: (data: any) => Promise<any>;
+  updateCategory: (id: string, data: any) => Promise<any>;
+  deleteCategory: (id: string) => Promise<any>;
+
+  // Brands
+  getBrands: () => Promise<any>;
+  createBrand: (data: any) => Promise<any>;
+  updateBrand: (id: string, data: any) => Promise<any>;
+  deleteBrand: (id: string) => Promise<any>;
+
+  // Units
+  getUnits: () => Promise<any>;
+  createUnit: (data: any) => Promise<any>;
+  updateUnit: (id: string, data: any) => Promise<any>;
+  deleteUnit: (id: string) => Promise<any>;
+
+  // Customers
+  getCustomers: (params: any) => Promise<any>;
+  getCustomerById: (id: string) => Promise<any>;
+  createCustomer: (data: any) => Promise<any>;
+  updateCustomer: (id: string, data: any) => Promise<any>;
+  deleteCustomer: (id: string) => Promise<any>;
+
+  // Suppliers
+  getSuppliers: (params: any) => Promise<any>;
+  getSupplierById: (id: string) => Promise<any>;
+  createSupplier: (data: any) => Promise<any>;
+  updateSupplier: (id: string, data: any) => Promise<any>;
+  deleteSupplier: (id: string) => Promise<any>;
+
+  // Printing
+  printInvoice: (data: any) => Promise<any>;
+  printReceipt: (data: any) => Promise<any>;
+
+  // Backup
+  createBackup: () => Promise<any>;
+  restoreBackup: (filePath: string) => Promise<any>;
+  getBackups: () => Promise<any>;
+
+  // Settings
+  getSettings: () => Promise<any>;
+  updateSetting: (key: string, value: string) => Promise<any>;
+
+  // Notifications
+  onNotification: (callback: (notification: any) => void) => void;
+}
+
+declare global {
+  interface Window {
+    electron: ElectronAPI;
+  }
+}
