@@ -1,94 +1,65 @@
-import { Purchase } from '@prisma/client';
 import { BaseRepository } from './BaseRepository';
-import { PaginationParams, PaginatedResponse } from '../types';
+import { Purchase, PaginationParams, PaginatedResponse } from '../types';
+
+const PURCHASE_SELECT =
+  '*, supplier:suppliers(*), user:users(*), items:purchase_items(*, product:products(*))';
 
 export class PurchaseRepository extends BaseRepository<Purchase> {
-  protected getModelName(): string {
-    return 'purchase';
+  protected getTableName(): string {
+    return 'purchases';
   }
 
   async findAllWithPagination(
     params: PaginationParams
   ): Promise<PaginatedResponse<Purchase>> {
-    const { page = 1, limit = 10, search, sortBy = 'createdAt', sortOrder = 'desc' } = params;
-    const skip = (page - 1) * limit;
+    const { search, sortBy = 'createdAt', sortOrder = 'desc' } = params;
+    const { page, limit, from, to } = this.buildPagination(params);
 
-    const where: any = {
-      deletedAt: null,
-    };
+    let query = this.supabase
+      .from(this.getTableName())
+      .select(PURCHASE_SELECT, { count: 'exact' })
+      .is('deletedAt', null);
 
     if (search) {
-      where.OR = [
-        { purchaseNumber: { contains: search } },
-        { supplier: { name: { contains: search } } },
-      ];
+      query = query.ilike('purchaseNumber', `%${search}%`);
     }
 
-    const [data, total] = await Promise.all([
-      this.prisma.purchase.findMany({
-        where,
-        include: {
-          supplier: true,
-          user: true,
-          items: {
-            include: {
-              product: true,
-            },
-          },
-        },
-        skip,
-        take: limit,
-        orderBy: { [sortBy]: sortOrder },
-      }),
-      this.prisma.purchase.count({ where }),
-    ]);
+    const { data, error, count } = await query
+      .order(sortBy, { ascending: sortOrder === 'asc' })
+      .range(from, to);
 
-    return {
-      data,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
+    if (error) throw error;
+
+    return this.toPaginatedResponse(data as Purchase[], count || 0, page, limit);
   }
 
   async getTodayPurchases(): Promise<number> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const result = await this.prisma.purchase.aggregate({
-      where: {
-        deletedAt: null,
-        purchaseDate: {
-          gte: today,
-        },
-      },
-      _sum: {
-        totalAmount: true,
-      },
-    });
+    const { data, error } = await this.supabase
+      .from(this.getTableName())
+      .select('totalAmount')
+      .is('deletedAt', null)
+      .gte('purchaseDate', today.toISOString());
 
-    return result._sum.totalAmount || 0;
+    if (error) throw error;
+    return (data || []).reduce((sum, p: any) => sum + (p.totalAmount || 0), 0);
   }
 
   async getMonthlyPurchases(year: number, month: number): Promise<number> {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
-    const result = await this.prisma.purchase.aggregate({
-      where: {
-        deletedAt: null,
-        purchaseDate: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-      _sum: {
-        totalAmount: true,
-      },
-    });
+    const { data, error } = await this.supabase
+      .from(this.getTableName())
+      .select('totalAmount')
+      .is('deletedAt', null)
+      .gte('purchaseDate', startDate.toISOString())
+      .lte('purchaseDate', endDate.toISOString());
 
-    return result._sum.totalAmount || 0;
+    if (error) throw error;
+    return (data || []).reduce((sum, p: any) => sum + (p.totalAmount || 0), 0);
   }
 }
 

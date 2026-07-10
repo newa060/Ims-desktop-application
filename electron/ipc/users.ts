@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import prisma from '../../src/database/client';
+import supabase from '../../src/database/supabaseClient';
 import logger from '../../src/utils/logger';
 import bcrypt from 'bcryptjs';
 
@@ -8,34 +8,31 @@ export const setupUserHandlers = () => {
   ipcMain.handle('users:getAll', async (_event, params: any = {}) => {
     try {
       const { page = 1, limit = 20, search = '' } = params;
-      const skip = (page - 1) * limit;
-      const where: any = { deletedAt: null };
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+
+      let query = supabase
+        .from('users')
+        .select('*, role:roles(id, name)', { count: 'exact' })
+        .is('deletedAt', null);
+
       if (search) {
-        where.OR = [
-          { firstName: { contains: search } },
-          { lastName: { contains: search } },
-          { email: { contains: search } },
-        ];
+        query = query.or(
+          `firstName.ilike.%${search}%,lastName.ilike.%${search}%,email.ilike.%${search}%`
+        );
       }
 
-      const [users, total] = await Promise.all([
-        prisma.user.findMany({
-          where,
-          skip,
-          take: limit,
-          orderBy: { createdAt: 'desc' },
-          include: {
-            role: { select: { id: true, name: true } },
-          },
-        }),
-        prisma.user.count({ where }),
-      ]);
+      const { data: users, error, count } = await query
+        .order('createdAt', { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
 
       return {
         success: true,
         data: {
           data: users,
-          pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+          pagination: { page, limit, total: count || 0, totalPages: Math.ceil((count || 0) / limit) },
         },
       };
     } catch (error) {
@@ -48,18 +45,17 @@ export const setupUserHandlers = () => {
   ipcMain.handle('users:create', async (_event, data: any) => {
     try {
       const hashedPassword = await bcrypt.hash(data.password, 10);
-      const user = await prisma.user.create({
-        data: { ...data, password: hashedPassword },
-        select: {
-          id: true, firstName: true, lastName: true, email: true,
-          phone: true, isActive: true, createdAt: true,
-          role: { select: { id: true, name: true } },
-        },
-      });
+      const { data: user, error } = await supabase
+        .from('users')
+        .insert({ ...data, password: hashedPassword })
+        .select('id, firstName, lastName, email, phone, isActive, createdAt, role:roles(id, name)')
+        .single();
+
+      if (error) throw error;
       return { success: true, data: user };
     } catch (error) {
       logger.error('Create user handler error:', error);
-      const msg = error instanceof Error && error.message.includes('Unique constraint')
+      const msg = error instanceof Error && error.message.includes('duplicate key')
         ? 'Email already exists'
         : 'Failed to create user';
       return { success: false, error: msg };
@@ -76,15 +72,14 @@ export const setupUserHandlers = () => {
         delete updateData.password;
       }
 
-      const user = await prisma.user.update({
-        where: { id },
-        data: updateData,
-        select: {
-          id: true, firstName: true, lastName: true, email: true,
-          phone: true, isActive: true, createdAt: true,
-          role: { select: { id: true, name: true } },
-        },
-      });
+      const { data: user, error } = await supabase
+        .from('users')
+        .update(updateData)
+        .eq('id', id)
+        .select('id, firstName, lastName, email, phone, isActive, createdAt, role:roles(id, name)')
+        .single();
+
+      if (error) throw error;
       return { success: true, data: user };
     } catch (error) {
       logger.error('Update user handler error:', error);
@@ -95,10 +90,12 @@ export const setupUserHandlers = () => {
   // users:delete (soft delete)
   ipcMain.handle('users:delete', async (_event, id: string) => {
     try {
-      await prisma.user.update({
-        where: { id },
-        data: { deletedAt: new Date(), isActive: false },
-      });
+      const { error } = await supabase
+        .from('users')
+        .update({ deletedAt: new Date().toISOString(), isActive: false })
+        .eq('id', id);
+
+      if (error) throw error;
       return { success: true };
     } catch (error) {
       logger.error('Delete user handler error:', error);
@@ -109,11 +106,14 @@ export const setupUserHandlers = () => {
   // roles:getAll
   ipcMain.handle('roles:getAll', async () => {
     try {
-      const roles = await prisma.role.findMany({
-        where: { deletedAt: null },
-        orderBy: { name: 'asc' },
-      });
-      return { success: true, data: roles };
+      const { data, error } = await supabase
+        .from('roles')
+        .select('*')
+        .is('deletedAt', null)
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      return { success: true, data };
     } catch (error) {
       logger.error('Get roles handler error:', error);
       return { success: false, error: 'Failed to fetch roles' };

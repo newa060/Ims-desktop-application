@@ -1,28 +1,97 @@
-import { PrismaClient } from '@prisma/client';
-import prisma from '../database/client';
+import { SupabaseClient } from '@supabase/supabase-js';
+import supabase from '../database/supabaseClient';
 import { PaginationParams, PaginatedResponse } from '../types';
 
 export abstract class BaseRepository<T> {
-  protected prisma: PrismaClient;
+  protected supabase: SupabaseClient;
 
   constructor() {
-    this.prisma = prisma;
+    this.supabase = supabase;
   }
 
-  protected async paginate<K>(
-    query: any,
-    params: PaginationParams
-  ): Promise<PaginatedResponse<K>> {
+  protected abstract getTableName(): string;
+
+  async findById(id: string): Promise<T | null> {
+    const { data, error } = await this.supabase
+      .from(this.getTableName())
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data as T | null;
+  }
+
+  async findAll(): Promise<T[]> {
+    const { data, error } = await this.supabase
+      .from(this.getTableName())
+      .select('*')
+      .is('deletedAt', null);
+
+    if (error) throw error;
+    return (data || []) as T[];
+  }
+
+  async create(data: any): Promise<T> {
+    const { data: created, error } = await this.supabase
+      .from(this.getTableName())
+      .insert(data)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return created as T;
+  }
+
+  async update(id: string, data: any): Promise<T> {
+    const { data: updated, error } = await this.supabase
+      .from(this.getTableName())
+      .update(data)
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return updated as T;
+  }
+
+  async softDelete(id: string): Promise<T> {
+    const { data: updated, error } = await this.supabase
+      .from(this.getTableName())
+      .update({ deletedAt: new Date().toISOString() })
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return updated as T;
+  }
+
+  async hardDelete(id: string): Promise<T> {
+    const { data: deleted, error } = await this.supabase
+      .from(this.getTableName())
+      .delete()
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return deleted as T;
+  }
+
+  protected buildPagination(params: PaginationParams) {
     const { page = 1, limit = 10 } = params;
-    const skip = (page - 1) * limit;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    return { page, limit, from, to };
+  }
 
-    const [data, total] = await Promise.all([
-      query.skip(skip).take(limit),
-      this.prisma[this.getModelName()].count({
-        where: query._query?.where,
-      }),
-    ]);
-
+  protected toPaginatedResponse<K>(
+    data: K[],
+    total: number,
+    page: number,
+    limit: number
+  ): PaginatedResponse<K> {
     return {
       data,
       total,
@@ -30,45 +99,5 @@ export abstract class BaseRepository<T> {
       limit,
       totalPages: Math.ceil(total / limit),
     };
-  }
-
-  protected abstract getModelName(): string;
-
-  async findById(id: string): Promise<T | null> {
-    return this.prisma[this.getModelName()].findUnique({
-      where: { id },
-    });
-  }
-
-  async findAll(): Promise<T[]> {
-    return this.prisma[this.getModelName()].findMany({
-      where: { deletedAt: null },
-    });
-  }
-
-  async create(data: any): Promise<T> {
-    return this.prisma[this.getModelName()].create({
-      data,
-    });
-  }
-
-  async update(id: string, data: any): Promise<T> {
-    return this.prisma[this.getModelName()].update({
-      where: { id },
-      data,
-    });
-  }
-
-  async softDelete(id: string): Promise<T> {
-    return this.prisma[this.getModelName()].update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
-  }
-
-  async hardDelete(id: string): Promise<T> {
-    return this.prisma[this.getModelName()].delete({
-      where: { id },
-    });
   }
 }

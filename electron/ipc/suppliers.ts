@@ -1,32 +1,30 @@
 import { ipcMain } from 'electron';
-import prisma from '../../src/database/client';
+import supabase from '../../src/database/supabaseClient';
 import logger from '../../src/utils/logger';
 
 export const setupSupplierHandlers = () => {
   ipcMain.handle('suppliers:getAll', async (_event, params) => {
     try {
       const { page = 1, limit = 10, search } = params;
-      const skip = (page - 1) * limit;
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
 
-      const where: any = { deletedAt: null };
+      let query = supabase
+        .from('suppliers')
+        .select('*', { count: 'exact' })
+        .is('deletedAt', null);
 
       if (search) {
-        where.OR = [
-          { name: { contains: search } },
-          { email: { contains: search } },
-          { phone: { contains: search } },
-        ];
+        query = query.or(
+          `name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`
+        );
       }
 
-      const [data, total] = await Promise.all([
-        prisma.supplier.findMany({
-          where,
-          skip,
-          take: limit,
-          orderBy: { createdAt: 'desc' },
-        }),
-        prisma.supplier.count({ where }),
-      ]);
+      const { data, error, count } = await query
+        .order('createdAt', { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
 
       return {
         success: true,
@@ -35,8 +33,8 @@ export const setupSupplierHandlers = () => {
           pagination: {
             page,
             limit,
-            total,
-            totalPages: Math.ceil(total / limit),
+            total: count || 0,
+            totalPages: Math.ceil((count || 0) / limit),
           },
         },
       };
@@ -48,10 +46,14 @@ export const setupSupplierHandlers = () => {
 
   ipcMain.handle('suppliers:getById', async (_event, id: string) => {
     try {
-      const supplier = await prisma.supplier.findUnique({
-        where: { id },
-      });
-      return { success: true, data: supplier };
+      const { data, error } = await supabase
+        .from('suppliers')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return { success: true, data };
     } catch (error) {
       logger.error('Get supplier by ID handler error:', error);
       return { success: false, error: 'Failed to fetch supplier' };
@@ -60,7 +62,13 @@ export const setupSupplierHandlers = () => {
 
   ipcMain.handle('suppliers:create', async (_event, data) => {
     try {
-      const supplier = await prisma.supplier.create({ data });
+      const { data: supplier, error } = await supabase
+        .from('suppliers')
+        .insert(data)
+        .select('*')
+        .single();
+
+      if (error) throw error;
       return { success: true, data: supplier };
     } catch (error) {
       logger.error('Create supplier handler error:', error);
@@ -70,10 +78,14 @@ export const setupSupplierHandlers = () => {
 
   ipcMain.handle('suppliers:update', async (_event, id: string, data) => {
     try {
-      const supplier = await prisma.supplier.update({
-        where: { id },
-        data,
-      });
+      const { data: supplier, error } = await supabase
+        .from('suppliers')
+        .update(data)
+        .eq('id', id)
+        .select('*')
+        .single();
+
+      if (error) throw error;
       return { success: true, data: supplier };
     } catch (error) {
       logger.error('Update supplier handler error:', error);
@@ -83,10 +95,12 @@ export const setupSupplierHandlers = () => {
 
   ipcMain.handle('suppliers:delete', async (_event, id: string) => {
     try {
-      await prisma.supplier.update({
-        where: { id },
-        data: { deletedAt: new Date() },
-      });
+      const { error } = await supabase
+        .from('suppliers')
+        .update({ deletedAt: new Date().toISOString() })
+        .eq('id', id);
+
+      if (error) throw error;
       return { success: true };
     } catch (error) {
       logger.error('Delete supplier handler error:', error);

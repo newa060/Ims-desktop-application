@@ -14,6 +14,19 @@ const getStockBadge = (current: number, minimum: number) => {
   return <Badge variant="success">In Stock</Badge>;
 };
 
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case 'active':
+      return <Badge variant="success">Active</Badge>;
+    case 'inactive':
+      return <Badge variant="warning">Inactive</Badge>;
+    case 'discontinued':
+      return <Badge variant="danger">Discontinued</Badge>;
+    default:
+      return <Badge variant="secondary">{status || '-'}</Badge>;
+  }
+};
+
 const ProductsPage = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [search, setSearch] = useState('');
@@ -175,6 +188,7 @@ const ProductsPage = () => {
                       <th className="text-right py-3 px-3 font-semibold text-gray-600">Purchase</th>
                       <th className="text-right py-3 px-3 font-semibold text-gray-600">Selling</th>
                       <th className="text-center py-3 px-3 font-semibold text-gray-600">Stock</th>
+                      <th className="text-center py-3 px-3 font-semibold text-gray-600">Stock Status</th>
                       <th className="text-center py-3 px-3 font-semibold text-gray-600">Status</th>
                       <th className="text-center py-3 px-3 font-semibold text-gray-600">Actions</th>
                     </tr>
@@ -194,6 +208,9 @@ const ProductsPage = () => {
                         <td className="py-2 px-3 text-center font-semibold text-xs">{product.currentStock}</td>
                         <td className="py-2 px-3 text-center">
                           {getStockBadge(product.currentStock, product.minimumStock)}
+                        </td>
+                        <td className="py-2 px-3 text-center">
+                          {getStatusBadge(product.status)}
                         </td>
                         <td className="py-2 px-3">
                           <div className="flex items-center justify-center gap-1">

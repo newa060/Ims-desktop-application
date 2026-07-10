@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
-import prisma from '../../src/database/client';
+import supabase from '../../src/database/supabaseClient';
+import ProductRepository from '../../src/repositories/ProductRepository';
 import logger from '../../src/utils/logger';
 
 export const setupInventoryHandlers = () => {
@@ -7,28 +8,26 @@ export const setupInventoryHandlers = () => {
   ipcMain.handle('inventory:getHistory', async (_event, params: any = {}) => {
     try {
       const { productId, page = 1, limit = 20 } = params;
-      const skip = (page - 1) * limit;
-      const where: any = {};
-      if (productId) where.productId = productId;
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
 
-      const [history, total] = await Promise.all([
-        prisma.inventoryHistory.findMany({
-          where,
-          include: {
-            product: { select: { name: true, sku: true } },
-          },
-          skip,
-          take: limit,
-          orderBy: { createdAt: 'desc' },
-        }),
-        prisma.inventoryHistory.count({ where }),
-      ]);
+      let query = supabase
+        .from('inventory_history')
+        .select('*, product:products(name, sku)', { count: 'exact' });
+
+      if (productId) query = query.eq('productId', productId);
+
+      const { data: history, error, count } = await query
+        .order('createdAt', { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
 
       return {
         success: true,
         data: {
           data: history,
-          pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+          pagination: { page, limit, total: count || 0, totalPages: Math.ceil((count || 0) / limit) },
         },
       };
     } catch (error) {
@@ -38,42 +37,15 @@ export const setupInventoryHandlers = () => {
   });
 
   // inventory:adjust - create stock adjustment
+  // Done atomically via the adjust_inventory Postgres function (see Supabase
+  // SQL schema) so the stock update and history entry can't diverge.
   ipcMain.handle('inventory:adjust', async (_event, data: any) => {
     try {
-      const { productId, type, quantity, reason, notes, userId } = data;
+      const { data: result, error } = await supabase
+        .rpc('adjust_inventory', { payload: data })
+        .single();
 
-      const result = await prisma.$transaction(async (tx) => {
-        const product = await tx.product.findUnique({ where: { id: productId } });
-        if (!product) throw new Error('Product not found');
-
-        const change = type === 'addition' ? quantity : -quantity;
-        const newStock = product.currentStock + change;
-        if (newStock < 0) throw new Error('Insufficient stock');
-
-        await tx.product.update({
-          where: { id: productId },
-          data: { currentStock: newStock },
-        });
-
-        const adj = await tx.stockAdjustment.create({
-          data: { productId, type, quantity, reason, notes, userId },
-        });
-
-        await tx.inventoryHistory.create({
-          data: {
-            productId,
-            type: 'adjustment',
-            quantityChange: change,
-            quantityBefore: product.currentStock,
-            quantityAfter: newStock,
-            reference: 'Stock Adjustment',
-            referenceId: adj.id,
-            notes: reason,
-          },
-        });
-
-        return adj;
-      });
+      if (error) throw new Error(error.message);
 
       return { success: true, data: result };
     } catch (error) {
@@ -88,16 +60,7 @@ export const setupInventoryHandlers = () => {
   // inventory:getLowStock
   ipcMain.handle('inventory:getLowStock', async () => {
     try {
-      const products = await prisma.product.findMany({
-        where: {
-          deletedAt: null,
-          status: 'active',
-        },
-        include: { category: true, unit: true },
-        orderBy: { currentStock: 'asc' },
-      });
-
-      const lowStock = products.filter((p) => p.currentStock <= p.minimumStock);
+      const lowStock = await ProductRepository.getLowStockProducts();
       return { success: true, data: lowStock };
     } catch (error) {
       logger.error('Get low stock handler error:', error);

@@ -1,15 +1,18 @@
 import { ipcMain } from 'electron';
-import prisma from '../../src/database/client';
+import supabase from '../../src/database/supabaseClient';
 import logger from '../../src/utils/logger';
 
 export const setupBrandHandlers = () => {
   ipcMain.handle('brands:getAll', async () => {
     try {
-      const brands = await prisma.brand.findMany({
-        where: { deletedAt: null },
-        orderBy: { name: 'asc' },
-      });
-      return { success: true, data: brands };
+      const { data, error } = await supabase
+        .from('brands')
+        .select('*')
+        .is('deletedAt', null)
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      return { success: true, data };
     } catch (error) {
       logger.error('Get brands handler error:', error);
       return { success: false, error: 'Failed to fetch brands' };
@@ -18,7 +21,13 @@ export const setupBrandHandlers = () => {
 
   ipcMain.handle('brands:create', async (_event, data) => {
     try {
-      const brand = await prisma.brand.create({ data });
+      const { data: brand, error } = await supabase
+        .from('brands')
+        .insert(data)
+        .select('*')
+        .single();
+
+      if (error) throw error;
       return { success: true, data: brand };
     } catch (error) {
       logger.error('Create brand handler error:', error);
@@ -28,10 +37,14 @@ export const setupBrandHandlers = () => {
 
   ipcMain.handle('brands:update', async (_event, id: string, data) => {
     try {
-      const brand = await prisma.brand.update({
-        where: { id },
-        data,
-      });
+      const { data: brand, error } = await supabase
+        .from('brands')
+        .update(data)
+        .eq('id', id)
+        .select('*')
+        .single();
+
+      if (error) throw error;
       return { success: true, data: brand };
     } catch (error) {
       logger.error('Update brand handler error:', error);
@@ -41,10 +54,12 @@ export const setupBrandHandlers = () => {
 
   ipcMain.handle('brands:delete', async (_event, id: string) => {
     try {
-      await prisma.brand.update({
-        where: { id },
-        data: { deletedAt: new Date() },
-      });
+      const { error } = await supabase
+        .from('brands')
+        .update({ deletedAt: new Date().toISOString() })
+        .eq('id', id);
+
+      if (error) throw error;
       return { success: true };
     } catch (error) {
       logger.error('Delete brand handler error:', error);

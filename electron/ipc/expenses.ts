@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import prisma from '../../src/database/client';
+import supabase from '../../src/database/supabaseClient';
 import logger from '../../src/utils/logger';
 
 export const setupExpenseHandlers = () => {
@@ -7,34 +7,33 @@ export const setupExpenseHandlers = () => {
   ipcMain.handle('expenses:getAll', async (_event, params: any = {}) => {
     try {
       const { page = 1, limit = 20, search = '' } = params;
-      const skip = (page - 1) * limit;
-      const where: any = { deletedAt: null };
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+
+      let query = supabase
+        .from('expenses')
+        .select('*, category:expense_categories(*), user:users(firstName, lastName)', {
+          count: 'exact',
+        })
+        .is('deletedAt', null);
+
       if (search) {
-        where.OR = [
-          { description: { contains: search } },
-          { reference: { contains: search } },
-        ];
+        query = query.or(
+          `description.ilike.%${search}%,reference.ilike.%${search}%`
+        );
       }
 
-      const [expenses, total] = await Promise.all([
-        prisma.expense.findMany({
-          where,
-          include: {
-            category: true,
-            user: { select: { firstName: true, lastName: true } },
-          },
-          skip,
-          take: limit,
-          orderBy: { date: 'desc' },
-        }),
-        prisma.expense.count({ where }),
-      ]);
+      const { data, error, count } = await query
+        .order('date', { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
 
       return {
         success: true,
         data: {
-          data: expenses,
-          pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+          data,
+          pagination: { page, limit, total: count || 0, totalPages: Math.ceil((count || 0) / limit) },
         },
       };
     } catch (error) {
@@ -46,7 +45,13 @@ export const setupExpenseHandlers = () => {
   // expenses:create
   ipcMain.handle('expenses:create', async (_event, data: any) => {
     try {
-      const expense = await prisma.expense.create({ data });
+      const { data: expense, error } = await supabase
+        .from('expenses')
+        .insert(data)
+        .select('*')
+        .single();
+
+      if (error) throw error;
       return { success: true, data: expense };
     } catch (error) {
       logger.error('Create expense handler error:', error);
@@ -57,7 +62,14 @@ export const setupExpenseHandlers = () => {
   // expenses:update
   ipcMain.handle('expenses:update', async (_event, id: string, data: any) => {
     try {
-      const expense = await prisma.expense.update({ where: { id }, data });
+      const { data: expense, error } = await supabase
+        .from('expenses')
+        .update(data)
+        .eq('id', id)
+        .select('*')
+        .single();
+
+      if (error) throw error;
       return { success: true, data: expense };
     } catch (error) {
       logger.error('Update expense handler error:', error);
@@ -68,10 +80,12 @@ export const setupExpenseHandlers = () => {
   // expenses:delete
   ipcMain.handle('expenses:delete', async (_event, id: string) => {
     try {
-      await prisma.expense.update({
-        where: { id },
-        data: { deletedAt: new Date() },
-      });
+      const { error } = await supabase
+        .from('expenses')
+        .update({ deletedAt: new Date().toISOString() })
+        .eq('id', id);
+
+      if (error) throw error;
       return { success: true };
     } catch (error) {
       logger.error('Delete expense handler error:', error);
@@ -82,11 +96,14 @@ export const setupExpenseHandlers = () => {
   // expenseCategories:getAll
   ipcMain.handle('expenseCategories:getAll', async () => {
     try {
-      const categories = await prisma.expenseCategory.findMany({
-        where: { deletedAt: null },
-        orderBy: { name: 'asc' },
-      });
-      return { success: true, data: categories };
+      const { data, error } = await supabase
+        .from('expense_categories')
+        .select('*')
+        .is('deletedAt', null)
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      return { success: true, data };
     } catch (error) {
       logger.error('Get expense categories handler error:', error);
       return { success: false, error: 'Failed to fetch expense categories' };
@@ -96,7 +113,13 @@ export const setupExpenseHandlers = () => {
   // expenseCategories:create
   ipcMain.handle('expenseCategories:create', async (_event, data: any) => {
     try {
-      const category = await prisma.expenseCategory.create({ data });
+      const { data: category, error } = await supabase
+        .from('expense_categories')
+        .insert(data)
+        .select('*')
+        .single();
+
+      if (error) throw error;
       return { success: true, data: category };
     } catch (error) {
       logger.error('Create expense category handler error:', error);

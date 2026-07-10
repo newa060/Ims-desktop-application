@@ -27,11 +27,6 @@ dist-ssr
 .env
 .env.local
 
-# Database
-*.db
-*.db-journal
-prisma/migrations
-
 # Backups
 backups/
 

@@ -2,8 +2,30 @@ import ProductRepository from '../repositories/ProductRepository';
 import SaleRepository from '../repositories/SaleRepository';
 import PurchaseRepository from '../repositories/PurchaseRepository';
 import { DashboardStats } from '../types';
-import prisma from '../database/client';
+import supabase from '../database/supabaseClient';
 import logger from '../utils/logger';
+
+const countActive = async (table: string): Promise<number> => {
+  const { count, error } = await supabase
+    .from(table)
+    .select('*', { count: 'exact', head: true })
+    .is('deletedAt', null);
+
+  if (error) throw error;
+  return count || 0;
+};
+
+// `products` is the table shared with the website — it has no `deletedAt`
+// column (the website uses `status` for that instead).
+const countActiveProducts = async (): Promise<number> => {
+  const { count, error } = await supabase
+    .from('products')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'Active');
+
+  if (error) throw error;
+  return count || 0;
+};
 
 export class DashboardService {
   async getDashboardStats(): Promise<DashboardStats> {
@@ -23,15 +45,15 @@ export class DashboardService {
         totalCustomers,
         totalSuppliers,
       ] = await Promise.all([
-        prisma.product.count({ where: { deletedAt: null } }),
+        countActiveProducts(),
         ProductRepository.getLowStockProducts().then((p) => p.length),
         ProductRepository.getOutOfStockProducts().then((p) => p.length),
         SaleRepository.getTodaySales(),
         PurchaseRepository.getTodayPurchases(),
         SaleRepository.getMonthlySales(currentYear, currentMonth),
         PurchaseRepository.getMonthlyPurchases(currentYear, currentMonth),
-        prisma.customer.count({ where: { deletedAt: null } }),
-        prisma.supplier.count({ where: { deletedAt: null } }),
+        countActive('customers'),
+        countActive('suppliers'),
       ]);
 
       // Calculate monthly profit (simple calculation: sales - purchases)
@@ -57,49 +79,53 @@ export class DashboardService {
 
   async getSalesChart(days: number = 7) {
     try {
-      const salesData = [];
       const today = new Date();
+      const rangeStart = new Date(today);
+      rangeStart.setDate(rangeStart.getDate() - (days - 1));
+      rangeStart.setHours(0, 0, 0, 0);
 
+      const [{ data: sales, error: salesError }, { data: purchases, error: purchasesError }] =
+        await Promise.all([
+          supabase
+            .from('sales')
+            .select('totalAmount, saleDate')
+            .is('deletedAt', null)
+            .eq('status', 'completed')
+            .gte('saleDate', rangeStart.toISOString()),
+          supabase
+            .from('purchases')
+            .select('totalAmount, purchaseDate')
+            .is('deletedAt', null)
+            .gte('purchaseDate', rangeStart.toISOString()),
+        ]);
+
+      if (salesError) throw salesError;
+      if (purchasesError) throw purchasesError;
+
+      const salesByDay = new Map<string, number>();
+      for (const s of sales || []) {
+        const key = (s as any).saleDate.split('T')[0];
+        salesByDay.set(key, (salesByDay.get(key) || 0) + (s as any).totalAmount);
+      }
+
+      const purchasesByDay = new Map<string, number>();
+      for (const p of purchases || []) {
+        const key = (p as any).purchaseDate.split('T')[0];
+        purchasesByDay.set(key, (purchasesByDay.get(key) || 0) + (p as any).totalAmount);
+      }
+
+      const salesData = [];
       for (let i = days - 1; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         date.setHours(0, 0, 0, 0);
+        const key = date.toISOString().split('T')[0];
 
-        const nextDate = new Date(date);
-        nextDate.setDate(nextDate.getDate() + 1);
-
-        const sales = await prisma.sale.aggregate({
-          where: {
-            deletedAt: null,
-            status: 'completed',
-            saleDate: {
-              gte: date,
-              lt: nextDate,
-            },
-          },
-          _sum: {
-            totalAmount: true,
-          },
-        });
-
-        const purchases = await prisma.purchase.aggregate({
-          where: {
-            deletedAt: null,
-            purchaseDate: {
-              gte: date,
-              lt: nextDate,
-            },
-          },
-          _sum: {
-            totalAmount: true,
-          },
-        });
-
-        const totalSales = sales._sum.totalAmount || 0;
-        const totalPurchases = purchases._sum.totalAmount || 0;
+        const totalSales = salesByDay.get(key) || 0;
+        const totalPurchases = purchasesByDay.get(key) || 0;
 
         salesData.push({
-          date: date.toISOString().split('T')[0],
+          date: key,
           sales: totalSales,
           profit: totalSales - totalPurchases,
         });
@@ -114,36 +140,12 @@ export class DashboardService {
 
   async getTopProducts(limit: number = 5) {
     try {
-      const topProducts = await prisma.saleItem.groupBy({
-        by: ['productId'],
-        _sum: {
-          quantity: true,
-          totalAmount: true,
-        },
-        orderBy: {
-          _sum: {
-            quantity: 'desc',
-          },
-        },
-        take: limit,
+      const { data, error } = await supabase.rpc('get_top_products', {
+        limit_count: limit,
       });
 
-      const productsWithDetails = await Promise.all(
-        topProducts.map(async (item) => {
-          const product = await prisma.product.findUnique({
-            where: { id: item.productId },
-          });
-
-          return {
-            productId: item.productId,
-            productName: product?.name || 'Unknown',
-            quantitySold: item._sum.quantity || 0,
-            totalRevenue: item._sum.totalAmount || 0,
-          };
-        })
-      );
-
-      return productsWithDetails;
+      if (error) throw error;
+      return data || [];
     } catch (error) {
       logger.error('Get top products error:', error);
       throw error;
@@ -152,47 +154,41 @@ export class DashboardService {
 
   async getRecentTransactions(limit: number = 10) {
     try {
-      const [recentSales, recentPurchases] = await Promise.all([
-        prisma.sale.findMany({
-          where: { deletedAt: null },
-          take: limit / 2,
-          orderBy: { createdAt: 'desc' },
-          select: {
-            id: true,
-            saleNumber: true,
-            saleDate: true,
-            totalAmount: true,
-            status: true,
-          },
-        }),
-        prisma.purchase.findMany({
-          where: { deletedAt: null },
-          take: limit / 2,
-          orderBy: { createdAt: 'desc' },
-          select: {
-            id: true,
-            purchaseNumber: true,
-            purchaseDate: true,
-            totalAmount: true,
-            status: true,
-          },
-        }),
-      ]);
+      const half = Math.ceil(limit / 2);
+
+      const [{ data: recentSales, error: salesError }, { data: recentPurchases, error: purchasesError }] =
+        await Promise.all([
+          supabase
+            .from('sales')
+            .select('id, saleNumber, saleDate, totalAmount, status')
+            .is('deletedAt', null)
+            .order('createdAt', { ascending: false })
+            .limit(half),
+          supabase
+            .from('purchases')
+            .select('id, purchaseNumber, purchaseDate, totalAmount, status')
+            .is('deletedAt', null)
+            .order('createdAt', { ascending: false })
+            .limit(half),
+        ]);
+
+      if (salesError) throw salesError;
+      if (purchasesError) throw purchasesError;
 
       const transactions = [
-        ...recentSales.map((s) => ({
+        ...(recentSales || []).map((s: any) => ({
           id: s.id,
           type: 'sale' as const,
           number: s.saleNumber,
-          date: s.saleDate,
+          date: new Date(s.saleDate),
           amount: s.totalAmount,
           status: s.status,
         })),
-        ...recentPurchases.map((p) => ({
+        ...(recentPurchases || []).map((p: any) => ({
           id: p.id,
           type: 'purchase' as const,
           number: p.purchaseNumber,
-          date: p.purchaseDate,
+          date: new Date(p.purchaseDate),
           amount: p.totalAmount,
           status: p.status,
         })),

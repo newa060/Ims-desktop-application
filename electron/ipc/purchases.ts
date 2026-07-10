@@ -1,37 +1,32 @@
 import { ipcMain } from 'electron';
-import prisma from '../../src/database/client';
+import supabase from '../../src/database/supabaseClient';
 import logger from '../../src/utils/logger';
-import { generateInvoiceNumber } from '../../src/utils/helpers';
 
 export const setupPurchaseHandlers = () => {
   // purchases:getAll - paginated list with supplier info
   ipcMain.handle('purchases:getAll', async (_event, params: any = {}) => {
     try {
       const { page = 1, limit = 20, search = '' } = params;
-      const skip = (page - 1) * limit;
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
 
-      const where: any = { deletedAt: null };
+      let query = supabase
+        .from('purchases')
+        .select(
+          '*, supplier:suppliers(*), user:users(firstName, lastName), items:purchase_items(*, product:products(*))',
+          { count: 'exact' }
+        )
+        .is('deletedAt', null);
+
       if (search) {
-        where.OR = [
-          { purchaseNumber: { contains: search } },
-          { supplier: { name: { contains: search } } },
-        ];
+        query = query.ilike('purchaseNumber', `%${search}%`);
       }
 
-      const [purchases, total] = await Promise.all([
-        prisma.purchase.findMany({
-          where,
-          include: {
-            supplier: true,
-            user: { select: { firstName: true, lastName: true } },
-            items: { include: { product: true } },
-          },
-          skip,
-          take: limit,
-          orderBy: { createdAt: 'desc' },
-        }),
-        prisma.purchase.count({ where }),
-      ]);
+      const { data: purchases, error, count } = await query
+        .order('createdAt', { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
 
       return {
         success: true,
@@ -40,8 +35,8 @@ export const setupPurchaseHandlers = () => {
           pagination: {
             page,
             limit,
-            total,
-            totalPages: Math.ceil(total / limit),
+            total: count || 0,
+            totalPages: Math.ceil((count || 0) / limit),
           },
         },
       };
@@ -54,14 +49,15 @@ export const setupPurchaseHandlers = () => {
   // purchases:getById
   ipcMain.handle('purchases:getById', async (_event, id: string) => {
     try {
-      const purchase = await prisma.purchase.findUnique({
-        where: { id },
-        include: {
-          supplier: true,
-          user: { select: { firstName: true, lastName: true } },
-          items: { include: { product: { include: { unit: true } } } },
-        },
-      });
+      const { data: purchase, error } = await supabase
+        .from('purchases')
+        .select(
+          '*, supplier:suppliers(*), user:users(firstName, lastName), items:purchase_items(*, product:products(*))'
+        )
+        .eq('id', id)
+        .maybeSingle();
+
+      if (error) throw error;
       return { success: true, data: purchase };
     } catch (error) {
       logger.error('Get purchase by ID handler error:', error);
@@ -70,82 +66,17 @@ export const setupPurchaseHandlers = () => {
   });
 
   // purchases:create - creates purchase with items, updates stock & inventory history
+  // Done atomically via the create_purchase Postgres function (see Supabase SQL
+  // schema) since PostgREST has no client-side multi-statement transactions.
   ipcMain.handle('purchases:create', async (_event, data: any) => {
     try {
-      const { supplierId, userId, items, paymentMethod, paidAmount, shippingCost = 0, notes, dueDate } = data;
+      const { data: purchase, error } = await supabase
+        .rpc('create_purchase', { payload: data })
+        .single();
 
-      let subtotal = 0;
-      let totalTax = 0;
-      for (const item of items) {
-        const itemTotal = item.quantity * item.unitPrice - (item.discountAmount || 0);
-        subtotal += itemTotal;
-        totalTax += (itemTotal * (item.taxRate || 0)) / 100;
-      }
-      const totalAmount = subtotal + totalTax + shippingCost;
-      const balanceAmount = totalAmount - (paidAmount || 0);
-      const paymentStatus = balanceAmount <= 0 ? 'paid' : paidAmount > 0 ? 'partial' : 'unpaid';
+      if (error) throw new Error(error.message);
 
-      const purchase = await prisma.$transaction(async (tx) => {
-        const newPurchase = await tx.purchase.create({
-          data: {
-            purchaseNumber: generateInvoiceNumber('PUR'),
-            supplierId,
-            userId,
-            subtotal,
-            taxAmount: totalTax,
-            shippingCost,
-            totalAmount,
-            paidAmount: paidAmount || 0,
-            balanceAmount,
-            paymentMethod,
-            paymentStatus,
-            status: 'received',
-            notes,
-            dueDate: dueDate ? new Date(dueDate) : undefined,
-          },
-        });
-
-        for (const item of items) {
-          const itemTotal = item.quantity * item.unitPrice - (item.discountAmount || 0);
-          await tx.purchaseItem.create({
-            data: {
-              purchaseId: newPurchase.id,
-              productId: item.productId,
-              quantity: item.quantity,
-              unitPrice: item.unitPrice,
-              taxRate: item.taxRate || 0,
-              taxAmount: (itemTotal * (item.taxRate || 0)) / 100,
-              discountAmount: item.discountAmount || 0,
-              totalAmount: itemTotal,
-            },
-          });
-
-          const product = await tx.product.findUnique({ where: { id: item.productId } });
-          if (!product) throw new Error(`Product ${item.productId} not found`);
-
-          await tx.product.update({
-            where: { id: item.productId },
-            data: { currentStock: { increment: item.quantity } },
-          });
-
-          await tx.inventoryHistory.create({
-            data: {
-              productId: item.productId,
-              type: 'purchase',
-              quantityChange: item.quantity,
-              quantityBefore: product.currentStock,
-              quantityAfter: product.currentStock + item.quantity,
-              reference: 'Purchase',
-              referenceId: newPurchase.id,
-              notes: `Purchase ${newPurchase.purchaseNumber}`,
-            },
-          });
-        }
-
-        return newPurchase;
-      });
-
-      logger.info(`Purchase created: ${purchase.id}`);
+      logger.info(`Purchase created: ${(purchase as any).id}`);
       return { success: true, data: purchase };
     } catch (error) {
       logger.error('Create purchase handler error:', error);

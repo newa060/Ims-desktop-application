@@ -1,12 +1,13 @@
 import { ipcMain } from 'electron';
-import prisma from '../../src/database/client';
+import supabase from '../../src/database/supabaseClient';
 import logger from '../../src/utils/logger';
 
 export const setupSettingsHandlers = () => {
   ipcMain.handle('settings:getAll', async () => {
     try {
-      const settings = await prisma.setting.findMany();
-      return { success: true, data: settings };
+      const { data, error } = await supabase.from('settings').select('*');
+      if (error) throw error;
+      return { success: true, data };
     } catch (error) {
       logger.error('Get settings handler error:', error);
       return { success: false, error: 'Failed to fetch settings' };
@@ -15,10 +16,14 @@ export const setupSettingsHandlers = () => {
 
   ipcMain.handle('settings:update', async (_event, key: string, value: string) => {
     try {
-      const setting = await prisma.setting.update({
-        where: { key },
-        data: { value },
-      });
+      const { data: setting, error } = await supabase
+        .from('settings')
+        .update({ value })
+        .eq('key', key)
+        .select('*')
+        .single();
+
+      if (error) throw error;
       return { success: true, data: setting };
     } catch (error) {
       logger.error('Update setting handler error:', error);
