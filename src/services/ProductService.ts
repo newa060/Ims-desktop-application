@@ -69,7 +69,7 @@ export class ProductService {
 
   async deleteProduct(id: string): Promise<Product> {
     try {
-      const product = await ProductRepository.softDelete(id);
+      const product = await ProductRepository.hardDelete(id);
       logger.info(`Product deleted: ${id}`);
       return product;
     } catch (error) {

@@ -52,6 +52,7 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm<ProductFormData>({
@@ -66,24 +67,49 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
     },
   });
 
+  const watchedCategoryId = watch('categoryId');
+  const watchedBrandId    = watch('brandId');
+  const watchedUnitId     = watch('unitId');
+  const watchedStatus     = watch('status');
+
   useEffect(() => {
     if (open) {
-      loadDropdownData();
-      if (product) {
-        // Populate form for editing
-        Object.keys(product).forEach((key) => {
-          setValue(key as any, product[key]);
-        });
-      } else {
-        reset({
-          taxRate: 0,
-          minimumStock: 0,
-          currentStock: 0,
-          status: 'active',
-          purchasePrice: 0,
-          sellingPrice: 0,
-        });
-      }
+      loadDropdownData().then(() => {
+        if (product) {
+          // Populate form for editing.
+          // The product object from the API has nested objects for category/brand/unit
+          // (e.g. category: { id, name }) rather than the flat *Id fields the form
+          // schema expects — map them explicitly before calling setValue.
+          const fields: Record<string, any> = {
+            name:           product.name,
+            sku:            product.sku,
+            barcode:        product.barcode || '',
+            description:    product.description || '',
+            categoryId:     product.category?.id || product.categoryId || '',
+            brandId:        product.brand?.id    || product.brandId    || '',
+            unitId:         product.unit?.id     || product.unitId     || '',
+            purchasePrice:  product.purchasePrice  ?? 0,
+            sellingPrice:   product.sellingPrice   ?? 0,
+            wholesalePrice: product.wholesalePrice ?? 0,
+            taxRate:        product.taxRate        ?? 0,
+            minimumStock:   product.minimumStock   ?? 0,
+            currentStock:   product.currentStock   ?? 0,
+            status:         product.status         || 'active',
+          };
+          Object.entries(fields).forEach(([key, value]) => {
+            setValue(key as any, value);
+          });
+        } else {
+          reset({
+            taxRate: 0,
+            minimumStock: 0,
+            currentStock: 0,
+            status: 'active',
+            purchasePrice: 0,
+            sellingPrice: 0,
+          });
+        }
+      });
     }
   }, [open, product]);
 
@@ -171,8 +197,10 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
             {/* Category */}
             <div className="space-y-1">
               <Label>Category *</Label>
-              <Select onValueChange={(val) => setValue('categoryId', val)}
-                defaultValue={product?.categoryId}>
+              <Select
+                value={watchedCategoryId || ''}
+                onValueChange={(val) => setValue('categoryId', val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -188,8 +216,10 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
             {/* Brand */}
             <div className="space-y-1">
               <Label>Brand</Label>
-              <Select onValueChange={(val) => setValue('brandId', val)}
-                defaultValue={product?.brandId}>
+              <Select
+                value={watchedBrandId || ''}
+                onValueChange={(val) => setValue('brandId', val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select brand" />
                 </SelectTrigger>
@@ -204,8 +234,10 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
             {/* Unit */}
             <div className="space-y-1">
               <Label>Unit *</Label>
-              <Select onValueChange={(val) => setValue('unitId', val)}
-                defaultValue={product?.unitId}>
+              <Select
+                value={watchedUnitId || ''}
+                onValueChange={(val) => setValue('unitId', val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select unit" />
                 </SelectTrigger>
@@ -223,8 +255,10 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
             {/* Status */}
             <div className="space-y-1">
               <Label>Status</Label>
-              <Select onValueChange={(val) => setValue('status', val)}
-                defaultValue={product?.status || 'active'}>
+              <Select
+                value={watchedStatus || 'active'}
+                onValueChange={(val) => setValue('status', val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>

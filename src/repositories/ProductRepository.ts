@@ -1,5 +1,6 @@
 import { BaseRepository } from './BaseRepository';
 import { Product, PaginationParams, PaginatedResponse } from '../types';
+import logger from '../utils/logger';
 
 // `products` is the SAME table the AESTHETE website reads/writes (that's
 // the whole point — one shared catalog/stock, no separate desktop copy).
@@ -48,6 +49,7 @@ interface LookupMaps {
   brandIdByName: Map<string, string>;
   brandNameById: Map<string, string>;
   unitById: Map<string, { name: string; shortName: string }>;
+  unitByName: Map<string, { id: string; name: string; shortName: string }>;
 }
 
 export class ProductRepository extends BaseRepository<Product> {
@@ -82,11 +84,16 @@ export class ProductRepository extends BaseRepository<Product> {
     }
 
     const unitById = new Map<string, { name: string; shortName: string }>();
+    const unitByName = new Map<string, { id: string; name: string; shortName: string }>();
     for (const u of units || []) {
-      unitById.set((u as any).id, { name: (u as any).name, shortName: (u as any).shortName });
+      const entry = { id: (u as any).id, name: (u as any).name, shortName: (u as any).shortName };
+      unitById.set((u as any).id, entry);
+      // index by both the full name and the shortName so either can match
+      unitByName.set((u as any).name, entry);
+      if ((u as any).shortName) unitByName.set((u as any).shortName, entry);
     }
 
-    return { categoryIdByName, categoryNameById, brandIdByName, brandNameById, unitById };
+    return { categoryIdByName, categoryNameById, brandIdByName, brandNameById, unitById, unitByName };
   }
 
   private async toAppShape(row: any): Promise<Product> {
@@ -95,6 +102,7 @@ export class ProductRepository extends BaseRepository<Product> {
   }
 
   private mapRow(row: any, lookups: LookupMaps): Product {
+    const unitEntry = row.unit ? lookups.unitByName.get(row.unit) : undefined;
     return {
       ...row,
       status: STATUS_FROM_DB[row.status] || row.status,
@@ -104,7 +112,9 @@ export class ProductRepository extends BaseRepository<Product> {
       brand: row.brand
         ? { id: lookups.brandIdByName.get(row.brand) || '', name: row.brand }
         : undefined,
-      unit: row.unit ? { id: '', name: row.unit, shortName: row.unit } : undefined,
+      unit: unitEntry
+        ? { id: unitEntry.id, name: unitEntry.name, shortName: unitEntry.shortName }
+        : row.unit ? { id: '', name: row.unit, shortName: row.unit } : undefined,
     } as Product;
   }
 
@@ -116,7 +126,8 @@ export class ProductRepository extends BaseRepository<Product> {
 
     let query = this.supabase
       .from(this.getTableName())
-      .select(READ_COLUMNS, { count: 'exact' });
+      .select(READ_COLUMNS, { count: 'exact' })
+      .neq('status', 'Archived'); // exclude soft-deleted products
 
     if (search) {
       query = query.or(
@@ -159,28 +170,55 @@ export class ProductRepository extends BaseRepository<Product> {
     return data ? this.toAppShape(data) : null;
   }
 
-  async getLowStockProducts(): Promise<Product[]> {
-    const { data, error } = await this.supabase
-      .from(this.getTableName())
-      .select(READ_COLUMNS)
-      .eq('status', 'Active');
+  // Supabase enforces a hard 1000-row server limit regardless of .limit() calls.
+  // With a large catalog (2000+ products) we must paginate to get every row.
+  // Archived products (soft-deleted from IMS) are excluded.
+  private async fetchAllProducts(): Promise<any[]> {
+    const PAGE_SIZE = 1000;
+    const all: any[] = [];
+    let page = 0;
 
-    if (error) throw error;
+    while (true) {
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      const { data, error } = await this.supabase
+        .from(this.getTableName())
+        .select(READ_COLUMNS)
+        .neq('status', 'Archived')
+        .range(from, to);
+
+      if (error) throw error;
+      const rows = data || [];
+      all.push(...rows);
+      if (rows.length < PAGE_SIZE) break; // last page
+      page++;
+    }
+
+    return all;
+  }
+
+  async getLowStockProducts(): Promise<Product[]> {
+    // "Low stock" = stock above zero but at or below the reorder threshold.
+    // Out-of-stock items are excluded so the two KPI counts don't overlap.
+    const raw = await this.fetchAllProducts();
     const lookups = await this.loadLookups();
-    return (data || [])
-      .map((row) => this.mapRow(row, lookups))
-      .filter((p) => p.currentStock <= p.minimumStock);
+    const mapped = raw.map((row) => this.mapRow(row, lookups));
+
+    return mapped.filter(
+      (p) =>
+        typeof p.currentStock === 'number' &&
+        typeof p.minimumStock === 'number' &&
+        p.currentStock > 0 &&
+        p.currentStock <= p.minimumStock
+    );
   }
 
   async getOutOfStockProducts(): Promise<Product[]> {
-    const { data, error } = await this.supabase
-      .from(this.getTableName())
-      .select(READ_COLUMNS)
-      .eq('stock', 0);
-
-    if (error) throw error;
+    const raw = await this.fetchAllProducts();
     const lookups = await this.loadLookups();
-    return (data || []).map((row) => this.mapRow(row, lookups));
+    return raw
+      .map((row) => this.mapRow(row, lookups))
+      .filter((p) => typeof p.currentStock === 'number' && p.currentStock === 0);
   }
 
   async updateStock(id: string, quantity: number): Promise<Product> {

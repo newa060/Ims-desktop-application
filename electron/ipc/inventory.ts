@@ -57,11 +57,22 @@ export const setupInventoryHandlers = () => {
     }
   });
 
-  // inventory:getLowStock
+  // inventory:getLowStock — returns ALL products that need attention:
+  // both low-stock (0 < stock ≤ minimum) and out-of-stock (stock = 0).
   ipcMain.handle('inventory:getLowStock', async () => {
     try {
-      const lowStock = await ProductRepository.getLowStockProducts();
-      return { success: true, data: lowStock };
+      const [lowStock, outOfStock] = await Promise.all([
+        ProductRepository.getLowStockProducts(),
+        ProductRepository.getOutOfStockProducts(),
+      ]);
+      // Merge and deduplicate by id (a product can't be in both lists, but be safe)
+      const seen = new Set<string>();
+      const combined = [...outOfStock, ...lowStock].filter((p) => {
+        if (seen.has(p.id)) return false;
+        seen.add(p.id);
+        return true;
+      });
+      return { success: true, data: combined };
     } catch (error) {
       logger.error('Get low stock handler error:', error);
       return { success: false, error: 'Failed to fetch low stock products' };

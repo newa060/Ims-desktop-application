@@ -1,5 +1,8 @@
-import 'dotenv/config';
-import { app, BrowserWindow, ipcMain } from 'electron';
+// IMPORTANT: env.ts must be the very first import so that dotenv populates
+// process.env before any module that reads environment variables is loaded.
+import './env';
+
+import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { setupIpcHandlers } from './ipc';
 import logger from '../src/utils/logger';

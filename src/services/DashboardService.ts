@@ -15,13 +15,13 @@ const countActive = async (table: string): Promise<number> => {
   return count || 0;
 };
 
-// `products` is the table shared with the website — it has no `deletedAt`
-// column (the website uses `status` for that instead).
-const countActiveProducts = async (): Promise<number> => {
+// Count all non-archived products so the Total Products KPI reflects the
+// live catalog (Active + Draft) but excludes anything soft-deleted from the IMS.
+const countAllProducts = async (): Promise<number> => {
   const { count, error } = await supabase
     .from('products')
     .select('*', { count: 'exact', head: true })
-    .eq('status', 'Active');
+    .neq('status', 'Archived');
 
   if (error) throw error;
   return count || 0;
@@ -45,7 +45,7 @@ export class DashboardService {
         totalCustomers,
         totalSuppliers,
       ] = await Promise.all([
-        countActiveProducts(),
+        countAllProducts(),
         ProductRepository.getLowStockProducts().then((p) => p.length),
         ProductRepository.getOutOfStockProducts().then((p) => p.length),
         SaleRepository.getTodaySales(),
