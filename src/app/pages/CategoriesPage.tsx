@@ -83,8 +83,8 @@ const CategoriesPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
-          <p className="text-gray-500 mt-1">Organize your products by categories</p>
+          <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Categories</h1>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">Organize your products by categories</p>
         </div>
         <Button onClick={() => { setEditId(null); setFormOpen(true); }}>
           <Plus className="mr-2 h-4 w-4" /> Add Category
@@ -104,19 +104,19 @@ const CategoriesPage = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
           ) : categories.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-ink/55">
               <p>No categories found</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b bg-gray-50">
-                    <th className="text-left py-3 px-4 font-semibold">#</th>
-                    <th className="text-left py-3 px-4 font-semibold">Name</th>
-                    <th className="text-left py-3 px-4 font-semibold">Parent</th>
-                    <th className="text-left py-3 px-4 font-semibold">Description</th>
-                    <th className="text-center py-3 px-4 font-semibold">Actions</th>
+                  <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
+                    <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">#</th>
+                    <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Name</th>
+                    <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Parent</th>
+                    <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Description</th>
+                    <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -175,20 +175,20 @@ const RenderCategoryRow = ({ cat, idx, categories, onEdit, onDelete, level }: an
   const children = categories.filter((c: any) => c.parentId === cat.id);
   return (
     <>
-      <tr className="border-b hover:bg-gray-50">
-        <td className="py-3 px-4">{level === 0 ? idx + 1 : ''}</td>
-        <td className="py-3 px-4" style={{ paddingLeft: `${level * 1.5 + 1}rem` }}>
-          <span className="font-medium">{cat.name}</span>
+      <tr className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
+        <td className="py-3.5 px-4 text-sm text-ink/40">{level === 0 ? idx + 1 : ''}</td>
+        <td className="py-3.5 px-4" style={{ paddingLeft: `${level * 1.5 + 1}rem` }}>
+          <span className="text-sm font-semibold text-ink">{cat.name}</span>
         </td>
-        <td className="py-3 px-4 text-gray-500">{cat.parent?.name || '-'}</td>
-        <td className="py-3 px-4 text-gray-500">{cat.description || '-'}</td>
-        <td className="py-3 px-4">
-          <div className="flex justify-center gap-2">
+        <td className="py-3.5 px-4 text-sm text-ink/55">{cat.parent?.name || '-'}</td>
+        <td className="py-3.5 px-4 text-sm text-ink/55">{cat.description || '-'}</td>
+        <td className="py-3.5 px-4">
+          <div className="flex justify-center gap-1">
             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onEdit(cat)}>
-              <Edit className="h-4 w-4 text-blue-600" />
+              <Edit className="h-4 w-4 text-ink/50" />
             </Button>
             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onDelete(cat.id, cat.name)}>
-              <Trash2 className="h-4 w-4 text-red-500" />
+              <Trash2 className="h-4 w-4 text-danger-text" />
             </Button>
           </div>
         </td>

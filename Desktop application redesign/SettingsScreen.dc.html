@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</helmet>
+
+<div style="font-family:'Inter',sans-serif;color:#1c1c1a">
+  <div style="margin-bottom:28px">
+    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:34px;letter-spacing:-0.01em">Settings</div>
+    <div style="font-size:14.5px;color:rgba(28,28,26,0.55);margin-top:6px">Configure your store and preferences</div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px;max-width:760px">
+    <sc-for list="{{sections}}" as="sec" hint-placeholder-count="4">
+      <div style="background:#ffffff;border:1px solid rgba(28,28,26,0.08);border-radius:16px;padding:24px 26px">
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;margin-bottom:4px">{{sec.title}}</div>
+        <div style="font-size:13px;color:rgba(28,28,26,0.5);margin-bottom:16px">{{sec.desc}}</div>
+        <sc-for list="{{sec.rows}}" as="row" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-top:1px solid rgba(28,28,26,0.06)">
+            <div style="font-size:14px;font-weight:500">{{row.label}}</div>
+            <sc-if value="{{row.isToggle}}" hint-placeholder-val="{{false}}">
+              <div style="{{row.toggleStyle}}"><div style="{{row.knobStyle}}"></div></div>
+            </sc-if>
+            <sc-if value="{{row.isValue}}" hint-placeholder-val="{{true}}">
+              <div style="font-size:13.5px;color:rgba(28,28,26,0.55)">{{row.value}}</div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+function toggleRow(label, on) {
+  return {
+    label,
+    isToggle: true,
+    isValue: false,
+    toggleStyle: { width:'40px', height:'24px', borderRadius:'100px', background: on ? '#c9d16b' : 'rgba(28,28,26,0.15)', padding:'3px', display:'flex', justifyContent: on ? 'flex-end' : 'flex-start', cursor:'pointer' },
+    knobStyle: { width:'18px', height:'18px', borderRadius:'50%', background: on ? '#1c1c1a' : '#ffffff', boxShadow:'0 1px 2px rgba(0,0,0,0.2)' },
+  };
+}
+function valueRow(label, value) {
+  return { label, isToggle:false, isValue:true, value };
+}
+
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      sections: [
+        {
+          title: 'General', desc: 'Store identity and regional preferences',
+          rows: [valueRow('Store name', 'IMS Retail'), valueRow('Currency', 'USD ($)'), valueRow('Timezone', 'America/New_York')],
+        },
+        {
+          title: 'Notifications', desc: 'Choose what you want to hear about',
+          rows: [toggleRow('Low stock alerts', true), toggleRow('Daily sales summary', true), toggleRow('New order emails', false)],
+        },
+        {
+          title: 'Security', desc: 'Protect access to your account',
+          rows: [toggleRow('Two-factor authentication', false), valueRow('Session timeout', '30 minutes'), valueRow('Password last changed', '42 days ago')],
+        },
+        {
+          title: 'Billing', desc: 'Plan and payment details',
+          rows: [valueRow('Current plan', 'Business'), valueRow('Next invoice', 'Aug 1, 2026'), valueRow('Payment method', 'Visa •••• 4821')],
+        },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

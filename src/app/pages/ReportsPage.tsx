@@ -39,38 +39,38 @@ const ReportsPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
-        <p className="text-gray-600 mt-1">Generate and export business reports</p>
+        <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Reports</h1>
+        <p className="text-[14.5px] text-ink/55 mt-1.5">Generate insights across your business</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {reportCategories.map((category) => (
           <Card key={category.title}>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <category.icon className="h-6 w-6 text-primary" />
+                <div className="w-10 h-10 flex-none rounded-[10px] bg-paper flex items-center justify-center">
+                  <category.icon className="h-[19px] w-[19px] text-olive-deep" strokeWidth={1.5} />
                 </div>
                 <CardTitle>{category.title}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {category.reports.map((report) => (
                   <div
                     key={report.name}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="flex items-center justify-between p-3 bg-paper/50 border border-ink/[0.06] rounded-[10px] hover:border-olive transition-colors"
                   >
                     <div className="flex-1">
-                      <p className="font-medium text-sm">{report.name}</p>
-                      <p className="text-xs text-gray-600">{report.description}</p>
+                      <p className="font-semibold text-sm text-ink">{report.name}</p>
+                      <p className="text-xs text-ink/55 mt-0.5">{report.description}</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1">
                       <Button size="sm" variant="ghost">
-                        <FileText className="h-4 w-4" />
+                        <FileText className="h-4 w-4 text-ink/50" />
                       </Button>
                       <Button size="sm" variant="ghost">
-                        <Download className="h-4 w-4" />
+                        <Download className="h-4 w-4 text-ink/50" />
                       </Button>
                     </div>
                   </div>

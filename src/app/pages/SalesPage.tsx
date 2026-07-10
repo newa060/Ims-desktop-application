@@ -59,8 +59,8 @@ const SalesPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Sales</h1>
-          <p className="text-gray-500 mt-1">View all sales transactions</p>
+          <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Sales</h1>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">View all sales transactions</p>
         </div>
       </div>
 
@@ -68,7 +68,7 @@ const SalesPage = () => {
         <CardContent className="pt-6">
           <div className="flex gap-3 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" size={18} />
               <Input placeholder="Search by sale number or customer..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && loadSales()} className="pl-10" />
             </div>
             <Button variant="outline" onClick={() => loadSales()}><RefreshCw className="mr-2 h-4 w-4" /> Refresh</Button>
@@ -77,34 +77,34 @@ const SalesPage = () => {
           {loading ? (
             <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
           ) : sales.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No sales found</div>
+            <div className="text-center py-12 text-ink/55">No sales found</div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="text-left py-3 px-4 font-semibold">Sale #</th>
-                      <th className="text-left py-3 px-4 font-semibold">Customer</th>
-                      <th className="text-left py-3 px-4 font-semibold">Date</th>
-                      <th className="text-left py-3 px-4 font-semibold">Payment</th>
-                      <th className="text-right py-3 px-4 font-semibold">Total</th>
-                      <th className="text-center py-3 px-4 font-semibold">Status</th>
-                      <th className="text-center py-3 px-4 font-semibold">Actions</th>
+                    <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Sale #</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Customer</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Date</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Payment</th>
+                      <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Total</th>
+                      <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Status</th>
+                      <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {sales.map((sale) => (
-                      <tr key={sale.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-xs">{sale.saleNumber}</td>
+                      <tr key={sale.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
+                        <td className="py-3 px-4 font-mono text-xs text-ink/60">{sale.saleNumber}</td>
                         <td className="py-3 px-4">{sale.customer?.name || 'Walk-in'}</td>
-                        <td className="py-3 px-4 text-gray-500">{new Date(sale.saleDate || sale.createdAt).toLocaleString()}</td>
-                        <td className="py-3 px-4 text-gray-500 capitalize">{sale.paymentMethod}</td>
-                        <td className="py-3 px-4 text-right font-semibold">${Number(sale.totalAmount).toFixed(2)}</td>
+                        <td className="py-3 px-4 text-ink/55">{new Date(sale.saleDate || sale.createdAt).toLocaleString()}</td>
+                        <td className="py-3 px-4 text-ink/55 capitalize">{sale.paymentMethod}</td>
+                        <td className="py-3 px-4 text-right font-bold text-ink">${Number(sale.totalAmount).toFixed(2)}</td>
                         <td className="py-3 px-4 text-center">{getPaymentBadge(sale.paymentStatus)}</td>
                         <td className="py-3 px-4 text-center">
                           <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => viewDetail(sale.id)}>
-                            <Eye className="h-4 w-4 text-blue-600" />
+                            <Eye className="h-4 w-4 text-ink/50" />
                           </Button>
                         </td>
                       </tr>
@@ -112,7 +112,7 @@ const SalesPage = () => {
                   </tbody>
                 </table>
               </div>
-              <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
+              <div className="flex items-center justify-between mt-4 text-sm text-ink/55">
                 <span>Total: {pagination.total} sale(s)</span>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => loadSales(pagination.page - 1)}>
@@ -139,14 +139,14 @@ const SalesPage = () => {
           ) : detailSale && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div><span className="text-gray-500">Sale Number:</span><p className="font-mono font-semibold">{detailSale.saleNumber}</p></div>
-                <div><span className="text-gray-500">Date:</span><p>{new Date(detailSale.saleDate || detailSale.createdAt).toLocaleString()}</p></div>
-                <div><span className="text-gray-500">Customer:</span><p>{detailSale.customer?.name || 'Walk-in'}</p></div>
-                <div><span className="text-gray-500">Payment:</span><p className="capitalize">{detailSale.paymentMethod}</p></div>
+                <div><span className="text-ink/55">Sale Number:</span><p className="font-mono font-semibold">{detailSale.saleNumber}</p></div>
+                <div><span className="text-ink/55">Date:</span><p>{new Date(detailSale.saleDate || detailSale.createdAt).toLocaleString()}</p></div>
+                <div><span className="text-ink/55">Customer:</span><p>{detailSale.customer?.name || 'Walk-in'}</p></div>
+                <div><span className="text-ink/55">Payment:</span><p className="capitalize">{detailSale.paymentMethod}</p></div>
               </div>
               <div className="border rounded-lg overflow-hidden">
                 <table className="w-full text-sm">
-                  <thead><tr className="bg-gray-50 border-b">
+                  <thead><tr className="bg-[#faf9f5] border-b">
                     <th className="text-left py-2 px-4">Product</th>
                     <th className="text-center py-2 px-4">Qty</th>
                     <th className="text-right py-2 px-4">Price</th>
@@ -170,7 +170,7 @@ const SalesPage = () => {
                 <div className="flex justify-between"><span>Discount:</span><span>-${Number(detailSale.discountAmount).toFixed(2)}</span></div>
                 <div className="flex justify-between text-lg font-bold border-t pt-2"><span>Total:</span><span>${Number(detailSale.totalAmount).toFixed(2)}</span></div>
                 <div className="flex justify-between"><span>Paid:</span><span>${Number(detailSale.paidAmount).toFixed(2)}</span></div>
-                <div className="flex justify-between text-green-600 font-semibold"><span>Change:</span><span>${Number(detailSale.changeAmount).toFixed(2)}</span></div>
+                <div className="flex justify-between text-success-text font-semibold"><span>Change:</span><span>${Number(detailSale.changeAmount).toFixed(2)}</span></div>
               </div>
             </div>
           )}

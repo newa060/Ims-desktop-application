@@ -74,8 +74,8 @@ const SuppliersPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Suppliers</h1>
-          <p className="text-gray-500 mt-1">Manage your suppliers</p>
+          <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Suppliers</h1>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">Manage your suppliers</p>
         </div>
         <Button onClick={() => { setEditId(null); setFormOpen(true); }}>
           <Plus className="mr-2 h-4 w-4" /> Add Supplier
@@ -86,7 +86,7 @@ const SuppliersPage = () => {
         <CardContent className="pt-6">
           <div className="flex gap-3 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" size={18} />
               <Input placeholder="Search suppliers..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && loadSuppliers()} className="pl-10" />
             </div>
             <Button variant="outline" onClick={() => loadSuppliers()}><RefreshCw className="mr-2 h-4 w-4" /> Refresh</Button>
@@ -95,38 +95,38 @@ const SuppliersPage = () => {
           {loading ? (
             <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
           ) : suppliers.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No suppliers found</div>
+            <div className="text-center py-12 text-ink/55">No suppliers found</div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="text-left py-3 px-4 font-semibold">#</th>
-                      <th className="text-left py-3 px-4 font-semibold">Name</th>
-                      <th className="text-left py-3 px-4 font-semibold">Phone</th>
-                      <th className="text-left py-3 px-4 font-semibold">Email</th>
-                      <th className="text-left py-3 px-4 font-semibold">City</th>
-                      <th className="text-right py-3 px-4 font-semibold">Balance</th>
-                      <th className="text-center py-3 px-4 font-semibold">Actions</th>
+                    <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">#</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Name</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Phone</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Email</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">City</th>
+                      <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Balance</th>
+                      <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {suppliers.map((s, i) => (
-                      <tr key={s.id} className="border-b hover:bg-gray-50">
+                      <tr key={s.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
                         <td className="py-3 px-4">{(pagination.page - 1) * pagination.limit + i + 1}</td>
-                        <td className="py-3 px-4 font-medium">{s.name}</td>
-                        <td className="py-3 px-4 text-gray-500">{s.phone || '-'}</td>
-                        <td className="py-3 px-4 text-gray-500">{s.email || '-'}</td>
-                        <td className="py-3 px-4 text-gray-500">{s.city || '-'}</td>
-                        <td className="py-3 px-4 text-right">${Number(s.balance).toFixed(2)}</td>
+                        <td className="py-3 px-4 text-sm font-semibold text-ink">{s.name}</td>
+                        <td className="py-3 px-4 text-ink/55">{s.phone || '-'}</td>
+                        <td className="py-3 px-4 text-ink/55">{s.email || '-'}</td>
+                        <td className="py-3 px-4 text-ink/55">{s.city || '-'}</td>
+                        <td className="py-3 px-4 text-right font-bold text-ink">${Number(s.balance).toFixed(2)}</td>
                         <td className="py-3 px-4">
                           <div className="flex justify-center gap-2">
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(s)}>
-                              <Edit className="h-4 w-4 text-blue-600" />
+                              <Edit className="h-4 w-4 text-ink/50" />
                             </Button>
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDelete(s.id, s.name)}>
-                              <Trash2 className="h-4 w-4 text-red-500" />
+                              <Trash2 className="h-4 w-4 text-danger-text" />
                             </Button>
                           </div>
                         </td>
@@ -135,7 +135,7 @@ const SuppliersPage = () => {
                   </tbody>
                 </table>
               </div>
-              <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
+              <div className="flex items-center justify-between mt-4 text-sm text-ink/55">
                 <span>Total: {pagination.total} supplier(s)</span>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => loadSuppliers(pagination.page - 1)}>

@@ -11,7 +11,29 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        display: ['"Space Grotesk"', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
+        ink: '#1c1c1a',
+        paper: '#f5f3ec',
+        olive: {
+          DEFAULT: '#c9d16b',
+          deep: '#5f7a3d',
+        },
+        success: {
+          bg: 'rgba(95,122,61,0.14)',
+          text: '#5f7a3d',
+        },
+        warning: {
+          bg: 'rgba(201,143,58,0.16)',
+          text: '#a06c1f',
+        },
+        danger: {
+          bg: 'rgba(193,97,63,0.14)',
+          text: '#b04e2c',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

@@ -147,7 +147,7 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
             <div className="col-span-2 space-y-1">
               <Label>Product Name *</Label>
               <Input placeholder="e.g. Samsung Galaxy S24" {...register('name')} />
-              {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+              {errors.name && <p className="text-xs text-danger-text">{errors.name.message}</p>}
             </div>
 
             {/* SKU */}
@@ -159,7 +159,7 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
                   Auto
                 </Button>
               </div>
-              {errors.sku && <p className="text-xs text-red-500">{errors.sku.message}</p>}
+              {errors.sku && <p className="text-xs text-danger-text">{errors.sku.message}</p>}
             </div>
 
             {/* Barcode */}
@@ -182,7 +182,7 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
                   ))}
                 </SelectContent>
               </Select>
-              {errors.categoryId && <p className="text-xs text-red-500">{errors.categoryId.message}</p>}
+              {errors.categoryId && <p className="text-xs text-danger-text">{errors.categoryId.message}</p>}
             </div>
 
             {/* Brand */}
@@ -217,7 +217,7 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
                   ))}
                 </SelectContent>
               </Select>
-              {errors.unitId && <p className="text-xs text-red-500">{errors.unitId.message}</p>}
+              {errors.unitId && <p className="text-xs text-danger-text">{errors.unitId.message}</p>}
             </div>
 
             {/* Status */}
@@ -240,14 +240,14 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
             <div className="space-y-1">
               <Label>Purchase Price *</Label>
               <Input type="number" step="0.01" placeholder="0.00" {...register('purchasePrice')} />
-              {errors.purchasePrice && <p className="text-xs text-red-500">{errors.purchasePrice.message}</p>}
+              {errors.purchasePrice && <p className="text-xs text-danger-text">{errors.purchasePrice.message}</p>}
             </div>
 
             {/* Selling Price */}
             <div className="space-y-1">
               <Label>Selling Price *</Label>
               <Input type="number" step="0.01" placeholder="0.00" {...register('sellingPrice')} />
-              {errors.sellingPrice && <p className="text-xs text-red-500">{errors.sellingPrice.message}</p>}
+              {errors.sellingPrice && <p className="text-xs text-danger-text">{errors.sellingPrice.message}</p>}
             </div>
 
             {/* Wholesale Price */}

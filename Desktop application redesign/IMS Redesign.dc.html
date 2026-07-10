@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#1c1c1a;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  html{height:100%}
+  *{box-sizing:border-box}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:rgba(28,28,26,0.15);border-radius:8px}
+  ::-webkit-scrollbar-track{background:transparent}
+  a{color:#5f7a3d}
+  a:hover{color:#3f5528}
+</style>
+</helmet>
+
+<div style="display:flex;width:100vw;height:100vh;background:#1c1c1a;overflow:hidden">
+
+  <div style="width:264px;flex:none;background:#1c1c1a;display:flex;flex-direction:column;height:100%">
+    <div style="padding:28px 24px 20px;display:flex;align-items:center;gap:10px">
+      <div style="width:34px;height:34px;border-radius:9px;background:#c9d16b;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:#1c1c1a">I</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;letter-spacing:0.02em;color:#f5f3ec">IMS</div>
+    </div>
+
+    <div style="flex:1;overflow-y:auto;padding:6px 14px 14px">
+      <sc-for list="{{navItems}}" as="item" hint-placeholder-count="15">
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:2px;border-radius:9px;cursor:pointer;position:relative" style-hover="background:rgba(245,243,236,0.06)" class="{{item.rowClass}}" onClick="{{item.onClick}}">
+          <div style="width:3px;height:18px;border-radius:2px;position:absolute;left:0;background:{{item.barColor}}"></div>
+          <svg viewBox="0 0 20 20" width="18" height="18" style="flex:none;stroke:{{item.iconColor}};fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round">
+            <path d="{{item.iconPath}}"></path>
+          </svg>
+          <div style="font-size:13.5px;font-weight:500;color:{{item.textColor}};letter-spacing:0.01em">{{item.label}}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="padding:16px 20px 22px;border-top:1px solid rgba(245,243,236,0.08)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:32px;height:32px;border-radius:50%;background:#c9d16b;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:#1c1c1a">S</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#f5f3ec">System Administrator</div>
+          <div style="font-size:11.5px;color:rgba(245,243,236,0.45)">admin</div>
+        </div>
+      </div>
+      <div style="font-size:12.5px;font-weight:500;color:#d98b6f;cursor:pointer" style-hover="color:#e8a186">Log out</div>
+    </div>
+  </div>
+
+  <div style="flex:1;height:100%;padding:12px 12px 12px 0">
+   <div style="background:#f5f3ec;border-radius:18px;overflow-y:auto;height:100%">
+    <div style="max-width:1400px;margin:0 auto;padding:44px 48px 64px">
+
+      <sc-if value="{{isDashboard}}" hint-placeholder-val="{{true}}">
+        <dc-import name="DashboardScreen" data="{{dashboardData}}" hint-size="100%,900px"></dc-import>
+      </sc-if>
+
+      <sc-if value="{{isTable}}" hint-placeholder-val="{{false}}">
+        <dc-import name="TableScreen" data="{{tableData}}" hint-size="100%,700px"></dc-import>
+      </sc-if>
+
+      <sc-if value="{{isPos}}" hint-placeholder-val="{{false}}">
+        <dc-import name="PosScreen" data="{{posData}}" hint-size="100%,700px"></dc-import>
+      </sc-if>
+
+      <sc-if value="{{isReports}}" hint-placeholder-val="{{false}}">
+        <dc-import name="ReportsScreen" data="{{reportsData}}" hint-size="100%,700px"></dc-import>
+      </sc-if>
+
+      <sc-if value="{{isSettings}}" hint-placeholder-val="{{false}}">
+        <dc-import name="SettingsScreen" data="{{settingsData}}" hint-size="100%,700px"></dc-import>
+      </sc-if>
+
+    </div>
+   </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const NAV_DEFS = [
+  { id:'dashboard', label:'Dashboard', type:'dashboard', iconPath:'M3 3h6.5v6.5H3V3zm7.5 0H17v6.5h-6.5V3zM3 10.5h6.5V17H3v-6.5zm7.5 0H17V17h-6.5v-6.5z' },
+  { id:'products', label:'Products', type:'table', iconPath:'M10 2.5l6.5 3.75v7.5L10 17.5l-6.5-3.75v-7.5L10 2.5z M3.5 6.25L10 10l6.5-3.75 M10 10v7.5' },
+  { id:'categories', label:'Categories', type:'table', iconPath:'M2.5 10.5L10.5 2.5H17.5V9.5L9.5 17.5L2.5 10.5Z M12.75 6.5a1 1 0 102 0 1 1 0 00-2 0Z' },
+  { id:'brands', label:'Brands', type:'table', iconPath:'M10 2.5a4 4 0 100 8 4 4 0 000-8Z M7.5 9.5L6 17.5L10 15L14 17.5L12.5 9.5' },
+  { id:'units', label:'Units', type:'table', iconPath:'M3 8h14v4H3V8Z M6 8v2M9 8v2M12 8v2M15 8v2' },
+  { id:'pos', label:'POS', type:'pos', iconPath:'M3 4h2l1.6 9.2a1.5 1.5 0 001.48 1.3h6.44a1.5 1.5 0 001.48-1.3L17.5 7H5.5 M8 17a1 1 0 100-2 1 1 0 000 2Z M14.5 17a1 1 0 100-2 1 1 0 000 2Z' },
+  { id:'sales', label:'Sales', type:'table', iconPath:'M3 14l4.5-5 3 3 6-7 M12.5 5h4v4' },
+  { id:'purchases', label:'Purchases', type:'table', iconPath:'M5 6.5h10l-1 10.5H6L5 6.5Z M7.5 6.5v-1a2.5 2.5 0 015 0v1' },
+  { id:'customers', label:'Customers', type:'table', iconPath:'M7 10a2.5 2.5 0 100-5 2.5 2.5 0 000 5Z M13.5 9.5a2 2 0 100-4 2 2 0 000 4Z M2.5 17c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5 M12 13.2c2 .3 3.5 1.9 3.5 3.8' },
+  { id:'suppliers', label:'Suppliers', type:'table', iconPath:'M2.5 6h8v7h-8Z M10.5 9.5h3.5l2 2.5v1.5h-5.5Z M5 16a1.3 1.3 0 100-2.6 1.3 1.3 0 000 2.6Z M13.5 16a1.3 1.3 0 100-2.6 1.3 1.3 0 000 2.6Z' },
+  { id:'inventory', label:'Inventory', type:'table', iconPath:'M4 15V9M9.5 15V5M15 15v-3.5' },
+  { id:'expenses', label:'Expenses', type:'table', iconPath:'M10 2.5a7.5 7.5 0 100 15 7.5 7.5 0 000-15Z M10 6v8M12.2 8.2c0-1-1-1.7-2.2-1.7-1.3 0-2.2.7-2.2 1.6 0 2.3 4.6 1.1 4.6 3.4 0 1-1 1.7-2.4 1.7-1.3 0-2.3-.6-2.4-1.6' },
+  { id:'reports', label:'Reports', type:'reports', iconPath:'M6 2.5h6l3 3v12H6v-15Z M12 2.5V6h3 M8 10h5M8 13h5' },
+  { id:'users', label:'Users', type:'table', iconPath:'M10 9.5a3 3 0 100-6 3 3 0 000 6Z M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6' },
+  { id:'settings', label:'Settings', type:'settings', iconPath:'M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5Z M10 2.8v2M10 15.2v2M17.2 10h-2M4.8 10h-2M15.1 4.9l-1.4 1.4M6.3 13.7l-1.4 1.4M15.1 15.1l-1.4-1.4M6.3 6.3L4.9 4.9' },
+];
+
+class Component extends DCLogic {
+  state = { active: 'dashboard' };
+
+  go(id){ this.setState({ active: id }); }
+
+  renderVals() {
+    const active = this.state.active;
+    const navItems = NAV_DEFS.map(item => {
+      const isActive = item.id === active;
+      return {
+        id: item.id,
+        label: item.label,
+        iconPath: item.iconPath,
+        iconColor: isActive ? '#c9d16b' : 'rgba(245,243,236,0.55)',
+        textColor: isActive ? '#f5f3ec' : 'rgba(245,243,236,0.65)',
+        barColor: isActive ? '#c9d16b' : 'transparent',
+        onClick: () => this.go(item.id),
+      };
+    });
+    const activeDef = NAV_DEFS.find(n => n.id === active) || NAV_DEFS[0];
+
+    return {
+      navItems,
+      isDashboard: activeDef.type === 'dashboard',
+      isTable: activeDef.type === 'table',
+      isPos: activeDef.type === 'pos',
+      isReports: activeDef.type === 'reports',
+      isSettings: activeDef.type === 'settings',
+      dashboardData: {},
+      tableData: { screen: active },
+      posData: {},
+      reportsData: {},
+      settingsData: {},
+    };
+  }
+}
+
+</script>
+</body>
+</html>

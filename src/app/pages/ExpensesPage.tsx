@@ -110,8 +110,8 @@ const ExpensesPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
-          <p className="text-gray-500 mt-1">Track your business expenses</p>
+          <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Expenses</h1>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">Track your business expenses</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setCatFormOpen(true)}><Tags className="mr-2 h-4 w-4" /> Categories</Button>
@@ -126,36 +126,36 @@ const ExpensesPage = () => {
           {loading ? (
             <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
           ) : expenses.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No expenses found</div>
+            <div className="text-center py-12 text-ink/55">No expenses found</div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="text-left py-3 px-4 font-semibold">Date</th>
-                      <th className="text-left py-3 px-4 font-semibold">Category</th>
-                      <th className="text-left py-3 px-4 font-semibold">Description</th>
-                      <th className="text-left py-3 px-4 font-semibold">Reference</th>
-                      <th className="text-right py-3 px-4 font-semibold">Amount</th>
-                      <th className="text-center py-3 px-4 font-semibold">Actions</th>
+                    <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Date</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Category</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Description</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Reference</th>
+                      <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Amount</th>
+                      <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {expenses.map((exp) => (
-                      <tr key={exp.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 text-gray-500">{new Date(exp.date).toLocaleDateString()}</td>
+                      <tr key={exp.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
+                        <td className="py-3 px-4 text-ink/55">{new Date(exp.date).toLocaleDateString()}</td>
                         <td className="py-3 px-4">{exp.category?.name}</td>
-                        <td className="py-3 px-4 text-gray-600">{exp.description}</td>
-                        <td className="py-3 px-4 text-gray-500 text-xs">{exp.reference || '-'}</td>
-                        <td className="py-3 px-4 text-right font-semibold text-red-600">${Number(exp.amount).toFixed(2)}</td>
+                        <td className="py-3 px-4 text-ink/60">{exp.description}</td>
+                        <td className="py-3 px-4 text-ink/55 text-xs">{exp.reference || '-'}</td>
+                        <td className="py-3 px-4 text-right font-semibold text-danger-text">${Number(exp.amount).toFixed(2)}</td>
                         <td className="py-3 px-4">
                           <div className="flex justify-center gap-2">
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(exp)}>
-                              <Edit className="h-4 w-4 text-blue-600" />
+                              <Edit className="h-4 w-4 text-ink/50" />
                             </Button>
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDelete(exp.id)}>
-                              <Trash2 className="h-4 w-4 text-red-500" />
+                              <Trash2 className="h-4 w-4 text-danger-text" />
                             </Button>
                           </div>
                         </td>
@@ -164,7 +164,7 @@ const ExpensesPage = () => {
                   </tbody>
                 </table>
               </div>
-              <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
+              <div className="flex items-center justify-between mt-4 text-sm text-ink/55">
                 <span>Total: {pagination.total} expense(s)</span>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => loadExpenses(pagination.page - 1)}><ChevronLeft size={16} /></Button>
@@ -248,7 +248,7 @@ const ExpensesPage = () => {
                 <div className="border rounded p-3 max-h-40 overflow-y-auto">
                   <p className="text-sm font-medium mb-2">Existing Categories:</p>
                   <div className="flex flex-wrap gap-2">
-                    {categories.map((c) => <span key={c.id} className="text-xs bg-gray-100 px-2 py-1 rounded">{c.name}</span>)}
+                    {categories.map((c) => <span key={c.id} className="text-xs bg-paper px-2 py-1 rounded">{c.name}</span>)}
                   </div>
                 </div>
               )}

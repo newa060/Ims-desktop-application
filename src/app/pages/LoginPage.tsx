@@ -8,6 +8,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardHeader, CardContent, CardTitle } from '../components/ui/card';
+import Logo from '../components/common/Logo';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
@@ -49,11 +50,14 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen flex items-center justify-center bg-ink">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Inventory Management</CardTitle>
-          <p className="text-center text-sm text-muted-foreground mt-2">
+          <div className="flex items-center justify-center mb-2">
+            <Logo size={36} />
+          </div>
+          <CardTitle className="text-2xl text-center font-display">Inventory Management</CardTitle>
+          <p className="text-center text-[14.5px] text-ink/55 mt-1">
             Sign in to your account
           </p>
         </CardHeader>
@@ -90,9 +94,9 @@ const LoginPage = () => {
             </Button>
           </form>
 
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-600 mb-2 font-semibold">Demo Credentials:</p>
-            <div className="space-y-1 text-xs text-gray-500">
+          <div className="mt-6 p-4 bg-paper rounded-[10px] border border-ink/[0.08]">
+            <p className="text-xs text-ink/60 mb-2 font-semibold">Demo Credentials:</p>
+            <div className="space-y-1 text-xs text-ink/50">
               <p>Admin: admin@system.com / admin123</p>
               <p>Manager: manager@system.com / manager123</p>
               <p>Cashier: cashier@system.com / cashier123</p>

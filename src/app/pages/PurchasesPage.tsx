@@ -118,8 +118,8 @@ const PurchasesPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Purchases</h1>
-          <p className="text-gray-500 mt-1">Manage your inventory purchases</p>
+          <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Purchases</h1>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">Manage your inventory purchases</p>
         </div>
         <Button onClick={handleOpenForm}>
           <Plus className="mr-2 h-4 w-4" /> Create Purchase
@@ -130,7 +130,7 @@ const PurchasesPage = () => {
         <CardContent className="pt-6">
           <div className="flex gap-3 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" size={18} />
               <Input placeholder="Search purchases..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && loadPurchases()} className="pl-10" />
             </div>
             <Button variant="outline" onClick={() => loadPurchases()}><RefreshCw className="mr-2 h-4 w-4" /> Refresh</Button>
@@ -139,28 +139,28 @@ const PurchasesPage = () => {
           {loading ? (
             <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
           ) : purchases.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No purchases found</div>
+            <div className="text-center py-12 text-ink/55">No purchases found</div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="text-left py-3 px-4 font-semibold">Purchase #</th>
-                      <th className="text-left py-3 px-4 font-semibold">Supplier</th>
-                      <th className="text-left py-3 px-4 font-semibold">Date</th>
-                      <th className="text-right py-3 px-4 font-semibold">Total</th>
-                      <th className="text-center py-3 px-4 font-semibold">Payment Status</th>
-                      <th className="text-center py-3 px-4 font-semibold">Status</th>
+                    <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Purchase #</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Supplier</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Date</th>
+                      <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Total</th>
+                      <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Payment Status</th>
+                      <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {purchases.map((p) => (
-                      <tr key={p.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-mono text-xs">{p.purchaseNumber}</td>
-                        <td className="py-3 px-4 font-medium">{p.supplier.name}</td>
-                        <td className="py-3 px-4 text-gray-500">{new Date(p.purchaseDate).toLocaleDateString()}</td>
-                        <td className="py-3 px-4 text-right font-semibold">${Number(p.totalAmount).toFixed(2)}</td>
+                      <tr key={p.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
+                        <td className="py-3 px-4 font-mono text-xs text-ink/60">{p.purchaseNumber}</td>
+                        <td className="py-3 px-4 text-sm font-semibold text-ink">{p.supplier.name}</td>
+                        <td className="py-3 px-4 text-ink/55">{new Date(p.purchaseDate).toLocaleDateString()}</td>
+                        <td className="py-3 px-4 text-right font-bold text-ink">${Number(p.totalAmount).toFixed(2)}</td>
                         <td className="py-3 px-4 text-center">
                           <Badge variant={p.paymentStatus === 'paid' ? 'success' : p.paymentStatus === 'partial' ? 'warning' : 'danger'}>{p.paymentStatus}</Badge>
                         </td>
@@ -172,7 +172,7 @@ const PurchasesPage = () => {
                   </tbody>
                 </table>
               </div>
-              <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
+              <div className="flex items-center justify-between mt-4 text-sm text-ink/55">
                 <span>Total: {pagination.total} purchase(s)</span>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => loadPurchases(pagination.page - 1)}>
@@ -251,7 +251,7 @@ const PurchasesPage = () => {
                       </div>
                       <div className="col-span-1">
                         <Button type="button" size="icon" variant="ghost" className="h-9 w-9" onClick={() => handleRemoveItem(idx)}>
-                          <Trash2 size={14} className="text-red-500" />
+                          <Trash2 size={14} className="text-danger-text" />
                         </Button>
                       </div>
                     </div>
@@ -259,7 +259,7 @@ const PurchasesPage = () => {
                 </div>
               </div>
 
-              <div className="border rounded-lg p-4 bg-gray-50">
+              <div className="border rounded-lg p-4 bg-[#faf9f5]">
                 <div className="space-y-2">
                   <div className="flex justify-between"><span>Subtotal:</span><span className="font-semibold">${subtotal.toFixed(2)}</span></div>
                   <div className="flex justify-between"><span>Tax:</span><span className="font-semibold">${totalTax.toFixed(2)}</span></div>

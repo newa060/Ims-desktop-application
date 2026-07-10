@@ -85,8 +85,8 @@ const InventoryPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Inventory</h1>
-          <p className="text-gray-500 mt-1">Monitor stock levels and adjustments</p>
+          <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Inventory</h1>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">Monitor stock levels and adjustments</p>
         </div>
         <Button onClick={handleOpenAdjust}>
           <Settings2 className="mr-2 h-4 w-4" /> Stock Adjustment
@@ -98,7 +98,7 @@ const InventoryPage = () => {
           <TabsTrigger value="history">Inventory History</TabsTrigger>
           <TabsTrigger value="lowstock">
             Low Stock
-            {lowStock.length > 0 && <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-1.5">{lowStock.length}</span>}
+            {lowStock.length > 0 && <span className="ml-1 bg-danger-text text-white text-xs rounded-full px-1.5">{lowStock.length}</span>}
           </TabsTrigger>
         </TabsList>
 
@@ -111,43 +111,43 @@ const InventoryPage = () => {
               {historyLoading ? (
                 <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
               ) : history.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">No inventory history found</div>
+                <div className="text-center py-12 text-ink/55">No inventory history found</div>
               ) : (
                 <>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b bg-gray-50">
-                          <th className="text-left py-3 px-4 font-semibold">Date</th>
-                          <th className="text-left py-3 px-4 font-semibold">Product</th>
-                          <th className="text-center py-3 px-4 font-semibold">Type</th>
-                          <th className="text-right py-3 px-4 font-semibold">Before</th>
-                          <th className="text-right py-3 px-4 font-semibold">Change</th>
-                          <th className="text-right py-3 px-4 font-semibold">After</th>
-                          <th className="text-left py-3 px-4 font-semibold">Reference</th>
+                        <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
+                          <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Date</th>
+                          <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Product</th>
+                          <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Type</th>
+                          <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Before</th>
+                          <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Change</th>
+                          <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">After</th>
+                          <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Reference</th>
                         </tr>
                       </thead>
                       <tbody>
                         {history.map((h) => (
-                          <tr key={h.id} className="border-b hover:bg-gray-50">
-                            <td className="py-3 px-4 text-gray-500">{new Date(h.createdAt).toLocaleString()}</td>
+                          <tr key={h.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
+                            <td className="py-3 px-4 text-ink/55">{new Date(h.createdAt).toLocaleString()}</td>
                             <td className="py-3 px-4">
                               <div className="font-medium">{h.product?.name}</div>
-                              <div className="text-xs text-gray-400">{h.product?.sku}</div>
+                              <div className="text-xs text-ink/35">{h.product?.sku}</div>
                             </td>
                             <td className="py-3 px-4 text-center">{getTypeBadge(h.type)}</td>
                             <td className="py-3 px-4 text-right">{h.quantityBefore}</td>
-                            <td className={`py-3 px-4 text-right font-semibold ${h.quantityChange > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            <td className={`py-3 px-4 text-right font-semibold ${h.quantityChange > 0 ? 'text-success-text' : 'text-danger-text'}`}>
                               {h.quantityChange > 0 ? '+' : ''}{h.quantityChange}
                             </td>
                             <td className="py-3 px-4 text-right font-semibold">{h.quantityAfter}</td>
-                            <td className="py-3 px-4 text-gray-500 text-xs">{h.reference}</td>
+                            <td className="py-3 px-4 text-ink/55 text-xs">{h.reference}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
-                  <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
+                  <div className="flex items-center justify-between mt-4 text-sm text-ink/55">
                     <span>Total: {historyPagination.total} record(s)</span>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" disabled={historyPagination.page <= 1} onClick={() => loadHistory(historyPagination.page - 1)}><ChevronLeft size={16} /></Button>
@@ -168,30 +168,30 @@ const InventoryPage = () => {
               {lowStockLoading ? (
                 <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
               ) : lowStock.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <p className="text-lg font-medium text-green-600">All products are well-stocked!</p>
+                <div className="text-center py-12 text-ink/55">
+                  <p className="text-lg font-medium text-success-text">All products are well-stocked!</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b bg-gray-50">
-                        <th className="text-left py-3 px-4 font-semibold">Product</th>
-                        <th className="text-left py-3 px-4 font-semibold">SKU</th>
-                        <th className="text-left py-3 px-4 font-semibold">Category</th>
-                        <th className="text-right py-3 px-4 font-semibold">Current Stock</th>
-                        <th className="text-right py-3 px-4 font-semibold">Min Stock</th>
-                        <th className="text-center py-3 px-4 font-semibold">Status</th>
+                      <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
+                        <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Product</th>
+                        <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">SKU</th>
+                        <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Category</th>
+                        <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Current Stock</th>
+                        <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Min Stock</th>
+                        <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {lowStock.map((p) => (
-                        <tr key={p.id} className="border-b hover:bg-gray-50">
+                        <tr key={p.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
                           <td className="py-3 px-4 font-medium">{p.name}</td>
-                          <td className="py-3 px-4 font-mono text-xs text-gray-500">{p.sku}</td>
-                          <td className="py-3 px-4 text-gray-500">{p.category?.name}</td>
-                          <td className="py-3 px-4 text-right font-bold text-red-600">{p.currentStock}</td>
-                          <td className="py-3 px-4 text-right text-gray-500">{p.minimumStock}</td>
+                          <td className="py-3 px-4 font-mono text-xs text-ink/55">{p.sku}</td>
+                          <td className="py-3 px-4 text-ink/55">{p.category?.name}</td>
+                          <td className="py-3 px-4 text-right font-bold text-danger-text">{p.currentStock}</td>
+                          <td className="py-3 px-4 text-right text-ink/55">{p.minimumStock}</td>
                           <td className="py-3 px-4 text-center">
                             {p.currentStock === 0
                               ? <Badge variant="danger"><AlertTriangle size={12} className="mr-1 inline" />Out of Stock</Badge>

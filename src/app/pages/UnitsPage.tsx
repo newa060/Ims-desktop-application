@@ -65,8 +65,8 @@ const UnitsPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Units</h1>
-          <p className="text-gray-500 mt-1">Manage measurement units</p>
+          <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Units</h1>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">Manage measurement units</p>
         </div>
         <Button onClick={() => { setEditId(null); setFormOpen(true); }}>
           <Plus className="mr-2 h-4 w-4" /> Add Unit
@@ -84,33 +84,33 @@ const UnitsPage = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
           ) : units.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No units found</div>
+            <div className="text-center py-12 text-ink/55">No units found</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b bg-gray-50">
-                    <th className="text-left py-3 px-4 font-semibold">#</th>
-                    <th className="text-left py-3 px-4 font-semibold">Unit Name</th>
-                    <th className="text-left py-3 px-4 font-semibold">Short Name</th>
-                    <th className="text-left py-3 px-4 font-semibold">Products</th>
-                    <th className="text-center py-3 px-4 font-semibold">Actions</th>
+                  <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
+                    <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">#</th>
+                    <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Unit Name</th>
+                    <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Short Name</th>
+                    <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Products</th>
+                    <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {units.map((unit, i) => (
-                    <tr key={unit.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-4">{i + 1}</td>
-                      <td className="py-3 px-4 font-medium">{unit.name}</td>
-                      <td className="py-3 px-4 text-gray-600 font-mono">{unit.shortName}</td>
-                      <td className="py-3 px-4 text-gray-500">{unit._count?.products ?? (unit.products?.length ?? 0)}</td>
-                      <td className="py-3 px-4">
-                        <div className="flex justify-center gap-2">
+                    <tr key={unit.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
+                      <td className="py-3.5 px-4 text-sm text-ink/40">{i + 1}</td>
+                      <td className="py-3.5 px-4 text-sm font-semibold text-ink">{unit.name}</td>
+                      <td className="py-3.5 px-4 text-sm text-ink/60 font-mono">{unit.shortName}</td>
+                      <td className="py-3.5 px-4 text-sm text-ink/55">{unit._count?.products ?? (unit.products?.length ?? 0)}</td>
+                      <td className="py-3.5 px-4">
+                        <div className="flex justify-center gap-1">
                           <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(unit)}>
-                            <Edit className="h-4 w-4 text-blue-600" />
+                            <Edit className="h-4 w-4 text-ink/50" />
                           </Button>
                           <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDelete(unit.id, unit.name)}>
-                            <Trash2 className="h-4 w-4 text-red-500" />
+                            <Trash2 className="h-4 w-4 text-danger-text" />
                           </Button>
                         </div>
                       </td>

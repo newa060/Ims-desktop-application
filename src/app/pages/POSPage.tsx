@@ -170,21 +170,21 @@ const POSPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Point of Sale</h1>
-        <p className="text-gray-500 mt-1">Process customer sales</p>
+        <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Point of Sale</h1>
+        <p className="text-[14.5px] text-ink/55 mt-1.5">Process customer sales</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-5 items-start">
         {/* Product Search */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="space-y-5">
           <Card>
             <CardHeader>
               <CardTitle>Search Products</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" size={20} />
                   <Input
                     placeholder="Scan barcode or search product..."
                     value={barcode}
@@ -200,7 +200,7 @@ const POSPage = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><User size={18} /> Customer</CardTitle>
+              <CardTitle className="flex items-center gap-2"><User size={18} strokeWidth={1.6} /> Customer</CardTitle>
             </CardHeader>
             <CardContent>
               <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
@@ -219,32 +219,32 @@ const POSPage = () => {
         </div>
 
         {/* Cart */}
-        <div className="lg:col-span-1">
-          <Card className="h-full">
+        <div className="lg:sticky lg:top-0">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-2"><ShoppingCart size={18} /> Cart</span>
-                {cart.length > 0 && <span className="text-sm font-normal text-gray-500">{cart.length} item(s)</span>}
+                <span className="flex items-center gap-2"><ShoppingCart size={18} strokeWidth={1.6} /> Cart</span>
+                {cart.length > 0 && <span className="text-sm font-normal text-ink/55">{cart.length} item(s)</span>}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {cart.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-ink/50">
                   <ShoppingCart size={48} className="mx-auto mb-2 opacity-30" />
                   <p>Cart is empty</p>
                 </div>
               ) : (
                 <>
-                  <div className="space-y-2 mb-4 max-h-80 overflow-y-auto">
+                  <div className="space-y-2.5 mb-4 max-h-80 overflow-y-auto">
                     {cart.map((item) => (
-                      <div key={item.productId} className="border rounded-lg p-2 bg-gray-50">
+                      <div key={item.productId} className="border border-ink/[0.07] rounded-[10px] p-2.5 bg-paper/60">
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">
-                            <p className="font-medium text-sm">{item.name}</p>
-                            <p className="text-xs text-gray-500">{item.sku} • ${item.unitPrice.toFixed(2)}</p>
+                            <p className="font-semibold text-sm text-ink">{item.name}</p>
+                            <p className="text-xs text-ink/50">{item.sku} • ${item.unitPrice.toFixed(2)}</p>
                           </div>
                           <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeFromCart(item.productId)}>
-                            <Trash2 size={12} className="text-red-600" />
+                            <Trash2 size={12} className="text-danger-text" />
                           </Button>
                         </div>
                         <div className="flex items-center justify-between">
@@ -252,28 +252,28 @@ const POSPage = () => {
                             <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => updateQuantity(item.productId, -1)}>
                               <Minus size={12} />
                             </Button>
-                            <span className="w-10 text-center font-medium text-sm">{item.quantity}</span>
+                            <span className="w-10 text-center font-medium text-sm text-ink">{item.quantity}</span>
                             <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => updateQuantity(item.productId, 1)}>
                               <Plus size={12} />
                             </Button>
                           </div>
-                          <span className="font-semibold text-sm">${((item.quantity * item.unitPrice) - item.discountAmount).toFixed(2)}</span>
+                          <span className="font-bold text-sm text-ink">${((item.quantity * item.unitPrice) - item.discountAmount).toFixed(2)}</span>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="space-y-2 border-t pt-4">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Subtotal</span>
-                      <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                  <div className="space-y-2 border-t border-ink/[0.08] pt-4">
+                    <div className="flex justify-between text-[13.5px]">
+                      <span className="text-ink/60">Subtotal</span>
+                      <span className="font-semibold text-ink">${subtotal.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Tax</span>
-                      <span className="font-semibold">${totalTax.toFixed(2)}</span>
+                    <div className="flex justify-between text-[13.5px]">
+                      <span className="text-ink/60">Tax</span>
+                      <span className="font-semibold text-ink">${totalTax.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Discount</span>
+                    <div className="flex justify-between items-center text-[13.5px]">
+                      <span className="text-ink/60">Discount</span>
                       <Input
                         type="number"
                         step="0.01"
@@ -283,15 +283,18 @@ const POSPage = () => {
                         className="h-7 w-20 text-right text-sm"
                       />
                     </div>
-                    <div className="flex justify-between text-lg border-t pt-2">
-                      <span className="font-bold">Total</span>
-                      <span className="font-bold text-primary">${total.toFixed(2)}</span>
+                    <div className="flex justify-between font-display text-[19px] font-bold border-t border-ink/[0.08] pt-3">
+                      <span className="text-ink">Total</span>
+                      <span className="text-ink">${total.toFixed(2)}</span>
                     </div>
                   </div>
 
-                  <Button className="w-full mt-4" size="lg" onClick={handleOpenPayment}>
-                    Complete Sale
-                  </Button>
+                  <button
+                    className="w-full mt-4 bg-olive text-ink text-center font-bold text-[14.5px] py-3.5 rounded-[10px] hover:bg-[#bcc65c] transition-colors"
+                    onClick={handleOpenPayment}
+                  >
+                    Charge ${total.toFixed(2)}
+                  </button>
                 </>
               )}
             </CardContent>
@@ -305,11 +308,11 @@ const POSPage = () => {
             <DialogTitle>Complete Sale</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-              <div className="flex justify-between text-sm"><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
-              <div className="flex justify-between text-sm"><span>Tax:</span><span>${totalTax.toFixed(2)}</span></div>
-              <div className="flex justify-between text-sm"><span>Discount:</span><span>-${discountAmount.toFixed(2)}</span></div>
-              <div className="flex justify-between text-lg font-bold border-t pt-2"><span>Total:</span><span className="text-primary">${total.toFixed(2)}</span></div>
+            <div className="bg-paper rounded-[10px] p-4 space-y-2">
+              <div className="flex justify-between text-sm text-ink"><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
+              <div className="flex justify-between text-sm text-ink"><span>Tax:</span><span>${totalTax.toFixed(2)}</span></div>
+              <div className="flex justify-between text-sm text-ink"><span>Discount:</span><span>-${discountAmount.toFixed(2)}</span></div>
+              <div className="flex justify-between text-lg font-bold border-t border-ink/[0.08] pt-2 text-ink"><span>Total:</span><span>${total.toFixed(2)}</span></div>
             </div>
             <div className="space-y-1">
               <Label>Payment Method</Label>
@@ -327,8 +330,8 @@ const POSPage = () => {
               <Label>Amount Paid *</Label>
               <Input type="number" step="0.01" min={total} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} />
             </div>
-            <div className="bg-green-50 rounded-lg p-3">
-              <div className="flex justify-between text-lg font-semibold text-green-700">
+            <div className="bg-success-bg rounded-[10px] p-3">
+              <div className="flex justify-between text-lg font-semibold text-success-text">
                 <span>Change:</span>
                 <span>${changeAmount.toFixed(2)}</span>
               </div>

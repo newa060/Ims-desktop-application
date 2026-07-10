@@ -90,8 +90,8 @@ const UsersPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Users</h1>
-          <p className="text-gray-500 mt-1">Manage system users</p>
+          <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Users</h1>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">Manage system users</p>
         </div>
         <Button onClick={handleOpenForm}><Plus className="mr-2 h-4 w-4" /> Add User</Button>
       </div>
@@ -103,29 +103,29 @@ const UsersPage = () => {
           {loading ? (
             <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
           ) : users.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No users found</div>
+            <div className="text-center py-12 text-ink/55">No users found</div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="text-left py-3 px-4 font-semibold">#</th>
-                      <th className="text-left py-3 px-4 font-semibold">Name</th>
-                      <th className="text-left py-3 px-4 font-semibold">Email</th>
-                      <th className="text-left py-3 px-4 font-semibold">Phone</th>
-                      <th className="text-left py-3 px-4 font-semibold">Role</th>
-                      <th className="text-center py-3 px-4 font-semibold">Status</th>
-                      <th className="text-center py-3 px-4 font-semibold">Actions</th>
+                    <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">#</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Name</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Email</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Phone</th>
+                      <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Role</th>
+                      <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Status</th>
+                      <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.map((u, i) => (
-                      <tr key={u.id} className="border-b hover:bg-gray-50">
+                      <tr key={u.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
                         <td className="py-3 px-4">{(pagination.page - 1) * pagination.limit + i + 1}</td>
-                        <td className="py-3 px-4 font-medium">{u.firstName} {u.lastName}</td>
-                        <td className="py-3 px-4 text-gray-500">{u.email}</td>
-                        <td className="py-3 px-4 text-gray-500">{u.phone || '-'}</td>
+                        <td className="py-3 px-4 text-sm font-semibold text-ink">{u.firstName} {u.lastName}</td>
+                        <td className="py-3 px-4 text-ink/55">{u.email}</td>
+                        <td className="py-3 px-4 text-ink/55">{u.phone || '-'}</td>
                         <td className="py-3 px-4"><Badge variant="secondary">{u.role?.name}</Badge></td>
                         <td className="py-3 px-4 text-center">
                           <Badge variant={u.isActive ? 'success' : 'danger'}>{u.isActive ? 'Active' : 'Inactive'}</Badge>
@@ -133,10 +133,10 @@ const UsersPage = () => {
                         <td className="py-3 px-4">
                           <div className="flex justify-center gap-2">
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(u)}>
-                              <Edit className="h-4 w-4 text-blue-600" />
+                              <Edit className="h-4 w-4 text-ink/50" />
                             </Button>
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDelete(u.id, `${u.firstName} ${u.lastName}`)}>
-                              <Trash2 className="h-4 w-4 text-red-500" />
+                              <Trash2 className="h-4 w-4 text-danger-text" />
                             </Button>
                           </div>
                         </td>
@@ -145,7 +145,7 @@ const UsersPage = () => {
                   </tbody>
                 </table>
               </div>
-              <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
+              <div className="flex items-center justify-between mt-4 text-sm text-ink/55">
                 <span>Total: {pagination.total} user(s)</span>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => loadUsers(pagination.page - 1)}><ChevronLeft size={16} /></Button>

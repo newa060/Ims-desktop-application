@@ -114,8 +114,8 @@ const ProductsPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-500 mt-1">Manage your product inventory</p>
+          <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Products</h1>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">Manage your product inventory</p>
         </div>
         <Button onClick={() => { setSelectedProduct(null); setFormOpen(true); }}>
           <Plus className="mr-2 h-4 w-4" /> Add Product
@@ -127,7 +127,7 @@ const ProductsPage = () => {
           {/* Search + Controls */}
           <div className="flex flex-wrap gap-3 mb-6">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" size={18} />
               <Input
                 placeholder="Search by name, SKU or barcode..."
                 value={search}
@@ -147,7 +147,7 @@ const ProductsPage = () => {
               <RefreshCw className="mr-2 h-4 w-4" /> Reset
             </Button>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500 whitespace-nowrap">Per page:</span>
+              <span className="text-sm text-ink/55 whitespace-nowrap">Per page:</span>
               <Select value={String(limit)} onValueChange={handleLimitChange}>
                 <SelectTrigger className="w-20">
                   <SelectValue />
@@ -168,7 +168,7 @@ const ProductsPage = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
           ) : products.length === 0 ? (
-            <div className="text-center py-16 text-gray-500">
+            <div className="text-center py-16 text-ink/50">
               <p className="text-lg font-medium">No products found</p>
               <p className="text-sm mt-1">
                 {search ? `No results for "${search}"` : 'Click "Add Product" to create your first product'}
@@ -179,46 +179,46 @@ const ProductsPage = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="text-left py-3 px-3 font-semibold text-gray-600">#</th>
-                      <th className="text-left py-3 px-3 font-semibold text-gray-600">Product</th>
-                      <th className="text-left py-3 px-3 font-semibold text-gray-600">SKU</th>
-                      <th className="text-left py-3 px-3 font-semibold text-gray-600">Category</th>
-                      <th className="text-left py-3 px-3 font-semibold text-gray-600">Brand</th>
-                      <th className="text-right py-3 px-3 font-semibold text-gray-600">Purchase</th>
-                      <th className="text-right py-3 px-3 font-semibold text-gray-600">Selling</th>
-                      <th className="text-center py-3 px-3 font-semibold text-gray-600">Stock</th>
-                      <th className="text-center py-3 px-3 font-semibold text-gray-600">Stock Status</th>
-                      <th className="text-center py-3 px-3 font-semibold text-gray-600">Status</th>
-                      <th className="text-center py-3 px-3 font-semibold text-gray-600">Actions</th>
+                    <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
+                      <th className="text-left py-4 px-3 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">#</th>
+                      <th className="text-left py-4 px-3 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Product</th>
+                      <th className="text-left py-4 px-3 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">SKU</th>
+                      <th className="text-left py-4 px-3 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Category</th>
+                      <th className="text-left py-4 px-3 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Brand</th>
+                      <th className="text-right py-4 px-3 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Purchase</th>
+                      <th className="text-right py-4 px-3 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Selling</th>
+                      <th className="text-center py-4 px-3 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Stock</th>
+                      <th className="text-center py-4 px-3 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Stock Status</th>
+                      <th className="text-center py-4 px-3 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Status</th>
+                      <th className="text-center py-4 px-3 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {products.map((product, index) => (
-                      <tr key={product.id} className="border-b hover:bg-gray-50 transition-colors">
-                        <td className="py-2 px-3 text-gray-400 text-xs">{startItem + index}</td>
-                        <td className="py-2 px-3 font-medium max-w-[200px] truncate">{product.name}</td>
-                        <td className="py-2 px-3 text-gray-500 font-mono text-xs">{product.sku}</td>
-                        <td className="py-2 px-3 text-gray-500 text-xs">{product.category?.name || '-'}</td>
-                        <td className="py-2 px-3 text-gray-500 text-xs">{product.brand?.name || '-'}</td>
-                        <td className="py-2 px-3 text-right text-xs">${Number(product.purchasePrice).toFixed(2)}</td>
-                        <td className="py-2 px-3 text-right font-semibold text-primary text-xs">
+                      <tr key={product.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
+                        <td className="py-3 px-3 text-ink/40 text-xs">{startItem + index}</td>
+                        <td className="py-3 px-3 font-semibold text-ink max-w-[200px] truncate">{product.name}</td>
+                        <td className="py-3 px-3 text-ink/55 font-mono text-xs">{product.sku}</td>
+                        <td className="py-3 px-3 text-ink/55 text-xs">{product.category?.name || '-'}</td>
+                        <td className="py-3 px-3 text-ink/55 text-xs">{product.brand?.name || '-'}</td>
+                        <td className="py-3 px-3 text-right text-ink text-xs">${Number(product.purchasePrice).toFixed(2)}</td>
+                        <td className="py-3 px-3 text-right font-bold text-olive-deep text-xs">
                           ${Number(product.sellingPrice).toFixed(2)}
                         </td>
-                        <td className="py-2 px-3 text-center font-semibold text-xs">{product.currentStock}</td>
+                        <td className="py-3 px-3 text-center font-semibold text-ink text-xs">{product.currentStock}</td>
                         <td className="py-2 px-3 text-center">
                           {getStockBadge(product.currentStock, product.minimumStock)}
                         </td>
                         <td className="py-2 px-3 text-center">
                           {getStatusBadge(product.status)}
                         </td>
-                        <td className="py-2 px-3">
+                        <td className="py-3 px-3">
                           <div className="flex items-center justify-center gap-1">
                             <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(product)}>
-                              <Edit className="h-3.5 w-3.5 text-blue-600" />
+                              <Edit className="h-3.5 w-3.5 text-ink/50" />
                             </Button>
                             <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleDelete(product.id, product.name)}>
-                              <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                              <Trash2 className="h-3.5 w-3.5 text-danger-text" />
                             </Button>
                           </div>
                         </td>
@@ -230,9 +230,9 @@ const ProductsPage = () => {
 
               {/* Pagination Footer */}
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                <div className="text-sm text-gray-500">
-                  Showing <span className="font-semibold text-gray-700">{startItem}–{endItem}</span> of{' '}
-                  <span className="font-semibold text-gray-700">{total}</span> products
+                <div className="text-sm text-ink/55">
+                  Showing <span className="font-semibold text-ink">{startItem}–{endItem}</span> of{' '}
+                  <span className="font-semibold text-ink">{total}</span> products
                 </div>
 
                 <div className="flex items-center gap-1">

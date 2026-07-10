@@ -45,14 +45,14 @@ const SettingsPage = () => {
   };
 
   if (loading) {
-    return <div className="text-center p-8">Loading settings...</div>;
+    return <div className="text-center p-8 text-ink/55">Loading settings...</div>;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600 mt-1">Configure your application</p>
+        <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Settings</h1>
+        <p className="text-[14.5px] text-ink/55 mt-1.5">Configure your store and preferences</p>
       </div>
 
       <Tabs defaultValue="business" className="space-y-6">
@@ -174,7 +174,7 @@ const SettingsPage = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Automatic Backup</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-ink/55">
                       Automatically backup database daily
                     </p>
                   </div>

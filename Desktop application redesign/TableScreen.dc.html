@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</helmet>
+
+<div style="font-family:'Inter',sans-serif;color:#1c1c1a">
+
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:28px">
+    <div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:34px;letter-spacing:-0.01em;line-height:1.1">{{title}}</div>
+      <div style="font-size:14.5px;color:rgba(28,28,26,0.55);margin-top:6px">{{subtitle}}</div>
+    </div>
+    <sc-if value="{{hasAdd}}" hint-placeholder-val="{{false}}">
+      <div style="flex:none;background:#1c1c1a;color:#f5f3ec;font-size:13.5px;font-weight:600;padding:12px 20px;border-radius:10px;cursor:pointer;white-space:nowrap" style-hover="background:#31312d">+ {{addLabel}}</div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{hasKpis}}" hint-placeholder-val="{{false}}">
+    <div style="display:grid;grid-template-columns:repeat({{kpiCount}},1fr);gap:16px;margin-bottom:20px">
+      <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+        <div style="background:#ffffff;border:1px solid rgba(28,28,26,0.08);border-radius:16px;padding:22px 24px">
+          <div style="font-size:13px;color:rgba(28,28,26,0.55);font-weight:500;margin-bottom:10px">{{k.label}}</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;color:{{k.color}}">{{k.value}}</div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <div style="background:#ffffff;border:1px solid rgba(28,28,26,0.08);border-radius:16px;padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:14px">
+    <div style="flex:1;display:flex;align-items:center;gap:10px;background:#f5f3ec;border:1px solid rgba(28,28,26,0.08);border-radius:10px;padding:12px 16px">
+      <svg viewBox="0 0 20 20" width="16" height="16" style="stroke:rgba(28,28,26,0.4);fill:none;stroke-width:1.6;stroke-linecap:round"><circle cx="8.5" cy="8.5" r="6"></circle><path d="M13.2 13.2L17.5 17.5"></path></svg>
+      <div style="font-size:14px;color:rgba(28,28,26,0.4)">{{searchPlaceholder}}</div>
+    </div>
+    <div style="flex:none;background:#1c1c1a;color:#f5f3ec;font-size:13.5px;font-weight:600;padding:12px 20px;border-radius:10px;cursor:pointer" style-hover="background:#31312d">Search</div>
+  </div>
+
+  <div style="background:#ffffff;border:1px solid rgba(28,28,26,0.08);border-radius:16px;overflow:hidden">
+    <div style="{{gridStyleHeader}}">
+      <sc-for list="{{columns}}" as="col" hint-placeholder-count="6">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:rgba(28,28,26,0.45);text-align:{{col.align}}">{{col.label}}</div>
+      </sc-for>
+    </div>
+    <sc-for list="{{rows}}" as="row" hint-placeholder-count="8">
+      <div style="{{gridStyleRow}}" style-hover="background:#faf9f5">
+        <sc-for list="{{row.cells}}" as="cell" hint-placeholder-count="6">
+          <div style="font-size:14px;text-align:{{cell.align}};display:flex;align-items:center;justify-content:{{cell.justify}}">
+            <sc-if value="{{cell.isBadge}}" hint-placeholder-val="{{false}}">
+              <span style="font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;background:{{cell.badgeBg}};color:{{cell.badgeColor}}">{{cell.text}}</span>
+            </sc-if>
+            <sc-if value="{{cell.isPlain}}" hint-placeholder-val="{{true}}">
+              <span style="color:{{cell.color}};font-weight:{{cell.weight}}">{{cell.text}}</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+function cell(text, opts) {
+  opts = opts || {};
+  const badge = !!opts.badge;
+  return {
+    text,
+    align: opts.align || 'left',
+    justify: opts.align === 'right' ? 'flex-end' : (opts.align === 'center' ? 'center' : 'flex-start'),
+    isBadge: badge,
+    isPlain: !badge,
+    badgeBg: opts.badgeBg || 'rgba(28,28,26,0.06)',
+    badgeColor: opts.badgeColor || 'rgba(28,28,26,0.6)',
+    color: opts.color || '#1c1c1a',
+    weight: opts.weight || 400,
+  };
+}
+const TONE = {
+  success: { badgeBg: 'rgba(95,122,61,0.14)', badgeColor: '#5f7a3d' },
+  warning: { badgeBg: 'rgba(201,143,58,0.16)', badgeColor: '#a06c1f' },
+  danger:  { badgeBg: 'rgba(193,97,63,0.14)', badgeColor: '#b04e2c' },
+  muted:   { badgeBg: 'rgba(28,28,26,0.07)', badgeColor: 'rgba(28,28,26,0.55)' },
+};
+function badge(text, tone){ return cell(text, Object.assign({ badge:true, align:'left' }, TONE[tone])); }
+function price(text, accent){ return cell(text, { align:'right', weight:700, color: accent ? '#5f7a3d' : '#1c1c1a' }); }
+function plain(text, muted, align){ return cell(text, { align: align||'left', color: muted ? 'rgba(28,28,26,0.55)' : '#1c1c1a' }); }
+
+function row(cells){ return { cells }; }
+
+const SCREENS = {
+  products: {
+    title: 'Products', subtitle: 'Manage your product inventory', addLabel: 'Add Product',
+    searchPlaceholder: 'Search by name, SKU or barcode…',
+    columns: [
+      {label:'Product', align:'left'},{label:'SKU', align:'left'},{label:'Category', align:'left'},
+      {label:'Purchase', align:'right'},{label:'Selling', align:'right'},{label:'Stock', align:'right'},{label:'Status', align:'left'},
+    ],
+    rows: [
+      ['Windcheater Jacket 25618','WC-25618','Jackets','$2,500.00','$3,250.00','6','In Stock'],
+      ['Plain Formal Shirt 2301C','SH-2301C','Shirts','$480.00','$720.00','6','In Stock'],
+      ['Wind Jacket J18393','JK-18393','Jackets','$310.00','$540.00','1','Low Stock'],
+      ['Blue Windbreaker ML58','JK-ML58','Jackets','$260.00','$410.00','3','In Stock'],
+      ['Baggy Track Pant JM1015','TR-JM1015','Trousers','$900.00','$1,880.00','4','In Stock'],
+      ['Silk Polo','SH-SILK01','Shirts','$210.00','$340.00','0','Out of Stock'],
+      ['Crop Shirt Choret','SH-CROP12','Shirts','$700.00','$1,250.00','6','In Stock'],
+      ['Jacket Parallel Dark','JK-PD09','Jackets','$2,650.00','$3,500.00','4','In Stock'],
+      ['Omnicorm Alpha X733','JK-X733','Jackets','$2,700.00','$3,750.00','7','In Stock'],
+      ['Grey / Red Windjacket','JK-GR21','Jackets','$2,500.00','$3,200.00','3','In Stock'],
+    ].map(r => row([
+      plain(r[0]), plain(r[1], true), plain(r[2], true),
+      price(r[3]), price(r[4], true), plain(r[5], false, 'right'),
+      badge(r[6], r[6]==='In Stock'?'success':(r[6]==='Low Stock'?'warning':'danger')),
+    ])),
+  },
+  categories: {
+    title: 'Categories', subtitle: 'Organize your products by categories', addLabel: 'Add Category',
+    searchPlaceholder: 'Search categories…',
+    columns: [{label:'Name'},{label:'Parent'},{label:'Products', align:'right'},{label:'Description'}],
+    rows: [
+      ['Accessories','—','12','General accessories'],
+      ['Architecture','—','0','—'],
+      ['Bags','—','8','—'],
+      ['Belt','Accessories','6','—'],
+      ['Boot','Footwear','9','—'],
+      ['Cap','Accessories','4','—'],
+      ['Jackets','—','34','Outerwear collection'],
+      ['Shirts','—','28','Tops & shirts'],
+      ['Trousers','—','16','—'],
+    ].map(r => row([plain(r[0]), plain(r[1], true), plain(r[2], false, 'right'), plain(r[3], true)])),
+  },
+  brands: {
+    title: 'Brands', subtitle: 'Manage brand partners', addLabel: 'Add Brand',
+    searchPlaceholder: 'Search brands…',
+    columns: [{label:'Name'},{label:'Products', align:'right'},{label:'Status'}],
+    rows: [
+      ['Northfield','18','Active'],['Ashcombe','9','Active'],['Loomstate','14','Active'],
+      ['Verge & Co.','5','Inactive'],['Harlow','22','Active'],
+    ].map(r => row([plain(r[0]), plain(r[1], false, 'right'), badge(r[2], r[2]==='Active'?'success':'muted')])),
+  },
+  units: {
+    title: 'Units', subtitle: 'Measurement units for products', addLabel: 'Add Unit',
+    searchPlaceholder: 'Search units…',
+    columns: [{label:'Name'},{label:'Short Code'},{label:'Status'}],
+    rows: [['Piece','pc','Active'],['Box','bx','Active'],['Dozen','dz','Active'],['Kilogram','kg','Active'],['Pair','pr','Active']]
+      .map(r => row([plain(r[0]), plain(r[1], true), badge(r[2], 'success')])),
+  },
+  sales: {
+    title: 'Sales', subtitle: 'Track sales transactions', addLabel: 'New Sale',
+    searchPlaceholder: 'Search by invoice or customer…',
+    kpis: [
+      { label:'Today\u2019s Sales', value:'$1,248.00', color:'#1c1c1a' },
+      { label:'This Month', value:'$18,420.00', color:'#1c1c1a' },
+      { label:'Avg. Order Value', value:'$62.40', color:'#5f7a3d' },
+      { label:'Orders Today', value:'20', color:'#1c1c1a' },
+    ],
+    columns: [{label:'Invoice'},{label:'Customer'},{label:'Items', align:'right'},{label:'Total', align:'right'},{label:'Payment'},{label:'Date'}],
+    rows: [
+      ['INV-1042','Walk-in Customer','3','$248.00','Cash','Jul 10'],
+      ['INV-1041','Alina Cho','1','$62.00','Card','Jul 10'],
+      ['INV-1040','Marco Reyes','5','$412.00','Card','Jul 9'],
+      ['INV-1039','Walk-in Customer','2','$118.00','Cash','Jul 9'],
+      ['INV-1038','Priya Nair','4','$305.00','Card','Jul 8'],
+      ['INV-1037','Devon Blake','1','$54.00','Cash','Jul 8'],
+    ].map(r => row([plain(r[0]), plain(r[1]), plain(r[2], false, 'right'), price(r[3]), plain(r[4], true), plain(r[5], true)])),
+  },
+  purchases: {
+    title: 'Purchases', subtitle: 'Manage supplier purchase orders', addLabel: 'New Purchase',
+    searchPlaceholder: 'Search by reference or supplier…',
+    kpis: [
+      { label:'Open Orders', value:'6', color:'#1c1c1a' },
+      { label:'This Month', value:'$24,180.00', color:'#1c1c1a' },
+      { label:'Pending Receipt', value:'2', color:'#a06c1f' },
+      { label:'Suppliers', value:'12', color:'#1c1c1a' },
+    ],
+    columns: [{label:'Reference'},{label:'Supplier'},{label:'Items', align:'right'},{label:'Total', align:'right'},{label:'Status'},{label:'Date'}],
+    rows: [
+      ['PO-2231','Northfield Textiles','120','$8,400.00','Received','Jul 8'],
+      ['PO-2230','Ashcombe Mills','60','$3,120.00','Pending','Jul 6'],
+      ['PO-2229','Loomstate Supply','200','$11,600.00','Received','Jul 3'],
+      ['PO-2228','Harlow & Sons','40','$1,760.00','Pending','Jul 1'],
+    ].map(r => row([plain(r[0]), plain(r[1]), plain(r[2], false, 'right'), price(r[3]), badge(r[4], r[4]==='Received'?'success':'warning'), plain(r[5], true)])),
+  },
+  customers: {
+    title: 'Customers', subtitle: 'Manage your customer directory', addLabel: 'Add Customer',
+    searchPlaceholder: 'Search customers…',
+    columns: [{label:'Name'},{label:'Phone'},{label:'Orders', align:'right'},{label:'Total Spent', align:'right'},{label:'Status'}],
+    rows: [
+      ['Walk-in Customer','—','142','$6,240.00','Active'],
+      ['Alina Cho','+1 555 0134','18','$1,120.00','Active'],
+      ['Marco Reyes','+1 555 0198','9','$840.00','Active'],
+      ['Priya Nair','+1 555 0122','4','$305.00','Active'],
+      ['Devon Blake','+1 555 0176','1','$54.00','Inactive'],
+    ].map(r => row([plain(r[0]), plain(r[1], true), plain(r[2], false, 'right'), price(r[3]), badge(r[4], r[4]==='Active'?'success':'muted')])),
+  },
+  suppliers: {
+    title: 'Suppliers', subtitle: 'Manage supplier relationships', addLabel: 'Add Supplier',
+    searchPlaceholder: 'Search suppliers…',
+    columns: [{label:'Name'},{label:'Contact'},{label:'Products Supplied', align:'right'},{label:'Status'}],
+    rows: [
+      ['Northfield Textiles','contact@northfield.co','48','Active'],
+      ['Ashcombe Mills','sales@ashcombe.com','22','Active'],
+      ['Loomstate Supply','hello@loomstate.io','65','Active'],
+      ['Harlow & Sons','orders@harlowsons.com','15','Inactive'],
+    ].map(r => row([plain(r[0]), plain(r[1], true), plain(r[2], false, 'right'), badge(r[3], r[3]==='Active'?'success':'muted')])),
+  },
+  inventory: {
+    title: 'Inventory', subtitle: 'Monitor stock levels across products', addLabel: 'Stock Adjustment',
+    searchPlaceholder: 'Search inventory…',
+    kpis: [
+      { label:'Total SKUs', value:'14', color:'#1c1c1a' },
+      { label:'Low Stock', value:'1', color:'#a06c1f' },
+      { label:'Out of Stock', value:'1', color:'#b04e2c' },
+      { label:'Stock Value', value:'$28,940.00', color:'#5f7a3d' },
+    ],
+    columns: [{label:'Product'},{label:'Category'},{label:'In Stock', align:'right'},{label:'Reorder Level', align:'right'},{label:'Status'}],
+    rows: [
+      ['Windcheater Jacket 25618','Jackets','6','3','In Stock'],
+      ['Wind Jacket J18393','Jackets','1','2','Low Stock'],
+      ['Silk Polo','Shirts','0','2','Out of Stock'],
+      ['Baggy Track Pant JM1015','Trousers','4','2','In Stock'],
+      ['Omnicorm Alpha X733','Jackets','7','3','In Stock'],
+    ].map(r => row([plain(r[0]), plain(r[1], true), plain(r[2], false, 'right'), plain(r[3], true, 'right'), badge(r[4], r[4]==='In Stock'?'success':(r[4]==='Low Stock'?'warning':'danger'))])),
+  },
+  expenses: {
+    title: 'Expenses', subtitle: 'Track business expenses', addLabel: 'Add Expense',
+    searchPlaceholder: 'Search expenses…',
+    kpis: [
+      { label:'This Month', value:'$4,120.00', color:'#1c1c1a' },
+      { label:'Last Month', value:'$3,860.00', color:'#1c1c1a' },
+      { label:'Pending', value:'2', color:'#a06c1f' },
+      { label:'Categories', value:'6', color:'#1c1c1a' },
+    ],
+    columns: [{label:'Description'},{label:'Category'},{label:'Amount', align:'right'},{label:'Date'},{label:'Status'}],
+    rows: [
+      ['Store rent','Rent','$1,800.00','Jul 1','Paid'],
+      ['Electricity bill','Utilities','$240.00','Jul 3','Paid'],
+      ['Packaging supplies','Supplies','$118.00','Jul 5','Paid'],
+      ['Delivery van fuel','Transport','$96.00','Jul 8','Pending'],
+      ['POS software renewal','Software','$60.00','Jul 9','Pending'],
+    ].map(r => row([plain(r[0]), plain(r[1], true), price(r[2]), plain(r[3], true), badge(r[4], r[4]==='Paid'?'success':'warning')])),
+  },
+  users: {
+    title: 'Users', subtitle: 'Manage staff accounts and roles', addLabel: 'Add User',
+    searchPlaceholder: 'Search users…',
+    columns: [{label:'Name'},{label:'Role'},{label:'Email'},{label:'Status'}],
+    rows: [
+      ['System Administrator','Admin','admin@ims.app','Active'],
+      ['Jordan Lee','Manager','jordan@ims.app','Active'],
+      ['Sam Patel','Cashier','sam@ims.app','Active'],
+      ['Riley Chen','Cashier','riley@ims.app','Inactive'],
+    ].map(r => row([plain(r[0]), plain(r[1], true), plain(r[2], true), badge(r[3], r[3]==='Active'?'success':'muted')])),
+  },
+};
+
+class Component extends DCLogic {
+  renderVals() {
+    const key = (this.props.data && this.props.data.screen) || 'products';
+    const s = SCREENS[key] || SCREENS.products;
+    const colCount = s.columns.length;
+    const gridTemplateColumns = s.columns.map(c => c.align === 'right' ? '1fr' : '1.4fr').join(' ');
+    const gridStyleHeader = { display:'grid', gridTemplateColumns, gap:'20px', padding:'16px 24px', background:'#faf9f5', borderBottom:'1px solid rgba(28,28,26,0.08)' };
+    const gridStyleRow = { display:'grid', gridTemplateColumns, gap:'20px', padding:'17px 24px', borderBottom:'1px solid rgba(28,28,26,0.06)' };
+    return {
+      title: s.title,
+      subtitle: s.subtitle,
+      hasAdd: true,
+      addLabel: s.addLabel,
+      searchPlaceholder: s.searchPlaceholder,
+      hasKpis: !!s.kpis,
+      kpis: s.kpis || [],
+      kpiCount: s.kpis ? s.kpis.length : 4,
+      columns: s.columns.map(c => ({ label: c.label, align: c.align || 'left' })),
+      rows: s.rows,
+      gridStyleHeader,
+      gridStyleRow,
+    };
+  }
+}
+
+</script>
+</body>
+</html>
