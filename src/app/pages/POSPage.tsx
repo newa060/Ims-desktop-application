@@ -120,8 +120,8 @@ const POSPage = () => {
   };
 
   const handleCompleteSale = async () => {
-    if (paidAmount < total) {
-      toast.error('Paid amount must be at least the total amount');
+    if (paidAmount < 0) {
+      toast.error('Paid amount cannot be negative');
       return;
     }
     setProcessing(true);
@@ -163,6 +163,8 @@ const POSPage = () => {
   };
 
   const changeAmount = Math.max(0, paidAmount - total);
+  const balanceDue = Math.max(0, total - paidAmount);
+  const hasDueBalance = balanceDue > 0;
 
   return (
     <div className="space-y-6">
@@ -324,15 +326,31 @@ const POSPage = () => {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>Amount Paid *</Label>
-              <Input type="number" step="0.01" min={total} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} />
+              <Label>Amount Paid</Label>
+              <Input type="number" step="0.01" min={0} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} />
             </div>
-            <div className="bg-success-bg rounded-[10px] p-3">
-              <div className="flex justify-between text-lg font-semibold text-success-text">
-                <span>Change:</span>
-                <span>{formatCurrency(changeAmount)}</span>
+            {!hasDueBalance && (
+              <div className="bg-success-bg rounded-[10px] p-3">
+                <div className="flex justify-between text-lg font-semibold text-success-text">
+                  <span>Change:</span>
+                  <span>{formatCurrency(changeAmount)}</span>
+                </div>
               </div>
-            </div>
+            )}
+            {hasDueBalance && (
+              <div className="bg-warning-bg rounded-[10px] p-3 space-y-1">
+                <div className="flex justify-between text-lg font-semibold text-warning-text">
+                  <span>Balance Due:</span>
+                  <span>{formatCurrency(balanceDue)}</span>
+                </div>
+                {selectedCustomer && selectedCustomer !== 'walk-in' && (
+                  <p className="text-xs text-warning-text/70">This amount will be added to the customer's credit balance.</p>
+                )}
+                {(!selectedCustomer || selectedCustomer === 'walk-in') && (
+                  <p className="text-xs text-warning-text/70">Select a named customer to track this balance.</p>
+                )}
+              </div>
+            )}
             <div className="space-y-1">
               <Label>Notes (Optional)</Label>
               <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Add any notes..." />

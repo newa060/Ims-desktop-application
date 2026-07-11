@@ -415,6 +415,8 @@ declare
   v_item_tax double precision;
   v_total_amount double precision;
   v_change_amount double precision;
+  v_balance_due double precision;
+  v_payment_status text;
   v_sale_id uuid;
   v_sale_number text;
   v_product public.products%rowtype;
@@ -422,6 +424,7 @@ declare
   v_new_stock integer;
   v_discount_amount double precision := coalesce((payload->>'discountAmount')::double precision, 0);
   v_paid_amount double precision := coalesce((payload->>'paidAmount')::double precision, 0);
+  v_customer_id uuid := nullif(payload->>'customerId', '')::uuid;
 begin
   for v_item in select * from jsonb_array_elements(payload->'items') loop
     v_item_subtotal := (v_item->>'quantity')::numeric * (v_item->>'unitPrice')::numeric
@@ -432,7 +435,16 @@ begin
   end loop;
 
   v_total_amount := v_subtotal + v_total_tax - v_discount_amount;
-  v_change_amount := v_paid_amount - v_total_amount;
+  v_balance_due := v_total_amount - v_paid_amount;
+  v_change_amount := greatest(v_paid_amount - v_total_amount, 0);
+
+  -- Determine payment status from actual amounts
+  v_payment_status := case
+    when v_balance_due <= 0 then 'paid'
+    when v_paid_amount > 0 then 'partial'
+    else 'due'
+  end;
+
   v_sale_number := 'SALE-' || to_char(now(), 'YYYYMMDD') || '-' || lpad(floor(random() * 10000)::text, 4, '0');
 
   insert into sales (
@@ -440,11 +452,18 @@ begin
     "totalAmount", "paidAmount", "changeAmount", "paymentMethod", "paymentStatus", status, notes
   ) values (
     v_sale_number,
-    nullif(payload->>'customerId', '')::uuid,
+    v_customer_id,
     (payload->>'userId')::uuid,
     v_subtotal, v_total_tax, v_discount_amount, v_total_amount, v_paid_amount, v_change_amount,
-    payload->>'paymentMethod', 'paid', 'completed', payload->>'notes'
+    payload->>'paymentMethod', v_payment_status, 'completed', payload->>'notes'
   ) returning id into v_sale_id;
+
+  -- If a named customer has an unpaid balance, add it to their creditBalance
+  if v_customer_id is not null and v_balance_due > 0 then
+    update customers
+    set "creditBalance" = "creditBalance" + v_balance_due
+    where id = v_customer_id;
+  end if;
 
   for v_item in select * from jsonb_array_elements(payload->'items') loop
     select * into v_product from public.products where id = (v_item->>'productId')::text for update;
