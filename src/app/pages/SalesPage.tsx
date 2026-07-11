@@ -22,7 +22,12 @@ const SalesPage = () => {
       const res = await window.electron.getSales({ page, limit: 20, search });
       if (res.success) {
         setSales(res.data.data);
-        setPagination(res.data.pagination);
+        setPagination({
+          page: res.data.page || 1,
+          limit: res.data.limit || 20,
+          total: res.data.total || 0,
+          totalPages: res.data.totalPages || 1
+        });
       } else toast.error('Failed to load sales');
     } catch { toast.error('An error occurred'); }
     finally { setLoading(false); }
