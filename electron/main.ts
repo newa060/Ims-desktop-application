@@ -51,7 +51,17 @@ function configureAutoUpdater() {
 
   autoUpdater.on('error', (err) => {
     logger.error('Auto-updater error:', err);
-    mainWindow?.webContents.send('update:error', { message: err.message });
+    // "Cannot parse releases feed" / "Unable to find latest" just means the
+    // GitHub release isn't published yet (Actions still building). Don't
+    // surface this as an alarming error toast for the user.
+    const msg = err.message || '';
+    const isNoRelease =
+      msg.includes('Cannot parse releases feed') ||
+      msg.includes('Unable to find latest') ||
+      msg.includes('net::ERR_');
+    if (!isNoRelease) {
+      mainWindow?.webContents.send('update:error', { message: msg });
+    }
   });
 }
 
