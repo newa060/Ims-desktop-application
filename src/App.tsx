@@ -20,6 +20,7 @@ import UsersPage from './app/pages/UsersPage';
 import ReportsPage from './app/pages/ReportsPage';
 import SettingsPage from './app/pages/SettingsPage';
 import ErrorBoundary from './app/components/common/ErrorBoundary';
+import UpdateNotifier from './app/components/common/UpdateNotifier';
 import './app/styles/globals.css';
 
 const queryClient = new QueryClient({
@@ -71,6 +72,7 @@ function App() {
             />
           </Routes>
           <Toaster position="top-right" />
+          <UpdateNotifier />
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>

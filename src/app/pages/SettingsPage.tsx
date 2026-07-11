@@ -5,11 +5,39 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { toast } from 'sonner';
+import { RefreshCw } from 'lucide-react';
 import { Setting } from '@/types';
 
 const SettingsPage = () => {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [appVersion, setAppVersion] = useState('');
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+
+  useEffect(() => {
+    loadSettings();
+    // Get current app version
+    if (window.electron?.updaterGetVersion) {
+      window.electron.updaterGetVersion().then((v: string) => setAppVersion(v));
+    }
+  }, []);
+
+  const handleCheckForUpdates = async () => {
+    if (!window.electron?.updaterCheck) {
+      toast.info('Auto-update is only available in the packaged app.');
+      return;
+    }
+    setCheckingUpdate(true);
+    try {
+      const res = await window.electron.updaterCheck();
+      if (!res.success) toast.error('Update check failed: ' + res.error);
+      else toast.success('Update check complete — watch for a notification if a new version is available.');
+    } catch {
+      toast.error('Update check failed.');
+    } finally {
+      setCheckingUpdate(false);
+    }
+  };
 
   useEffect(() => {
     loadSettings();
@@ -61,6 +89,7 @@ const SettingsPage = () => {
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="invoice">Invoice</TabsTrigger>
           <TabsTrigger value="backup">Backup</TabsTrigger>
+          <TabsTrigger value="updates">Updates</TabsTrigger>
         </TabsList>
 
         <TabsContent value="business">
@@ -186,6 +215,39 @@ const SettingsPage = () => {
                   </Button>
                   <Button variant="outline">Restore Backup</Button>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="updates">
+          <Card>
+            <CardHeader>
+              <CardTitle>Application Updates</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between py-3 border-b border-ink/[0.08]">
+                <div>
+                  <p className="text-sm font-medium text-ink">Current Version</p>
+                  <p className="text-xs text-ink/50 mt-0.5">{appVersion || '—'}</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-ink">Check for Updates</p>
+                  <p className="text-xs text-ink/50 mt-0.5">
+                    Updates download in the background and install on next restart
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={handleCheckForUpdates}
+                  disabled={checkingUpdate}
+                  className="shrink-0"
+                >
+                  <RefreshCw className={`mr-2 h-4 w-4 ${checkingUpdate ? 'animate-spin' : ''}`} />
+                  {checkingUpdate ? 'Checking…' : 'Check Now'}
+                </Button>
               </div>
             </CardContent>
           </Card>

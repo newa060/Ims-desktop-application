@@ -1,0 +1,45 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'   # triggers on tags like v1.0.1, v2.3.0
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Write the .env file from GitHub Secrets so the packaged app has
+      # the Supabase credentials baked in at build time.
+      - name: Create .env file
+        shell: bash
+        run: |
+          cat > .env << EOF
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          APP_NAME="Inventory Management System"
+          APP_VERSION=${{ github.ref_name }}
+          SESSION_SECRET=${{ secrets.SESSION_SECRET }}
+          LOG_LEVEL=info
+          BACKUP_PATH=./backups
+          AUTO_BACKUP_ENABLED=true
+          AUTO_BACKUP_INTERVAL_HOURS=24
+          EOF
+
+      - name: Build & publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run release

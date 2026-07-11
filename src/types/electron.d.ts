@@ -95,6 +95,16 @@ export interface ElectronAPI {
 
   // Notifications
   onNotification: (callback: (notification: any) => void) => void;
+
+  // Auto-updater
+  updaterDownload: () => Promise<{ success: boolean; error?: string }>;
+  updaterInstall: () => void;
+  updaterCheck: () => Promise<{ success: boolean; error?: string }>;
+  updaterGetVersion: () => Promise<string>;
+  onUpdateAvailable: (cb: (info: { version: string; releaseNotes: any }) => void) => void;
+  onUpdateDownloadProgress: (cb: (info: { percent: number }) => void) => void;
+  onUpdateDownloaded: (cb: (info: { version: string }) => void) => void;
+  onUpdateError: (cb: (info: { message: string }) => void) => void;
 }
 
 declare global {
