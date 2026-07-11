@@ -5,7 +5,7 @@ import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
-import { Plus, Search, Edit, Trash2, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, RefreshCw, ChevronLeft, ChevronRight, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSettings } from '../contexts/SettingsContext';
 
@@ -20,6 +20,11 @@ const CustomersPage = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [formData, setFormData] = useState(emptyForm);
   const [editId, setEditId] = useState<string | null>(null);
+  
+  // Payment recording state
+  const [payOpen, setPayOpen] = useState(false);
+  const [payTarget, setPayTarget] = useState<any>(null);
+  const [payAmount, setPayAmount] = useState(0);
 
   const loadCustomers = useCallback(async (page = 1) => {
     setLoading(true);
@@ -41,8 +46,9 @@ const CustomersPage = () => {
       const res = editId
         ? await window.electron.updateCustomer(editId, formData)
         : await window.electron.createCustomer(formData);
+
       if (res.success) {
-        toast.success(editId ? 'Customer updated!' : 'Customer created!');
+        toast.success(editId ? 'Customer updated' : 'Customer created');
         loadCustomers();
         handleClose();
       } else toast.error(res.error || 'Failed to save customer');
@@ -71,6 +77,34 @@ const CustomersPage = () => {
   };
 
   const updateField = (field: string, value: string) => setFormData((f) => ({ ...f, [field]: value }));
+
+  const openPayDialog = (c: any) => {
+    setPayTarget(c);
+    setPayAmount(c.creditBalance || 0);
+    setPayOpen(true);
+  };
+
+  const handleRecordPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!payTarget || payAmount <= 0) return;
+    try {
+      const updatedBalance = Math.max(0, (payTarget.creditBalance || 0) - payAmount);
+      const res = await window.electron.updateCustomer(payTarget.id, {
+        creditBalance: updatedBalance
+      });
+      if (res.success) {
+        toast.success(`Recorded payment of ${formatCurrency(payAmount)}. New balance: ${formatCurrency(updatedBalance)}`);
+        loadCustomers();
+        setPayOpen(false);
+        setPayTarget(null);
+        setPayAmount(0);
+      } else {
+        toast.error('Failed to update customer balance');
+      }
+    } catch {
+      toast.error('An error occurred');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -126,6 +160,11 @@ const CustomersPage = () => {
                         <td className="py-3 px-4 text-right">{c.loyaltyPoints || 0}</td>
                         <td className="py-3 px-4">
                           <div className="flex justify-center gap-2">
+                            {(c.creditBalance || 0) > 0 && (
+                              <Button size="icon" variant="ghost" className="h-8 w-8 text-success-text hover:text-success-text" title="Record Payment" onClick={() => openPayDialog(c)}>
+                                <DollarSign className="h-4 w-4" />
+                              </Button>
+                            )}
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(c)}>
                               <Edit className="h-4 w-4 text-ink/50" />
                             </Button>
@@ -199,6 +238,33 @@ const CustomersPage = () => {
               <Button type="submit">{editId ? 'Update' : 'Create'}</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={payOpen} onOpenChange={setPayOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Record Customer Payment</DialogTitle>
+          </DialogHeader>
+          {payTarget && (
+            <form onSubmit={handleRecordPayment}>
+              <div className="space-y-4 py-4">
+                <div className="bg-paper rounded-[10px] p-4 space-y-1">
+                  <p className="text-sm text-ink/60">Customer Name: <span className="font-semibold text-ink">{payTarget.name}</span></p>
+                  <p className="text-sm text-ink/60">Current Credit Balance: <span className="font-bold text-ink">{formatCurrency(payTarget.creditBalance || 0)}</span></p>
+                </div>
+                <div className="space-y-1">
+                  <Label>Payment Amount *</Label>
+                  <Input type="number" step="0.01" min="0.01" max={payTarget.creditBalance || 0} value={payAmount} onChange={(e) => setPayAmount(parseFloat(e.target.value) || 0)} required />
+                  <p className="text-xs text-ink/40">Amount will be subtracted from the customer's credit balance.</p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setPayOpen(false)}>Cancel</Button>
+                <Button type="submit">Record Payment</Button>
+              </DialogFooter>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
     </div>
