@@ -1,6 +1,6 @@
 {
   "name": "inventory-management-system",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Enterprise Desktop Inventory Management System",
   "main": "dist/electron/electron/main.js",
   "scripts": {
@@ -104,7 +104,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "assets/icon.ico"
