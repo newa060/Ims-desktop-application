@@ -459,9 +459,12 @@ begin
   ) returning id into v_sale_id;
 
   -- If a named customer has an unpaid balance, add it to their creditBalance
-  if v_customer_id is not null and v_balance_due > 0 then
+  -- Also award 1 loyalty point for every 100 paid by a named customer
+  if v_customer_id is not null then
     update customers
-    set "creditBalance" = "creditBalance" + v_balance_due
+    set
+      "creditBalance" = "creditBalance" + case when v_balance_due > 0 then v_balance_due else 0 end,
+      "loyaltyPoints" = "loyaltyPoints" + floor(v_paid_amount / 100)::integer
     where id = v_customer_id;
   end if;
 
