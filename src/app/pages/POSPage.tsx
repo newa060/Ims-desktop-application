@@ -124,6 +124,10 @@ const POSPage = () => {
       toast.error('Paid amount cannot be negative');
       return;
     }
+    if (paidAmount < total && (!selectedCustomer || selectedCustomer === 'walk-in')) {
+      toast.error('Credit sales must be associated with a registered customer. Please select a customer first.');
+      return;
+    }
     setProcessing(true);
     try {
       const saleData = {
