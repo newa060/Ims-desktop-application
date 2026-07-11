@@ -85,6 +85,10 @@ function setupUpdaterIpcHandlers() {
 
   // Manual check triggered from Settings page
   ipcMain.handle('updater:check', async () => {
+    // electron-updater cannot run outside a packaged build
+    if (!app.isPackaged) {
+      return { success: false, error: 'Update checks only work in the installed (packaged) app, not in dev mode.' };
+    }
     try {
       await autoUpdater.checkForUpdates();
       return { success: true };

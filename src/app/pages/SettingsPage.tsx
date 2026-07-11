@@ -29,8 +29,16 @@ const SettingsPage = () => {
     setCheckingUpdate(true);
     try {
       const res = await window.electron.updaterCheck();
-      if (!res.success) toast.error('Update check failed: ' + res.error);
-      else toast.success('Update check complete — watch for a notification if a new version is available.');
+      if (!res.success) {
+        // dev mode returns a friendly info message, not a real error
+        if (res.error?.includes('dev mode')) {
+          toast.info('Update checks only work in the installed app, not during development.');
+        } else {
+          toast.error('Update check failed: ' + res.error);
+        }
+      } else {
+        toast.success('Update check complete — watch for a notification if a new version is available.');
+      }
     } catch {
       toast.error('Update check failed.');
     } finally {
