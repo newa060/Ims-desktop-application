@@ -554,6 +554,13 @@ begin
     nullif(payload->>'dueDate', '')::timestamptz
   ) returning id into v_purchase_id;
 
+  -- If there is an unpaid balance on the purchase, update the supplier's balance
+  if v_balance_amount > 0 then
+    update suppliers
+    set balance = balance + v_balance_amount
+    where id = (payload->>'supplierId')::uuid;
+  end if;
+
   for v_item in select * from jsonb_array_elements(payload->'items') loop
     select * into v_product from public.products where id = (v_item->>'productId')::text for update;
 
