@@ -6,21 +6,20 @@ import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { toast } from 'sonner';
 import { RefreshCw } from 'lucide-react';
-import { Setting } from '@/types';
+import { useSettings } from '../contexts/SettingsContext';
 
 const SettingsPage = () => {
-  const [settings, setSettings] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(true);
+  const { settings, updateSetting, refreshSettings } = useSettings();
   const [appVersion, setAppVersion] = useState('');
   const [checkingUpdate, setCheckingUpdate] = useState(false);
 
   useEffect(() => {
-    loadSettings();
+    refreshSettings();
     // Get current app version
     if (window.electron?.updaterGetVersion) {
       window.electron.updaterGetVersion().then((v: string) => setAppVersion(v));
     }
-  }, []);
+  }, [refreshSettings]);
 
   const handleCheckForUpdates = async () => {
     if (!window.electron?.updaterCheck) {
@@ -39,42 +38,19 @@ const SettingsPage = () => {
     }
   };
 
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
-    try {
-      const response = await window.electron.getSettings();
-      if (response.success) {
-        const settingsMap: Record<string, string> = {};
-        response.data.forEach((setting: Setting) => {
-          settingsMap[setting.key] = setting.value;
-        });
-        setSettings(settingsMap);
-      }
-    } catch (error) {
-      toast.error('Failed to load settings');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSave = async (key: string, value: string) => {
     try {
-      const response = await window.electron.updateSetting(key, value);
-      if (response.success) {
+      const success = await updateSetting(key, value);
+      if (success) {
         toast.success('Setting updated successfully');
-        setSettings({ ...settings, [key]: value });
+      } else {
+        toast.error('Failed to update setting');
       }
     } catch (error) {
       toast.error('Failed to update setting');
     }
   };
 
-  if (loading) {
-    return <div className="text-center p-8 text-ink/55">Loading settings...</div>;
-  }
 
   return (
     <div className="space-y-6">

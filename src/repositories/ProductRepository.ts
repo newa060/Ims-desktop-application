@@ -1,6 +1,5 @@
 import { BaseRepository } from './BaseRepository';
 import { Product, PaginationParams, PaginatedResponse } from '../types';
-import logger from '../utils/logger';
 
 // `products` is the SAME table the AESTHETE website reads/writes (that's
 // the whole point — one shared catalog/stock, no separate desktop copy).

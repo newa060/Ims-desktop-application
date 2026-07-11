@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { useAuth } from './app/hooks/useAuth';
@@ -21,7 +22,10 @@ import ReportsPage from './app/pages/ReportsPage';
 import SettingsPage from './app/pages/SettingsPage';
 import ErrorBoundary from './app/components/common/ErrorBoundary';
 import UpdateNotifier from './app/components/common/UpdateNotifier';
+import { Loader } from './app/components/common/Loader';
+import { SettingsProvider, useSettings } from './app/contexts/SettingsContext';
 import './app/styles/globals.css';
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,46 +41,66 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 }
 
+function AppContent() {
+  const { _hasHydrated, validateSession } = useAuth();
+  const { loading: settingsLoading } = useSettings();
+
+  useEffect(() => {
+    validateSession();
+  }, [validateSession]);
+
+  if (!_hasHydrated || settingsLoading) {
+    return <Loader />;
+  }
+
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/*"
+        element={
+          <PrivateRoute>
+            <DashboardLayout>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/categories" element={<CategoriesPage />} />
+                <Route path="/brands" element={<BrandsPage />} />
+                <Route path="/units" element={<UnitsPage />} />
+                <Route path="/pos" element={<POSPage />} />
+                <Route path="/sales" element={<SalesPage />} />
+                <Route path="/purchases" element={<PurchasesPage />} />
+                <Route path="/customers" element={<CustomersPage />} />
+                <Route path="/suppliers" element={<SuppliersPage />} />
+                <Route path="/inventory" element={<InventoryPage />} />
+                <Route path="/expenses" element={<ExpensesPage />} />
+                <Route path="/users" element={<UsersPage />} />
+                <Route path="/reports" element={<ReportsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Routes>
+            </DashboardLayout>
+          </PrivateRoute>
+        }
+      />
+    </Routes>
+  );
+}
+
 function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/*"
-              element={
-                <PrivateRoute>
-                  <DashboardLayout>
-                    <Routes>
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="/products" element={<ProductsPage />} />
-                      <Route path="/categories" element={<CategoriesPage />} />
-                      <Route path="/brands" element={<BrandsPage />} />
-                      <Route path="/units" element={<UnitsPage />} />
-                      <Route path="/pos" element={<POSPage />} />
-                      <Route path="/sales" element={<SalesPage />} />
-                      <Route path="/purchases" element={<PurchasesPage />} />
-                      <Route path="/customers" element={<CustomersPage />} />
-                      <Route path="/suppliers" element={<SuppliersPage />} />
-                      <Route path="/inventory" element={<InventoryPage />} />
-                      <Route path="/expenses" element={<ExpensesPage />} />
-                      <Route path="/users" element={<UsersPage />} />
-                      <Route path="/reports" element={<ReportsPage />} />
-                      <Route path="/settings" element={<SettingsPage />} />
-                    </Routes>
-                  </DashboardLayout>
-                </PrivateRoute>
-              }
-            />
-          </Routes>
-          <Toaster position="top-right" />
-          <UpdateNotifier />
-        </BrowserRouter>
+        <SettingsProvider>
+          <Router>
+            <AppContent />
+            <Toaster position="top-right" />
+            <UpdateNotifier />
+          </Router>
+        </SettingsProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
 }
 
 export default App;
+

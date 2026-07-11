@@ -50,7 +50,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-ink">
+    <div className="min-h-screen h-screen flex items-center justify-center bg-ink overflow-auto">
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center justify-center mb-2">

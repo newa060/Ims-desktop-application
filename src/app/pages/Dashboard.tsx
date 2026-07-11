@@ -12,7 +12,8 @@ import {
   X,
 } from 'lucide-react';
 import { DashboardStats, TopProduct, RecentTransaction } from '@/types';
-import { formatCurrency } from '@/utils/date';
+import { useSettings } from '../contexts/SettingsContext';
+
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -140,6 +141,7 @@ const Skeleton = ({ className = '' }: { className?: string }) => (
 // ─── component ────────────────────────────────────────────────────────────────
 
 const Dashboard = () => {
+  const { formatCurrency } = useSettings();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -157,13 +159,20 @@ const Dashboard = () => {
     else setRefreshing(true);
     setError(null);
 
+    // Wrap each call with a timeout so a hanging IPC never blocks the whole dashboard
+    const withTimeout = <T,>(promise: Promise<T>, ms = 10000): Promise<T> =>
+      Promise.race([
+        promise,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms)),
+      ]);
+
     try {
       const [statsRes, chartRes, lowStockRes, topProductsRes, recentTxRes] = await Promise.all([
-        window.electron.getDashboardStats(),
-        window.electron.getSalesChart(30),
-        window.electron.getLowStock(),
-        window.electron.getTopProducts(5),
-        window.electron.getRecentTransactions(8),
+        withTimeout(window.electron.getDashboardStats()).catch(() => ({ success: false, data: null })),
+        withTimeout(window.electron.getSalesChart(30)).catch(() => ({ success: false, data: [] })),
+        withTimeout(window.electron.getLowStock()).catch(() => ({ success: false, data: [] })),
+        withTimeout(window.electron.getTopProducts(5)).catch(() => ({ success: false, data: [] })),
+        withTimeout(window.electron.getRecentTransactions(8)).catch(() => ({ success: false, data: [] })),
       ]);
 
       if (statsRes.success) setStats(statsRes.data);

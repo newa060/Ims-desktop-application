@@ -111,11 +111,15 @@ const createWindow = () => {
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../../index.html'));
   }
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+    logger.error(`Failed to load: ${validatedURL} — ${errorCode} ${errorDescription}`);
   });
 };
 

@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Plus, Search, Edit, Trash2, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductForm from '../features/products/ProductForm';
+import { useSettings } from '../contexts/SettingsContext';
+
 
 const getStockBadge = (current: number, minimum: number) => {
   if (current === 0) return <Badge variant="danger">Out of Stock</Badge>;
@@ -28,6 +30,7 @@ const getStatusBadge = (status: string) => {
 };
 
 const ProductsPage = () => {
+  const { formatCurrency } = useSettings();
   const [products, setProducts] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -201,9 +204,9 @@ const ProductsPage = () => {
                         <td className="py-3 px-3 text-ink/55 font-mono text-xs">{product.sku}</td>
                         <td className="py-3 px-3 text-ink/55 text-xs">{product.category?.name || '-'}</td>
                         <td className="py-3 px-3 text-ink/55 text-xs">{product.brand?.name || '-'}</td>
-                        <td className="py-3 px-3 text-right text-ink text-xs">${Number(product.purchasePrice).toFixed(2)}</td>
+                        <td className="py-3 px-3 text-right text-ink text-xs">{formatCurrency(product.purchasePrice)}</td>
                         <td className="py-3 px-3 text-right font-bold text-olive-deep text-xs">
-                          ${Number(product.sellingPrice).toFixed(2)}
+                          {formatCurrency(product.sellingPrice)}
                         </td>
                         <td className="py-3 px-3 text-center font-semibold text-ink text-xs">{product.currentStock}</td>
                         <td className="py-2 px-3 text-center">

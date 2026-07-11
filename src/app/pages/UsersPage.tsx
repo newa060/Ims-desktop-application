@@ -50,7 +50,7 @@ const UsersPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const data = { ...formData };
+      const data: any = { ...formData };
       if (editId && !data.password) delete data.password;
       const res = editId
         ? await window.electron.updateUser(editId, data)

@@ -7,10 +7,12 @@ import { Card, CardContent } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { Plus, Search, Edit, Trash2, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { useSettings } from '../contexts/SettingsContext';
 
 const emptyForm = { name: '', email: '', phone: '', address: '', city: '', country: '', taxNumber: '', description: '' };
 
 const SuppliersPage = () => {
+  const { formatCurrency } = useSettings();
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
   const [search, setSearch] = useState('');
@@ -75,7 +77,7 @@ const SuppliersPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Suppliers</h1>
-          <p className="text-[14.5px] text-ink/55 mt-1.5">Manage your suppliers</p>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">Manage your suppliers and purchase partners</p>
         </div>
         <Button onClick={() => { setEditId(null); setFormOpen(true); }}>
           <Plus className="mr-2 h-4 w-4" /> Add Supplier
@@ -119,7 +121,7 @@ const SuppliersPage = () => {
                         <td className="py-3 px-4 text-ink/55">{s.phone || '-'}</td>
                         <td className="py-3 px-4 text-ink/55">{s.email || '-'}</td>
                         <td className="py-3 px-4 text-ink/55">{s.city || '-'}</td>
-                        <td className="py-3 px-4 text-right font-bold text-ink">${Number(s.balance).toFixed(2)}</td>
+                        <td className="py-3 px-4 text-right font-bold text-ink">{formatCurrency(s.balance)}</td>
                         <td className="py-3 px-4">
                           <div className="flex justify-center gap-2">
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(s)}>
@@ -138,13 +140,9 @@ const SuppliersPage = () => {
               <div className="flex items-center justify-between mt-4 text-sm text-ink/55">
                 <span>Total: {pagination.total} supplier(s)</span>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => loadSuppliers(pagination.page - 1)}>
-                    <ChevronLeft size={16} />
-                  </Button>
+                  <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => loadSuppliers(pagination.page - 1)}><ChevronLeft size={16} /></Button>
                   <span className="px-2 py-1">Page {pagination.page} / {pagination.totalPages}</span>
-                  <Button variant="outline" size="sm" disabled={pagination.page >= pagination.totalPages} onClick={() => loadSuppliers(pagination.page + 1)}>
-                    <ChevronRight size={16} />
-                  </Button>
+                  <Button variant="outline" size="sm" disabled={pagination.page >= pagination.totalPages} onClick={() => loadSuppliers(pagination.page + 1)}><ChevronRight size={16} /></Button>
                 </div>
               </div>
             </>
@@ -152,44 +150,52 @@ const SuppliersPage = () => {
         </CardContent>
       </Card>
 
-      <Dialog open={formOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editId ? 'Edit Supplier' : 'Add Supplier'}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-4 py-4">
-              <div className="col-span-2 space-y-1">
-                <Label>Name *</Label>
-                <Input value={formData.name} onChange={(e) => updateField('name', e.target.value)} required />
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>Name *</Label>
+                  <Input value={formData.name} onChange={(e) => updateField('name', e.target.value)} required />
+                </div>
+                <div className="space-y-1">
+                  <Label>Phone *</Label>
+                  <Input value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} required />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>Email</Label>
+                  <Input type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label>Tax Number (VAT/PAN)</Label>
+                  <Input value={formData.taxNumber} onChange={(e) => updateField('taxNumber', e.target.value)} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>Address</Label>
+                  <Input value={formData.address} onChange={(e) => updateField('address', e.target.value)} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label>City</Label>
+                    <Input value={formData.city} onChange={(e) => updateField('city', e.target.value)} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Country</Label>
+                    <Input value={formData.country} onChange={(e) => updateField('country', e.target.value)} />
+                  </div>
+                </div>
               </div>
               <div className="space-y-1">
-                <Label>Phone</Label>
-                <Input value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label>Email</Label>
-                <Input type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label>City</Label>
-                <Input value={formData.city} onChange={(e) => updateField('city', e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label>Country</Label>
-                <Input value={formData.country} onChange={(e) => updateField('country', e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label>Tax Number</Label>
-                <Input value={formData.taxNumber} onChange={(e) => updateField('taxNumber', e.target.value)} />
-              </div>
-              <div className="col-span-2 space-y-1">
-                <Label>Address</Label>
-                <Input value={formData.address} onChange={(e) => updateField('address', e.target.value)} />
-              </div>
-              <div className="col-span-2 space-y-1">
-                <Label>Notes</Label>
-                <Textarea rows={2} value={formData.description} onChange={(e) => updateField('description', e.target.value)} />
+                <Label>Description</Label>
+                <Textarea rows={3} value={formData.description} onChange={(e) => updateField('description', e.target.value)} />
               </div>
             </div>
             <DialogFooter>

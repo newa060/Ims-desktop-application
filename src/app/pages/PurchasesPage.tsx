@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from '../components/ui/badge';
 import { Plus, Search, RefreshCw, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { useSettings } from '../contexts/SettingsContext';
 
 interface PurchaseItem {
   productId: string;
@@ -16,10 +17,10 @@ interface PurchaseItem {
   quantity: number;
   unitPrice: number;
   taxRate: number;
-  discountAmount: number;
 }
 
 const PurchasesPage = () => {
+  const { formatCurrency } = useSettings();
   const { user } = useAuth();
   const [purchases, setPurchases] = useState<any[]>([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
@@ -29,9 +30,8 @@ const PurchasesPage = () => {
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [supplierId, setSupplierId] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('cash');
-  const [paidAmount, setPaidAmount] = useState(0);
   const [items, setItems] = useState<PurchaseItem[]>([]);
+  const [paidAmount, setPaidAmount] = useState(0);
 
   const loadPurchases = useCallback(async (page = 1) => {
     setLoading(true);
@@ -45,73 +45,93 @@ const PurchasesPage = () => {
     finally { setLoading(false); }
   }, [search]);
 
-  useEffect(() => { loadPurchases(); }, []);
-
-  const loadFormData = async () => {
+  const loadSuppliers = async () => {
     try {
-      const [s, p] = await Promise.all([
-        window.electron.getSuppliers({ page: 1, limit: 100 }),
-        window.electron.getProducts({ page: 1, limit: 500 }),
-      ]);
-      if (s.success) setSuppliers(s.data.data);
-      if (p.success) setProducts(p.data.data);
-    } catch { toast.error('Failed to load form data'); }
+      const res = await window.electron.getSuppliers({ page: 1, limit: 100 });
+      if (res.success) setSuppliers(res.data.data);
+    } catch {}
   };
 
-  const handleOpenForm = () => {
-    loadFormData();
-    setFormOpen(true);
+  const loadProducts = async () => {
+    try {
+      const res = await window.electron.getProducts({ page: 1, limit: 200 });
+      if (res.success) setProducts(res.data.data);
+    } catch {}
   };
 
-  const handleAddItem = () => {
-    setItems([...items, { productId: '', productName: '', quantity: 1, unitPrice: 0, taxRate: 0, discountAmount: 0 }]);
+  useEffect(() => {
+    loadPurchases();
+    loadSuppliers();
+    loadProducts();
+  }, []);
+
+  const addItem = () => {
+    setItems([...items, { productId: '', productName: '', quantity: 1, unitPrice: 0, taxRate: 0 }]);
   };
 
-  const handleRemoveItem = (index: number) => {
-    setItems(items.filter((_, i) => i !== index));
+  const removeItem = (idx: number) => {
+    setItems(items.filter((_, i) => i !== idx));
   };
 
-  const updateItem = (index: number, field: string, value: any) => {
+  const updateItem = (idx: number, field: keyof PurchaseItem, val: any) => {
     const newItems = [...items];
     if (field === 'productId') {
-      const prod = products.find((p) => p.id === value);
-      newItems[index] = { ...newItems[index], productId: value, productName: prod?.name || '', unitPrice: prod?.purchasePrice || 0 };
+      const p = products.find((prod) => prod.id === val);
+      newItems[idx].productId = val;
+      newItems[idx].productName = p?.name || '';
+      newItems[idx].unitPrice = p?.purchasePrice || 0;
+      newItems[idx].taxRate = p?.taxRate || 0;
     } else {
-      (newItems[index] as any)[field] = value;
+      (newItems[idx] as any)[field] = val;
     }
     setItems(newItems);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (items.length === 0) return toast.error('Add at least one item');
-    if (!items.every((it) => it.productId)) return toast.error('Select product for all items');
+    if (!supplierId) return toast.error('Please select a supplier');
+    if (items.length === 0) return toast.error('Please add at least one item');
+    if (items.some((item) => !item.productId)) return toast.error('Please select products for all items');
+
     try {
-      const res = await window.electron.createPurchase({
+      const payload = {
         supplierId,
-        userId: user?.id,
-        items,
-        paymentMethod,
+        items: items.map((it) => ({
+          productId: it.productId,
+          quantity: it.quantity,
+          unitPrice: it.unitPrice,
+          taxRate: it.taxRate,
+          taxAmount: it.quantity * it.unitPrice * (it.taxRate / 100),
+          discountAmount: 0,
+          totalAmount: (it.quantity * it.unitPrice) * (1 + it.taxRate / 100),
+        })),
         paidAmount,
-      });
+        notes: '',
+        userId: user?.id,
+      };
+
+      const res = await window.electron.createPurchase(payload);
       if (res.success) {
-        toast.success('Purchase created!');
+        toast.success('Purchase created successfully');
         loadPurchases();
         handleClose();
-      } else toast.error(res.error || 'Failed to create purchase');
-    } catch { toast.error('An error occurred'); }
+      } else {
+        toast.error(res.error || 'Failed to create purchase');
+      }
+    } catch {
+      toast.error('An error occurred');
+    }
   };
 
   const handleClose = () => {
     setFormOpen(false);
     setSupplierId('');
-    setPaymentMethod('cash');
-    setPaidAmount(0);
     setItems([]);
+    setPaidAmount(0);
   };
 
-  const subtotal = items.reduce((sum, it) => sum + (it.quantity * it.unitPrice - it.discountAmount), 0);
-  const totalTax = items.reduce((sum, it) => sum + ((it.quantity * it.unitPrice - it.discountAmount) * it.taxRate / 100), 0);
+  const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+  const totalTax = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice * (item.taxRate / 100)), 0);
   const total = subtotal + totalTax;
 
   return (
@@ -119,10 +139,10 @@ const PurchasesPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Purchases</h1>
-          <p className="text-[14.5px] text-ink/55 mt-1.5">Manage your inventory purchases</p>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">Manage stock purchases and supplier invoices</p>
         </div>
-        <Button onClick={handleOpenForm}>
-          <Plus className="mr-2 h-4 w-4" /> Create Purchase
+        <Button onClick={() => setFormOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" /> Add Purchase
         </Button>
       </div>
 
@@ -131,7 +151,7 @@ const PurchasesPage = () => {
           <div className="flex gap-3 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" size={18} />
-              <Input placeholder="Search purchases..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && loadPurchases()} className="pl-10" />
+              <Input placeholder="Search purchase number..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && loadPurchases()} className="pl-10" />
             </div>
             <Button variant="outline" onClick={() => loadPurchases()}><RefreshCw className="mr-2 h-4 w-4" /> Refresh</Button>
           </div>
@@ -160,7 +180,7 @@ const PurchasesPage = () => {
                         <td className="py-3 px-4 font-mono text-xs text-ink/60">{p.purchaseNumber}</td>
                         <td className="py-3 px-4 text-sm font-semibold text-ink">{p.supplier.name}</td>
                         <td className="py-3 px-4 text-ink/55">{new Date(p.purchaseDate).toLocaleDateString()}</td>
-                        <td className="py-3 px-4 text-right font-bold text-ink">${Number(p.totalAmount).toFixed(2)}</td>
+                        <td className="py-3 px-4 text-right font-bold text-ink">{formatCurrency(p.totalAmount)}</td>
                         <td className="py-3 px-4 text-center">
                           <Badge variant={p.paymentStatus === 'paid' ? 'success' : p.paymentStatus === 'partial' ? 'warning' : 'danger'}>{p.paymentStatus}</Badge>
                         </td>
@@ -175,13 +195,9 @@ const PurchasesPage = () => {
               <div className="flex items-center justify-between mt-4 text-sm text-ink/55">
                 <span>Total: {pagination.total} purchase(s)</span>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => loadPurchases(pagination.page - 1)}>
-                    <ChevronLeft size={16} />
-                  </Button>
+                  <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => loadPurchases(pagination.page - 1)}><ChevronLeft size={16} /></Button>
                   <span className="px-2 py-1">Page {pagination.page} / {pagination.totalPages}</span>
-                  <Button variant="outline" size="sm" disabled={pagination.page >= pagination.totalPages} onClick={() => loadPurchases(pagination.page + 1)}>
-                    <ChevronRight size={16} />
-                  </Button>
+                  <Button variant="outline" size="sm" disabled={pagination.page >= pagination.totalPages} onClick={() => loadPurchases(pagination.page + 1)}><ChevronRight size={16} /></Button>
                 </div>
               </div>
             </>
@@ -189,84 +205,74 @@ const PurchasesPage = () => {
         </CardContent>
       </Card>
 
-      <Dialog open={formOpen} onOpenChange={handleClose}>
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create Purchase</DialogTitle>
+            <DialogTitle>Create Stock Purchase</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label>Supplier *</Label>
-                  <Select value={supplierId} onValueChange={setSupplierId} required>
-                    <SelectTrigger><SelectValue placeholder="Select supplier" /></SelectTrigger>
-                    <SelectContent>
-                      {suppliers.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label>Payment Method</Label>
-                  <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cash">Cash</SelectItem>
-                      <SelectItem value="card">Card</SelectItem>
-                      <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                      <SelectItem value="credit">Credit</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label>Supplier</Label>
+                <Select value={supplierId} onValueChange={setSupplierId}>
+                  <SelectTrigger><SelectValue placeholder="Select Supplier" /></SelectTrigger>
+                  <SelectContent>
+                    {suppliers.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
+            </div>
 
-              <div className="border rounded-lg p-4">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-semibold">Items</h3>
-                  <Button type="button" size="sm" onClick={handleAddItem}><Plus size={16} className="mr-1" /> Add Item</Button>
-                </div>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {items.map((item, idx) => (
-                    <div key={idx} className="grid grid-cols-12 gap-2 items-end border-b pb-2">
-                      <div className="col-span-4">
-                        <Label className="text-xs">Product</Label>
-                        <Select value={item.productId} onValueChange={(v) => updateItem(idx, 'productId', v)}>
-                          <SelectTrigger className="h-9"><SelectValue placeholder="Select" /></SelectTrigger>
-                          <SelectContent>
-                            {products.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs">Qty</Label>
-                        <Input type="number" min="1" className="h-9" value={item.quantity} onChange={(e) => updateItem(idx, 'quantity', parseFloat(e.target.value) || 1)} />
-                      </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs">Price</Label>
-                        <Input type="number" step="0.01" min="0" className="h-9" value={item.unitPrice} onChange={(e) => updateItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)} />
-                      </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs">Tax %</Label>
-                        <Input type="number" step="0.01" min="0" className="h-9" value={item.taxRate} onChange={(e) => updateItem(idx, 'taxRate', parseFloat(e.target.value) || 0)} />
-                      </div>
-                      <div className="col-span-1">
-                        <Button type="button" size="icon" variant="ghost" className="h-9 w-9" onClick={() => handleRemoveItem(idx)}>
-                          <Trash2 size={14} className="text-danger-text" />
-                        </Button>
-                      </div>
+            <div className="border rounded-lg p-4 bg-paper/30">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold text-sm text-ink">Purchase Items</h3>
+                <Button type="button" size="sm" onClick={addItem}>Add Item</Button>
+              </div>
+              <div className="space-y-3">
+                {items.map((item, idx) => (
+                  <div key={idx} className="grid grid-cols-12 gap-3 items-end border-b pb-3 last:border-0 last:pb-0">
+                    <div className="col-span-5 space-y-1">
+                      <Label className="text-xs">Product</Label>
+                      <Select value={item.productId} onValueChange={(v) => updateItem(idx, 'productId', v)}>
+                        <SelectTrigger className="h-9"><SelectValue placeholder="Select Product" /></SelectTrigger>
+                        <SelectContent>
+                          {products.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  ))}
-                </div>
+                    <div className="col-span-2 space-y-1">
+                      <Label className="text-xs">Quantity</Label>
+                      <Input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(idx, 'quantity', parseInt(e.target.value) || 0)} className="h-9" />
+                    </div>
+                    <div className="col-span-2 space-y-1">
+                      <Label className="text-xs">Unit Price</Label>
+                      <Input type="number" step="0.01" min="0" value={item.unitPrice} onChange={(e) => updateItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)} className="h-9" />
+                    </div>
+                    <div className="col-span-2 space-y-1">
+                      <Label className="text-xs">Tax Rate (%)</Label>
+                      <Input type="number" min="0" value={item.taxRate} onChange={(e) => updateItem(idx, 'taxRate', parseFloat(e.target.value) || 0)} className="h-9" />
+                    </div>
+                    <div className="col-span-1 text-right">
+                      <Button type="button" size="icon" variant="ghost" className="h-9 w-9 text-danger-text" onClick={() => removeItem(idx)}>
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
+            </div>
 
-              <div className="border rounded-lg p-4 bg-[#faf9f5]">
-                <div className="space-y-2">
-                  <div className="flex justify-between"><span>Subtotal:</span><span className="font-semibold">${subtotal.toFixed(2)}</span></div>
-                  <div className="flex justify-between"><span>Tax:</span><span className="font-semibold">${totalTax.toFixed(2)}</span></div>
-                  <div className="flex justify-between text-lg border-t pt-2"><span className="font-bold">Total:</span><span className="font-bold text-primary">${total.toFixed(2)}</span></div>
-                  <div className="space-y-1 pt-2">
-                    <Label>Amount Paid</Label>
-                    <Input type="number" step="0.01" min="0" value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <div className="border rounded-lg p-4 bg-[#faf9f5]">
+                  <div className="space-y-2">
+                    <div className="flex justify-between"><span>Subtotal:</span><span className="font-semibold">{formatCurrency(subtotal)}</span></div>
+                    <div className="flex justify-between"><span>Tax:</span><span className="font-semibold">{formatCurrency(totalTax)}</span></div>
+                    <div className="flex justify-between text-lg border-t pt-2"><span className="font-bold">Total:</span><span className="font-bold text-primary">{formatCurrency(total)}</span></div>
+                    <div className="space-y-1 pt-2">
+                      <Label>Amount Paid</Label>
+                      <Input type="number" step="0.01" min="0" value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} />
+                    </div>
                   </div>
                 </div>
               </div>

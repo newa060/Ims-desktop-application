@@ -7,10 +7,12 @@ import { Card, CardContent } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { Plus, Search, Edit, Trash2, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { useSettings } from '../contexts/SettingsContext';
 
 const emptyForm = { name: '', email: '', phone: '', address: '', city: '', country: '', description: '' };
 
 const CustomersPage = () => {
+  const { formatCurrency } = useSettings();
   const [customers, setCustomers] = useState<any[]>([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
   const [search, setSearch] = useState('');
@@ -120,7 +122,7 @@ const CustomersPage = () => {
                         <td className="py-3 px-4 text-ink/55">{c.phone || '-'}</td>
                         <td className="py-3 px-4 text-ink/55">{c.email || '-'}</td>
                         <td className="py-3 px-4 text-ink/55">{c.city || '-'}</td>
-                        <td className="py-3 px-4 text-right font-bold text-ink">${Number(c.creditBalance || 0).toFixed(2)}</td>
+                        <td className="py-3 px-4 text-right font-bold text-ink">{formatCurrency(c.creditBalance || 0)}</td>
                         <td className="py-3 px-4 text-right">{c.loyaltyPoints || 0}</td>
                         <td className="py-3 px-4">
                           <div className="flex justify-center gap-2">
@@ -150,40 +152,46 @@ const CustomersPage = () => {
         </CardContent>
       </Card>
 
-      <Dialog open={formOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editId ? 'Edit Customer' : 'Add Customer'}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-4 py-4">
-              <div className="col-span-2 space-y-1">
-                <Label>Name *</Label>
-                <Input value={formData.name} onChange={(e) => updateField('name', e.target.value)} required />
-              </div>
-              <div className="space-y-1">
-                <Label>Phone</Label>
-                <Input value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} />
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>Name *</Label>
+                  <Input value={formData.name} onChange={(e) => updateField('name', e.target.value)} required />
+                </div>
+                <div className="space-y-1">
+                  <Label>Phone *</Label>
+                  <Input value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} required />
+                </div>
               </div>
               <div className="space-y-1">
                 <Label>Email</Label>
                 <Input type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} />
               </div>
-              <div className="space-y-1">
-                <Label>City</Label>
-                <Input value={formData.city} onChange={(e) => updateField('city', e.target.value)} />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>Address</Label>
+                  <Input value={formData.address} onChange={(e) => updateField('address', e.target.value)} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label>City</Label>
+                    <Input value={formData.city} onChange={(e) => updateField('city', e.target.value)} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Country</Label>
+                    <Input value={formData.country} onChange={(e) => updateField('country', e.target.value)} />
+                  </div>
+                </div>
               </div>
               <div className="space-y-1">
-                <Label>Country</Label>
-                <Input value={formData.country} onChange={(e) => updateField('country', e.target.value)} />
-              </div>
-              <div className="col-span-2 space-y-1">
-                <Label>Address</Label>
-                <Input value={formData.address} onChange={(e) => updateField('address', e.target.value)} />
-              </div>
-              <div className="col-span-2 space-y-1">
-                <Label>Notes</Label>
-                <Textarea rows={2} value={formData.description} onChange={(e) => updateField('description', e.target.value)} />
+                <Label>Description</Label>
+                <Textarea rows={3} value={formData.description} onChange={(e) => updateField('description', e.target.value)} />
               </div>
             </div>
             <DialogFooter>

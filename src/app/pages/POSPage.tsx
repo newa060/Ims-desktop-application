@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Search, Trash2, Plus, Minus, ShoppingCart, User } from 'lucide-react';
 import { toast } from 'sonner';
+import { useSettings } from '../contexts/SettingsContext';
+
 
 interface CartItem {
   productId: string;
@@ -21,6 +23,7 @@ interface CartItem {
 }
 
 const POSPage = () => {
+  const { formatCurrency } = useSettings();
   const { user } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [barcode, setBarcode] = useState('');
@@ -72,12 +75,6 @@ const POSPage = () => {
   const updateQuantity = (productId: string, change: number) => {
     setCart(cart.map((item) =>
       item.productId === productId ? { ...item, quantity: Math.max(1, item.quantity + change) } : item
-    ));
-  };
-
-  const updateItemDiscount = (productId: string, discount: number) => {
-    setCart(cart.map((item) =>
-      item.productId === productId ? { ...item, discountAmount: Math.max(0, discount) } : item
     ));
   };
 
@@ -241,7 +238,7 @@ const POSPage = () => {
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">
                             <p className="font-semibold text-sm text-ink">{item.name}</p>
-                            <p className="text-xs text-ink/50">{item.sku} • ${item.unitPrice.toFixed(2)}</p>
+                            <p className="text-xs text-ink/50">{item.sku} • {formatCurrency(item.unitPrice)}</p>
                           </div>
                           <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeFromCart(item.productId)}>
                             <Trash2 size={12} className="text-danger-text" />
@@ -257,7 +254,7 @@ const POSPage = () => {
                               <Plus size={12} />
                             </Button>
                           </div>
-                          <span className="font-bold text-sm text-ink">${((item.quantity * item.unitPrice) - item.discountAmount).toFixed(2)}</span>
+                          <span className="font-bold text-sm text-ink">{formatCurrency((item.quantity * item.unitPrice) - item.discountAmount)}</span>
                         </div>
                       </div>
                     ))}
@@ -266,11 +263,11 @@ const POSPage = () => {
                   <div className="space-y-2 border-t border-ink/[0.08] pt-4">
                     <div className="flex justify-between text-[13.5px]">
                       <span className="text-ink/60">Subtotal</span>
-                      <span className="font-semibold text-ink">${subtotal.toFixed(2)}</span>
+                      <span className="font-semibold text-ink">{formatCurrency(subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-[13.5px]">
                       <span className="text-ink/60">Tax</span>
-                      <span className="font-semibold text-ink">${totalTax.toFixed(2)}</span>
+                      <span className="font-semibold text-ink">{formatCurrency(totalTax)}</span>
                     </div>
                     <div className="flex justify-between items-center text-[13.5px]">
                       <span className="text-ink/60">Discount</span>
@@ -285,7 +282,7 @@ const POSPage = () => {
                     </div>
                     <div className="flex justify-between font-display text-[19px] font-bold border-t border-ink/[0.08] pt-3">
                       <span className="text-ink">Total</span>
-                      <span className="text-ink">${total.toFixed(2)}</span>
+                      <span className="text-ink">{formatCurrency(total)}</span>
                     </div>
                   </div>
 
@@ -293,7 +290,7 @@ const POSPage = () => {
                     className="w-full mt-4 bg-olive text-ink text-center font-bold text-[14.5px] py-3.5 rounded-[10px] hover:bg-[#bcc65c] transition-colors"
                     onClick={handleOpenPayment}
                   >
-                    Charge ${total.toFixed(2)}
+                    Charge {formatCurrency(total)}
                   </button>
                 </>
               )}
@@ -309,10 +306,10 @@ const POSPage = () => {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="bg-paper rounded-[10px] p-4 space-y-2">
-              <div className="flex justify-between text-sm text-ink"><span>Subtotal:</span><span>${subtotal.toFixed(2)}</span></div>
-              <div className="flex justify-between text-sm text-ink"><span>Tax:</span><span>${totalTax.toFixed(2)}</span></div>
-              <div className="flex justify-between text-sm text-ink"><span>Discount:</span><span>-${discountAmount.toFixed(2)}</span></div>
-              <div className="flex justify-between text-lg font-bold border-t border-ink/[0.08] pt-2 text-ink"><span>Total:</span><span>${total.toFixed(2)}</span></div>
+              <div className="flex justify-between text-sm text-ink"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>
+              <div className="flex justify-between text-sm text-ink"><span>Tax:</span><span>{formatCurrency(totalTax)}</span></div>
+              <div className="flex justify-between text-sm text-ink"><span>Discount:</span><span>-{formatCurrency(discountAmount)}</span></div>
+              <div className="flex justify-between text-lg font-bold border-t border-ink/[0.08] pt-2 text-ink"><span>Total:</span><span>{formatCurrency(total)}</span></div>
             </div>
             <div className="space-y-1">
               <Label>Payment Method</Label>
@@ -333,7 +330,7 @@ const POSPage = () => {
             <div className="bg-success-bg rounded-[10px] p-3">
               <div className="flex justify-between text-lg font-semibold text-success-text">
                 <span>Change:</span>
-                <span>${changeAmount.toFixed(2)}</span>
+                <span>{formatCurrency(changeAmount)}</span>
               </div>
             </div>
             <div className="space-y-1">

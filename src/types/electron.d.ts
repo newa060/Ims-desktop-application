@@ -3,6 +3,7 @@ export interface ElectronAPI {
   login: (email: string, password: string) => Promise<any>;
   logout: () => Promise<any>;
   getCurrentUser: () => Promise<any>;
+  setCurrentUser: (user: any) => Promise<any>;
 
   // Products
   getProducts: (params: any) => Promise<any>;

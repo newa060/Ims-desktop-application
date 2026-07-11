@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('electron', {
   login: (email: string, password: string) => ipcRenderer.invoke('auth:login', email, password),
   logout: () => ipcRenderer.invoke('auth:logout'),
   getCurrentUser: () => ipcRenderer.invoke('auth:getCurrentUser'),
+  setCurrentUser: (user: any) => ipcRenderer.invoke('auth:setCurrentUser', user),
 
   // Products
   getProducts: (params: any) => ipcRenderer.invoke('products:getAll', params),

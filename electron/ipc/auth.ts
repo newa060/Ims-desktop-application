@@ -51,6 +51,16 @@ export const setupAuthHandlers = () => {
       return { success: false, error: 'Failed to get current user' };
     }
   });
+
+  ipcMain.handle('auth:setCurrentUser', async (_event, user) => {
+    try {
+      currentUser = user;
+      return { success: true };
+    } catch (error) {
+      logger.error('Set current user handler error:', error);
+      return { success: false, error: 'Failed to set current user' };
+    }
+  });
 };
 
 export const getCurrentUser = () => currentUser;

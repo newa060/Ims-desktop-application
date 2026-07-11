@@ -99,6 +99,7 @@
       "dist/**/*",
       "node_modules/**/*"
     ],
+    "compression": "store",
     "win": {
       "target": [
         {
