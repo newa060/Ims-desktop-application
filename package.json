@@ -1,6 +1,6 @@
 {
   "name": "inventory-management-system",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Enterprise Desktop Inventory Management System",
   "main": "dist/electron/electron/main.js",
   "scripts": {
