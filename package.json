@@ -120,7 +120,8 @@
       "provider": "github",
       "owner": "newa060",
       "repo": "Ims-desktop-application",
-      "private": false
+      "private": false,
+      "releaseType": "release"
     }
   }
 }
