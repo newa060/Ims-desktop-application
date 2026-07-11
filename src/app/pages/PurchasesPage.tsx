@@ -7,7 +7,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
-import { Plus, Search, RefreshCw, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Search, RefreshCw, Trash2, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSettings } from '../contexts/SettingsContext';
 
@@ -32,6 +32,7 @@ const PurchasesPage = () => {
   const [supplierId, setSupplierId] = useState('');
   const [items, setItems] = useState<PurchaseItem[]>([]);
   const [paidAmount, setPaidAmount] = useState(0);
+  const [detailPurchase, setDetailPurchase] = useState<any>(null);
 
   const loadPurchases = useCallback(async (page = 1) => {
     setLoading(true);
@@ -73,29 +74,47 @@ const PurchasesPage = () => {
     setItems(items.filter((_, i) => i !== idx));
   };
 
-  const updateItem = (idx: number, field: keyof PurchaseItem, val: any) => {
+  const updateItem = (idx: number, field: keyof PurchaseItem, value: any) => {
     const newItems = [...items];
     if (field === 'productId') {
-      const p = products.find((prod) => prod.id === val);
-      newItems[idx].productId = val;
-      newItems[idx].productName = p?.name || '';
-      newItems[idx].unitPrice = p?.purchasePrice || 0;
-      newItems[idx].taxRate = p?.taxRate || 0;
+      const prod = products.find((p) => p.id === value);
+      newItems[idx].productId = value;
+      newItems[idx].productName = prod ? prod.name : '';
     } else {
-      (newItems[idx] as any)[field] = val;
+      newItems[idx] = { ...newItems[idx], [field]: value };
     }
     setItems(newItems);
   };
 
+  const viewDetail = async (id: string) => {
+    try {
+      const res = await window.electron.getPurchaseById(id);
+      if (res.success) setDetailPurchase(res.data);
+      else toast.error('Failed to load purchase details');
+    } catch { toast.error('An error occurred'); }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!supplierId) return toast.error('Please select a supplier');
-    if (items.length === 0) return toast.error('Please add at least one item');
-    if (items.some((item) => !item.productId)) return toast.error('Please select products for all items');
+    if (!supplierId) {
+      toast.error('Please select a supplier');
+      return;
+    }
+    if (items.length === 0) {
+      toast.error('Please add at least one item');
+      return;
+    }
 
     try {
       const payload = {
         supplierId,
+        purchaseDate: new Date().toISOString(),
+        status: 'received',
+        subtotal,
+        taxAmount: totalTax,
+        discountAmount: 0,
+        shippingCost: 0,
+        totalAmount: total,
         items: items.map((it) => ({
           productId: it.productId,
           quantity: it.quantity,
@@ -172,6 +191,7 @@ const PurchasesPage = () => {
                       <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Total</th>
                       <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Payment Status</th>
                       <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Status</th>
+                      <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -186,6 +206,11 @@ const PurchasesPage = () => {
                         </td>
                         <td className="py-3 px-4 text-center">
                           <Badge variant={p.status === 'received' ? 'success' : 'default'}>{p.status}</Badge>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => viewDetail(p.id)}>
+                            <Eye className="h-4 w-4 text-ink/50" />
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -282,6 +307,49 @@ const PurchasesPage = () => {
               <Button type="submit">Create Purchase</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!detailPurchase} onOpenChange={(o) => !o && setDetailPurchase(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Purchase Details</DialogTitle></DialogHeader>
+          {detailPurchase && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div><span className="text-ink/55">Purchase Number:</span><p className="font-mono font-semibold">{detailPurchase.purchaseNumber}</p></div>
+                <div><span className="text-ink/55">Date:</span><p>{new Date(detailPurchase.purchaseDate).toLocaleString()}</p></div>
+                <div><span className="text-ink/55">Supplier:</span><p className="font-semibold">{detailPurchase.supplier?.name}</p></div>
+                <div><span className="text-ink/55">Payment Status:</span><p className="capitalize">{detailPurchase.paymentStatus}</p></div>
+              </div>
+              <div className="border rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead><tr className="bg-[#faf9f5] border-b">
+                    <th className="text-left py-2 px-4">Product</th>
+                    <th className="text-center py-2 px-4">Qty</th>
+                    <th className="text-right py-2 px-4">Price</th>
+                    <th className="text-right py-2 px-4">Total</th>
+                  </tr></thead>
+                  <tbody>
+                    {(detailPurchase.items || []).map((item: any) => (
+                      <tr key={item.id} className="border-b">
+                        <td className="py-2 px-4">{item.product?.name}</td>
+                        <td className="py-2 px-4 text-center">{item.quantity}</td>
+                        <td className="py-2 px-4 text-right">{formatCurrency(item.unitPrice)}</td>
+                        <td className="py-2 px-4 text-right">{formatCurrency(item.totalAmount)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(detailPurchase.subtotal || 0)}</span></div>
+                <div className="flex justify-between"><span>Tax:</span><span>{formatCurrency(detailPurchase.taxAmount || 0)}</span></div>
+                <div className="flex justify-between text-lg font-bold border-t pt-2"><span>Total:</span><span>{formatCurrency(detailPurchase.totalAmount || 0)}</span></div>
+                <div className="flex justify-between"><span>Paid:</span><span>{formatCurrency(detailPurchase.paidAmount || 0)}</span></div>
+                <div className="flex justify-between text-danger-text font-semibold"><span>Balance Due:</span><span>{formatCurrency(detailPurchase.balanceAmount || 0)}</span></div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
