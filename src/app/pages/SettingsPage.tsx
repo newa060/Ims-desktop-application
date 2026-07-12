@@ -138,14 +138,6 @@ const SettingsPage = () => {
                     onBlur={(e) => handleSave('currency_symbol', e.target.value)}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Default Tax Rate (%)</Label>
-                  <Input
-                    type="number"
-                    defaultValue={settings.tax_rate}
-                    onBlur={(e) => handleSave('tax_rate', e.target.value)}
-                  />
-                </div>
               </div>
             </CardContent>
           </Card>
