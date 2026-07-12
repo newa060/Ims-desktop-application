@@ -285,17 +285,6 @@ export class ProductRepository extends BaseRepository<Product> {
 
   async create(data: any): Promise<Product> {
     const lookups = await this.loadLookups();
-    
-    // Auto-resolve defaults for category and unit if not specified (e.g. created via purchases)
-    if (!data.categoryId) {
-      const firstCatId = Array.from(lookups.categoryNameById.keys())[0];
-      if (firstCatId) data.categoryId = firstCatId;
-    }
-    if (!data.unitId) {
-      const firstUnitId = Array.from(lookups.unitById.keys())[0];
-      if (firstUnitId) data.unitId = firstUnitId;
-    }
-
     const dbData = await this.toDbShape(data, lookups);
 
     dbData.slug = slugify(`${data.name}-${data.sku}`);

@@ -135,7 +135,7 @@ const PurchasesPage = () => {
             currentStock: 0, // will be incremented by create_purchase RPC
             minimumStock: 0,
             taxRate: it.taxRate || 0,
-            status: 'active',
+            status: 'inactive',
           });
           if (!newProd.success) throw new Error(`Failed to create product "${it.newName}"`);
           await loadProducts(); // refresh product list
