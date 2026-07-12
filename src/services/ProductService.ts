@@ -69,8 +69,10 @@ export class ProductService {
 
   async deleteProduct(id: string): Promise<Product> {
     try {
-      const product = await ProductRepository.hardDelete(id);
-      logger.info(`Product deleted: ${id}`);
+      // Products are shared with the storefront and may have purchase/sale references.
+      // We archive (soft-delete) instead of hard-deleting to avoid FK constraint errors.
+      const product = await ProductRepository.softDelete(id);
+      logger.info(`Product archived (soft-deleted): ${id}`);
       return product;
     } catch (error) {
       logger.error('Delete product error:', error);
