@@ -326,7 +326,7 @@ const PurchasesPage = () => {
                           <Select value={item.productId} onValueChange={(v) => updateItem(idx, 'productId', v)}>
                             <SelectTrigger className="h-9"><SelectValue placeholder="Select Product" /></SelectTrigger>
                             <SelectContent>
-                              {products.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                              {[...products].sort((a, b) => a.name.localeCompare(b.name)).map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                             </SelectContent>
                           </Select>
                         </div>
