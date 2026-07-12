@@ -501,7 +501,7 @@ const ReportsPage = () => {
 
       {/* Interactive Report View Dialog */}
       <Dialog open={!!activeReport} onOpenChange={(open) => !open && setActiveReport(null)}>
-        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between mr-6">
               <span>{activeReport?.name}</span>
@@ -553,9 +553,9 @@ const ReportsPage = () => {
                 <div className="border rounded-[10px] overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-[#faf9f5] border-b text-ink/60 text-xs">
+                      <tr className="bg-[#faf9f5] border-b text-ink/60 text-[11px]">
                         {reportData.headers.map((h) => (
-                          <th key={h} className="py-2.5 px-4 font-bold text-left uppercase tracking-wider whitespace-nowrap">{h}</th>
+                          <th key={h} className="py-2 px-2 font-bold text-left uppercase tracking-wide">{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -570,7 +570,7 @@ const ReportsPage = () => {
                         pageRows.map((row, rIdx) => (
                           <tr key={rIdx} className="border-b hover:bg-paper/40 text-ink/80">
                             {row.map((cell, cIdx) => (
-                              <td key={cIdx} className="py-2 px-4 whitespace-nowrap">{cell}</td>
+                              <td key={cIdx} className="py-1.5 px-2 text-sm">{cell}</td>
                             ))}
                           </tr>
                         ))
