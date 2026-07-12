@@ -1,10 +1,13 @@
-import { ipcMain, dialog } from 'electron';
+import { ipcMain, dialog, app } from 'electron';
 import fs from 'fs';
 import path from 'path';
 import supabase from '../../src/database/supabaseClient';
 import logger from '../../src/utils/logger';
 
-const backupDir = path.join(process.cwd(), 'backups');
+// Use Electron's userData path — guaranteed writable on every machine
+// regardless of where the .exe is installed or how it's launched.
+// Resolves to: C:\Users\<user>\AppData\Roaming\Inventory Management System\backups\
+const backupDir = path.join(app.getPath('userData'), 'backups');
 
 // Order matters: children before parents wouldn't matter for export (plain
 // reads), but restore re-inserts in this order so foreign keys resolve.
