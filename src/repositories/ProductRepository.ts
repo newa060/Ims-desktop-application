@@ -285,6 +285,27 @@ export class ProductRepository extends BaseRepository<Product> {
 
   async create(data: any): Promise<Product> {
     const lookups = await this.loadLookups();
+
+    // The storefront `products` table has a NOT NULL constraint on `category` and
+    // requires `unit` for its slug/checkout flow. If these aren't supplied (e.g.
+    // when creating a product from the purchase checkout), we fall back to the
+    // first available value so the insert succeeds. The user can update the product
+    // in the Products page to assign the correct category/unit.
+    if (!data.categoryId) {
+      // Prefer "Uncategorized" if it exists, otherwise take the first category
+      const uncategorizedId = Array.from(lookups.categoryNameById.entries())
+        .find(([, name]) => /uncategor/i.test(name))?.[0]
+        ?? Array.from(lookups.categoryNameById.keys())[0];
+      if (uncategorizedId) data.categoryId = uncategorizedId;
+    }
+    if (!data.unitId) {
+      // Prefer "pcs" / "piece" if it exists, otherwise take the first unit
+      const pcsId = Array.from(lookups.unitById.entries())
+        .find(([, u]) => /^pcs$|^piece/i.test(u.shortName || u.name))?.[0]
+        ?? Array.from(lookups.unitById.keys())[0];
+      if (pcsId) data.unitId = pcsId;
+    }
+
     const dbData = await this.toDbShape(data, lookups);
 
     dbData.slug = slugify(`${data.name}-${data.sku}`);
