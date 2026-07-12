@@ -42,16 +42,36 @@ const ReportsPage = () => {
     { id: 'tax_report', name: 'Tax Report', description: 'Tax collected and paid', category: 'financial' },
   ];
 
-  const generateReport = async (report: ReportConfig, triggerDownload = false) => {
+  const generateReport = async (report: ReportConfig, triggerDownload = false, isInitial = false) => {
     setLoading(true);
     try {
       let headers: string[] = [];
       let rows: any[][] = [];
       let summary: Record<string, string | number> = {};
 
-      const start = new Date(startDate);
+      let currentStart = startDate;
+      let currentEnd = endDate;
+
+      if (isInitial) {
+        if (report.id === 'daily_sales') {
+          const today = new Date().toISOString().split('T')[0];
+          currentStart = today;
+          currentEnd = today;
+          setStartDate(today);
+          setEndDate(today);
+        } else if (report.id === 'monthly_sales') {
+          const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+          const today = new Date().toISOString().split('T')[0];
+          currentStart = firstDay;
+          currentEnd = today;
+          setStartDate(firstDay);
+          setEndDate(today);
+        }
+      }
+
+      const start = new Date(currentStart);
       start.setHours(0, 0, 0, 0);
-      const end = new Date(endDate);
+      const end = new Date(currentEnd);
       end.setHours(23, 59, 59, 999);
 
       if (report.id === 'daily_sales' || report.id === 'monthly_sales') {
@@ -59,16 +79,9 @@ const ReportsPage = () => {
         const res = await window.electron.getSales({ page: 1, limit: 1000 });
         if (!res.success) throw new Error(res.error);
 
-        const filterStart = report.id === 'daily_sales' 
-          ? new Date(new Date().setHours(0,0,0,0)) 
-          : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-        const filterEnd = report.id === 'daily_sales' 
-          ? new Date(new Date().setHours(23,59,59,999)) 
-          : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0, 23, 59, 59, 999);
-
         const filtered = res.data.data.filter((s: any) => {
           const date = new Date(s.createdAt);
-          return date >= filterStart && date <= filterEnd;
+          return date >= start && date <= end;
         });
 
         headers = ['Sale Number', 'Customer', 'Date', 'Payment Status', 'Subtotal', 'Tax', 'Discount', 'Total Amount', 'Paid Amount'];
@@ -433,10 +446,10 @@ const ReportsPage = () => {
                       <p className="text-xs text-ink/55 mt-0.5">{report.description}</p>
                     </div>
                     <div className="flex gap-1">
-                      <Button size="sm" variant="ghost" onClick={() => generateReport(report, false)} disabled={loading}>
+                      <Button size="sm" variant="ghost" onClick={() => generateReport(report, false, true)} disabled={loading}>
                         <FileText className="h-4 w-4 text-ink/50" />
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => generateReport(report, true)} disabled={loading}>
+                      <Button size="sm" variant="ghost" onClick={() => generateReport(report, true, true)} disabled={loading}>
                         <Download className="h-4 w-4 text-ink/50" />
                       </Button>
                     </div>
