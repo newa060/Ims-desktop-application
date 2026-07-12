@@ -17,6 +17,9 @@ interface PurchaseItem {
   quantity: number;
   unitPrice: number;
   taxRate: number;
+  isNew: boolean;       // true = adding a brand-new product
+  newName: string;      // name for new product
+  sellingPrice: number; // selling price for new product
 }
 
 const PurchasesPage = () => {
@@ -67,7 +70,7 @@ const PurchasesPage = () => {
   }, []);
 
   const addItem = () => {
-    setItems([...items, { productId: '', productName: '', quantity: 1, unitPrice: 0, taxRate: 0 }]);
+    setItems([...items, { productId: '', productName: '', quantity: 1, unitPrice: 0, taxRate: 0, isNew: false, newName: '', sellingPrice: 0 }]);
   };
 
   const removeItem = (idx: number) => {
@@ -80,6 +83,9 @@ const PurchasesPage = () => {
       const prod = products.find((p) => p.id === value);
       newItems[idx].productId = value;
       newItems[idx].productName = prod ? prod.name : '';
+    } else if (field === 'isNew') {
+      // Toggle: reset product selection fields
+      newItems[idx] = { ...newItems[idx], isNew: value, productId: '', productName: '', newName: '', sellingPrice: 0 };
     } else {
       newItems[idx] = { ...newItems[idx], [field]: value };
     }
@@ -105,7 +111,36 @@ const PurchasesPage = () => {
       return;
     }
 
+    // Validate new product rows
+    for (const it of items) {
+      if (it.isNew && !it.newName.trim()) {
+        toast.error('Please enter a product name for all new items');
+        return;
+      }
+      if (!it.isNew && !it.productId) {
+        toast.error('Please select a product for all existing items');
+        return;
+      }
+    }
+
     try {
+      // For each "new product" row, create the product first and get its ID
+      const resolvedItems = await Promise.all(
+        items.map(async (it) => {
+          if (!it.isNew) return it;
+          const newProd = await window.electron.createProduct({
+            name: it.newName.trim(),
+            price: it.sellingPrice || it.unitPrice,
+            purchase_price: it.unitPrice,
+            stock: 0, // will be incremented by create_purchase RPC
+            minimum_stock: 0,
+          });
+          if (!newProd.success) throw new Error(`Failed to create product "${it.newName}"`);
+          await loadProducts(); // refresh product list
+          return { ...it, productId: newProd.data.id, productName: newProd.data.name };
+        })
+      );
+
       const payload = {
         supplierId,
         purchaseDate: new Date().toISOString(),
@@ -115,7 +150,7 @@ const PurchasesPage = () => {
         discountAmount: 0,
         shippingCost: 0,
         totalAmount: total,
-        items: items.map((it) => ({
+        items: resolvedItems.map((it) => ({
           productId: it.productId,
           quantity: it.quantity,
           unitPrice: it.unitPrice,
@@ -137,8 +172,8 @@ const PurchasesPage = () => {
       } else {
         toast.error(res.error || 'Failed to create purchase');
       }
-    } catch {
-      toast.error('An error occurred');
+    } catch (err: any) {
+      toast.error(err?.message || 'An error occurred');
     }
   };
 
@@ -255,32 +290,71 @@ const PurchasesPage = () => {
               </div>
               <div className="space-y-3">
                 {items.map((item, idx) => (
-                  <div key={idx} className="grid grid-cols-12 gap-3 items-end border-b pb-3 last:border-0 last:pb-0">
-                    <div className="col-span-5 space-y-1">
-                      <Label className="text-xs">Product</Label>
-                      <Select value={item.productId} onValueChange={(v) => updateItem(idx, 'productId', v)}>
-                        <SelectTrigger className="h-9"><SelectValue placeholder="Select Product" /></SelectTrigger>
-                        <SelectContent>
-                          {products.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="col-span-2 space-y-1">
-                      <Label className="text-xs">Quantity</Label>
-                      <Input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(idx, 'quantity', parseInt(e.target.value) || 0)} className="h-9" />
-                    </div>
-                    <div className="col-span-2 space-y-1">
-                      <Label className="text-xs">Unit Price</Label>
-                      <Input type="number" step="0.01" min="0" value={item.unitPrice} onChange={(e) => updateItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)} className="h-9" />
-                    </div>
-                    <div className="col-span-2 space-y-1">
-                      <Label className="text-xs">Tax Rate (%)</Label>
-                      <Input type="number" min="0" value={item.taxRate} onChange={(e) => updateItem(idx, 'taxRate', parseFloat(e.target.value) || 0)} className="h-9" />
-                    </div>
-                    <div className="col-span-1 text-right">
-                      <Button type="button" size="icon" variant="ghost" className="h-9 w-9 text-danger-text" onClick={() => removeItem(idx)}>
-                        <Trash2 size={16} />
+                  <div key={idx} className="border rounded-lg p-3 bg-white/60 space-y-3">
+                    {/* Toggle: existing vs new product */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-1 text-xs bg-paper rounded-md p-0.5">
+                        <button
+                          type="button"
+                          onClick={() => updateItem(idx, 'isNew', false)}
+                          className={`px-3 py-1 rounded transition-colors ${
+                            !item.isNew ? 'bg-ink text-white font-semibold' : 'text-ink/60 hover:text-ink'
+                          }`}
+                        >
+                          Existing Product
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateItem(idx, 'isNew', true)}
+                          className={`px-3 py-1 rounded transition-colors ${
+                            item.isNew ? 'bg-ink text-white font-semibold' : 'text-ink/60 hover:text-ink'
+                          }`}
+                        >
+                          + New Product
+                        </button>
+                      </div>
+                      <Button type="button" size="icon" variant="ghost" className="h-7 w-7 text-danger-text" onClick={() => removeItem(idx)}>
+                        <Trash2 size={14} />
                       </Button>
+                    </div>
+
+                    <div className="grid grid-cols-12 gap-3 items-end">
+                      {/* Product selector or new product name */}
+                      {!item.isNew ? (
+                        <div className="col-span-5 space-y-1">
+                          <Label className="text-xs">Product</Label>
+                          <Select value={item.productId} onValueChange={(v) => updateItem(idx, 'productId', v)}>
+                            <SelectTrigger className="h-9"><SelectValue placeholder="Select Product" /></SelectTrigger>
+                            <SelectContent>
+                              {products.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="col-span-3 space-y-1">
+                            <Label className="text-xs">New Product Name *</Label>
+                            <Input placeholder="e.g. Blue Shirt XL" value={item.newName} onChange={(e) => updateItem(idx, 'newName', e.target.value)} className="h-9" />
+                          </div>
+                          <div className="col-span-2 space-y-1">
+                            <Label className="text-xs">Selling Price</Label>
+                            <Input type="number" step="0.01" min="0" placeholder="0" value={item.sellingPrice || ''} onChange={(e) => updateItem(idx, 'sellingPrice', parseFloat(e.target.value) || 0)} className="h-9" />
+                          </div>
+                        </>
+                      )}
+                      <div className="col-span-2 space-y-1">
+                        <Label className="text-xs">Quantity</Label>
+                        <Input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(idx, 'quantity', parseInt(e.target.value) || 0)} className="h-9" />
+                      </div>
+                      <div className="col-span-2 space-y-1">
+                        <Label className="text-xs">Cost Price</Label>
+                        <Input type="number" step="0.01" min="0" value={item.unitPrice} onChange={(e) => updateItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)} className="h-9" />
+                      </div>
+                      <div className="col-span-2 space-y-1">
+                        <Label className="text-xs">Tax Rate (%)</Label>
+                        <Input type="number" min="0" value={item.taxRate} onChange={(e) => updateItem(idx, 'taxRate', parseFloat(e.target.value) || 0)} className="h-9" />
+                      </div>
+                      {!item.isNew && <div className="col-span-1" />}
                     </div>
                   </div>
                 ))}
