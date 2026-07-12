@@ -23,6 +23,8 @@ const ReportsPage = () => {
   
   const [reportData, setReportData] = useState<{ headers: string[]; rows: any[][]; summary?: Record<string, string | number> } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [tablePage, setTablePage] = useState(1);
+  const TABLE_PAGE_SIZE = 50;
 
   const reportsList: ReportConfig[] = [
     // Sales
@@ -175,32 +177,53 @@ const ReportsPage = () => {
         };
       }
       else if (report.id === 'current_stock' || report.id === 'low_stock' || report.id === 'out_of_stock') {
-        const res = await window.electron.getProducts({ page: 1, limit: 1000 });
-        if (!res.success) throw new Error(res.error);
+        // Fetch ALL products by paginating until exhausted
+        let allProducts: any[] = [];
+        let page = 1;
+        const pageSize = 500;
+        while (true) {
+          const res = await window.electron.getProducts({ page, limit: pageSize });
+          if (!res.success) throw new Error(res.error);
+          const batch = res.data.data;
+          allProducts = allProducts.concat(batch);
+          if (batch.length < pageSize) break; // last page
+          page++;
+        }
 
-        let filtered = res.data.data;
+        // ProductRepository returns camelCase field names
+        let filtered = allProducts;
         if (report.id === 'low_stock') {
-          filtered = filtered.filter((p: any) => p.stock <= p.minimum_stock);
+          filtered = filtered.filter((p: any) => (p.currentStock ?? p.stock ?? 0) <= (p.minimumStock ?? p.minimum_stock ?? 0) && (p.currentStock ?? p.stock ?? 0) > 0);
         } else if (report.id === 'out_of_stock') {
-          filtered = filtered.filter((p: any) => p.stock === 0);
+          filtered = filtered.filter((p: any) => (p.currentStock ?? p.stock ?? 0) === 0);
         }
 
         headers = ['Product Name', 'SKU', 'Barcode', 'Current Stock', 'Min Stock Level', 'Cost Price', 'Selling Price', 'Total Cost Value'];
-        rows = filtered.map((p: any) => [
-          p.name,
-          p.sku || '-',
-          p.barcode || '-',
-          p.stock,
-          p.minimum_stock,
-          formatCurrency(p.purchase_price || 0),
-          formatCurrency(p.price || 0),
-          formatCurrency((p.stock || 0) * (p.purchase_price || 0))
-        ]);
+        rows = filtered.map((p: any) => {
+          const stock = p.currentStock ?? p.stock ?? 0;
+          const minStock = p.minimumStock ?? p.minimum_stock ?? 0;
+          const costPrice = p.purchasePrice ?? p.purchase_price ?? 0;
+          const sellPrice = p.sellingPrice ?? p.price ?? 0;
+          return [
+            p.name,
+            p.sku || '-',
+            p.barcode || '-',
+            stock,
+            minStock,
+            formatCurrency(costPrice),
+            formatCurrency(sellPrice),
+            formatCurrency(stock * costPrice)
+          ];
+        });
 
-        const totalStockVal = filtered.reduce((sum: number, p: any) => sum + ((p.stock || 0) * (p.purchase_price || 0)), 0);
+        const totalStockVal = filtered.reduce((sum: number, p: any) => {
+          const stock = p.currentStock ?? p.stock ?? 0;
+          const costPrice = p.purchasePrice ?? p.purchase_price ?? 0;
+          return sum + (stock * costPrice);
+        }, 0);
         summary = {
           'Total Products': filtered.length,
-          'Total Stock Quantity': filtered.reduce((sum: number, p: any) => sum + (p.stock || 0), 0),
+          'Total Stock Quantity': filtered.reduce((sum: number, p: any) => sum + (p.currentStock ?? p.stock ?? 0), 0),
           'Total Inventory Cost Value': formatCurrency(totalStockVal)
         };
       }
@@ -363,6 +386,7 @@ const ReportsPage = () => {
         };
       }
 
+      setTablePage(1); // reset to first page whenever new report data is loaded
       if (triggerDownload) {
         // Download directly
         const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
@@ -520,37 +544,53 @@ const ReportsPage = () => {
             </div>
           )}
 
-          {/* Report Data Table */}
-          {reportData && (
-            <div className="border rounded-[10px] overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-[#faf9f5] border-b text-ink/60 text-xs">
-                    {reportData.headers.map((h) => (
-                      <th key={h} className="py-2.5 px-4 font-bold text-left uppercase tracking-wider">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {reportData.rows.length === 0 ? (
-                    <tr>
-                      <td colSpan={reportData.headers.length} className="text-center py-8 text-ink/40">
-                        No transactions found matching this criteria.
-                      </td>
-                    </tr>
-                  ) : (
-                    reportData.rows.map((row, rIdx) => (
-                      <tr key={rIdx} className="border-b hover:bg-paper/40 text-ink/80">
-                        {row.map((cell, cIdx) => (
-                          <td key={cIdx} className="py-2 px-4">{cell}</td>
+          {/* Report Data Table — paginated for smooth rendering */}
+          {reportData && (() => {
+            const totalPages = Math.max(1, Math.ceil(reportData.rows.length / TABLE_PAGE_SIZE));
+            const pageRows = reportData.rows.slice((tablePage - 1) * TABLE_PAGE_SIZE, tablePage * TABLE_PAGE_SIZE);
+            return (
+              <div className="space-y-2">
+                <div className="border rounded-[10px] overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-[#faf9f5] border-b text-ink/60 text-xs">
+                        {reportData.headers.map((h) => (
+                          <th key={h} className="py-2.5 px-4 font-bold text-left uppercase tracking-wider whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+                    </thead>
+                    <tbody>
+                      {reportData.rows.length === 0 ? (
+                        <tr>
+                          <td colSpan={reportData.headers.length} className="text-center py-8 text-ink/40">
+                            No transactions found matching this criteria.
+                          </td>
+                        </tr>
+                      ) : (
+                        pageRows.map((row, rIdx) => (
+                          <tr key={rIdx} className="border-b hover:bg-paper/40 text-ink/80">
+                            {row.map((cell, cIdx) => (
+                              <td key={cIdx} className="py-2 px-4 whitespace-nowrap">{cell}</td>
+                            ))}
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between text-sm text-ink/55 px-1">
+                    <span>Showing {(tablePage - 1) * TABLE_PAGE_SIZE + 1}–{Math.min(tablePage * TABLE_PAGE_SIZE, reportData.rows.length)} of {reportData.rows.length} rows</span>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" disabled={tablePage <= 1} onClick={() => setTablePage(p => p - 1)}>← Prev</Button>
+                      <span className="px-2 py-1 text-xs">Page {tablePage} / {totalPages}</span>
+                      <Button variant="outline" size="sm" disabled={tablePage >= totalPages} onClick={() => setTablePage(p => p + 1)}>Next →</Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setActiveReport(null)}>
