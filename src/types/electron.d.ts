@@ -88,7 +88,9 @@ export interface ElectronAPI {
   // Backup
   createBackup: () => Promise<any>;
   restoreBackup: (filePath: string) => Promise<any>;
+  selectAndRestoreBackup: () => Promise<any>;
   getBackups: () => Promise<any>;
+  deleteBackup: (fileName: string) => Promise<any>;
 
   // Settings
   getSettings: () => Promise<any>;

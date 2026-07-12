@@ -90,7 +90,9 @@ contextBridge.exposeInMainWorld('electron', {
   // Backup
   createBackup: () => ipcRenderer.invoke('backup:create'),
   restoreBackup: (filePath: string) => ipcRenderer.invoke('backup:restore', filePath),
+  selectAndRestoreBackup: () => ipcRenderer.invoke('backup:selectAndRestore'),
   getBackups: () => ipcRenderer.invoke('backup:getAll'),
+  deleteBackup: (fileName: string) => ipcRenderer.invoke('backup:delete', fileName),
 
   // Settings
   getSettings: () => ipcRenderer.invoke('settings:getAll'),
