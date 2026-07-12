@@ -130,10 +130,12 @@ const PurchasesPage = () => {
           if (!it.isNew) return it;
           const newProd = await window.electron.createProduct({
             name: it.newName.trim(),
-            price: it.sellingPrice || it.unitPrice,
-            purchase_price: it.unitPrice,
-            stock: 0, // will be incremented by create_purchase RPC
-            minimum_stock: 0,
+            sellingPrice: it.sellingPrice || it.unitPrice,
+            purchasePrice: it.unitPrice,
+            currentStock: 0, // will be incremented by create_purchase RPC
+            minimumStock: 0,
+            taxRate: it.taxRate || 0,
+            status: 'active',
           });
           if (!newProd.success) throw new Error(`Failed to create product "${it.newName}"`);
           await loadProducts(); // refresh product list
