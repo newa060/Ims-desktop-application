@@ -71,7 +71,6 @@ const SettingsPage = () => {
         <TabsList>
           <TabsTrigger value="business">Business</TabsTrigger>
           <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="invoice">Invoice</TabsTrigger>
           <TabsTrigger value="backup">Backup</TabsTrigger>
           <TabsTrigger value="updates">Updates</TabsTrigger>
         </TabsList>
@@ -143,31 +142,6 @@ const SettingsPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="invoice">
-          <Card>
-            <CardHeader>
-              <CardTitle>Invoice Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Invoice Prefix</Label>
-                  <Input
-                    defaultValue={settings.invoice_prefix}
-                    onBlur={(e) => handleSave('invoice_prefix', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label>Invoice Footer</Label>
-                  <Input
-                    defaultValue={settings.invoice_footer}
-                    onBlur={(e) => handleSave('invoice_footer', e.target.value)}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="backup">
           <Card>
