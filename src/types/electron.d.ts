@@ -82,6 +82,7 @@ export interface ElectronAPI {
   createSupplier: (data: any) => Promise<any>;
   updateSupplier: (id: string, data: any) => Promise<any>;
   deleteSupplier: (id: string) => Promise<any>;
+  recordSupplierPayment: (data: any) => Promise<any>;
 
   // Printing
   printInvoice: (data: any) => Promise<any>;

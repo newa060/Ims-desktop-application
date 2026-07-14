@@ -107,4 +107,43 @@ export const setupSupplierHandlers = () => {
       return { success: false, error: 'Failed to delete supplier' };
     }
   });
+
+  // suppliers:recordPayment - deduct a payment amount from supplier's outstanding balance
+  ipcMain.handle('suppliers:recordPayment', async (_event, params: any) => {
+    try {
+      const { supplierId, amount } = params;
+
+      // Fetch current supplier balance
+      const { data: supplier, error: fetchError } = await supabase
+        .from('suppliers')
+        .select('balance')
+        .eq('id', supplierId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const currentBalance = Number((supplier as any).balance || 0);
+      const paymentAmount = Number(amount);
+
+      if (paymentAmount <= 0) throw new Error('Payment amount must be greater than 0');
+      if (paymentAmount > currentBalance) throw new Error('Payment exceeds outstanding balance');
+
+      const newBalance = currentBalance - paymentAmount;
+
+      const { error: updateError } = await supabase
+        .from('suppliers')
+        .update({ balance: newBalance })
+        .eq('id', supplierId);
+
+      if (updateError) throw updateError;
+
+      return { success: true, data: { newBalance } };
+    } catch (error) {
+      logger.error('Record supplier payment handler error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to record payment',
+      };
+    }
+  });
 };

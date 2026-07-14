@@ -84,6 +84,7 @@ contextBridge.exposeInMainWorld('electron', {
   createSupplier: (data: any) => ipcRenderer.invoke('suppliers:create', data),
   updateSupplier: (id: string, data: any) => ipcRenderer.invoke('suppliers:update', id, data),
   deleteSupplier: (id: string) => ipcRenderer.invoke('suppliers:delete', id),
+  recordSupplierPayment: (data: any) => ipcRenderer.invoke('suppliers:recordPayment', data),
 
   // Printing
   printInvoice: (data: any) => ipcRenderer.invoke('print:invoice', data),
