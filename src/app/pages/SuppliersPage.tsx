@@ -5,9 +5,10 @@ import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
-import { Plus, Search, Edit, Trash2, RefreshCw, ChevronLeft, ChevronRight, DollarSign } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, RefreshCw, ChevronLeft, ChevronRight, DollarSign, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSettings } from '../contexts/SettingsContext';
+import { SupplierReportModal } from './SupplierReportModal';
 
 const emptyForm = { name: '', email: '', phone: '', address: '', city: '', country: '', taxNumber: '', description: '' };
 
@@ -18,8 +19,15 @@ const SuppliersPage = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
-  const [formData, setFormData] = useState(emptyForm);
+   const [formData, setFormData] = useState(emptyForm);
   const [editId, setEditId] = useState<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<any | null>(null);
+
+  const handleViewReport = (s: any) => {
+    setSelectedSupplier(s);
+    setReportOpen(true);
+  };
 
   // Payment recording state
   const [payOpen, setPayOpen] = useState(false);
@@ -162,6 +170,9 @@ const SuppliersPage = () => {
                                 <DollarSign className="h-4 w-4" />
                               </Button>
                             )}
+                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleViewReport(s)} title="View Transactions & Returns Report">
+                              <FileText className="h-4 w-4 text-primary" />
+                            </Button>
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(s)}>
                               <Edit className="h-4 w-4 text-ink/50" />
                             </Button>
@@ -270,6 +281,18 @@ const SuppliersPage = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {selectedSupplier && (
+        <SupplierReportModal
+          supplier={selectedSupplier}
+          open={reportOpen}
+          onClose={() => {
+            setReportOpen(false);
+            setSelectedSupplier(null);
+            loadSuppliers(pagination.page);
+          }}
+        />
+      )}
     </div>
   );
 };

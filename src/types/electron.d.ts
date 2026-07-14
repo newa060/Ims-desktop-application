@@ -22,6 +22,8 @@ export interface ElectronAPI {
   getPurchases: (params: any) => Promise<any>;
   getPurchaseById: (id: string) => Promise<any>;
   createPurchase: (data: any) => Promise<any>;
+  getPurchaseReturns: (purchaseId: string) => Promise<any>;
+  createPurchaseReturn: (data: any) => Promise<any>;
 
   // Inventory
   getInventoryHistory: (params: any) => Promise<any>;

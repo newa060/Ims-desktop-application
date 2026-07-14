@@ -24,6 +24,8 @@ contextBridge.exposeInMainWorld('electron', {
   getPurchases: (params: any) => ipcRenderer.invoke('purchases:getAll', params),
   getPurchaseById: (id: string) => ipcRenderer.invoke('purchases:getById', id),
   createPurchase: (data: any) => ipcRenderer.invoke('purchases:create', data),
+  getPurchaseReturns: (purchaseId: string) => ipcRenderer.invoke('purchases:getReturns', purchaseId),
+  createPurchaseReturn: (data: any) => ipcRenderer.invoke('purchases:createReturn', data),
 
   // Inventory
   getInventoryHistory: (params: any) => ipcRenderer.invoke('inventory:getHistory', params),
