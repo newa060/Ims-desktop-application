@@ -25,6 +25,7 @@ export interface ElectronAPI {
   recordPurchasePayment: (data: { purchaseId: string; amount: number }) => Promise<any>;
   getPurchaseReturns: (purchaseId: string) => Promise<any>;
   createPurchaseReturn: (data: any) => Promise<any>;
+  createPurchaseRefundOrExchange: (data: any) => Promise<any>;
 
   // Inventory
   getInventoryHistory: (params: any) => Promise<any>;
