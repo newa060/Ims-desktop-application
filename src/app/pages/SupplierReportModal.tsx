@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Card, CardContent } from '../components/ui/card';
-import { ChevronDown, ChevronUp, AlertCircle, RotateCcw, Calendar, Package, Filter, X, Info } from 'lucide-react';
+import { ChevronDown, ChevronUp, AlertCircle, RotateCcw, Calendar, Package, Filter, X, DollarSign } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
@@ -28,11 +28,17 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // Return (Damaged Goods) Form State
+  // Balance Payment Form State
+  const [payDialogOpen, setPayDialogOpen] = useState(false);
+  const [payForPurchase, setPayForPurchase] = useState<any | null>(null);
+  const [payAmount, setPayAmount] = useState<number>(0);
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+
+  // Return Damaged Goods State
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
-  const [activeItem, setActiveItem] = useState<{ purchaseId: string; productId: string; maxQty: number; productName: string } | null>(null);
-  const [returnQty, setReturnQty] = useState(1);
-  const [returnNotes, setReturnNotes] = useState('');
+  const [activeItem, setActiveItem] = useState<any | null>(null);
+  const [returnQty, setReturnQty] = useState<number>(1);
+  const [returnNotes, setReturnNotes] = useState<string>('');
   const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
 
   const loadReportData = useCallback(async () => {
@@ -114,6 +120,37 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
       toast.error('An error occurred processing the return');
     } finally {
       setIsSubmittingReturn(false);
+    }
+  };
+
+  // --- Balance Payment ---
+  const handleOpenPayDialog = (purchase: any) => {
+    setPayForPurchase(purchase);
+    setPayAmount(Number(purchase.balanceAmount || 0));
+    setPayDialogOpen(true);
+  };
+
+  const handleSubmitPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!payForPurchase || payAmount <= 0) return;
+    setIsSubmittingPayment(true);
+    try {
+      const res = await window.electron.recordPurchasePayment({
+        purchaseId: payForPurchase.id,
+        amount: payAmount,
+      });
+      if (res.success) {
+        toast.success(`Payment of $${payAmount.toFixed(2)} recorded. Status: ${res.data.newPaymentStatus}`);
+        setPayDialogOpen(false);
+        setPayForPurchase(null);
+        loadReportData();
+      } else {
+        toast.error(res.error || 'Failed to record payment');
+      }
+    } catch {
+      toast.error('An error occurred recording the payment');
+    } finally {
+      setIsSubmittingPayment(false);
     }
   };
 
@@ -209,17 +246,6 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
             </div>
           )}
 
-          {/* ── Payment Info Banner ── */}
-          {currentBalance > 0 && (
-            <div className="mt-3 flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
-              <Info size={15} className="mt-0.5 shrink-0" />
-              <span>
-                To pay a purchase's due balance, open the <strong>Purchases</strong> page, locate the purchase,
-                and use the <strong>Pay Balance</strong> button in its detail view.
-              </span>
-            </div>
-          )}
-
           {/* ── Purchases List ── */}
           <div className="flex-1 overflow-y-auto py-4 space-y-4">
             {loading ? (
@@ -286,6 +312,17 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
                         )}
                       </div>
                       <div className="flex items-center gap-2 ml-2">
+                        {/* Record Payment button — only when balance is owed */}
+                        {hasOutstandingBalance && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => { e.stopPropagation(); handleOpenPayDialog(purchase); }}
+                            className="h-7 text-xs border-success/30 text-success-text hover:bg-success/10 flex items-center gap-1"
+                          >
+                            <DollarSign size={12} /> Pay Balance
+                          </Button>
+                        )}
                         {isExpanded ? <ChevronUp size={20} className="text-ink/45" /> : <ChevronDown size={20} className="text-ink/45" />}
                       </div>
                     </div>
@@ -445,6 +482,56 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Record Balance Payment Dialog ── */}
+      <Dialog open={payDialogOpen} onOpenChange={(v) => { if (!v) setPayDialogOpen(false); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-ink">Record Supplier Payment</DialogTitle>
+          </DialogHeader>
+
+          <form id="pay-form" onSubmit={handleSubmitPayment} className="space-y-4">
+            <div className="bg-ink/[0.03] border border-ink/[0.06] rounded-lg p-3 space-y-1.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-ink/55">Purchase:</span>
+                <span className="font-semibold text-ink">{payForPurchase?.purchaseNumber}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-ink/55">Purchase Balance Due:</span>
+                <span className="font-bold text-warning-text">${Number(payForPurchase?.balanceAmount || 0).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm border-t border-ink/[0.06] pt-1.5 mt-1">
+                <span className="text-ink/55">Supplier Outstanding Balance:</span>
+                <span className="font-bold text-ink">${currentBalance.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="pay-amount">Payment Amount</Label>
+              <Input
+                id="pay-amount"
+                type="number"
+                step="0.01"
+                min={0.01}
+                max={Number(payForPurchase?.balanceAmount || 0)}
+                value={payAmount}
+                onChange={(e) => setPayAmount(parseFloat(e.target.value) || 0)}
+                required
+              />
+              <p className="text-xs text-ink/40">Amount will be deducted from the purchase balance and supplier outstanding balance.</p>
+            </div>
+          </form>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setPayDialogOpen(false)} disabled={isSubmittingPayment}>
+              Cancel
+            </Button>
+            <Button form="pay-form" type="submit" disabled={isSubmittingPayment || payAmount <= 0 || payAmount > Number(payForPurchase?.balanceAmount || 0)}>
+              {isSubmittingPayment ? 'Recording...' : 'Record Payment'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
