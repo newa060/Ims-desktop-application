@@ -1,4 +1,3 @@
-import ProductRepository from '../repositories/ProductRepository';
 import SaleRepository from '../repositories/SaleRepository';
 import PurchaseRepository from '../repositories/PurchaseRepository';
 import { DashboardStats } from '../types';
@@ -27,6 +26,36 @@ const countAllProducts = async (): Promise<number> => {
   return count || 0;
 };
 
+const countLowStockProducts = async (): Promise<number> => {
+  const { data, error } = await supabase
+    .from('products')
+    .select('stock, minimum_stock')
+    .neq('status', 'Archived');
+
+  if (error) throw error;
+  
+  let count = 0;
+  for (const p of data || []) {
+    const stock = Number(p.stock);
+    const minStock = Number(p.minimum_stock);
+    if (!isNaN(stock) && !isNaN(minStock) && stock > 0 && stock <= minStock) {
+      count++;
+    }
+  }
+  return count;
+};
+
+const countOutOfStockProducts = async (): Promise<number> => {
+  const { count, error } = await supabase
+    .from('products')
+    .select('*', { count: 'exact', head: true })
+    .neq('status', 'Archived')
+    .eq('stock', 0);
+
+  if (error) throw error;
+  return count || 0;
+};
+
 export class DashboardService {
   async getDashboardStats(): Promise<DashboardStats> {
     try {
@@ -46,8 +75,8 @@ export class DashboardService {
         totalSuppliers,
       ] = await Promise.all([
         countAllProducts(),
-        ProductRepository.getLowStockProducts().then((p) => p.length),
-        ProductRepository.getOutOfStockProducts().then((p) => p.length),
+        countLowStockProducts(),
+        countOutOfStockProducts(),
         SaleRepository.getTodaySales(),
         PurchaseRepository.getTodayPurchases(),
         SaleRepository.getMonthlySales(currentYear, currentMonth),
