@@ -7,7 +7,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
-import { Plus, Search, RefreshCw, Trash2, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Plus, Search, RefreshCw, Trash2, ChevronLeft, ChevronRight, Eye, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSettings } from '../contexts/SettingsContext';
 
@@ -36,6 +36,11 @@ const PurchasesPage = () => {
   const [items, setItems] = useState<PurchaseItem[]>([]);
   const [paidAmount, setPaidAmount] = useState(0);
   const [detailPurchase, setDetailPurchase] = useState<any>(null);
+
+  // Pay Balance state
+  const [payDialogOpen, setPayDialogOpen] = useState(false);
+  const [payAmount, setPayAmount] = useState<number>(0);
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
   const loadPurchases = useCallback(async (page = 1) => {
     setLoading(true);
@@ -98,6 +103,39 @@ const PurchasesPage = () => {
       if (res.success) setDetailPurchase(res.data);
       else toast.error('Failed to load purchase details');
     } catch { toast.error('An error occurred'); }
+  };
+
+  const handleOpenPayDialog = (purchase: any) => {
+    setPayAmount(Number(purchase.balanceAmount || 0));
+    setPayDialogOpen(true);
+  };
+
+  const handleSubmitPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!detailPurchase || payAmount <= 0) return;
+    setIsSubmittingPayment(true);
+    try {
+      const res = await window.electron.recordPurchasePayment({
+        purchaseId: detailPurchase.id,
+        amount: payAmount,
+      });
+      if (res.success) {
+        toast.success(
+          `Payment of ${formatCurrency(payAmount)} recorded. Status: ${res.data.newPaymentStatus}`
+        );
+        setPayDialogOpen(false);
+        // Refresh both the list and the open detail view
+        loadPurchases(pagination.page);
+        const updated = await window.electron.getPurchaseById(detailPurchase.id);
+        if (updated.success) setDetailPurchase(updated.data);
+      } else {
+        toast.error(res.error || 'Failed to record payment');
+      }
+    } catch {
+      toast.error('An error occurred recording the payment');
+    } finally {
+      setIsSubmittingPayment(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -386,7 +424,7 @@ const PurchasesPage = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!detailPurchase} onOpenChange={(o) => !o && setDetailPurchase(null)}>
+      <Dialog open={!!detailPurchase} onOpenChange={(o) => { if (!o) { setDetailPurchase(null); setPayDialogOpen(false); } }}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Purchase Details</DialogTitle></DialogHeader>
           {detailPurchase && (
@@ -395,7 +433,14 @@ const PurchasesPage = () => {
                 <div><span className="text-ink/55">Purchase Number:</span><p className="font-mono font-semibold">{detailPurchase.purchaseNumber}</p></div>
                 <div><span className="text-ink/55">Date:</span><p>{new Date(detailPurchase.purchaseDate).toLocaleString()}</p></div>
                 <div><span className="text-ink/55">Supplier:</span><p className="font-semibold">{detailPurchase.supplier?.name}</p></div>
-                <div><span className="text-ink/55">Payment Status:</span><p className="capitalize">{detailPurchase.paymentStatus}</p></div>
+                <div>
+                  <span className="text-ink/55">Payment Status:</span>
+                  <p className="capitalize mt-0.5">
+                    <Badge variant={detailPurchase.paymentStatus === 'paid' ? 'success' : detailPurchase.paymentStatus === 'partial' ? 'warning' : 'danger'}>
+                      {detailPurchase.paymentStatus}
+                    </Badge>
+                  </p>
+                </div>
               </div>
               <div className="border rounded-lg overflow-hidden">
                 <table className="w-full text-sm">
@@ -424,6 +469,49 @@ const PurchasesPage = () => {
                 <div className="flex justify-between"><span>Paid:</span><span>{formatCurrency(detailPurchase.paidAmount || 0)}</span></div>
                 <div className="flex justify-between text-danger-text font-semibold"><span>Balance Due:</span><span>{formatCurrency(detailPurchase.balanceAmount || 0)}</span></div>
               </div>
+
+              {/* Pay Balance — shown only when there is an outstanding balance */}
+              {Number(detailPurchase.balanceAmount || 0) > 0 && !payDialogOpen && (
+                <Button
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={() => handleOpenPayDialog(detailPurchase)}
+                >
+                  <DollarSign size={15} /> Pay Balance
+                </Button>
+              )}
+
+              {/* Inline payment form */}
+              {payDialogOpen && (
+                <form onSubmit={handleSubmitPayment} className="space-y-3 border border-primary/20 rounded-lg p-4 bg-primary/5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-primary">Record Payment</p>
+                  <div className="space-y-1">
+                    <Label htmlFor="pay-amount-inline">Amount to Pay</Label>
+                    <Input
+                      id="pay-amount-inline"
+                      type="number"
+                      step="0.01"
+                      min={0.01}
+                      max={Number(detailPurchase.balanceAmount || 0)}
+                      value={payAmount}
+                      onChange={(e) => setPayAmount(parseFloat(e.target.value) || 0)}
+                      required
+                    />
+                    <p className="text-xs text-ink/40">Max: {formatCurrency(Number(detailPurchase.balanceAmount || 0))}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" className="flex-1" onClick={() => setPayDialogOpen(false)} disabled={isSubmittingPayment}>
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="flex-1"
+                      disabled={isSubmittingPayment || payAmount <= 0 || payAmount > Number(detailPurchase.balanceAmount || 0)}
+                    >
+                      {isSubmittingPayment ? 'Recording...' : 'Confirm Payment'}
+                    </Button>
+                  </div>
+                </form>
+              )}
             </div>
           )}
         </DialogContent>

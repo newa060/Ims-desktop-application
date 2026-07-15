@@ -91,6 +91,94 @@ export const setupPurchaseHandlers = () => {
     }
   });
 
+  // purchases:recordPayment - pay (partial or full) balance on an individual purchase
+  // Updates: purchase.paidAmount, purchase.balanceAmount, purchase.paymentStatus
+  // Also deducts from supplier.balance
+  ipcMain.handle('purchases:recordPayment', async (_event, params: any) => {
+    try {
+      const { purchaseId, amount } = params;
+
+      if (!purchaseId) throw new Error('purchaseId is required');
+      const paymentAmount = Number(amount);
+      if (paymentAmount <= 0) throw new Error('Payment amount must be greater than 0');
+
+      // 1. Fetch the current purchase
+      const { data: purchase, error: fetchError } = await supabase
+        .from('purchases')
+        .select('id, supplierId, totalAmount, paidAmount, balanceAmount, paymentStatus')
+        .eq('id', purchaseId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const currentBalance = Number((purchase as any).balanceAmount || 0);
+      const currentPaid = Number((purchase as any).paidAmount || 0);
+      const supplierId = (purchase as any).supplierId;
+
+      if (currentBalance <= 0) throw new Error('This purchase has no outstanding balance');
+      if (paymentAmount > currentBalance) throw new Error('Payment amount exceeds purchase balance due');
+
+      const newPaidAmount = currentPaid + paymentAmount;
+      const newBalanceAmount = currentBalance - paymentAmount;
+
+      // Determine new payment status
+      let newPaymentStatus: string;
+      if (newBalanceAmount <= 0) {
+        newPaymentStatus = 'paid';
+      } else if (newPaidAmount > 0) {
+        newPaymentStatus = 'partial';
+      } else {
+        newPaymentStatus = 'unpaid';
+      }
+
+      // 2. Update the purchase record
+      const { error: purchaseUpdateError } = await supabase
+        .from('purchases')
+        .update({
+          paidAmount: newPaidAmount,
+          balanceAmount: newBalanceAmount,
+          paymentStatus: newPaymentStatus,
+        })
+        .eq('id', purchaseId);
+
+      if (purchaseUpdateError) throw purchaseUpdateError;
+
+      // 3. Deduct from supplier's outstanding balance
+      if (supplierId) {
+        const { data: supplier, error: supplierFetchError } = await supabase
+          .from('suppliers')
+          .select('balance')
+          .eq('id', supplierId)
+          .single();
+
+        if (!supplierFetchError && supplier) {
+          const supplierCurrentBalance = Number((supplier as any).balance || 0);
+          const supplierNewBalance = Math.max(0, supplierCurrentBalance - paymentAmount);
+
+          await supabase
+            .from('suppliers')
+            .update({ balance: supplierNewBalance })
+            .eq('id', supplierId);
+        }
+      }
+
+      return {
+        success: true,
+        data: {
+          newPaidAmount,
+          newBalanceAmount,
+          newPaymentStatus,
+        },
+      };
+    } catch (error) {
+      logger.error('Record purchase payment handler error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to record payment',
+      };
+    }
+  });
+
   // purchases:getReturns - fetches all returns for a purchase
   ipcMain.handle('purchases:getReturns', async (_event, purchaseId: string) => {
     try {
