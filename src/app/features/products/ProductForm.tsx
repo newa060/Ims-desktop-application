@@ -1,3 +1,14 @@
+/**
+ * ProductForm — creates/edits a parent product (product_variant_flat).
+ *
+ * When CREATING:
+ *   1. Creates the parent row via parents:create
+ *   2. Creates one default variant row via variants:create
+ *
+ * When EDITING:
+ *   Only the parent-level fields (name, prices, category…) are updated.
+ *   Variants are managed separately via VariantForm.
+ */
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,54 +27,67 @@ import {
 } from '../../components/ui/select';
 import { toast } from 'sonner';
 
-const productSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  sku: z.string().min(1, 'SKU is required'),
-  barcode: z.string().optional(),
-  description: z.string().optional(),
-  categoryId: z.string().min(1, 'Category is required'),
-  brandId: z.string().optional(),
-  unitId: z.string().min(1, 'Unit is required'),
-  purchasePrice: z.coerce.number().min(0, 'Purchase price must be 0 or more'),
-  sellingPrice: z.coerce.number().min(0, 'Selling price must be 0 or more'),
+const schema = z.object({
+  name:           z.string().min(1, 'Name is required'),
+  description:    z.string().optional(),
+  categoryId:     z.string().min(1, 'Category is required'),
+  brandId:        z.string().optional(),
+  unitId:         z.string().min(1, 'Unit is required'),
+  purchasePrice:  z.coerce.number().min(0),
+  sellingPrice:   z.coerce.number().min(0),
   wholesalePrice: z.coerce.number().optional(),
-  taxRate: z.coerce.number().min(0).max(100),
-  minimumStock: z.coerce.number().min(0),
-  currentStock: z.coerce.number().min(0),
-  status: z.string().default('active'),
+  taxRate:        z.coerce.number().min(0).max(100),
+  status:         z.string().default('active'),
+  // Default variant fields (create-only)
+  sku:            z.string().optional(),
+  barcode:        z.string().optional(),
+  stock:          z.coerce.number().min(0),
+  minimumStock:   z.coerce.number().min(0),
 });
 
-type ProductFormData = z.infer<typeof productSchema>;
+type FormData = z.infer<typeof schema>;
 
-interface ProductFormProps {
-  open: boolean;
-  onClose: () => void;
+interface Props {
+  open:      boolean;
+  onClose:   () => void;
   onSuccess: () => void;
-  product?: any;
+  product?:  any;   // ParentProduct | null for edit, undefined for create
 }
 
-const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) => {
+const STATUS_TO_DB: Record<string, string> = {
+  active:       'Active',
+  inactive:     'Draft',
+  discontinued: 'Archived',
+};
+
+const STATUS_FROM_DB: Record<string, string> = {
+  Active:       'active',
+  active:       'active',
+  Draft:        'inactive',
+  inactive:     'inactive',
+  Inactive:     'inactive',
+  Archived:     'discontinued',
+  archived:     'discontinued',
+  Discontinued: 'discontinued',
+  discontinued: 'discontinued',
+};
+
+const ProductForm = ({ open, onClose, onSuccess, product }: Props) => {
   const [categories, setCategories] = useState<any[]>([]);
-  const [brands, setBrands] = useState<any[]>([]);
-  const [units, setUnits] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [brands,     setBrands]     = useState<any[]>([]);
+  const [units,      setUnits]      = useState<any[]>([]);
+  const [loading,    setLoading]    = useState(false);
+  const isEdit = Boolean(product?.id);
 
   const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    reset,
+    register, handleSubmit, setValue, watch, reset,
     formState: { errors },
-  } = useForm<ProductFormData>({
-    resolver: zodResolver(productSchema),
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
     defaultValues: {
-      taxRate: 0,
-      minimumStock: 0,
-      currentStock: 0,
-      status: 'active',
-      purchasePrice: 0,
-      sellingPrice: 0,
+      taxRate: 0, status: 'active',
+      purchasePrice: 0, sellingPrice: 0,
+      stock: 0, minimumStock: 0, sku: '',
     },
   });
 
@@ -73,141 +97,184 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
   const watchedStatus     = watch('status');
 
   useEffect(() => {
-    if (open) {
-      loadDropdownData().then(() => {
-        if (product) {
-          // Populate form for editing.
-          // The product object from the API has nested objects for category/brand/unit
-          // (e.g. category: { id, name }) rather than the flat *Id fields the form
-          // schema expects — map them explicitly before calling setValue.
-          const fields: Record<string, any> = {
-            name:           product.name,
-            sku:            product.sku,
-            barcode:        product.barcode || '',
-            description:    product.description || '',
-            categoryId:     product.category?.id || product.categoryId || '',
-            brandId:        product.brand?.id    || product.brandId    || '',
-            unitId:         product.unit?.id     || product.unitId     || '',
-            purchasePrice:  product.purchasePrice  ?? 0,
-            sellingPrice:   product.sellingPrice   ?? 0,
-            wholesalePrice: product.wholesalePrice ?? 0,
-            taxRate:        product.taxRate        ?? 0,
-            minimumStock:   product.minimumStock   ?? 0,
-            currentStock:   product.currentStock   ?? 0,
-            status:         product.status         || 'active',
-          };
-          Object.entries(fields).forEach(([key, value]) => {
-            setValue(key as any, value);
-          });
-        } else {
-          reset({
-            taxRate: 0,
-            minimumStock: 0,
-            currentStock: 0,
-            status: 'active',
-            purchasePrice: 0,
-            sellingPrice: 0,
-          });
-        }
-      });
-    }
+    if (!open) return;
+    loadDropdowns().then((lists) => {
+      if (product) {
+        // Resolve names to IDs from the fetched dropdown lists
+        const catObj = lists.categories.find((c: any) => c.name === product.category?.name || c.name === product.category);
+        const brandObj = lists.brands.find((b: any) => b.name === product.brand?.name || b.name === product.brand);
+        const unitObj = lists.units.find((u: any) => u.name === product.unit?.name || u.shortName === product.unit?.shortName || u.name === product.unit || u.shortName === product.unit);
+
+        reset({
+          name:           product.name           || '',
+          description:    product.description    || '',
+          categoryId:     catObj?.id             || product.categoryId || '',
+          brandId:        brandObj?.id           || product.brandId    || '',
+          unitId:         unitObj?.id            || product.unitId     || '',
+          purchasePrice:  product.purchasePrice   ?? 0,
+          sellingPrice:   product.sellingPrice    ?? 0,
+          wholesalePrice: product.wholesalePrice  ?? 0,
+          taxRate:        product.taxRate         ?? 0,
+          status:         STATUS_FROM_DB[product.status] || product.status || 'active',
+          sku:            product.sku            || '',
+          barcode:        product.barcode        || '',
+          stock:          product.currentStock   ?? product.stock ?? 0,
+          minimumStock:   product.minimumStock   ?? 0,
+        });
+      } else {
+        reset({
+          taxRate: 0, status: 'active',
+          purchasePrice: 0, sellingPrice: 0,
+          stock: 0, minimumStock: 0, sku: '',
+        });
+      }
+    });
   }, [open, product]);
 
-  const loadDropdownData = async () => {
+  const loadDropdowns = async () => {
     try {
       const [catRes, brandRes, unitRes] = await Promise.all([
         window.electron.getCategories(),
         window.electron.getBrands(),
         window.electron.getUnits(),
       ]);
-      if (catRes.success) setCategories(catRes.data);
-      if (brandRes.success) setBrands(brandRes.data);
-      if (unitRes.success) setUnits(unitRes.data);
-    } catch (error) {
+      const cats = catRes.success ? catRes.data : [];
+      const brs = brandRes.success ? brandRes.data : [];
+      const uns = unitRes.success ? unitRes.data : [];
+
+      setCategories(cats);
+      setBrands(brs);
+      setUnits(uns);
+
+      return { categories: cats, brands: brs, units: uns };
+    } catch {
       toast.error('Failed to load form data');
+      return { categories: [], brands: [], units: [] };
     }
   };
 
-  const onSubmit = async (data: ProductFormData) => {
+  const onSubmit = async (data: FormData) => {
+    if (!isEdit && !data.sku) {
+      toast.error('SKU is required for new products');
+      return;
+    }
     setLoading(true);
     try {
-      let response;
-      if (product?.id) {
-        response = await window.electron.updateProduct(product.id, data);
+      const dbStatus = STATUS_TO_DB[data.status] ?? 'Active';
+
+      if (isEdit) {
+        // Update parent product only
+        const res = await window.electron.updateParentProduct(product.id, {
+          name:           data.name,
+          description:    data.description,
+          categoryId:     data.categoryId,
+          brandId:        data.brandId,
+          unitId:         data.unitId,
+          purchasePrice:  data.purchasePrice,
+          sellingPrice:   data.sellingPrice,
+          wholesalePrice: data.wholesalePrice,
+          taxRate:        data.taxRate,
+          status:         dbStatus,
+        });
+        if (!res.success) throw new Error(res.error || 'Update failed');
+        toast.success('Product updated!');
       } else {
-        response = await window.electron.createProduct(data);
+        // 1. Create parent
+        const parentRes = await window.electron.createParentProduct({
+          name:           data.name,
+          description:    data.description,
+          categoryId:     data.categoryId,
+          brandId:        data.brandId,
+          unitId:         data.unitId,
+          purchasePrice:  data.purchasePrice,
+          sellingPrice:   data.sellingPrice,
+          wholesalePrice: data.wholesalePrice,
+          taxRate:        data.taxRate,
+          status:         dbStatus,
+        });
+        if (!parentRes.success) throw new Error(parentRes.error || 'Failed to create product');
+
+        // 2. Create default variant
+        const variantRes = await window.electron.createVariant({
+          productFlatId: parentRes.data.id,
+          variantName:   'Default',
+          sku:           data.sku!,
+          barcode:       data.barcode || undefined,
+          stock:         data.stock,
+          minimumStock:  data.minimumStock,
+          status:        dbStatus,
+        });
+        if (!variantRes.success) throw new Error(variantRes.error || 'Failed to create variant');
+        toast.success('Product created!');
       }
 
-      if (response.success) {
-        toast.success(product?.id ? 'Product updated!' : 'Product created!');
-        onSuccess();
-        onClose();
-      } else {
-        toast.error(response.error || 'Failed to save product');
-      }
-    } catch (error) {
-      toast.error('An error occurred');
+      onSuccess();
+      onClose();
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to save product');
     } finally {
       setLoading(false);
     }
   };
 
-  const generateSKU = () => {
-    const prefix = 'PRD';
-    const timestamp = Date.now().toString(36).toUpperCase();
-    const random = Math.random().toString(36).substring(2, 5).toUpperCase();
-    setValue('sku', `${prefix}-${timestamp}-${random}`);
+  const autoSKU = () => {
+    const ts  = Date.now().toString(36).toUpperCase();
+    const rnd = Math.random().toString(36).substring(2, 5).toUpperCase();
+    setValue('sku', `PRD-${ts}-${rnd}`);
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{product?.id ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+          {isEdit && (
+            <p className="text-xs text-ink/50 mt-1">
+              Editing parent fields only. Use the Variants panel to manage stock, SKU, color, and size.
+            </p>
+          )}
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
+          {/* Register custom select fields in react-hook-form */}
+          <input type="hidden" {...register('categoryId')} />
+          <input type="hidden" {...register('brandId')} />
+          <input type="hidden" {...register('unitId')} />
+          <input type="hidden" {...register('status')} />
           <div className="grid grid-cols-2 gap-4 py-4">
 
             {/* Name */}
             <div className="col-span-2 space-y-1">
               <Label>Product Name *</Label>
-              <Input placeholder="e.g. Samsung Galaxy S24" {...register('name')} />
+              <Input placeholder="e.g. Classic Oxford Shirt" {...register('name')} />
               {errors.name && <p className="text-xs text-danger-text">{errors.name.message}</p>}
             </div>
 
-            {/* SKU */}
-            <div className="space-y-1">
-              <Label>SKU *</Label>
-              <div className="flex gap-2">
-                <Input placeholder="e.g. PRD-001" {...register('sku')} />
-                <Button type="button" variant="outline" onClick={generateSKU} className="shrink-0">
-                  Auto
-                </Button>
-              </div>
-              {errors.sku && <p className="text-xs text-danger-text">{errors.sku.message}</p>}
-            </div>
-
-            {/* Barcode */}
-            <div className="space-y-1">
-              <Label>Barcode</Label>
-              <Input placeholder="e.g. 1234567890123" {...register('barcode')} />
-            </div>
+            {/* SKU + Barcode (create only — variants carry these after creation) */}
+            {!isEdit && (
+              <>
+                <div className="space-y-1">
+                  <Label>Default SKU *</Label>
+                  <div className="flex gap-2">
+                    <Input placeholder="e.g. SHIRT-001" {...register('sku')} />
+                    <Button type="button" variant="outline" onClick={autoSKU} className="shrink-0">Auto</Button>
+                  </div>
+                  {errors.sku && <p className="text-xs text-danger-text">{errors.sku.message}</p>}
+                </div>
+                <div className="space-y-1">
+                  <Label>Default Barcode</Label>
+                  <Input placeholder="e.g. 1234567890123" {...register('barcode')} />
+                </div>
+              </>
+            )}
 
             {/* Category */}
             <div className="space-y-1">
               <Label>Category *</Label>
-              <Select
-                value={watchedCategoryId || ''}
-                onValueChange={(val) => setValue('categoryId', val)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
+              <Select value={watchedCategoryId || ''} onValueChange={(v) => setValue('categoryId', v)}>
+                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                  ))}
+                  {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
               {errors.categoryId && <p className="text-xs text-danger-text">{errors.categoryId.message}</p>}
@@ -216,17 +283,10 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
             {/* Brand */}
             <div className="space-y-1">
               <Label>Brand</Label>
-              <Select
-                value={watchedBrandId || ''}
-                onValueChange={(val) => setValue('brandId', val)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select brand" />
-                </SelectTrigger>
+              <Select value={watchedBrandId || ''} onValueChange={(v) => setValue('brandId', v)}>
+                <SelectTrigger><SelectValue placeholder="Select brand" /></SelectTrigger>
                 <SelectContent>
-                  {brands.map((brand) => (
-                    <SelectItem key={brand.id} value={brand.id}>{brand.name}</SelectItem>
-                  ))}
+                  {brands.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -234,19 +294,10 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
             {/* Unit */}
             <div className="space-y-1">
               <Label>Unit *</Label>
-              <Select
-                value={watchedUnitId || ''}
-                onValueChange={(val) => setValue('unitId', val)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select unit" />
-                </SelectTrigger>
+              <Select value={watchedUnitId || ''} onValueChange={(v) => setValue('unitId', v)}>
+                <SelectTrigger><SelectValue placeholder="Select unit" /></SelectTrigger>
                 <SelectContent>
-                  {units.map((unit) => (
-                    <SelectItem key={unit.id} value={unit.id}>
-                      {unit.name} ({unit.shortName})
-                    </SelectItem>
-                  ))}
+                  {units.map((u) => <SelectItem key={u.id} value={u.id}>{u.name} ({u.shortName})</SelectItem>)}
                 </SelectContent>
               </Select>
               {errors.unitId && <p className="text-xs text-danger-text">{errors.unitId.message}</p>}
@@ -255,13 +306,8 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
             {/* Status */}
             <div className="space-y-1">
               <Label>Status</Label>
-              <Select
-                value={watchedStatus || 'active'}
-                onValueChange={(val) => setValue('status', val)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
+              <Select value={watchedStatus || 'active'} onValueChange={(v) => setValue('status', v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
@@ -296,35 +342,31 @@ const ProductForm = ({ open, onClose, onSuccess, product }: ProductFormProps) =>
               <Input type="number" step="0.01" placeholder="0" {...register('taxRate')} />
             </div>
 
-            {/* Current Stock */}
-            <div className="space-y-1">
-              <Label>Current Stock</Label>
-              <Input type="number" placeholder="0" {...register('currentStock')} />
-            </div>
-
-            {/* Minimum Stock */}
-            <div className="space-y-1">
-              <Label>Minimum Stock (Alert Level)</Label>
-              <Input type="number" placeholder="0" {...register('minimumStock')} />
-            </div>
+            {/* Default stock (create only) */}
+            {!isEdit && (
+              <>
+                <div className="space-y-1">
+                  <Label>Opening Stock</Label>
+                  <Input type="number" placeholder="0" {...register('stock')} />
+                </div>
+                <div className="space-y-1">
+                  <Label>Low Stock Alert</Label>
+                  <Input type="number" placeholder="0" {...register('minimumStock')} />
+                </div>
+              </>
+            )}
 
             {/* Description */}
             <div className="col-span-2 space-y-1">
               <Label>Description</Label>
-              <Textarea
-                placeholder="Product description..."
-                rows={3}
-                {...register('description')}
-              />
+              <Textarea rows={3} placeholder="Product description..." {...register('description')} />
             </div>
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-              Cancel
-            </Button>
+            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>Cancel</Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : product?.id ? 'Update Product' : 'Add Product'}
+              {loading ? 'Saving...' : isEdit ? 'Update Product' : 'Add Product'}
             </Button>
           </DialogFooter>
         </form>

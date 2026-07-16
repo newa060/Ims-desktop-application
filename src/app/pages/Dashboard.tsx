@@ -170,7 +170,7 @@ const Dashboard = () => {
       const [statsRes, chartRes, lowStockRes, topProductsRes, recentTxRes] = await Promise.all([
         withTimeout(window.electron.getDashboardStats()).catch(() => ({ success: false, data: null })),
         withTimeout(window.electron.getSalesChart(30)).catch(() => ({ success: false, data: [] })),
-        withTimeout(window.electron.getLowStock()).catch(() => ({ success: false, data: [] })),
+        withTimeout(window.electron.getVariantsLowStock()).catch(() => ({ success: false, data: [] })),
         withTimeout(window.electron.getTopProducts(5)).catch(() => ({ success: false, data: [] })),
         withTimeout(window.electron.getRecentTransactions(8)).catch(() => ({ success: false, data: [] })),
       ]);
@@ -178,7 +178,17 @@ const Dashboard = () => {
       if (statsRes.success) setStats(statsRes.data);
       if (chartRes.success) setChartData(chartRes.data || []);
       if (lowStockRes.success) {
-        const all: StockAlert[] = lowStockRes.data || [];
+        // getLowStock now returns product_variant rows.
+        // Map variant fields → StockAlert shape for the modal.
+        const variants: any[] = lowStockRes.data || [];
+        const all: StockAlert[] = variants.map((v: any) => ({
+          id:           v.id,
+          name:         v.parent?.name ?? v.productName ?? v.variantName ?? '—',
+          sku:          v.sku,
+          currentStock: v.stock ?? 0,
+          minimumStock: v.minimumStock ?? v.minimum_stock ?? 0,
+          category:     v.parent?.category ? { name: v.parent.category } : undefined,
+        }));
         setAllStockAlerts(all);
         setAlerts(all.slice(0, 5));
       }

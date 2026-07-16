@@ -1,21 +1,29 @@
 import { ipcMain } from 'electron';
 import supabase from '../../src/database/supabaseClient';
-import ProductRepository from '../../src/repositories/ProductRepository';
+import ProductVariantRepository from '../../src/repositories/ProductVariantRepository';
 import logger from '../../src/utils/logger';
-
 export const setupInventoryHandlers = () => {
-  // inventory:getHistory - paginated with optional productId filter
+  // inventory:getHistory — paginated, with optional variantId / productId filter
   ipcMain.handle('inventory:getHistory', async (_event, params: any = {}) => {
     try {
-      const { productId, page = 1, limit = 20 } = params;
+      const { productId, variantId, page = 1, limit = 20 } = params;
       const from = (page - 1) * limit;
       const to = from + limit - 1;
 
       let query = supabase
         .from('inventory_history')
-        .select('*, product:products(name, sku)', { count: 'exact' });
+        .select(
+          '*, ' +
+          'product:product_variant_flat(name), ' +
+          'variant:product_variant(sku, variant_name, color, size)',
+          { count: 'exact' }
+        );
 
-      if (productId) query = query.eq('productId', productId);
+      if (variantId) {
+        query = query.eq('variant_id', variantId);
+      } else if (productId) {
+        query = query.eq('"productId"', productId);
+      }
 
       const { data: history, error, count } = await query
         .order('createdAt', { ascending: false })
@@ -27,7 +35,12 @@ export const setupInventoryHandlers = () => {
         success: true,
         data: {
           data: history,
-          pagination: { page, limit, total: count || 0, totalPages: Math.ceil((count || 0) / limit) },
+          pagination: {
+            page,
+            limit,
+            total: count || 0,
+            totalPages: Math.ceil((count || 0) / limit),
+          },
         },
       };
     } catch (error) {
@@ -36,17 +49,37 @@ export const setupInventoryHandlers = () => {
     }
   });
 
-  // inventory:adjust - create stock adjustment
-  // Done atomically via the adjust_inventory Postgres function (see Supabase
-  // SQL schema) so the stock update and history entry can't diverge.
+  // inventory:adjust — variant-level stock adjustment via adjust_inventory_variant RPC
   ipcMain.handle('inventory:adjust', async (_event, data: any) => {
     try {
+      // Support both new (variantId) and old (productId) call shapes.
+      let variantId = data.variantId;
+
+      if (!variantId && data.productId) {
+        const { data: variants, error: fetchErr } = await supabase
+          .from('product_variant')
+          .select('id')
+          .eq('product_flat_id', data.productId)
+          .neq('status', 'Archived')
+          .order('created_at', { ascending: true })
+          .limit(1);
+
+        if (fetchErr) throw fetchErr;
+        if (!variants || variants.length === 0) {
+          throw new Error('No active variant found for this product');
+        }
+        variantId = variants[0].id;
+      }
+
+      if (!variantId) throw new Error('variantId is required');
+
       const { data: result, error } = await supabase
-        .rpc('adjust_inventory', { payload: data })
+        .rpc('adjust_inventory_variant', {
+          payload: { ...data, variantId },
+        })
         .single();
 
       if (error) throw new Error(error.message);
-
       return { success: true, data: result };
     } catch (error) {
       logger.error('Inventory adjust handler error:', error);
@@ -57,25 +90,23 @@ export const setupInventoryHandlers = () => {
     }
   });
 
-  // inventory:getLowStock — returns ALL products that need attention:
-  // both low-stock (0 < stock ≤ minimum) and out-of-stock (stock = 0).
+  // inventory:getLowStock — returns low-stock and out-of-stock variant rows
   ipcMain.handle('inventory:getLowStock', async () => {
     try {
       const [lowStock, outOfStock] = await Promise.all([
-        ProductRepository.getLowStockProducts(),
-        ProductRepository.getOutOfStockProducts(),
+        ProductVariantRepository.getLowStockVariants(),
+        ProductVariantRepository.getOutOfStockVariants(),
       ]);
-      // Merge and deduplicate by id (a product can't be in both lists, but be safe)
       const seen = new Set<string>();
-      const combined = [...outOfStock, ...lowStock].filter((p) => {
-        if (seen.has(p.id)) return false;
-        seen.add(p.id);
+      const combined = [...outOfStock, ...lowStock].filter((v) => {
+        if (seen.has(v.id)) return false;
+        seen.add(v.id);
         return true;
       });
       return { success: true, data: combined };
     } catch (error) {
       logger.error('Get low stock handler error:', error);
-      return { success: false, error: 'Failed to fetch low stock products' };
+      return { success: false, error: 'Failed to fetch low stock variants' };
     }
   });
 };

@@ -13,13 +13,14 @@ import { useSettings } from '../contexts/SettingsContext';
 
 interface PurchaseItem {
   productId: string;
+  variantId: string;         // NEW — required by create_purchase_v2
   productName: string;
   quantity: number;
   unitPrice: number;
   taxRate: number;
-  isNew: boolean;       // true = adding a brand-new product
-  newName: string;      // name for new product
-  sellingPrice: number; // selling price for new product
+  isNew: boolean;
+  newName: string;
+  sellingPrice: number;
 }
 
 const PurchasesPage = () => {
@@ -31,7 +32,7 @@ const PurchasesPage = () => {
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [suppliers, setSuppliers] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [variants, setVariants] = useState<any[]>([]);   // replaces products[]
   const [supplierId, setSupplierId] = useState('');
   const [items, setItems] = useState<PurchaseItem[]>([]);
   const [paidAmount, setPaidAmount] = useState(0);
@@ -61,21 +62,21 @@ const PurchasesPage = () => {
     } catch {}
   };
 
-  const loadProducts = async () => {
+  const loadVariantsList = async () => {
     try {
-      const res = await window.electron.getProducts({ page: 1, limit: 200 });
-      if (res.success) setProducts(res.data.data);
+      const res = await window.electron.getVariants({ page: 1, limit: 500 });
+      if (res.success) setVariants(res.data.data);
     } catch {}
   };
 
   useEffect(() => {
     loadPurchases();
     loadSuppliers();
-    loadProducts();
+    loadVariantsList();
   }, []);
 
   const addItem = () => {
-    setItems([...items, { productId: '', productName: '', quantity: 1, unitPrice: 0, taxRate: 0, isNew: false, newName: '', sellingPrice: 0 }]);
+    setItems([...items, { productId: '', variantId: '', productName: '', quantity: 1, unitPrice: 0, taxRate: 0, isNew: false, newName: '', sellingPrice: 0 }]);
   };
 
   const removeItem = (idx: number) => {
@@ -84,13 +85,16 @@ const PurchasesPage = () => {
 
   const updateItem = (idx: number, field: keyof PurchaseItem, value: any) => {
     const newItems = [...items];
-    if (field === 'productId') {
-      const prod = products.find((p) => p.id === value);
-      newItems[idx].productId = value;
-      newItems[idx].productName = prod ? prod.name : '';
+    if (field === 'variantId') {
+      // When a variant is selected, auto-fill productId (= productFlatId) and productName
+      const v = variants.find((v) => v.id === value);
+      newItems[idx].variantId  = value;
+      newItems[idx].productId  = v?.productFlatId || '';   // FK → product_variant_flat
+      newItems[idx].productName = v
+        ? `${v.parent?.name ?? v.productName ?? ''}${v.variantName && v.variantName !== 'Default' ? ` – ${v.variantName}` : ''}`
+        : '';
     } else if (field === 'isNew') {
-      // Toggle: reset product selection fields
-      newItems[idx] = { ...newItems[idx], isNew: value, productId: '', productName: '', newName: '', sellingPrice: 0 };
+      newItems[idx] = { ...newItems[idx], isNew: value, productId: '', variantId: '', productName: '', newName: '', sellingPrice: 0 };
     } else {
       newItems[idx] = { ...newItems[idx], [field]: value };
     }
@@ -155,29 +159,45 @@ const PurchasesPage = () => {
         toast.error('Please enter a product name for all new items');
         return;
       }
-      if (!it.isNew && !it.productId) {
-        toast.error('Please select a product for all existing items');
+      if (!it.isNew && !it.variantId) {
+        toast.error('Please select a variant for all existing items');
         return;
       }
     }
 
     try {
-      // For each "new product" row, create the product first and get its ID
+      // For each "new product" row, create the product + default variant first
       const resolvedItems = await Promise.all(
         items.map(async (it) => {
           if (!it.isNew) return it;
-          const newProd = await window.electron.createProduct({
-            name: it.newName.trim(),
-            sellingPrice: it.sellingPrice || it.unitPrice,
+          // 1. Create parent product (product_variant_flat)
+          const newProd = await window.electron.createParentProduct({
+            name:          it.newName.trim(),
+            sellingPrice:  it.sellingPrice || it.unitPrice,
             purchasePrice: it.unitPrice,
-            currentStock: 0, // will be incremented by create_purchase RPC
-            minimumStock: 0,
-            taxRate: it.taxRate || 0,
-            status: 'inactive',
+            taxRate:       it.taxRate || 0,
+            status:        'inactive',
           });
           if (!newProd.success) throw new Error(`Failed to create product "${it.newName}"`);
-          await loadProducts(); // refresh product list
-          return { ...it, productId: newProd.data.id, productName: newProd.data.name };
+
+          // 2. Create default variant (product_variant)
+          const newVariant = await window.electron.createVariant({
+            productFlatId: newProd.data.id,   // correct FK
+            variantName:   'Default',
+            sku:           `SKU-${Date.now().toString(36).toUpperCase()}`,
+            stock:         0,
+            minimumStock:  0,
+            status:        'Active',
+          });
+          if (!newVariant.success) throw new Error(`Failed to create variant for "${it.newName}"`);
+
+          await loadVariantsList();
+          return {
+            ...it,
+            productId:   newProd.data.id,     // product_variant_flat.id
+            variantId:   newVariant.data.id,
+            productName: newProd.data.name,
+          };
         })
       );
 
@@ -192,6 +212,7 @@ const PurchasesPage = () => {
         totalAmount: total,
         items: resolvedItems.map((it) => ({
           productId: it.productId,
+          variantId: it.variantId,
           quantity: it.quantity,
           unitPrice: it.unitPrice,
           taxRate: it.taxRate,
@@ -223,7 +244,6 @@ const PurchasesPage = () => {
     setItems([]);
     setPaidAmount(0);
   };
-
   const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
   const totalTax = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice * (item.taxRate / 100)), 0);
   const total = subtotal + totalTax;
@@ -362,11 +382,18 @@ const PurchasesPage = () => {
                       {/* Product selector or new product name */}
                       {!item.isNew ? (
                         <div className="col-span-5 space-y-1">
-                          <Label className="text-xs">Product</Label>
-                          <Select value={item.productId} onValueChange={(v) => updateItem(idx, 'productId', v)}>
-                            <SelectTrigger className="h-9"><SelectValue placeholder="Select Product" /></SelectTrigger>
+                          <Label className="text-xs">Product / Variant</Label>
+                          <Select value={item.variantId} onValueChange={(v) => updateItem(idx, 'variantId', v)}>
+                            <SelectTrigger className="h-9"><SelectValue placeholder="Select Variant" /></SelectTrigger>
                             <SelectContent>
-                              {[...products].sort((a, b) => a.name.localeCompare(b.name)).map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                              {[...variants].sort((a, b) => {
+                                const aName = `${a.parent?.name ?? a.productName ?? ''} ${a.variantName || ''}`;
+                                const bName = `${b.parent?.name ?? b.productName ?? ''} ${b.variantName || ''}`;
+                                return aName.localeCompare(bName);
+                              }).map((v) => {
+                                const label = `${v.parent?.name ?? v.productName ?? ''}${v.variantName && v.variantName !== 'Default' ? ` – ${v.variantName}` : ''}`;
+                                return <SelectItem key={v.id} value={v.id}>{label}</SelectItem>;
+                              })}
                             </SelectContent>
                           </Select>
                         </div>
@@ -451,14 +478,22 @@ const PurchasesPage = () => {
                     <th className="text-right py-2 px-4">Total</th>
                   </tr></thead>
                   <tbody>
-                    {(detailPurchase.items || []).map((item: any) => (
-                      <tr key={item.id} className="border-b">
-                        <td className="py-2 px-4">{item.product?.name}</td>
-                        <td className="py-2 px-4 text-center">{item.quantity}</td>
-                        <td className="py-2 px-4 text-right">{formatCurrency(item.unitPrice)}</td>
-                        <td className="py-2 px-4 text-right">{formatCurrency(item.totalAmount)}</td>
-                      </tr>
-                    ))}
+                    {(detailPurchase.items || []).map((item: any) => {
+                      const parentName    = item.variant?.product?.name ?? item.product?.name ?? '—';
+                      const variantSuffix = item.variant?.variant_name && item.variant.variant_name !== 'Default'
+                        ? ` – ${item.variant.variant_name}` : '';
+                      return (
+                        <tr key={item.id} className="border-b">
+                          <td className="py-2 px-4">
+                            <div className="font-medium">{parentName}{variantSuffix}</div>
+                            <div className="text-xs text-ink/35 font-mono">{item.variant?.sku}</div>
+                          </td>
+                          <td className="py-2 px-4 text-center">{item.quantity}</td>
+                          <td className="py-2 px-4 text-right">{formatCurrency(item.unitPrice)}</td>
+                          <td className="py-2 px-4 text-right">{formatCurrency(item.totalAmount)}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

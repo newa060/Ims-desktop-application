@@ -3,45 +3,38 @@ import supabase from '../../src/database/supabaseClient';
 import logger from '../../src/utils/logger';
 
 export const setupPurchaseHandlers = () => {
-  // purchases:getAll - paginated list with supplier info
+
+  // ── purchases:getAll ───────────────────────────────────────────────────────
   ipcMain.handle('purchases:getAll', async (_event, params: any = {}) => {
     try {
       const { page = 1, limit = 20, search = '', supplierId } = params;
       const from = (page - 1) * limit;
-      const to = from + limit - 1;
+      const to   = from + limit - 1;
 
       let query = supabase
         .from('purchases')
         .select(
-          '*, supplier:suppliers(*), user:users(firstName, lastName), items:purchase_items(*, product:products(*))',
+          // Join purchase_items → variant → parent product for display
+          '*, supplier:suppliers(*), user:users(firstName, lastName), ' +
+          'items:purchase_items(*, variant:product_variant(sku, variant_name, color, size, ' +
+          '  product:product_variant_flat(name, purchase_price, selling_price)))',
           { count: 'exact' }
         )
         .is('deletedAt', null);
 
-      if (search) {
-        query = query.ilike('purchaseNumber', `%${search}%`);
-      }
-
-      if (supplierId) {
-        query = query.eq('supplierId', supplierId);
-      }
+      if (search)     query = query.ilike('purchaseNumber', `%${search}%`);
+      if (supplierId) query = query.eq('supplierId', supplierId);
 
       const { data: purchases, error, count } = await query
         .order('createdAt', { ascending: false })
         .range(from, to);
 
       if (error) throw error;
-
       return {
         success: true,
         data: {
           data: purchases,
-          pagination: {
-            page,
-            limit,
-            total: count || 0,
-            totalPages: Math.ceil((count || 0) / limit),
-          },
+          pagination: { page, limit, total: count || 0, totalPages: Math.ceil((count || 0) / limit) },
         },
       };
     } catch (error) {
@@ -50,13 +43,15 @@ export const setupPurchaseHandlers = () => {
     }
   });
 
-  // purchases:getById
+  // ── purchases:getById ──────────────────────────────────────────────────────
   ipcMain.handle('purchases:getById', async (_event, id: string) => {
     try {
       const { data: purchase, error } = await supabase
         .from('purchases')
         .select(
-          '*, supplier:suppliers(*), user:users(firstName, lastName), items:purchase_items(*, product:products(*))'
+          '*, supplier:suppliers(*), user:users(firstName, lastName), ' +
+          'items:purchase_items(*, variant:product_variant(sku, variant_name, color, size, ' +
+          '  product:product_variant_flat(name, purchase_price, selling_price)))'
         )
         .eq('id', id)
         .maybeSingle();
@@ -69,122 +64,83 @@ export const setupPurchaseHandlers = () => {
     }
   });
 
-  // purchases:create - creates purchase with items, updates stock & inventory history
-  // Done atomically via the create_purchase Postgres function (see Supabase SQL
-  // schema) since PostgREST has no client-side multi-statement transactions.
+  // ── purchases:create ───────────────────────────────────────────────────────
+  // Uses create_purchase_v2 — each item MUST include variantId.
   ipcMain.handle('purchases:create', async (_event, data: any) => {
     try {
       const { data: purchase, error } = await supabase
-        .rpc('create_purchase', { payload: data })
+        .rpc('create_purchase_v2', { payload: data })
         .single();
 
       if (error) throw new Error(error.message);
-
       logger.info(`Purchase created: ${(purchase as any).id}`);
       return { success: true, data: purchase };
     } catch (error) {
       logger.error('Create purchase handler error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create purchase',
-      };
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to create purchase' };
     }
   });
 
-  // purchases:recordPayment - pay (partial or full) balance on an individual purchase
-  // Updates: purchase.paidAmount, purchase.balanceAmount, purchase.paymentStatus
-  // Also deducts from supplier.balance
+  // ── purchases:recordPayment ────────────────────────────────────────────────
   ipcMain.handle('purchases:recordPayment', async (_event, params: any) => {
     try {
       const { purchaseId, amount } = params;
-
       if (!purchaseId) throw new Error('purchaseId is required');
       const paymentAmount = Number(amount);
       if (paymentAmount <= 0) throw new Error('Payment amount must be greater than 0');
 
-      // 1. Fetch the current purchase
       const { data: purchase, error: fetchError } = await supabase
         .from('purchases')
-        .select('id, supplierId, totalAmount, paidAmount, balanceAmount, paymentStatus')
+        .select('id, supplierId, paidAmount, balanceAmount, paymentStatus')
         .eq('id', purchaseId)
         .single();
 
       if (fetchError) throw fetchError;
 
       const currentBalance = Number((purchase as any).balanceAmount || 0);
-      const currentPaid = Number((purchase as any).paidAmount || 0);
-      const supplierId = (purchase as any).supplierId;
+      const currentPaid    = Number((purchase as any).paidAmount    || 0);
+      const supplierId     = (purchase as any).supplierId;
 
       if (currentBalance <= 0) throw new Error('This purchase has no outstanding balance');
-      if (paymentAmount > currentBalance) throw new Error('Payment amount exceeds purchase balance due');
+      if (paymentAmount > currentBalance) throw new Error('Payment exceeds balance due');
 
-      const newPaidAmount = currentPaid + paymentAmount;
+      const newPaidAmount    = currentPaid    + paymentAmount;
       const newBalanceAmount = currentBalance - paymentAmount;
+      const newPaymentStatus = newBalanceAmount <= 0 ? 'paid'
+        : newPaidAmount > 0 ? 'partial' : 'unpaid';
 
-      // Determine new payment status
-      let newPaymentStatus: string;
-      if (newBalanceAmount <= 0) {
-        newPaymentStatus = 'paid';
-      } else if (newPaidAmount > 0) {
-        newPaymentStatus = 'partial';
-      } else {
-        newPaymentStatus = 'unpaid';
-      }
-
-      // 2. Update the purchase record
-      const { error: purchaseUpdateError } = await supabase
+      const { error: updateErr } = await supabase
         .from('purchases')
-        .update({
-          paidAmount: newPaidAmount,
-          balanceAmount: newBalanceAmount,
-          paymentStatus: newPaymentStatus,
-        })
+        .update({ paidAmount: newPaidAmount, balanceAmount: newBalanceAmount, paymentStatus: newPaymentStatus })
         .eq('id', purchaseId);
 
-      if (purchaseUpdateError) throw purchaseUpdateError;
+      if (updateErr) throw updateErr;
 
-      // 3. Deduct from supplier's outstanding balance
       if (supplierId) {
-        const { data: supplier, error: supplierFetchError } = await supabase
-          .from('suppliers')
-          .select('balance')
-          .eq('id', supplierId)
-          .single();
-
-        if (!supplierFetchError && supplier) {
-          const supplierCurrentBalance = Number((supplier as any).balance || 0);
-          const supplierNewBalance = Math.max(0, supplierCurrentBalance - paymentAmount);
-
-          await supabase
-            .from('suppliers')
-            .update({ balance: supplierNewBalance })
-            .eq('id', supplierId);
+        const { data: supplier, error: supErr } = await supabase
+          .from('suppliers').select('balance').eq('id', supplierId).single();
+        if (!supErr && supplier) {
+          const newBalance = Math.max(0, Number((supplier as any).balance || 0) - paymentAmount);
+          await supabase.from('suppliers').update({ balance: newBalance }).eq('id', supplierId);
         }
       }
 
-      return {
-        success: true,
-        data: {
-          newPaidAmount,
-          newBalanceAmount,
-          newPaymentStatus,
-        },
-      };
+      return { success: true, data: { newPaidAmount, newBalanceAmount, newPaymentStatus } };
     } catch (error) {
       logger.error('Record purchase payment handler error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to record payment',
-      };
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to record payment' };
     }
   });
 
-  // purchases:getReturns - fetches all returns/refunds/exchanges for a purchase
+  // ── purchases:getReturns ───────────────────────────────────────────────────
   ipcMain.handle('purchases:getReturns', async (_event, purchaseId: string) => {
     try {
       const { data: returns, error } = await supabase
         .from('inventory_history')
-        .select('*, product:products(name, sku)')
+        .select(
+          '*, variant:product_variant(sku, variant_name, ' +
+          '  product:product_variant_flat(name))'
+        )
         .eq('referenceId', purchaseId)
         .in('reference', ['Purchase Return', 'Purchase Refund', 'Purchase Exchange']);
 
@@ -196,201 +152,138 @@ export const setupPurchaseHandlers = () => {
     }
   });
 
-  // purchases:createReturn - records a return for a purchase item (damaged goods)
+  // ── purchases:createReturn ─────────────────────────────────────────────────
+  // Decrements variant stock and logs inventory_history.
   ipcMain.handle('purchases:createReturn', async (_event, params: any) => {
     try {
-      const { purchaseId, productId, quantity, notes, userId } = params;
+      const { purchaseId, variantId, productFlatId, quantity, notes } = params;
+      const qty = Number(quantity);
 
-      // 1. Decrement product stock atomically
-      const { data: updatedProduct, error: rpcError } = await supabase
-        .rpc('increment_product_stock', {
-          p_product_id: productId,
-          p_delta: -Number(quantity),
-        })
+      if (!variantId) throw new Error('variantId is required for returns');
+
+      const { data: updatedVariant, error: rpcError } = await supabase
+        .rpc('increment_variant_stock', { p_variant_id: variantId, p_delta: -qty })
         .single();
-
       if (rpcError) throw rpcError;
 
-      // 2. Insert record into inventory_history
-      const { error: insertError } = await supabase
+      const { error: historyError } = await supabase
         .from('inventory_history')
         .insert({
-          productId,
-          type: 'return',
-          quantityChange: -Number(quantity),
-          quantityBefore: (updatedProduct as any).stock + Number(quantity),
-          quantityAfter: (updatedProduct as any).stock,
-          reference: 'Purchase Return',
-          referenceId: purchaseId,
-          notes: notes || 'Damaged goods returned to supplier',
+          productId:      productFlatId,
+          variant_id:     variantId,
+          type:           'return',
+          quantityChange: -qty,
+          quantityBefore: (updatedVariant as any).stock + qty,
+          quantityAfter:  (updatedVariant as any).stock,
+          reference:      'Purchase Return',
+          referenceId:    purchaseId,
+          notes:          notes || 'Damaged goods returned to supplier',
         });
-
-      if (insertError) throw insertError;
+      if (historyError) throw historyError;
 
       return { success: true };
     } catch (error) {
       logger.error('Create purchase return handler error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to process return',
-      };
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to process return' };
     }
   });
 
-  // purchases:createRefundOrExchange - records a refund or exchange for a purchase item
+  // ── purchases:createRefundOrExchange ──────────────────────────────────────
   ipcMain.handle('purchases:createRefundOrExchange', async (_event, params: any) => {
     try {
-      const { purchaseId, productId, quantity, actionType, notes } = params; // actionType: 'refund' | 'exchange'
-      const qtyNum = Number(quantity);
+      const { purchaseId, variantId, productFlatId, quantity, actionType, notes } = params;
+      const qty = Number(quantity);
 
-      // 1. Fetch current purchase & item to get unitPrice, etc.
+      if (!variantId) throw new Error('variantId is required');
+
+      // Get unit price from the purchase item
       const { data: purchase, error: purchaseError } = await supabase
         .from('purchases')
-        .select('*, items:purchase_items(*)')
+        .select('*, items:purchase_items(*), supplierId, totalAmount, paidAmount, balanceAmount')
         .eq('id', purchaseId)
         .single();
       if (purchaseError || !purchase) throw purchaseError || new Error('Purchase not found');
 
-      // Find the specific item to get price
-      const purchaseItem = (purchase.items || []).find((item: any) => item.productId === productId);
-      if (!purchaseItem) throw new Error('Product not found in this purchase');
-
-      const unitPrice = Number(purchaseItem.unitPrice || 0);
-      const refundValue = unitPrice * qtyNum;
+      const purchaseItem = (purchase.items || []).find((i: any) => i.variant_id === variantId);
+      const unitPrice    = Number(purchaseItem?.unitPrice || 0);
+      const refundValue  = unitPrice * qty;
 
       if (actionType === 'refund') {
-        // --- REFUND LOGIC ---
-        // A. Decrement product stock atomically (returning to supplier)
-        const { data: updatedProduct, error: stockError } = await supabase
-          .rpc('increment_product_stock', {
-            p_product_id: productId,
-            p_delta: -qtyNum,
-          })
+        // Decrement variant stock
+        const { data: updatedVariant, error: stockErr } = await supabase
+          .rpc('increment_variant_stock', { p_variant_id: variantId, p_delta: -qty })
           .single();
-        if (stockError) throw stockError;
+        if (stockErr) throw stockErr;
 
-        // B. Insert into inventory_history
-        const { error: insertHistoryError } = await supabase
-          .from('inventory_history')
-          .insert({
-            productId,
-            type: 'refund',
-            quantityChange: -qtyNum,
-            quantityBefore: (updatedProduct as any).stock + qtyNum,
-            quantityAfter: (updatedProduct as any).stock,
-            reference: 'Purchase Refund',
-            referenceId: purchaseId,
-            notes: notes || 'Refunded from supplier',
-          });
-        if (insertHistoryError) throw insertHistoryError;
+        await supabase.from('inventory_history').insert({
+          productId: productFlatId, variant_id: variantId,
+          type: 'refund', quantityChange: -qty,
+          quantityBefore: (updatedVariant as any).stock + qty,
+          quantityAfter:  (updatedVariant as any).stock,
+          reference: 'Purchase Refund', referenceId: purchaseId,
+          notes: notes || 'Refunded from supplier',
+        });
 
-        // C. Update purchase amount & balance
-        const currentTotal = Number(purchase.totalAmount || 0);
-        const currentPaid = Number(purchase.paidAmount || 0);
+        // Adjust purchase amounts
+        const currentTotal   = Number(purchase.totalAmount   || 0);
+        const currentPaid    = Number(purchase.paidAmount    || 0);
         const currentBalance = Number(purchase.balanceAmount || 0);
-
-        const newTotal = Math.max(0, currentTotal - refundValue);
-        // Decrease balance first
-        const newBalance = Math.max(0, currentBalance - refundValue);
-        // If refund value is larger than current balance, the rest is deducted from paid amount
+        const newTotal       = Math.max(0, currentTotal - refundValue);
+        const newBalance     = Math.max(0, currentBalance - refundValue);
         const remainingRefund = refundValue - (currentBalance - newBalance);
-        const newPaid = Math.max(0, currentPaid - remainingRefund);
+        const newPaid        = Math.max(0, currentPaid - remainingRefund);
+        const newPaymentStatus = newBalance <= 0 ? 'paid' : newPaid > 0 ? 'partial' : 'unpaid';
 
-        let newPaymentStatus = 'unpaid';
-        if (newBalance <= 0) {
-          newPaymentStatus = 'paid';
-        } else if (newPaid > 0) {
-          newPaymentStatus = 'partial';
-        }
+        await supabase.from('purchases').update({
+          totalAmount: newTotal, paidAmount: newPaid,
+          balanceAmount: newBalance, paymentStatus: newPaymentStatus,
+        }).eq('id', purchaseId);
 
-        const { error: updatePurchaseErr } = await supabase
-          .from('purchases')
-          .update({
-            totalAmount: newTotal,
-            paidAmount: newPaid,
-            balanceAmount: newBalance,
-            paymentStatus: newPaymentStatus,
-          })
-          .eq('id', purchaseId);
-        if (updatePurchaseErr) throw updatePurchaseErr;
-
-        // D. Sync supplier outstanding balance (since we owe them less)
         if (purchase.supplierId) {
-          const { data: supplier, error: supplierFetchError } = await supabase
-            .from('suppliers')
-            .select('balance')
-            .eq('id', purchase.supplierId)
-            .single();
-
-          if (!supplierFetchError && supplier) {
-            const supplierCurrentBalance = Number(supplier.balance || 0);
-            const supplierNewBalance = Math.max(0, supplierCurrentBalance - refundValue);
-
-            await supabase
-              .from('suppliers')
-              .update({ balance: supplierNewBalance })
+          const { data: s } = await supabase.from('suppliers').select('balance').eq('id', purchase.supplierId).single();
+          if (s) {
+            await supabase.from('suppliers')
+              .update({ balance: Math.max(0, Number((s as any).balance || 0) - refundValue) })
               .eq('id', purchase.supplierId);
           }
         }
 
       } else if (actionType === 'exchange') {
-        // --- EXCHANGE LOGIC ---
-        // A. Decrement product stock (damaged item returned to supplier)
-        const { data: decProduct, error: decStockError } = await supabase
-          .rpc('increment_product_stock', {
-            p_product_id: productId,
-            p_delta: -qtyNum,
-          })
+        // Remove damaged unit
+        const { data: decVariant, error: decErr } = await supabase
+          .rpc('increment_variant_stock', { p_variant_id: variantId, p_delta: -qty })
           .single();
-        if (decStockError) throw decStockError;
+        if (decErr) throw decErr;
 
-        // B. Insert exchange_out record in inventory_history
-        const { error: insertHistoryOutError } = await supabase
-          .from('inventory_history')
-          .insert({
-            productId,
-            type: 'exchange_out',
-            quantityChange: -qtyNum,
-            quantityBefore: (decProduct as any).stock + qtyNum,
-            quantityAfter: (decProduct as any).stock,
-            reference: 'Purchase Exchange',
-            referenceId: purchaseId,
-            notes: notes || `Returned ${qtyNum} damaged unit(s) for exchange`,
-          });
-        if (insertHistoryOutError) throw insertHistoryOutError;
+        await supabase.from('inventory_history').insert({
+          productId: productFlatId, variant_id: variantId,
+          type: 'exchange_out', quantityChange: -qty,
+          quantityBefore: (decVariant as any).stock + qty,
+          quantityAfter:  (decVariant as any).stock,
+          reference: 'Purchase Exchange', referenceId: purchaseId,
+          notes: notes || `Returned ${qty} damaged unit(s) for exchange`,
+        });
 
-        // C. Increment product stock (new replacement item received)
-        const { data: incProduct, error: incStockError } = await supabase
-          .rpc('increment_product_stock', {
-            p_product_id: productId,
-            p_delta: qtyNum,
-          })
+        // Add replacement unit
+        const { data: incVariant, error: incErr } = await supabase
+          .rpc('increment_variant_stock', { p_variant_id: variantId, p_delta: qty })
           .single();
-        if (incStockError) throw incStockError;
+        if (incErr) throw incErr;
 
-        // D. Insert exchange_in record in inventory_history
-        const { error: insertHistoryInError } = await supabase
-          .from('inventory_history')
-          .insert({
-            productId,
-            type: 'exchange_in',
-            quantityChange: qtyNum,
-            quantityBefore: (incProduct as any).stock - qtyNum,
-            quantityAfter: (incProduct as any).stock,
-            reference: 'Purchase Exchange',
-            referenceId: purchaseId,
-            notes: notes || `Received ${qtyNum} replacement unit(s) from exchange`,
-          });
-        if (insertHistoryInError) throw insertHistoryInError;
+        await supabase.from('inventory_history').insert({
+          productId: productFlatId, variant_id: variantId,
+          type: 'exchange_in', quantityChange: qty,
+          quantityBefore: (incVariant as any).stock - qty,
+          quantityAfter:  (incVariant as any).stock,
+          reference: 'Purchase Exchange', referenceId: purchaseId,
+          notes: notes || `Received ${qty} replacement unit(s)`,
+        });
       }
 
       return { success: true };
     } catch (error) {
       logger.error('Create purchase refund/exchange handler error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to process refund/exchange',
-      };
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to process refund/exchange' };
     }
   });
 };

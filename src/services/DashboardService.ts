@@ -14,11 +14,10 @@ const countActive = async (table: string): Promise<number> => {
   return count || 0;
 };
 
-// Count all non-archived products so the Total Products KPI reflects the
-// live catalog (Active + Draft) but excludes anything soft-deleted from the IMS.
+// Count distinct parent products for the Total Products KPI.
 const countAllProducts = async (): Promise<number> => {
   const { count, error } = await supabase
-    .from('products')
+    .from('product_variant_flat')
     .select('*', { count: 'exact', head: true })
     .neq('status', 'Archived');
 
@@ -26,30 +25,30 @@ const countAllProducts = async (): Promise<number> => {
   return count || 0;
 };
 
-const countLowStockProducts = async (): Promise<number> => {
+// Low stock = variants with 0 < stock <= minimum_stock
+const countLowStockVariants = async (): Promise<number> => {
   const { data, error } = await supabase
-    .from('products')
-    .select('stock, minimum_stock')
-    .neq('status', 'Archived');
+    .from('product_variant')
+    .select('stock, minimum_stock');
 
   if (error) throw error;
-  
+
   let count = 0;
-  for (const p of data || []) {
-    const stock = Number(p.stock);
-    const minStock = Number(p.minimum_stock);
-    if (!isNaN(stock) && !isNaN(minStock) && stock > 0 && stock <= minStock) {
+  for (const v of data || []) {
+    const stock = Number(v.stock);
+    const min   = Number(v.minimum_stock);
+    if (!isNaN(stock) && !isNaN(min) && min > 0 && stock > 0 && stock <= min) {
       count++;
     }
   }
   return count;
 };
 
-const countOutOfStockProducts = async (): Promise<number> => {
+// Out of stock = variants with stock === 0
+const countOutOfStockVariants = async (): Promise<number> => {
   const { count, error } = await supabase
-    .from('products')
+    .from('product_variant')
     .select('*', { count: 'exact', head: true })
-    .neq('status', 'Archived')
     .eq('stock', 0);
 
   if (error) throw error;
@@ -75,8 +74,8 @@ export class DashboardService {
         totalSuppliers,
       ] = await Promise.all([
         countAllProducts(),
-        countLowStockProducts(),
-        countOutOfStockProducts(),
+        countLowStockVariants(),
+        countOutOfStockVariants(),
         SaleRepository.getTodaySales(),
         PurchaseRepository.getTodayPurchases(),
         SaleRepository.getMonthlySales(currentYear, currentMonth),
@@ -169,7 +168,7 @@ export class DashboardService {
 
   async getTopProducts(limit: number = 5) {
     try {
-      const { data, error } = await supabase.rpc('get_top_products', {
+      const { data, error } = await supabase.rpc('get_top_products_v2', {
         limit_count: limit,
       });
 

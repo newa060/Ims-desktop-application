@@ -38,7 +38,8 @@ const InventoryPage = () => {
   const loadLowStock = useCallback(async () => {
     setLowStockLoading(true);
     try {
-      const res = await window.electron.getLowStock();
+      // Use variant-level low stock (variants:getLowStock merges out-of-stock + low-stock)
+      const res = await window.electron.getVariantsLowStock();
       if (res.success) setLowStock(res.data);
       else toast.error('Failed to load low stock items');
     } catch { toast.error('An error occurred'); }
@@ -51,7 +52,8 @@ const InventoryPage = () => {
   }, []);
 
   const loadProductsForAdjust = async () => {
-    const res = await window.electron.getProducts({ page: 1, limit: 500 });
+    // Load variants instead of products — adjustments operate at variant level
+    const res = await window.electron.getVariants({ page: 1, limit: 500 });
     if (res.success) setProducts(res.data.data);
   };
 
@@ -63,7 +65,15 @@ const InventoryPage = () => {
   const handleAdjustSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await window.electron.adjustInventory({ ...adjForm, userId: user?.id });
+      // Pass variantId (stored in adjForm.productId after selecting from variants list)
+      const res = await window.electron.adjustInventory({
+        variantId: adjForm.productId,   // the Select now holds variantId
+        type: adjForm.type,
+        quantity: adjForm.quantity,
+        reason: adjForm.reason,
+        notes: adjForm.notes,
+        userId: user?.id,
+      });
       if (res.success) {
         toast.success('Stock adjusted successfully!');
         loadHistory();
@@ -132,8 +142,14 @@ const InventoryPage = () => {
                           <tr key={h.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
                             <td className="py-3 px-4 text-ink/55">{new Date(h.createdAt).toLocaleString()}</td>
                             <td className="py-3 px-4">
-                              <div className="font-medium">{h.product?.name}</div>
-                              <div className="text-xs text-ink/35">{h.product?.sku}</div>
+                              <div className="font-medium">
+                                {h.product?.name ?? '—'}
+                              </div>
+                              <div className="text-xs text-ink/35">
+                                {h.variant
+                                  ? `${h.variant.variant_name !== 'Default' ? h.variant.variant_name + ' · ' : ''}${h.variant.sku}`
+                                  : (h.product?.sku ?? '')}
+                              </div>
                             </td>
                             <td className="py-3 px-4 text-center">{getTypeBadge(h.type)}</td>
                             <td className="py-3 px-4 text-right">{h.quantityBefore}</td>
@@ -177,27 +193,26 @@ const InventoryPage = () => {
                     <thead>
                       <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
                         <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Product</th>
+                        <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Variant</th>
                         <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">SKU</th>
-                        <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Category</th>
                         <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Current Stock</th>
-                        <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Min Stock</th>
+                        <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Low Stock Limit</th>
                         <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Status</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {lowStock.map((p) => (
-                        <tr key={p.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
-                          <td className="py-3 px-4 font-medium">{p.name}</td>
-                          <td className="py-3 px-4 font-mono text-xs text-ink/55">{p.sku}</td>
-                          <td className="py-3 px-4 text-ink/55">{p.category?.name}</td>
-                          <td className="py-3 px-4 text-right font-bold text-danger-text">{p.currentStock}</td>
-                          <td className="py-3 px-4 text-right text-ink/55">{p.minimumStock}</td>
+                      {lowStock.map((v) => (
+                        <tr key={v.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
+                          <td className="py-3 px-4 font-medium">{v.parent?.name ?? v.productName ?? '—'}</td>
+                          <td className="py-3 px-4 text-ink/55">{v.variantName || 'Default'}</td>
+                          <td className="py-3 px-4 font-mono text-xs text-ink/55">{v.sku}</td>
+                          <td className="py-3 px-4 text-right font-bold text-danger-text">{v.stock}</td>
+                          <td className="py-3 px-4 text-right text-ink/55">{v.minimumStock}</td>
                           <td className="py-3 px-4 text-center">
-                            {p.currentStock === 0
+                            {v.stock === 0
                               ? <Badge variant="danger"><AlertTriangle size={12} className="mr-1 inline" />Out of Stock</Badge>
                               : <Badge variant="warning">Low Stock</Badge>
-                            }
-                          </td>
+                            }                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -217,11 +232,20 @@ const InventoryPage = () => {
           <form onSubmit={handleAdjustSubmit}>
             <div className="space-y-4 py-4">
               <div className="space-y-1">
-                <Label>Product *</Label>
+                <Label>Product Variant *</Label>
                 <Select value={adjForm.productId} onValueChange={(v) => setAdjForm({ ...adjForm, productId: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select product" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select variant" /></SelectTrigger>
                   <SelectContent>
-                    {products.map((p) => <SelectItem key={p.id} value={p.id}>{p.name} (Stock: {p.currentStock})</SelectItem>)}
+                    {products.map((p) => {
+                      const productName = p.parent?.name ?? p.productName ?? '';
+                      const variantLabel = p.variantName && p.variantName !== 'Default'
+                        ? ` – ${p.variantName}` : '';
+                      return (
+                        <SelectItem key={p.id} value={p.id}>
+                          {productName}{variantLabel} (Stock: {p.stock ?? 0})
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>

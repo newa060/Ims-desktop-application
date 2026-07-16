@@ -5,13 +5,31 @@ export interface ElectronAPI {
   getCurrentUser: () => Promise<any>;
   setCurrentUser: (user: any) => Promise<any>;
 
-  // Products
+  // Products (legacy — still used for backward compat)
   getProducts: (params: any) => Promise<any>;
   getProductById: (id: string) => Promise<any>;
   createProduct: (data: any) => Promise<any>;
   updateProduct: (id: string, data: any) => Promise<any>;
   deleteProduct: (id: string) => Promise<any>;
   searchProductByBarcode: (barcode: string) => Promise<any>;
+
+  // Parent products (product_variant_flat)
+  getParentProducts: (params: any) => Promise<any>;
+  getParentById: (id: string) => Promise<any>;
+  createParentProduct: (data: any) => Promise<any>;
+  updateParentProduct: (id: string, data: any) => Promise<any>;
+  deleteParentProduct: (id: string) => Promise<any>;
+
+  // Product Variants (product_variant — desktop primary interface)
+  getVariants: (params: any) => Promise<any>;
+  getVariantsByProduct: (productFlatId: string) => Promise<any>;
+  getVariantById: (id: string) => Promise<any>;
+  createVariant: (data: any) => Promise<any>;
+  updateVariant: (id: string, data: any) => Promise<any>;
+  deleteVariant: (id: string) => Promise<any>;
+  searchVariantByBarcode: (barcode: string) => Promise<any>;
+  searchVariantBySKU: (sku: string) => Promise<any>;
+  getVariantsLowStock: () => Promise<any>;
 
   // Sales
   getSales: (params: any) => Promise<any>;

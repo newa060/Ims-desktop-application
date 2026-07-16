@@ -120,7 +120,10 @@ const ReportsPage = () => {
           })
           .forEach((s: any) => {
             (s.items || []).forEach((item: any) => {
-              const name = item.product?.name || 'Unknown Product';
+              // New shape: item.variant.product.name (via product_variant_flat join)
+              const name = item.variant?.product?.name
+                        ?? item.product?.name
+                        ?? 'Unknown Product';
               if (!productSales[name]) productSales[name] = { qty: 0, rev: 0 };
               productSales[name].qty += item.quantity;
               productSales[name].rev += item.totalAmount;
@@ -177,54 +180,51 @@ const ReportsPage = () => {
         };
       }
       else if (report.id === 'current_stock' || report.id === 'low_stock' || report.id === 'out_of_stock') {
-        // Fetch ALL products by paginating until exhausted
-        let allProducts: any[] = [];
+        // Fetch ALL variants by paginating
+        let allVariants: any[] = [];
         let page = 1;
         const pageSize = 500;
         while (true) {
-          const res = await window.electron.getProducts({ page, limit: pageSize });
+          const res = await window.electron.getVariants({ page, limit: pageSize });
           if (!res.success) throw new Error(res.error);
           const batch = res.data.data;
-          allProducts = allProducts.concat(batch);
-          if (batch.length < pageSize) break; // last page
+          allVariants = allVariants.concat(batch);
+          if (batch.length < pageSize) break;
           page++;
         }
 
-        // ProductRepository returns camelCase field names
-        let filtered = allProducts;
+        let filtered = allVariants;
         if (report.id === 'low_stock') {
-          filtered = filtered.filter((p: any) => (p.currentStock ?? p.stock ?? 0) <= (p.minimumStock ?? p.minimum_stock ?? 0) && (p.currentStock ?? p.stock ?? 0) > 0);
+          filtered = filtered.filter((v: any) => v.stock > 0 && v.stock <= (v.minimumStock ?? 0));
         } else if (report.id === 'out_of_stock') {
-          filtered = filtered.filter((p: any) => (p.currentStock ?? p.stock ?? 0) === 0);
+          filtered = filtered.filter((v: any) => v.stock === 0);
         }
 
-        headers = ['Product Name', 'SKU', 'Barcode', 'Current Stock', 'Min Stock Level', 'Cost Price', 'Selling Price', 'Total Cost Value'];
-        rows = filtered.map((p: any) => {
-          const stock = p.currentStock ?? p.stock ?? 0;
-          const minStock = p.minimumStock ?? p.minimum_stock ?? 0;
-          const costPrice = p.purchasePrice ?? p.purchase_price ?? 0;
-          const sellPrice = p.sellingPrice ?? p.price ?? 0;
+        headers = ['Product Name', 'Variant', 'SKU', 'Barcode', 'Color', 'Size', 'Current Stock', 'Low Stock Limit', 'Cost Price', 'Selling Price', 'Total Cost Value'];
+        rows = filtered.map((v: any) => {
+          const costPrice = v.purchasePrice ?? v.parent?.purchasePrice ?? 0;
+          const sellPrice = v.sellingPrice  ?? v.parent?.sellingPrice  ?? 0;
           return [
-            p.name,
-            p.sku || '-',
-            p.barcode || '-',
-            stock,
-            minStock,
+            v.parent?.name ?? v.productName ?? '—',
+            v.variantName  || 'Default',
+            v.sku          || '-',
+            v.barcode      || '-',
+            v.color        || '-',
+            v.size         || '-',
+            v.stock,
+            v.minimumStock ?? 0,
             formatCurrency(costPrice),
             formatCurrency(sellPrice),
-            formatCurrency(stock * costPrice)
+            formatCurrency(v.stock * costPrice),
           ];
         });
 
-        const totalStockVal = filtered.reduce((sum: number, p: any) => {
-          const stock = p.currentStock ?? p.stock ?? 0;
-          const costPrice = p.purchasePrice ?? p.purchase_price ?? 0;
-          return sum + (stock * costPrice);
-        }, 0);
+        const totalStockVal = filtered.reduce((sum: number, v: any) =>
+          sum + (v.stock * (v.purchasePrice ?? v.parent?.purchasePrice ?? 0)), 0);
         summary = {
-          'Total Products': filtered.length,
-          'Total Stock Quantity': filtered.reduce((sum: number, p: any) => sum + (p.currentStock ?? p.stock ?? 0), 0),
-          'Total Inventory Cost Value': formatCurrency(totalStockVal)
+          'Total Variants':        filtered.length,
+          'Total Stock Quantity':  filtered.reduce((sum: number, v: any) => sum + v.stock, 0),
+          'Total Inventory Cost Value': formatCurrency(totalStockVal),
         };
       }
       else if (report.id === 'stock_movement') {
@@ -236,16 +236,19 @@ const ReportsPage = () => {
           return date >= start && date <= end;
         });
 
-        headers = ['Date', 'Product', 'Type', 'Qty Change', 'Before', 'After', 'Reference', 'Notes'];
+        headers = ['Date', 'Product', 'Variant', 'Type', 'Qty Change', 'Before', 'After', 'Reference', 'Notes'];
         rows = filtered.map((h: any) => [
           new Date(h.createdAt).toLocaleString(),
           h.product?.name || 'Unknown Product',
+          h.variant
+            ? `${h.variant.variant_name || h.variant.variantName || 'Default'} (${h.variant.sku})`
+            : '—',
           h.type.toUpperCase(),
           h.quantityChange > 0 ? `+${h.quantityChange}` : h.quantityChange,
           h.quantityBefore,
           h.quantityAfter,
           h.reference,
-          h.notes || '-'
+          h.notes || '-',
         ]);
 
         summary = {
@@ -276,7 +279,11 @@ const ReportsPage = () => {
         filteredSales.forEach((s: any) => {
           totalRevenue += s.totalAmount;
           (s.items || []).forEach((item: any) => {
-            costOfGoodsSold += item.quantity * (item.product?.purchase_price || 0);
+            // purchase_price lives in product_variant_flat, joined as item.variant.product
+            const purchasePrice = item.variant?.product?.purchase_price
+                               ?? item.product?.purchase_price
+                               ?? 0;
+            costOfGoodsSold += item.quantity * purchasePrice;
           });
         });
 

@@ -1,0 +1,7445 @@
+-- Step 2: upsert product_variant_flat
+insert into product_variant_flat
+  (id, name, slug, category, brand, base_unit, alt_unit, c_factor,
+   purchase_price, selling_price, wholesale_price, tax_rate, status)
+select
+  parent_id, master_name, slug, category, brand, base_unit, alt_unit, c_factor,
+  purchase_price, selling_price, wholesale_price, tax_rate, 'Active'
+from _item_parent
+on conflict (id) do update set
+  name            = excluded.name,
+  slug            = excluded.slug,
+  category        = excluded.category,
+  brand           = excluded.brand,
+  base_unit       = excluded.base_unit,
+  purchase_price  = excluded.purchase_price,
+  selling_price   = excluded.selling_price,
+  wholesale_price = excluded.wholesale_price,
+  tax_rate        = excluded.tax_rate;
+
+-- Step 3: re-link variants to their correct parent
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.43')
+  where id::text in ('0000ee12-798f-404e-971a-d73634200a89');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.182')
+  where id::text in ('00017ff7-fa58-49a0-94cf-5373e46c0774','6a393e19-0306-43ac-b935-561b35f4b171','a76266fa-b115-4eb2-995e-bb82e6b337c2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.434')
+  where id::text in ('0002e48b-0f18-4fa8-9b67-e0cfd5df6b07','244c407a-dc0c-46cb-a2bb-1dda913e00da','ffabf8dc-f678-4bac-a867-f27c71735888');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.414')
+  where id::text in ('0005ee12-ea14-44fb-b43a-15f53d6621d6','0ce3332b-fae2-4225-81d2-f8c1c4e55617','0e4096b4-5d3c-4472-a341-3c3d8428ffd1','0f685487-8c0c-47d1-bbb1-9ef28d8e41f1','48217ea5-1fa5-414e-bbfa-11545cc8eb4e','4dceef6c-7f1c-4a6f-8908-58d9409153fe','77978b40-31e1-4daf-9f7b-3dc1b24b406f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.47')
+  where id::text in ('0007ffde-d0a7-412d-8718-e5eda55a076f','23fcc72e-5681-41e8-9563-28926fbc8b3e','281533d5-af34-48fd-bd2c-32babc510b3f','3f2b728a-1be4-42b6-90a0-b35331d528a2','5ae0a6af-101e-4b27-8fdf-e6e3442fed98','5f124b38-578c-468e-961a-68b50a6c4ce8','9bf624af-5cc6-4624-ac78-6e276d69a9f3','a14a40ae-cff8-4b37-8d86-1559397490cc','a6ffdb8d-8363-40b5-bb41-5772fb09094c','c68c02b8-fa2d-46ea-9a1e-97d989391e9b','dbe13c15-0500-4e7a-90d0-0c70b2b1c746','f288ee5c-00a4-48bb-9af2-23d4caf1bee8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.217')
+  where id::text in ('001c4108-4023-4488-8958-abbcc98e83f4','3cd6b210-cf3b-43ef-b132-2c59fdf1fa14','5dc9e1d2-e244-451c-bce7-78f791a56e08');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.11')
+  where id::text in ('001d1373-df4f-4177-89b4-e367353f1519','015913c0-ff0b-46af-b402-93a68fa43e3c','1339d551-e70f-41f6-8a9e-5639f83411f6','44fa2132-8238-4ae3-9cef-de37100d0d79','4f2fe65d-0959-43f7-a75e-7894371931bf','615a127d-d0ac-4009-9d0d-2e1f25161900','8ce5b798-0e47-4dae-b0de-a7a4d242d1aa','8e3ad1b0-5d44-4af7-be01-66620ee00ea1','9367ce03-76a6-4459-91bf-c3ce7e7ba952','9c511e36-584e-41d9-aa6f-66820ed1129c','aba6050f-c9ca-4e71-be0b-b50772b8b8d2','b2287357-ff6f-4aab-88f1-3c393b3aa558','b7a51b11-6156-45f6-b9f1-22d8c8abbf07','d36dd67d-d46c-4e36-8573-6539fd43ddbc','ea99ae68-ec11-4fc3-97d9-557616c0011d','f2a127fb-b421-4541-8b3e-c627f72e34b4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.81')
+  where id::text in ('001f96b2-29b3-4849-b9af-ef8fafbf6e96','040fd35b-8fa4-4474-a9eb-fe0b90dd089f','cf5fedb1-dbda-4927-9803-37e7f7423c6a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.52')
+  where id::text in ('0025a600-f8e5-4d21-90b7-e2a63ff56328','06ecb541-dd9a-4493-9d80-908df13f97f3','0e69abb2-0bfe-446f-bb22-8b9f5d85cec3','27995bb3-a089-42c0-8435-58808a6faf20','285620c3-15ea-48e2-b1eb-40c60c780596','2e18525f-873d-403b-a155-e693dee53e63','3975c493-4bb5-4d0e-9991-6a055c83d2ad','45370a57-aa0f-4ec6-b7f3-6eb4e2b929be','5b5421b1-20d9-4c39-832e-9652a18a3d13','6176f61e-611b-4f6f-83b2-9ea8b9a913b4','6256492c-ebad-4f3d-91e5-9cca6e2dee6e','960f8b9f-6f09-48e0-8ba2-0af7b4140d5c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.312')
+  where id::text in ('00283eb0-9589-4c31-846d-3fbfbcd105ef','047deb9e-e89f-43ad-9059-d12213beec67','0f98fb38-6bc3-454f-906e-80237b2cbf12','1d3740ef-bcb2-4f6d-b8b8-1bca1ce20431','27a0cb61-9b94-480f-95a6-b9a8d02b64f0','6814cc09-f0d0-4e31-80c9-d304896e580c','8a25e519-12f8-482b-9ccb-4b497432c7d5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.194')
+  where id::text in ('002b2986-a5ea-4a47-a3f8-aa4f89b4ee6a','0cf81049-00fc-4431-8f7a-d0caeb082de4','1607f203-72d0-4227-9d91-1273cbfbc160','1a221406-4b83-469b-8b2b-59f58de89291','218c0165-8693-4367-94dc-a13df6d74665','23c8a175-6f97-4d6d-b988-6ad53d5e64a8','33be8b81-d2d8-4f25-b9c1-de2399327532','411b5c0d-bdee-4c4c-a628-7db5a2782d17','5b7f4b31-9f99-4ff1-ac4d-5080e9d18657','75b99ff7-651e-4b10-ae4c-bdf45927debf','7aaf5890-adcc-4e31-b091-8a4038e78212','7b696639-b571-40ab-9d38-542838d530b9','899b575d-d0a5-4e5b-9902-b0baf3ce6f0a','ac72303f-e1a8-4fcf-9922-22b1594dfd17','ea3fcf14-bab5-4659-9916-da42eae77c9f','f6433a46-3a61-494a-88db-ef1cb2f73b2e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.318')
+  where id::text in ('002dcad7-fcc8-4725-9277-6689b9ee0391','05bdf212-833e-40d6-8817-227d2faec536','3a4b4c51-2316-48c5-b2b5-66b765b2e4ad','8e1a6b8e-6547-49b3-9794-980502519024','a9e44505-4778-475c-b71b-f4aa8f720437');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.32')
+  where id::text in ('002ff3fa-adb0-4eb0-b347-7dc2eaeeb924','055659a6-617a-4fdc-be79-a34e6cf92286','0a130a6e-cba3-440b-9931-e1658ed7eb02','0a8f427b-f86b-4695-b385-8e46371dad29','27414b74-1c75-4ede-9e8e-cd2286f9c432','591843a0-80dc-48dc-bd3c-0eb339453be3','61b3262d-f537-484d-9be2-8b04c17b9b0e','625906e5-5465-4432-9a3d-49b06b36d878','8199718b-9577-4d3a-be5d-ac3688f39fa8','910d8171-c86e-47ba-b157-ea792d3dd854','95261d12-e29b-4a72-8979-51f1169f0edf','bfa8f5cc-3042-4b0e-bfed-78c154b7fba2','cee8bc20-4426-4031-be14-5015ff39e277','dc5f4d5f-f0f9-4c43-8fdc-3ae157a3b7ef','dd3d495b-f55b-4060-8f76-c49c9fae6102','f137aa92-4dd8-422e-a7d9-d9eff9078301','f6b0a45c-869e-48ac-8309-a3ab889c28b6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.16')
+  where id::text in ('0032b5ce-09b7-4e27-a2df-9a05bb144ede');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.166')
+  where id::text in ('003362a1-53d9-4b61-b8da-27acf381e666','856eeff3-68c8-48ee-a850-75654910bd0e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.216')
+  where id::text in ('0033b97d-1e93-4e35-8185-71d0d20b2206','16da35b7-df64-47c0-86d1-e1c0784d7fab','2053cabf-3906-48f5-8e9e-1eda2d5bbbb7','6cd2cf85-088f-47e2-90fa-02ccb6c6363c','7d8c98dd-0a3a-41bf-8737-92f9fbc50f4f','89a8adb3-cc2a-4266-bd79-4249975a5617');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.212')
+  where id::text in ('0034da0d-6b42-4ef8-9e47-5c1664b629c6','1615871a-022e-43aa-b6c1-9e3708a3d02d','a492a64f-1a67-4196-bb2f-6201f9751b13','ad9ab768-717f-4d96-a457-f7a5d1a7f3c4','bb8093bb-f79a-45ad-8a15-adba6f6843d5','c71f6610-3c6f-40eb-963b-8b06b6b27b0d','fba5be18-8c5d-4f82-bbb8-75c6bb9eb93a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.32')
+  where id::text in ('00357ecb-c7fa-4903-8354-848f505e75d7','0b01dfbd-916b-4e79-9e7e-fdea8a9bff1a','0c7c48c5-03f0-496a-a921-969f5e79868c','10f896b8-b482-4547-804f-a0835ea21c86','110ddfcd-bc5d-4bb9-bbc6-c430f430797b','130e83cc-a690-4612-8459-c3585237623e','1c9ce40c-4188-4427-a0d9-a40827b8f093','2481c504-fce3-420b-94ac-61bd48a1a958','26ad0059-8feb-4bba-83f4-0df1939c4b56','27435dba-afee-4b55-907f-8375855ed75f','2bd3e3b8-1a35-44d2-956d-0ed089fc16e3','37fda3a2-e3e8-4198-83bd-1769057c9bc5','3cfb57e2-81aa-4e55-8cb6-98427ebe9c23','40ed51b8-4eae-4b51-9e15-bda32d9f9105','52088d3c-8142-4192-9e64-f4d210275a26','583ab83e-98c7-454f-981a-7c72f439e7de','61d710fa-0e13-420e-942a-eb669db74b56','707fd4fd-9762-447e-9275-1623c93db196','75e35926-0135-4487-8314-80a12f7d9148','822318cb-9730-418e-a960-8d051e4ef051','87b12ef1-ea48-441f-a1f3-ba65be02af51','8959af6f-5858-4cc8-8c0b-acb23f1af4ad','8cbf0181-2cbf-4807-8787-a706d081a4c6','8e4c805f-6e04-42e5-87eb-60037f96bfb3','944f458d-3578-420f-a1bb-c88b296bae09','977756f6-6043-4b1d-98b6-c449bfb71eee','a6e121b9-beae-49fb-84f5-4d6fa3af3925','b3ed784d-e072-429c-a04d-79c2d811c26a','b3f6fd3a-3465-4cac-bc55-9c603e26ff63','bb756e35-7bb5-42e3-a570-4cd17969f794','d3f84218-1a01-4878-9e3e-0ed7ca670be8','d5544d9b-b654-41db-9454-57589d9d865b','d8a61e97-f800-496f-92cf-e75a38fd7d6e','da5fad57-7ec1-4789-af02-0c6209ee5de0','e06cccd7-0ffb-4711-b9a9-e821a976f176','e185f227-12b2-4909-95b4-e6a8539c7f80','e95f7307-8449-457e-8716-a401d9945179','ed10c741-4440-45fb-833b-321c2210adc9','f85a0210-b5e6-4f08-93cc-292ae2ccaef4','fb97da9d-3028-4f78-9a50-8f635bcc102b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.172')
+  where id::text in ('003eb885-4a90-40f2-a7bf-fd52a0925d70','33a30b75-033a-4da8-ae17-7329240177e7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.42')
+  where id::text in ('003ec7c5-4515-4e18-a6f2-1e6ebc4c118a','6a78c1d9-f4ee-4e4c-bf70-5279bf0475df','8d605d69-8f3f-4e8b-856f-f0abd7c8e074','94740dbe-d4a3-4d1e-bed4-247c95da134c','c9a2796e-b7c4-4ad6-adc6-4682282f8d67');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.2')
+  where id::text in ('00432f74-685c-4db6-b7bb-a7cf3ca038b5','05eb059b-1a21-42fa-8ae6-1989d6760a4c','1e1755bb-a84b-4ccd-a327-283f4429aa96','26977217-c779-48f6-ba88-bc4ad449567f','2de222e5-24d6-4f20-a6a6-f369078ef387','3bf4a06d-3f36-4534-b5e9-96ceedf229f4','435b7dd8-ce5d-470f-b264-d32ecaba56be','449cb2da-6347-4d9f-860f-e18a98ae8ed2','4f68ed13-6e59-4d87-8592-936cf67f05a5','663792d7-4698-4df3-8fc3-73e0015e207d','7879858e-11cf-4c4f-a5bc-e9aa96a267ef','7e434e37-9934-49d3-a4ce-32a257c1d4be','8d00e695-3515-4aae-909a-8485d23d6735','8fbf216b-f0c3-4ecf-8ffc-68bc5c53523d','93fdfa4a-cf0a-405e-8ac5-30d3a93a1831','99cb0bfa-9d41-4949-bf4f-c694e0c76e62','a0411421-78b8-4473-8991-5d2079eaa695','a28ccfb2-46a4-4487-8e87-46c6afe383c6','ac9eabb8-f0c3-454e-9b1f-a2d0d3126af9','acfbbb64-778f-4e34-97af-2f2f0d051caa','b454a64e-5212-4768-8d45-c27feb551812','b8fff07a-883e-4fc9-84f5-ccbc1d3b88d9','bb006898-d2d5-4956-90ec-625e7001fef9','bbdb2497-778b-4bdb-a496-336846936864','bf414549-f1fa-4d1f-8cdd-d500bb51ce91','c5973d3f-3ff7-45c8-ac59-059b32a6e509','e8805eb6-d557-4738-b2e5-e5050ddb7ed3','f09a1a60-04e9-48ce-97fb-b5447587b3ea');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.22')
+  where id::text in ('00440db9-d565-4419-953a-01476ba143cf','04637ec5-49d7-486e-b069-814d33562a3d','05b0d403-079d-4b23-b35b-9647b5134d1d','13c19f80-abde-46df-92b6-51e727cc7070','29e65c62-1fa0-4148-8db5-46ef41bd4fe0','5be0a36d-ed40-4382-b855-a8d59735ba92','6f80b2f5-dcdf-4a7a-969e-60045470b25c','7017f8d5-b6d5-45d6-bdcc-a186d24af196','83d36805-0952-4d2f-a506-b9bd641ac7e0','92f3dc9f-0621-446a-bc68-d3bb66d6dad5','a4e6d4bc-37c3-4d80-89b4-9f40f70bfc20','aeedbc79-57eb-41ed-a569-203763283e2e','eb4fbd3b-0b53-402c-a088-aad621baf941');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.387')
+  where id::text in ('004786f7-1d05-4411-80b2-32c594ef8512','074a10bd-174d-41c7-8117-4d9b4029d911','0c003cd2-f7dc-40d2-a58b-20d0262843fd','71fd20fe-42a5-4352-ad90-b29b50e764d2','7fae3662-171e-4975-8262-20a56960b5ec','e16b8781-7905-4a20-b58b-b71a9f7a21b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.9')
+  where id::text in ('0052ed5f-ec5a-43e1-9903-4911f148fb1a','02340ceb-ebe4-4f64-93c1-559638650a20','075bfdd0-c32a-404a-9c64-acb4777455e2','0801bcff-4e9c-45d1-b841-dc9fc3a00482','0f53a239-9b9e-4200-97e6-faf7962b34f1','15b49ae0-837b-4c7d-9d6c-72e13c10d3a9','1a81b976-d388-4107-b56d-fd32e010a13e','1af0e74a-211d-412c-82a9-86864cd611e3','222dc0f2-e5ca-409d-9d37-ff43852168b6','26ae9755-42f8-4086-b690-205d5ab3acb2','2d1c0bc8-1820-4abb-9329-8ab7ec4a6c20','35364dc3-a3cc-4185-95ac-e8121b434d61','3ea9df88-de48-4c42-b11f-f4ec7c5e0c5f','419ac7b2-3580-48a7-91c2-6f52df7bb55a','510a7a92-8c02-40bb-bc97-a9198132ecae','513210cd-73b9-4c99-88c7-863eac12d48f','53941547-5d58-41e0-9cc9-a58d7aa553da','6b57994d-a7ca-443d-9dde-b6c181cdbd95','7847b443-6d60-403e-aefe-34952d0a64d2','7d248f1c-98ae-403d-940e-8b4c56481c19','81da0704-9c45-44bc-84e5-0314ba14ea94','876a07de-1528-4d36-b7bd-4cc44ea3162c','8a67b53f-4fb5-4472-b2ad-dec812987458','902e97a2-df29-4c7e-a3fe-9fb3b844c0c6','913d118b-4fcf-44ae-b654-b3fb1804a450','9fd26394-c8f1-42a4-8189-8be7c0033168','acfcfe18-9328-4491-ae31-52e34cc26a7f','b7f9bb0e-5023-434b-a883-7d38f30d082b','b967fe4e-5130-436b-bbcd-65b3d6bd7a68','bc8ff92a-55d0-41ca-949e-e7c03104787b','c38c302c-81f8-4adb-b61a-13091cd10d25','fc53a835-9e9f-4313-b14c-d0bf8ec7a72d','fdc639b3-b751-463a-97f5-6f3849bb72a5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.47')
+  where id::text in ('005351b1-73b3-4869-ad84-ec5ae54f3ebd','09db010c-9500-4113-b301-92f8747c30c9','2a9c49be-eb92-4533-b28f-a084da06169d','34130163-5f4f-4896-a5ae-840dfc4865f1','3c049ca9-0956-473f-a228-c7b5a7942636','60a46c5b-b41a-4788-a045-d4dd86852982','8f8986da-b28e-4cf6-a982-f0f8b5b53d28','9331fa64-8542-4386-a9d0-3fd30123c8d1','9801c852-4cf9-406d-b7df-d12a6534e051','9f5974d2-bca7-4f3c-b48a-486b604facf1','aad5ab67-017d-441c-9123-698056119c0d','af45d3fa-02ee-427a-aeae-9e98d65738ab','b2b1aa97-a4fc-4ea9-a4dd-f2cd41a99f74','bafddc3b-8eb5-4ecb-a9cd-5055e4772e46','f723048c-90ce-4e5d-9fcc-e5d49a667fa5','fde1ce7a-c823-4b94-9ca6-0b16b5e1d82c','fde356b5-2598-4832-a3b5-db9559d0437d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.245')
+  where id::text in ('006368f0-2d5b-41f5-aab9-5d8a0809526d','133d1865-2700-4cf6-b851-1a5f1ee2dbea','21869ec6-d689-4c9f-840e-86e9ba05df09','30bd0833-9927-4ea7-a0a4-3739a4281c90','3d94583b-d6df-4339-a3d6-31ef4e2fdad5','8ad51864-9583-47ad-ae21-6e14c28f0f42','aeb12c53-a6e8-45be-9014-04034ca81a45');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.76')
+  where id::text in ('0066ccb5-5fad-45a0-ad8e-8749eeb50d28','5c6611c7-48c5-4997-8f05-99c114e39b67','6a09b610-fd72-42f6-ae4f-b22f785805fa','d7ac82fd-082a-49b3-a0b7-f3b17e771d96');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.612')
+  where id::text in ('006b3fd5-bda0-4b08-86b8-7f64135f72a8','a8f593c9-f6c8-4b34-ac73-8cea0f70eaf7','b2a585f5-bef7-4e82-b8bd-915351c10188','e84831f6-da7c-4a8d-806b-eb91d83a1aab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.334')
+  where id::text in ('006ef352-cdc8-437c-a956-2840ce5dc469','0b06a1f7-ee31-4a6f-9e85-2b470ecbf7cb','19d8ad6b-6566-407d-835e-c888131f3d2d','29448f5a-1f5e-46a9-bef6-a6f92e41bf4c','3ee4a82b-3afc-4ad6-affd-0d297eaab612','525440cf-01d3-4b1a-a02b-f4b0b14e50d4','5dc16e6f-c0c5-4e86-8c56-0c3fc7cfedfa','602c21ab-48cc-42f8-ab45-2d589ee2fb8f','80ec2829-6086-4e81-bad8-fe21e0d2fd59','90a8f6ea-3d48-4748-92a1-6b817a00bace','930fcdb4-34e7-4fa9-a643-3bcbe33371c8','9fe7b183-d011-4857-8373-7577f1f3f132','a80be7d9-548f-40c3-8819-c27c11d5d506','bd03d84c-8844-4ffb-8cb1-7fb2451f25a1','cc6bedc2-7e66-47b6-885d-d16aa5900269','fa788fa4-b08a-4ea7-a2de-7bfec1ea10bf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.22')
+  where id::text in ('00709405-0656-414d-857f-b41bf7338d3f','026d4811-d399-4b51-8e97-7cbfd13b698f','03e7f780-eb20-4b25-9c06-f961990808d2','0996ef8b-4592-42cb-9d6b-333d0258ff94','1f7ea4dd-a65e-4f92-a45a-ca31afa7b12e','24465f19-1a49-4c16-8422-575dd9e889d9','374d0412-f388-441a-99e2-1c2f09a06929','54c2a37d-79c5-4e9d-923c-743589d3b840','55731c93-b618-408f-9490-c2752ee9b90f','59524a43-1eb5-4e5c-9972-417f51792268','5d1970d9-86c6-42b9-bff4-da1d0458ce20','71a60675-8834-4da4-969e-ac7299285493','7b0b92c7-5aec-420d-aa02-3649e491eb36','8a1c16e3-99d3-4055-a229-7b724014a7c2','9f01de9d-9dd2-44a7-b7ce-5676b7b8b430','a4dad11e-1441-4013-8087-dd30816f0e81','aaa15f62-55e0-42bd-aa9c-355757dd1ab5','afa62a7e-d4e7-4ded-96d7-d96fdcaa29e5','b400718b-b493-4bd5-8269-77bdf9be7759','bf3036ed-e4e8-4cda-bc46-819b4dd27061','d4c07e99-44d3-4827-af1d-265be230eb28','e9a92c83-ff44-492f-9444-a1c6a4b931ca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='2.6')
+  where id::text in ('00742581-ef53-4f8a-9505-1fc348a52bce','835c3ce5-5721-40ba-8c35-488e1966e175','918c7d3c-1d48-4bb8-b989-366b007f0261','9a73b82e-056b-4cab-a4b1-19c70b3c8340','f37ace0e-d150-4771-89d7-da755a388484');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='23.3')
+  where id::text in ('00746970-dc0a-40ca-a1a4-b21b09fcf255','044ad910-25d1-42be-bedb-47ef14897a77','17a78863-0082-47d9-8331-dedc75b5a6d1','1977ea12-a8a1-4105-a9e3-7d084c79d5a8','1acc1f40-1f0a-4584-a95c-e6e8f09b921b','1bdd984d-916c-43ae-9b1a-47f44800ae4e','2228fcc7-3f24-4daa-84cf-2468e3d70c86','2c14aeda-512c-4ec0-b274-6b80190eb08c','3d1e61a2-05df-4faf-be7e-833fc670a413','450a7c23-7dc1-4709-a15e-99651e477061','4a25b329-d630-4567-b683-5d6a6abe8bb4','4a40cf59-ffef-437a-bdda-afb9b2811127','61631275-5512-463f-b721-bcbf96209ed2','78e677ca-3839-4837-8dc2-353c7ceb4b82','7edae8d7-4230-479b-a65f-ad8b5a5ee30a','8203f43a-e8d0-4d82-8b70-394317549c01','9916c003-2b23-4134-96c0-18cf20d1f81e','a47c845d-77aa-4189-b7ce-b6a3b8d001a1','ac005669-a18c-439c-8ea2-4448890df23e','c633cb3c-9162-4e17-8abb-0d31524457f1','dcc0c1b5-6826-4820-98cb-58682e53c74f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.319')
+  where id::text in ('00768e9f-05ec-4c27-88ab-e69969b282a8','17bb7299-885f-464b-958e-afae815f54d1','1cd7b0c1-8e83-40b1-b2d1-facb45a8e0ea','4f04d902-3647-4945-b0ac-0f235d1919d9','650c2a00-7153-4ec5-a9f2-a21f72ec7a25','66998b0b-dbbc-4ba0-a8a9-5b97dcab1124','67de3f6f-a109-4842-a6fe-31ae352e4611','887cc01e-f40b-492b-a192-0a8d0153a8df','904b38d4-3dd3-46dc-b60a-299ad967c03e','a7ad1350-0e9d-4f4b-997d-0c250229dcdc','b4ff678b-0ae8-455b-ba86-cf4b5d4139eb','c8e40ff5-851c-4daf-a431-853c18a30c6d','ca8d3f63-1410-40fa-bec9-4542e1608a21','ce19e2d2-628f-4de9-90cc-eb7afc4d8d88','daebf5c8-d2f5-43f2-902c-acbe290b28d3','fccfdb1c-9dba-4dca-a6b8-3e1f5c219887','fcd2df5c-8808-4db8-a2c3-3d690a334825');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.234')
+  where id::text in ('0076c2d4-3c67-4af9-939a-43842d18ac1b','c6c2fd87-151a-4184-8043-caff6000ef3e','f7248bfc-fb45-4b77-8bca-7e72de53d40c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.315')
+  where id::text in ('0076fe15-3dac-49e4-8872-84c1fb198762','01994442-e80c-408e-b59a-3aa6fdfc484c','3548c89e-3781-47e9-a5a5-e7c4a2d5b402','b8f86992-2d81-400a-9924-bb8d314db60d','e3ed93a0-37ca-4e43-a9ca-5875b4b95182','e9ff6cca-37d5-4c02-9933-931d3b71c925');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.316')
+  where id::text in ('007ccc18-04de-4b4e-9826-a95006d7f926','0ecd61aa-262b-4b58-8435-c71d6b65841d','11d1d82c-fb46-443f-91a9-34d3f96a2595','20f3a043-aedb-462d-aa0b-b49661ed7e17','28cb1446-8477-4331-877f-4c488027b2f5','31aea83b-6976-4787-b9bb-ba175d6117b9','3b526817-0857-4a44-b798-343d94873655','3fe375ae-f8f0-4897-92cb-fcb28cb43053','40231915-7ee0-4faa-b982-185d0d9b6f3d','482c9b83-d46d-41a4-b180-76617ae49891','49a48717-5dc7-47e5-9a9e-33fce92527ea','4d2cd0c6-076c-4079-834b-fa4acba7d6ae','5442ce49-12c1-41df-b7f2-012fd9fa73c5','594d62d7-5625-4371-9c58-1aa5e6c4647e','6c72b142-e179-4ce7-9cec-d47f4da7f5eb','754b4945-55da-452c-b0d1-1e0886368728','7b8fe428-ec91-44e7-9317-8643e3e792c3','9174e4ba-604c-42a0-b092-5b36b3c1bcdd','940d9a4f-4dda-4728-960c-0f0ccf3233dd','9888092d-2fa6-4edb-a54c-788802397bf7','9fb1306c-aade-4a1c-8995-57e8bacd515b','ac041f01-ea2a-48bb-a739-290d755f84b3','addcf511-23dc-4e65-bc2b-a47fc84bf0d4','b80cea1e-5709-4260-9894-8f7e64df738c','cd31c7c5-1cfd-487a-8085-a4be29841501','d0317e68-843b-4be1-b310-28b66ca9060f','dc89b111-ba2e-4350-bb2c-46ecf2c817b7','ec5143e1-140b-4ab6-841a-72bc205871b5','f600d2bc-f710-4675-ba59-ae2c32b0b453','f94cb28c-4747-4a7c-b13b-f10118d1c623');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.341')
+  where id::text in ('007dc1bc-b089-49ef-8498-9512508477f4','05f21ac5-e6e5-49e3-aa0d-4b1eacbd03f2','0bb36c19-135b-45d6-8597-7853e6a4d14e','2c75cb90-e483-4a3f-b4b7-0713981fb6a1','40758cc6-dbdc-4f8c-a20e-a13cbc84f490','527c7a4e-4d7f-4b8b-89c6-51fe0f593065','541c3b07-9097-4983-9caf-873f1f49eb35','74e1771a-763e-4dad-96d7-2286f1878253','82614f35-d4cc-4cb6-862c-09cc9435f605','84a79d3c-95ee-4910-9a94-6ac9bc22a241','865c3c55-9302-4b61-bcda-9c16d823e683','877e57e9-7f26-42ed-b1a8-24edeff8b1ec','879a778a-0f7f-4c9e-8da9-122b149c1351','87aaec83-77ff-4cd7-a021-b4ae7531132e','a0106198-a33e-4733-8682-23616bbde4f3','a61f5f5c-fa63-4f95-bd35-d69312abd705','aefc5071-9022-4203-8c85-48b6505bef3b','af01b24a-6c93-4478-9a53-9f67dc489cb0','b8cc91b8-1ab1-48f0-a3e2-d782481d2883','c4d30205-d1ec-48c0-8327-72bb9d47a311','c82abb63-4280-4097-91a7-6fbb477c2c6f','ca978ce9-a385-4836-b443-3aff6bb4f011','d0e50085-7490-4a59-ab3c-d8970dcd39b6','d5fb3fb9-5760-4f3d-9da4-395496312377','ee72e80a-e971-4bb6-b1e0-b6eadc2145aa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.262')
+  where id::text in ('00809011-bd66-419c-88ad-71d13911fa6d','033d0703-9412-49ff-9a80-6faca23b8d58','17a04a91-d322-441f-bcc4-97922c598ee7','2356ae38-a0d6-4f0b-9c80-8cd8c3202d78','3f491666-150c-4758-8cd9-f0d10b8fdc38','8b7ecea2-1c05-40a6-9c18-685df14c0e32','8f85be9a-a7dd-452a-8a3b-81af892564a2','8fddf960-e06c-4848-85e2-f3ccb4f170d2','9cb237ec-fb46-4ce9-84de-002f8245f3e7','bb999463-7ad5-4a54-96e0-d2c75f202fe6','eeae7aaf-d749-4e78-ae4c-7e9a09d7771f','f89c1001-b392-416d-b095-1544d2064c82');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.109')
+  where id::text in ('008d956f-d4d0-42dc-a659-0039d55cc0ca','36fb203c-e4bb-4efa-9f66-90471f3097ec','56a673a8-6057-40cd-8132-c7f58a22f148','62d92280-2566-46b5-95bb-bd4dada68973');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.29')
+  where id::text in ('008f5d05-31d2-46a7-b5b5-09ff88a5f23e','35e2f95d-224d-4170-bc61-1cb989d754cc','58339858-1a73-4a2c-a694-1d8de98ba27c','82f4ce38-539d-4ea2-b865-2dd7b7583814');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.209')
+  where id::text in ('00908b54-1bba-450f-9208-30afe404bca9','1f8419ec-177d-4941-b639-c5b94f01c85c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.354')
+  where id::text in ('0091ac66-89f8-4841-8ab4-a87af55e421d','1cae15f2-fef2-484b-84c2-ae3304164385','30c6cedc-55b8-47a1-ab48-8c7843d24c2b','37cb909c-6f34-485e-a782-bf42c86b931d','45a0f598-ad48-447d-9942-f19ed83ed646','51a8d620-6057-4788-9426-0d1cdbe757e5','5531b537-0b80-4437-aa6a-b0015f3ee6d1','553ad1c4-b570-4f94-9066-1df6d06e033b','634e8dc7-4d0e-44e8-a621-9aca419513a5','8ae56b6d-c575-4c45-aa89-379d3cff6a59','b420cb9d-c556-4bd7-878e-3463eb18fd0a','bd78aaa2-6a68-4762-b8a8-3e25ad78223c','c2b293a3-5f73-4354-bd08-dcaf8d48dc2e','c73afb4e-ca44-441d-aaab-5799dd9d669a','d36ad0ea-56f8-4b28-9961-460eaed115bc','e925c5db-a375-45f5-8afa-37905a769c17','fc10d606-2bf3-4b53-817a-9314f44a8ed5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.321')
+  where id::text in ('009e0364-f93b-4eb0-a6c2-39ee8783a44f','1cd39860-aac2-472d-8d14-fc1823c91b7f','4eefc2ef-b490-486f-8d31-5c9e32320ba5','795aa32d-0256-46ed-8e91-bb70de9c851c','881af111-bd02-4320-b4b7-bc5c334f909d','8dd7eb9a-5a5d-4ad4-97c9-116de4ecbbee','9b0a093f-f0e5-4608-b547-39c222b5fd2a','c18aa093-0182-4bbb-aaa1-29817cd45278','c5190ef9-ff70-429e-9834-0f80f9dac51c','c59f3bd5-0bfc-4177-bf05-996538f46353','d82ee3d4-08cd-4322-a799-cc90b6a47987','ea0a2b41-8186-4bb3-8128-dff72f3bfe5b','eba4f3ce-1e52-4e41-9902-9090785010bf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.28')
+  where id::text in ('00a06000-0cc6-4b9e-bf69-4774c231680a','069a1fb8-5e2a-4128-9bbf-831f28e2338e','124c8be5-659b-419b-8f1e-202532e93c8f','1c9dd25c-6f25-431f-8909-c4cafcc787fc','20a135ce-dfb3-4981-ab07-4d116dfc598d','4bae6375-91be-416f-a437-03a53a08bbde','882d2b49-0b20-4752-b1a1-63a81ea8854c','943747ee-f730-4b9f-bbf5-1072bf9fdd66','9d1b7115-a0c8-4dc5-8373-8e0c218612a6','d1d1e792-9af6-47f8-b287-052bad8c10a5','eeaa83c1-b5b6-45c2-8e75-dfc5cf40b13d','f2486d21-973e-40d5-a070-cfea8f95d4a6','fcb59639-8e6a-427e-ada5-320cd68ed052');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.1')
+  where id::text in ('00af5c22-ccec-49a6-a99a-a31487e746b8','4f7622a3-e1e0-46d4-8f6f-13a5cc85134f','64139df2-6286-441a-9017-fc4d001f1732','83b50f4a-9af6-4669-ae42-8a1de68310eb','ac35b2f4-61c1-4daa-ac08-cf3d5a8231c1','b4dad727-3b5d-4b82-bdd2-3973845215e2','d3509edc-59e1-4138-86c2-a6ffaf17f6a4','dca8cb58-2dab-4c90-8f18-c56041c86fb8','e21e4e96-d64f-4515-8211-fde7afcd0214','f3c4c3b8-4c88-42d4-a4cf-07cda995fd77');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.301')
+  where id::text in ('00af7b8a-4b36-44c3-b0d5-5af34be903c5','390e41b6-2650-463f-ab94-48057da8223e','62e3df78-2eaa-4f6e-9e42-764f9e753b4c','6ab07c4d-acfb-47d5-a443-533e2905cc6b','6dfadadb-619e-44ef-86f3-28ccde6ff5e2','8dbb4471-e66c-44a7-bbfb-66ae3846cb2d','e92144c0-0aa0-47a0-adf0-badb11160cd2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.259')
+  where id::text in ('00b23b3a-4e9c-4f9b-909e-572d318bb495','11fbb9db-4cb5-47b1-97f9-3be3630a7eca','483cd8fb-2bb4-4b90-ba27-1e37edc1509c','501d6be9-c9a2-4dc5-b0c4-130729c9b13b','5021edd0-aa60-486f-b7ea-f23b9ff61728','5615276b-cd0b-4c68-b544-85e3a8ef7279','5f4c2413-f0f4-49d1-ab99-9e9b8c2c07d5','640052f7-03fe-4182-897f-0c4d65920257','6eae63a6-6c5d-41e7-baa0-e2f5f455eea3','7932df1a-4afd-4cb9-99e4-a4a7415a49e6','7c95646c-2835-4374-accf-61ae820cfcc9','982ac1cc-7664-46ab-bc75-4d5e01b729ef','a9bab72c-0283-4c5a-8537-76482c30e06c','d72559ad-1e2e-468b-a331-a170c31929bd','db2729cf-643b-4a84-bce6-cfe40d7151af','e3872708-5a20-4f71-bb2c-d6e73967b930','e51ef2d0-b6f9-48a0-a1e9-585be6a0f33b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.211')
+  where id::text in ('00b3b44b-0984-478e-840f-db541cba4b1e','2ff0fcf4-b135-445b-8719-1473ede7e797','30ea586d-a703-4a2c-9c83-9d6a0af2958c','4165f5f7-78f1-46d3-a584-fd6ec89e6877','6c3f9f61-7bd8-4e3a-b124-cabf828a1d59');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='23.1')
+  where id::text in ('00b59fe7-f6ff-44e3-814a-fd916f4b1678','0cff540e-c447-4161-9280-da7c96d41562','135158ba-70b6-47b5-a6e6-ef6a8f434bae','3e84baf6-11de-4200-8e34-7edf49fbf6b5','411c9d0d-a1cb-47d2-b37f-e9650c607e35','41250ecc-57df-4a08-8105-34265bd81aa7','509d7a48-e5f8-4e10-94dc-84bf2399cf50','51e6cf19-5314-4a53-af14-5e5094c93afd','623e62c9-55db-42b0-97c9-62088be69530','91f6576f-1370-4efd-b1d1-a72d7388c6d4','9d678efe-e258-41b1-b75e-30ff3dedb643','a730cb59-c4f7-4bba-9378-d345e8fafb11','b2d3f13c-30c4-4e67-93a8-643621127315','b6754ba7-89e2-465a-bb24-f280aa90365c','d15d9012-321d-4701-8997-f795ca473229','dc8b2352-1c7d-4b29-b6ed-6e84829eac3a','e198522c-46aa-406f-8d94-13561d5992c2','f60ce1ca-5a80-4972-b3bc-9429868b8949','f79fa324-7ad6-4788-a515-7b895076a034','faaacdc7-af2c-4531-ba28-4740515ff6d7','ffe766e6-9d0c-4ef4-84e6-053c320f6508');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.42')
+  where id::text in ('00b5a8ec-a402-4eec-b2fd-91b43f1e4e06','118386c0-0633-4b10-a0b4-653be2ddfd91','47db3007-b6fc-4b60-8fa7-842a515e3442','b4768bdb-0722-4142-ac09-8cafd91c9b7c','be6e9394-6a30-461d-8f77-a3ea6dd75cd1','ee641af1-a2af-40e8-855a-c572486c4839','f94d0430-1a3e-4156-bf3b-fd18166f72f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.128')
+  where id::text in ('00bfd4f0-a7b5-455c-96d7-b82d456b33d0','2ab839dc-5d0d-4044-b40b-1a60b441a96a','2bd18910-56dd-47b1-a6b5-9c26d23c5354','546e8e21-8eda-4a83-bf0e-b3c6636543b6','73cfc6e2-c768-45fe-b261-daa18b312774','816bc011-a50c-44e3-b5ad-927f1dee8af1','941937ec-612b-41ec-838b-d4b81592a2c4','a2b80254-f48e-4071-bd59-4f6a0562f8c1','be0d2635-ab80-451a-8caf-ca41afe07eac','de698a9e-5957-4dbe-9b8b-7691ca3a1cb9','f4d2b7da-e091-42f3-b5c7-ef916059fe7c','fb565b75-8cec-4374-a14b-36128b463231');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.217')
+  where id::text in ('00c1297b-e6a5-4548-924c-97dd9925c2f9','045bb69b-fcd7-45f4-b6b7-eb064b3dc651','05337e36-d16d-4e31-8e01-6518525ad6a0','094b63f1-90e9-4db3-b83f-87202513b59b','246b8c61-fb93-4dea-9657-a828e7eac6a2','2ab6004c-43ae-4856-9c60-8c141209d40f','2bb76b83-6daa-41ec-a0df-b756e7ddd5a2','2bde46ae-027d-4887-9e56-e9b7479f0549','2d6259d3-6b9e-4b35-a6f1-96d635a3aad3','5d182311-a9a3-4465-aa50-65b40a84ac55','600095d8-6f13-41b4-8ce8-d7d2850d2939','6cd6219b-124f-4461-b39b-abc751905ddc','6d8234e0-4cfa-4d3e-87b4-cd0c10543d1b','7d512794-9560-4257-b258-b27e3c9da25d','90bfcadc-340e-4e89-acbf-1ee28b44a074','acb87284-dda2-41b3-a6e7-2ed64b4e9bb5','c7341121-ddda-480b-903e-ac6adbcb14c7','cd5a9f84-1326-4f6a-9295-7477bb4fd5f4','d6fd3ac4-0ac0-43be-ba28-fc33302873f5','dace8596-2bcf-4ede-b520-ab63af69b18a','ef69e1ba-0844-441b-b6c7-685a45997607');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.264')
+  where id::text in ('00c197a6-0471-4579-9ad8-cf7f5302dbc5','27002148-4d71-4e3c-88e4-ee1e8dbe2b1d','39effc76-3ff8-4431-8e7a-3d4cd0cdf423','429c207c-17b9-422e-8fb6-3509108f91cb','bcf59a25-34ac-40a7-a9e2-0446e5cb3473','e374e42c-ab17-484e-995b-e5bc82e52ae5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.304')
+  where id::text in ('00c339bc-92a8-46bf-a14f-ea808e64b0ad','5aa5e01a-f91b-4539-a66c-3855e45081e3','7b5c4df9-efb9-4449-8e23-99ed7b4b86cf','9ccfa795-d46f-44ac-bfa5-78fe67a5dde5','be1c919f-8998-4b6b-9684-85f543532e37');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.431')
+  where id::text in ('00cd64d4-c0a6-4630-a234-1366dc8a1507','4dfbda0d-941c-4271-9d16-021ec8955328','96ba7713-b2e4-4383-97a0-61071c5958cc','9eef947c-e0fe-4149-a35b-1c1d4d20e06e','bd0253e3-41e2-4669-a363-b856dedfc537','c187ab08-9344-4a0c-a340-ed04d4665a22','ff691e9e-6464-4043-8d94-bbb3f8f6eed7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.407')
+  where id::text in ('00d1f47d-c6ce-4a72-aba9-d74e3d016425','11e86828-76fe-430a-801f-eda3bc38590d','137908e1-0c83-4e9f-ad99-28c0f85f2b7c','20cbf5d6-f4e9-4900-900e-82d46df096c9','2dde3205-a69b-407f-b363-e31786cfb014','50b3e939-3800-409d-910a-e49a1dba503e','5ddbd1a1-96ad-422e-bf4a-efa5f5c69b99','62e63e7f-200e-4dfa-b285-80ab3d03dae6','6bf57289-e899-4575-922e-2e4d66183c8e','84093c8e-e727-4b5a-bc4a-0ca4f1333b48','88a3091c-e029-4b11-8bd5-05a4c602de60','8a5f3c65-6027-4076-9d48-bb4cd73aac70','94ba9fec-b601-4e40-927d-07592850ebbf','98175cc1-e369-4dff-8645-4f8ff7e5c4c4','9e1987d6-922f-4185-8d25-5a621520dd9f','a925b250-62a6-477b-90c6-c288badcf3bf','a9e285eb-9eb7-4ae9-b7c9-4c5367b9eb1e','ab30306e-2de4-4ad2-9c85-a7829f134b66','adae890a-bf12-47e6-8749-1d110d6d31e9','b3f89e71-b44c-4419-96e0-7cb94558b7a3','b5961331-591a-4a9b-90e5-46cc8fd9d290','bbefe7d5-8e4f-438e-8c27-5a641181bdba','c865be63-e513-41d9-ae67-3905a10d1430','c88556b4-c58c-4f61-9e48-b162b960f200','c9271958-83e4-4045-81f9-a0174ad0b7f3','cd1c1ca7-a77b-4f98-b044-811fd58c44a6','e4d45d9b-dd79-49b9-8853-efbe93e057bd','e6a2dcea-b1a0-41ef-af94-d4c5a01ee51a','e842d83a-6aac-40d9-a1dd-d87fe0e675cf','efa797f3-3538-4591-99f0-0b1fb1f0854d','feb33516-826d-4d29-81ad-2a99f9cb36e5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='14.2')
+  where id::text in ('00d3a4da-b42b-4afd-83d2-013e295f3e62','0ae350a3-1fb2-48b4-bc34-a7dc6843c93c','4f44f11a-97a2-4c7b-af3e-9a77e5f99de4','50eb0668-ebb3-4207-8bc4-b06f82d61a73','5af5e68f-741e-49f3-9f90-c97149d6df28','873db2ef-73af-4bb6-a04c-fe47df81f51d','a6adb296-8be1-4664-9f35-57169515f90e','c2eb5c6c-7960-4241-b18f-e9187c6afba9','ed0ac07c-c36d-4da5-9e0e-93fe81eae8cb','f0c3ae48-c5e9-4679-b4e0-5829c3e137be','f95e99f3-a1f9-4401-b2e8-f1e29f1e32ff');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.224')
+  where id::text in ('00d45fcf-74a8-4976-91e9-8da7b2d9cf19','1dd771ec-7062-4bca-a9eb-15fba55621e2','240e685a-657b-4028-925b-900ec908fd5c','4cbb7a9f-8e29-47c7-a159-efc55562b3f1','6f980c98-65e3-40bd-bf5b-e55dc639408e','7c2f8b68-ebc8-4c10-956b-c20877640847','802842fd-0535-498f-8e64-1fd219333b2f','83ee54f5-cdae-470a-ba70-224c0f122e0a','8f04d4a5-ed68-4c70-895e-9b90fe017933','a056521e-79e0-4b06-a1c2-7b1b3b060bc4','a53bd6ac-5932-4cd6-848a-d2b95e3d1086','ba69855f-c59f-4493-ac76-c926e7766cc8','c473ddd9-f517-4da3-89e6-9acfcc873460','cc71ad76-2350-4d30-b418-8f28a2989597','d978161d-30db-4df6-af7d-f113c578ea64','e9bd52d5-dd2d-4f8c-bb08-1d8623385e63');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.55')
+  where id::text in ('00d4ba29-f803-4950-90fb-5664372df5b6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.94')
+  where id::text in ('00daf44b-b131-4aca-8bbb-588a9440f3ed','57b71cdc-6da4-40e3-96a2-9fc7a26af77b','b2c0b232-04e3-43c6-b17d-c4f87b4b3f0e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.3')
+  where id::text in ('00dba2aa-83c9-4522-8f0e-2f2900bf5d57','11f48c48-97f3-4daa-baf3-3c63d9c6e9a4','1999ecd8-a8b8-4100-8899-a79cec25510c','47cf87c7-0c6d-41fd-ad1a-ba64673ebcf0','51a924ca-4f09-44fa-8759-583a86e4dfaf','74107f69-8624-4f5e-bbb4-7790d87e9da4','85ae1c0a-e80a-47ee-93be-fc73fab489e8','b6c48c5f-c93f-44b2-82eb-1fbacea3ee07','bf60c304-fca5-40fe-8e79-fdd169d2b4c5','e4e9c8f7-cf5c-4126-9ef3-98ac6c6b0937');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.136')
+  where id::text in ('00dda4ef-c06a-476e-beb2-26edfbb79f51','02f9cc19-fb7f-47cf-89f3-43752c72ad81','0d06e424-84c2-41ca-8359-9c2d9b7ced74','1eb8834b-cff0-4e8d-9ce9-7665b78f8bcd','2698b320-bf7e-455a-ba79-7dc9a8221b75','287594da-a9b1-4e3f-be84-e3faa9b6cb9e','32a0562c-ef3e-4d16-8f9a-0817d9ff53cc','49faee96-6747-4e97-800c-d4917c71cdd6','50a8eb92-8219-444a-bef1-2bd5a6258144','87c957af-e14c-4d97-b3b3-1fb41edf0975','87e2c161-5734-43c4-b73e-2c2ef291821a','8d7c5047-165b-46bf-af42-54bbfa515d56','9351b7e2-3ac4-4e72-b5c5-beaccb283803','9b3a0ac9-13b2-4354-bf5c-39b106da9a9c','cc8a1a79-b1ee-495a-88a9-d327b60470ad','d8039663-666d-4674-b7dd-e0414d4f34fd','e1451d5c-d666-4e21-94fe-b195418d8e17');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.44')
+  where id::text in ('00e214a6-8a4f-49f0-865e-9c3260ebc622','0834d5bf-4b24-40ce-9ad8-f179638362d8','1a31fa4a-9f9f-4d02-9a4e-9ed12b68bd41','6d9a7223-dabe-4057-87d5-7bf1a8d25da3','7896e18e-6456-4f66-97b2-4df79f9aa992','904e65b6-ff73-4b0e-ad25-666e800cd1ad','b63d5a61-3dae-4bc1-a9cd-a8fc2967fe29','c919028e-9152-4749-b388-95801130c898','ed0b1891-7418-4871-91f9-ffb0e1b98630');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.371')
+  where id::text in ('00e3ff25-ae68-4a06-b732-fdc83b23fbe3','12a61890-b318-4064-bf5b-d51ae74ec887','20b17901-f643-4e93-a379-4582557b827f','4922e228-9abb-4053-9d45-7c7d68903ebf','64c94d8a-ac97-4eb1-8201-1fe7e71c5014','6abde0ce-7534-44de-b27c-79e9b8084255','772b15ef-235d-4760-9686-7c241f996138','8205413a-ede6-4edb-a960-e5492882cd86','8771d349-944b-422e-9833-1f1d0d10dd27','935cc420-8199-41df-a455-fa9158c011de','948f90e4-0243-451a-9e09-97affd8213eb','9bdc989c-ea1d-4365-8952-ec49a4f79536','c35b036e-8323-481e-8319-4db2e3fb1779','cf352182-5c51-40ba-96c0-d4ad88416150','e4121875-efd5-4217-b9c0-e6db58376bb2','f5f9547a-ffaf-4977-beba-fa24979d203e','fc25dec6-5c41-414e-b3c8-f7839adf88e0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.1')
+  where id::text in ('00e51756-9698-40bb-ba49-2ed7fd8a7092','100db43c-b8b0-438b-bcd6-d451fcbd42c6','27740fcb-e451-4e2c-8f8e-0437c23661f6','71808262-fb97-4348-a0a5-46d54c3a9121','78b675f7-94d0-4ba5-80eb-f036da046173','88cc49fc-0e78-4191-a566-43219f0e7748','a38ad08c-ec48-48d9-8ea7-bbcb7ce0e5b7','de58c5a0-cc00-4f0f-b7b7-9187e435c016','ed6f14cf-f598-4a04-a78d-394349739745','f3365416-cdb0-4fa2-b430-e592c246f40b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.212')
+  where id::text in ('00e74c58-2190-402f-9a11-b80db3502e44','38c922d4-813b-47fe-a726-0d537746ca96','6653aa95-e6f1-42f1-8ef9-ccd40cb1673a','7ae3af52-f5fb-4a3c-a894-d7c64fb3e93e','8a736f83-aa04-4208-abde-35827ff428b9','8e20d033-6535-4808-a524-1590df276b86','9296ed05-4e77-4596-a65a-9816e14af65e','9dc55e47-d9f6-4a61-a718-afd12a030d87','9e6095a9-9a17-4232-b309-985786829864','e638d600-31f0-4a7c-897f-47ab90b94a40');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.184')
+  where id::text in ('00e9e87f-bf82-4116-ae6f-9081ace91fb7','6b5f36fe-be4f-4a3a-a623-ff27614b3a79','fc4fb2ef-aea8-4d0b-ad6e-f889274a316f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.23')
+  where id::text in ('00f2dadc-9878-42a3-95dc-f48988624124','2150a1c8-c39e-4750-9b3f-1ae3c64160ff','385dd033-dbc6-456d-a2b5-d429feb51604','438a895e-ef4e-4bd8-9cf0-4b1b0ccd8b2d','459850ce-89e9-430b-acb5-53f513d94cf2','4ce1b165-0499-401f-a193-5ec513f5ad28','73884633-a0c0-4964-b65f-a5e9c229df39','a617c139-6880-4549-a3a7-b15fef096fe9','bc7eee6d-2c8a-4766-a175-4b7b35a3c799','c35ea7ef-dbad-4159-8c6c-7d8b06cdcfa6','e41768fb-f534-424d-95e1-0593ba3908ae','ef7eefd8-01a0-4026-aea8-a33333ceeadc','f667157a-c542-40b1-9ade-c8a9c04c5e38');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.218')
+  where id::text in ('00fac51f-51cb-472c-b6b1-87e1acd499ca','07fde826-bce5-4b4c-82fd-dfbfdfebc0a8','182e0ede-e5d9-4eec-960d-6a7db567c84a','33ada754-91fc-4dcd-99de-395dbac53592','3c27864e-99f9-401e-ad7f-e72d10a17d67','3f1ba2a2-d353-4104-9760-88eb39e4e133','478b1bfe-161d-45a8-a17b-4fab5ec74611','5174f91d-e6d4-4161-ae49-1ee0e2827eba','9c5940ae-17e3-4da5-8d8a-6941fd1e86e8','e97b5ea0-0de0-4740-ae61-2727c6b4cadc','f278143d-3e0c-4053-bf78-0383e6c55054','f755a8eb-bb75-4524-9b47-6046c7439375','fe77956f-5a36-4ad5-a050-2174df15f5f3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.486')
+  where id::text in ('00fb874c-08e6-43ea-972c-de446d629123','58f1863e-ab49-4e9a-aca9-089e5c769d38','a594dd11-259c-41f8-b33f-23b337b5774b','fc22bb70-d0e1-4449-91dc-b27a025c0f1f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.362')
+  where id::text in ('00ff84df-f2d6-4a75-aa45-bcf1592aea68','3d9ad3d6-9418-4e88-82d6-3989d9db0ece','43a64aee-0671-4a47-aa92-da34f0ac4d16','525e63dc-0832-4e63-9ab8-3b9bde452daa','5940cc12-5888-49b4-9355-67f0a8575432','75e20f1e-e563-4886-a39f-437765659c99','76502706-0a3c-4652-8e21-a8a60739fcda','a73f4c9d-b772-4c26-b663-23f23fad7f79','a84a0640-b71c-492c-89eb-83069feadbff','af7d206c-80fd-45ef-81f8-5c9e63d822b2','c11bbe11-f841-4ff5-a9e8-dcf6db6a94a2','dbf7de4e-4f50-4613-888a-64ca510b2921','e774f403-6d95-4cb6-af73-35c95d6726c3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.13')
+  where id::text in ('010a9a1a-2f63-43cd-852e-46a8a89db7c5','01df6105-a2b7-41cf-bc16-27601d19195a','0fa7a46b-cd53-46a9-9048-0b3f6aaed6ad','119f28bd-a8b0-4eca-9f2f-d7d1b0872591','1b81ab53-0f4d-49f2-ac8a-af80f679a3d7','1fa58e7c-b042-41e4-bc4f-9c74f2a94325','24cb37c1-68d5-461f-a6c3-18e3f87fbfbf','25537880-e38c-4445-ba6a-8be1722d12bc','2db54ad1-5d08-4211-b556-6dd4d9a71523','2e811b3d-99fa-4742-9871-746845652c98','2eaaecac-f15b-47ea-a579-f0ffc23cb1cb','304905f0-9bb8-44a4-acf8-e47879916834','30edada7-68eb-4cde-9146-3afe850766b0','31371d15-ac5c-4726-bc8a-10319fa08dd0','4f998cde-2a2b-465b-b20f-b26dd0f40b7f','6043552f-8d2b-456b-b182-ae9c5b8e6a7c','61a9a299-c578-4372-b748-93b9d7c89f04','66b9c7d3-f8d2-4e9b-9789-9ef6270bd61c','75c7bca9-aceb-4ee7-bf93-0befd2065bfd','86f356e0-0dfd-438a-a4dc-b875c970a2c8','bba91a1b-2da1-47bb-88cf-32a7ac733ebb','e3bd8548-7999-4496-9cba-b52bc6784bdd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.32')
+  where id::text in ('010e09cc-2693-4120-a28b-bb1779dca01b','05b7de9c-6890-4bbe-a54c-e426b13b14f2','0d22bdd0-9329-44ab-99c0-4deb57fa7272','0f6dc651-68bf-445d-87fc-70e3351e0b6a','1351e9f0-9127-46ed-8f11-f9cbebf10022','21e9f310-130a-4d6b-873c-97d2b57887c7','35868463-4920-4ecb-9c71-87fd1e7a73ea','48c90d0c-51c9-4c48-986c-2df6a6d54f26','73c979a3-ace5-49a9-82a9-fdd289aa66ef','a392b2c0-6a88-4342-b27e-3d446ab4a5d6','a4d9f999-0013-4221-8176-b4553377da8e','a681ef47-35ec-40e9-95fa-98ec3c982ed6','af1f2e14-6351-4d97-bf89-ae35be230694','b38ebbd9-279f-43f6-87fd-81d00378a806','bd9aaffe-74db-4c35-b340-fb6a31d88784','c4c0ac79-c8a6-4716-809b-5bb8806807ad','d7f1d7ef-cfdf-46b6-a3c8-03377b86c724','e62c2c9e-c811-4e3a-905d-2cfb2ff531d9','f3af1e10-20fe-4e52-a36c-2faffde45e61','f55f2e17-2f03-4f59-bd44-962244ee5a18');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.309')
+  where id::text in ('01123da0-9d4d-4fb2-acb1-84d022701797','39e57f67-7ffd-4662-b0c9-9ccbba99c7f5','4b059c56-810d-4b57-bc63-336befb459e2','c4106bbc-1383-4854-adc0-5b4aa92e5e2f','c45ab1a3-b06f-45aa-84a4-2e748ac163fe','d5ce9786-dec1-4579-be34-c9606f84d3af');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.42')
+  where id::text in ('01147fee-0858-411e-8dee-bf69e73d2cf8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.222')
+  where id::text in ('011796e8-6ff4-48a2-830c-e69d16977b3c','14a4a478-53f8-4071-89a0-9d1bba8794cf','15316b25-e87a-4dbf-95c7-28954a486877','1827ac1d-f30a-4f4a-8be8-670cc281c2b8','30d86e8d-43a7-4ad5-9434-3f59819f02c6','48bef0dd-95b5-49e2-860c-86e2e6329680','59d4ac1a-dd6d-4fb2-8234-d0c8d4cae548','5e6bf218-1fe2-459b-aa36-525dedfed136','8027e140-2b3c-4668-89c9-24c9bc1e5fdf','a17a25aa-a3f3-4d28-bad8-b4f136536cfe','b3813e8f-42ec-4e00-96bd-a09d017c75d0','cddf130f-5848-4db1-969e-370e2b0d1da7','ecc6a16d-dded-44a7-9803-52647ec59296');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.65')
+  where id::text in ('011e9abb-772d-4f04-9b5f-0908a7438fc0','0fd46f68-e506-4940-8e64-53849211f2a0','10a94dc6-22eb-421b-8d49-86a44971471d','215ecace-7540-4cba-9843-1c3ff31c6795','3d7a393f-b508-4942-aeb5-f0701377762a','3f4e3fb0-1267-4ffc-b275-92fc1bddb251','475bc006-c5c4-4055-aa5b-4148305ed591','69f19796-7c81-4172-842a-4db06e9afe63','8dc8236e-09bc-48c9-9d21-54c40d139549','b7c2d0d7-50a8-491d-b624-2acfe9e3fa29','cfeae436-b678-4fb7-8d6c-a8bbcf6848a8','ea41a814-2838-4d84-a8b8-a549aa4e1738','eb89b827-1372-47e8-bd93-0341b6bee0ec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.4')
+  where id::text in ('011ea965-aa9d-4b2f-a869-890a1ac1a351','197dbeb2-a8a2-4e9c-9d97-52764ba8ec37','1d3d9f18-0006-4aab-8b5a-86d4298aea70','24ae0f13-73c2-4f9e-bc62-407676bdac86','3efe4c4b-28bf-4eee-964c-97714dd45c72','479d3a15-9ebd-4883-9cf7-69b1c6af0af3','4905bb74-91db-4b4f-8cc6-fd97f07cfb78','4bddb829-524d-48fc-879e-436dda6c5f29','4e57f84a-61a3-4c4b-82ca-929265d3be13','740caa6e-e0f5-4fb2-9df0-af2a29ea2238','77448e74-6b71-450c-9e33-00f359885656','923909f0-bbaf-4977-94ff-503f424367dd','ae83b12f-012a-465c-bbd4-9b67bee363c5','af8af6a8-a963-4bce-ab8f-7c89f99ce0b6','b2a24154-dccc-436b-a1d6-3ffc42920095','b6788793-5f93-43e7-82ae-48c70cc1ff87','d7c514c2-8073-42b1-b8bf-f0b6c99f3621','f8de7353-c22c-4278-9b6c-a3c01ea0e687','fa10c1cf-f141-456c-9f04-cf70b199a04c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.2')
+  where id::text in ('01240846-668f-4c66-8d39-be90107faf94','06176348-f413-43ba-aa49-d79574014de1','14693fac-2f17-482f-9b0d-cfb6bd9a2f46','2f50daa0-75e2-4d44-a4e3-4cc05367722b','304e544d-b97d-425f-9252-89373bbb22f8','3f15d486-3831-4c65-bd63-127144e2ad2f','3fad23ec-d2ac-430d-b92b-85396e8ca9c9','4e46f12c-21c2-472c-bb76-31b170741b29','53ddf537-dda0-4f88-877b-b020f6b49ead','54a0780f-a7eb-4a4c-b75c-d9db82589f86','5b2fc7a4-5669-4f61-adcc-4c25cce486c4','5d110e68-daa5-41cf-a534-5936868f645e','660e9143-f655-438a-b028-c1681955b6f7','6e8d1837-abe4-4655-8c73-950fbea00c75','701f860e-64d0-4487-8515-7daa9dc35689','78cf1b0c-a0eb-4fa9-9721-63e9e308766d','79cc1c56-cc78-43eb-86e6-9fd6ec541823','889142fd-fac5-4a8f-be13-a6a17b0913b6','89ca9f4a-9b62-4678-8115-259ee511ee47','8bf9e59c-8c97-4dd2-9998-59a2a1c01cbb','946bb59e-0d44-4161-9b03-927ef2480e11','9cb9b6eb-76e9-4c04-be5b-c0f943f6f7b7','a7bd629c-75cb-440b-9446-88580ca802c5','cc30f4d3-35da-499f-a468-0d0511acf030','cc418056-8d9b-46bc-995a-2ba8a0326264','e3301123-f094-438b-9a2d-76240c383454','f06b11ab-058b-4fe3-82fe-3e8a2f8d4a22','f47d0949-94d0-49a1-9f93-937cfdb387f9','f5fa36d8-b377-4b73-a5b3-851714e53e5c','ff8ab24c-5af2-4fad-bfa0-1926f0861666');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.14')
+  where id::text in ('012ccde2-391b-485c-814b-78abfdc6eeb6','479f10b4-ece3-4279-965f-3817c09aa49e','8509d8e9-6fd2-4d32-adeb-299ab4992d31','b9690304-b1e1-4fcc-ae49-0bebf1816a38','ca38b45a-1db8-45cb-b647-ee420caf377b','f96a7c67-9301-4b2d-8197-44a02a7bdbfc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.216')
+  where id::text in ('012f8605-cdd5-4266-9ecf-2865d93a86a7','b292cce1-12f1-4799-9c08-0a4979114cfb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.397')
+  where id::text in ('013112ee-707a-4d54-85fd-e4b7ed31c141','1442906e-d699-445b-bdfb-8c1c292f6a47','19dc1135-c810-492a-aa18-e0f3acb81342','2fe1230c-b2f8-471e-bf76-899e4d05fab3','342e2390-3d88-4aed-a416-33268667d949','3b318c75-be71-42c9-8fe9-e659f43ce384','438261a3-860d-44b7-8a57-70d148773b23','47ddbb80-57d6-4511-94fa-17d1b1396bb9','7011e785-6bd9-461c-b81b-6accbbb869fc','7587f76b-d096-4c0d-989c-3a96cceef31f','860f518d-91e1-4253-80de-eb269de15e76','87cab789-b215-446e-b036-fa1bfc16c23b','8b942691-cee3-49be-88f7-1146b6d9ab4a','974ef644-4225-49ae-a31b-e053e5e48ac2','9c544b7c-b1e5-4552-9b75-cf62aef95daa','a501f513-68c8-43f5-8da2-be38ec4a3b53','a60bd8cf-9361-4d0c-a97a-0d8293f3612c','a883f88f-360d-422d-ae52-7f4cdc905826','c4235314-6235-4c9a-ae74-9afd938acb79','c815ba30-f5dc-44b4-b55e-987d7f711718','d0c22490-090f-4a94-9114-2d23c5acb6bc','d30f898b-55f0-44aa-884f-d04853f85c6b','d48e8762-27fa-45d2-bdef-65c409b35a75','e614f8c6-1921-457a-bffe-78e8ad46d6c9','f125b43d-0cb6-4acd-8634-f5a3a567f2f6','f536716c-764f-4206-b30e-4ef2dc8e8a2c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.134')
+  where id::text in ('0143ecd6-4f9b-4a55-ba46-14de05797fee','112559fe-9414-4fa4-84e0-6bc9270ba87e','12d0ee20-abaa-4943-98c1-66c14b5c33f8','18f2dcf2-4f2d-4dbb-8eb7-206aabfcce40','20bab6d2-d5c6-40e4-a430-2fd2c99c112e','22636839-6e06-45e0-8102-95def59b22e8','28713434-7fc6-4ea1-954e-169aefefb29a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.398')
+  where id::text in ('0145ee81-4187-442a-9f14-16445f156c8a','064b30f8-2630-418c-ad37-a2348312532b','16b054c2-71d1-4eba-8772-0a7bc8cb6624','2bb8e10e-c5a2-4110-9274-188f074f13be','2bf34965-405c-4a19-ae8d-31824fbc0517','348dc9ea-7517-409f-9606-a11a6fd25149','37b2c7a5-0178-44e8-8e04-54444840666d','3d47920e-8a48-4cf5-ac62-a9ec912adb94','523ae8fa-c133-46d3-bdba-48a0ab2e23eb','69921fe1-70d6-49f0-ba58-a3b980973d1c','7a7d0c06-8cc7-4eb4-9afa-bb55331122fe','83f81fc4-7ec9-41ae-af3e-b943735ec68d','8d78394b-aae1-40bd-bf76-4d26c0c817fa','9f30e41b-13ce-4fcf-98f4-6e5604577a83','c07edb99-5974-43ff-b796-954457fa0972','c397fdb2-039e-4f0e-94ac-69b6fcaa0276','cbedd1cf-2267-4037-82b8-6e6017129974','d164b34b-d92d-4e8d-bd46-88d7d5b3bc51','e8b9701a-a1e1-4b23-a9f3-29513e9e7392');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.111')
+  where id::text in ('01468943-1696-4267-b56d-49b63cd9e8ae','366c27e5-d5b4-4b88-8e78-1051744a72be','42e96dfa-8c15-4d07-95ff-7fcb75422767','492a003a-e729-4009-92a0-ad1f80dcd018','7096fc55-3eef-4384-b4e7-37bd2e94ed0c','b4175b89-4d45-4de0-b260-d15882af5c95');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.23')
+  where id::text in ('0148be08-37e4-40cb-8acd-da6ae995347d','734210a8-2192-44ea-ba30-328711c92663','88f6b3f7-d452-4655-9815-c9beb77660be','93f060ca-5cb6-4831-9f65-3774409b8cec','bbf41e1a-f08b-4218-85d1-8b2ed3375c6c','c07c99b8-e336-4c7f-b019-876b230253a7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.447')
+  where id::text in ('0154f3df-8745-4dbc-825f-b167e5540c89','d8fd80ec-9911-44a8-aa11-d1e58be502ab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.276')
+  where id::text in ('015b8cd2-3088-4d3b-8a44-1479fd85adb0','1993e4a2-4774-47ca-977b-214eae490da4','5cd76543-7207-4dec-8aa3-d226d26062af','7722714c-422c-48b6-9cf5-cb15f4db70bb','ad139446-f88c-4a38-9c4b-c7eea59d92f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.302')
+  where id::text in ('015d56b3-446b-43ac-bb0b-50705fe15498','06a73b62-475b-441b-b820-9f65e3ee868a','1d00ac46-df83-45e7-8b9b-a0799e2c37d5','1da4d7e6-d0c3-48db-9053-4b9550e0958f','280dc57a-69bb-435d-947d-3b564d669eff','3cfd06d8-f5e1-41ec-afc9-e4161c5db492','3d6bd618-6113-4df8-86ff-956f0aa7496e','41a02332-fb22-4a67-ba58-aed298701031','5682379d-049c-4976-a506-86783c31f0b1','5cb19028-90ca-4c02-a3d9-3b859e817f3f','69730fc7-676c-475f-95cc-5bc36934488a','711dd076-08b8-4ea2-b486-f00157c11a0b','7ef2a1db-4aac-4c76-985f-d27e3bf32f9f','9201d116-7602-425e-8b26-cc41656cb30e','9e992899-0beb-4d44-8ed5-39c2f22332fb','a8f79d82-48d6-4a00-8dc0-fe6885bf0272','b59b67dc-63ad-4e54-b85e-dbe10ca701e6','b67b6ee9-bf4d-47c3-adcf-47e171d9b783','caca13bd-7be3-4b78-bf05-fae146a4552e','cce90c05-ffba-4124-b4ca-cbfcec8096a7','d7caa4ac-b642-470f-8e71-b7696b16a693','e821fc2a-a5a5-49f7-a930-15837ed5da91','fb9a76da-681d-4461-b52b-42a31cb22f82');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.119')
+  where id::text in ('015d74b8-3bcc-421a-8f66-6d712566b161','19fac0d4-ff07-4556-b96c-4e76cbfdc013','6074cdb4-6f5a-42f2-83dd-b34672aef78f','649ca7e5-37c6-4b78-bdb7-bfcdf4fe863c','6815f03f-ff9b-467a-86f0-e73ec50eb9a4','9070820f-1a8b-4f2c-b30a-fce41730de21','9c9cd8d1-e6f8-4ea8-94be-e6ab2fa915b2','bc81d855-52b9-4488-b02e-1eba8f6aac77','f5c48dd4-9ccd-4b02-a1d1-4395c174c8dc','fc9ce18d-41cf-4d4e-84ab-5f6d7bcb7a95');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.254')
+  where id::text in ('015fa5dd-c13d-4988-a1fd-c2d6492ad5fb','3d98b809-49db-49a7-869f-59c1206a4f93','5d28cdfe-9d55-4999-8642-ea91e0895855','b4fc81f5-f9b0-4a7f-907a-b9b2e3cc447a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.321')
+  where id::text in ('0166912e-20b4-4072-a1b9-234b657debe7','3466be82-d722-4386-90be-57d397786a70','a0584ddc-aa29-4be8-9d42-9cf86eb36b84','baf6d9d8-7010-4ad9-b1e4-c72722cebafb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.336')
+  where id::text in ('01683bda-2cbb-4367-a992-7aebab5c4ec8','46ed1394-cf8c-4c45-9e2a-a2b021ec2e5a','b39b0d0b-02bf-4373-977e-6b790ffca06e','e4b366d6-bfa6-489b-b07e-cc46264a8331');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.367')
+  where id::text in ('0169e668-4836-46c3-8605-c7b33ba7675c','11eb6904-ba13-4d14-b040-73046e69dd4a','16f4414e-fd13-42e1-84de-72a7e26e1a86','173e3597-500e-48f7-ae83-d75d3e95e17a','2183e720-9f39-4742-901c-8a50c6457d9a','29c6cc88-bf5d-4bb1-bc66-9d83f1a93269','2e2ab177-ab1b-4d04-9214-f513de69c02c','2fc9d10d-0ad2-477c-8a35-c27515ae195e','317cac35-a062-40eb-ae7a-24c3f31b1d35','3581aa38-7019-4275-b348-c53bbfa5478f','3b9da1fc-d969-4931-bbe3-f869fab9dd45','4914dfcd-e95b-4f24-b6c2-09dca9064738','7ae3584e-834c-41fe-9ec0-c7d447f780ef','8c6c2eb4-21b9-4ee2-9ec6-5aa0a1c95532','a3e04c1b-cc1f-4ed4-b2fb-7398c29c2c18','bafe89cb-d42c-4692-a92e-59a1844a050d','dfad483a-038a-4788-b5f1-b9aa33a8aa31','e0abeaa3-3e87-45cf-ae65-49060b15cce3','f0d8a18a-b213-442a-bf23-b57a60c70dfc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.124')
+  where id::text in ('016d500d-d9de-4745-8a17-12ba2a287815','41b1ca19-2651-4560-a95a-c11ff687b074');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.218')
+  where id::text in ('016fd908-e4d0-4860-a6d7-4b5e40346da8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.239')
+  where id::text in ('01745d82-d4ce-4daf-b88a-17dc8f78953f','05ff921a-e90b-4cd0-8a1a-b2c46f727093','0d1487a3-2526-4ce4-83be-66a15dd970be','2c2a4cf9-b600-4683-91b1-013c75baf54f','2fb4066e-ea30-41a5-86d5-faacb2ac47a1','368b6171-e17f-40fe-a5b9-06d5cb98ad3d','399f15e5-2342-4f71-ae18-222478d057a1','3fa2f73c-9056-47b4-89ce-1cc8c9c957d2','5aaa13ef-3039-4b7f-87d2-2c9ee12fe6d8','77043648-030f-489a-8241-5c82de0b85be','7da44d47-93f3-47e0-8ae6-6ed7be28ad52','812905ea-2de8-404d-b80b-0be3a0c31924','86774359-99cb-4f60-a83b-861e9e8bb879','8b5b43e2-ab37-4c05-aadb-58c5e19f5567','978b0133-2ede-4b17-a0b5-98693f494965','9e0a24d5-5e61-4e0b-a849-6a5e42b046d2','a0a93471-531a-473f-88c7-08fa0da3b0d0','b490ef44-2957-40c1-bfbd-29f9bf3318dd','baaae19b-346f-4fce-812f-7fc7d760dcf9','ea0b95ed-9e29-49de-a89e-5be8fa2d2a3e','f7220da2-e731-4786-95bd-cfd8512f8230');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.133')
+  where id::text in ('017623e3-9e3d-43ac-afe7-4ae2c8d5bd59','25b21980-24ed-4dbf-8cd6-f8505ab7caa2','7e4679d7-0e6a-4a7f-ae9e-8b0fb38ab7d6','d341a67c-4f69-448c-b953-b2d645e68908');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.363')
+  where id::text in ('0179aa49-4039-45a6-9d22-bf45f16b642a','0cd48ecc-2663-4bed-b883-71a7a76aa859','1b25e6e4-e9d4-413b-aed9-99eac47b2dfc','2282e016-0906-4bed-a0cd-19f526c6406a','26566906-89be-472d-95cf-3d22a90578b1','298c57ee-c7f7-42fe-9d58-5c1dc8652950','2b7e11d6-c1e8-4a8c-ba21-5437b51dbfbb','2ce9ae49-71c4-41d9-b0cd-ec8be004c794','30f95894-5238-4edd-a00d-b6d6cf1faf39','314adaf1-2387-43cf-9650-bf35d83861c0','3723daaf-265a-4066-88d1-9f7abb15aa48','42910f87-c1f8-41c8-a5fe-8fb19a2c0cd1','5220c56e-4651-4020-8830-e656e5550afe','54b7c072-7f7f-474c-aa29-b1be09f23567','712c02e0-fe08-4e46-87d5-b2aa9c241b90','82cfd27a-b646-434c-819d-261719626c7f','859b8aec-564f-41db-90dd-41de07d3212d','93723240-ee91-4ff1-b3ee-8c11fb5567f2','95f12fcb-938a-45b4-b574-3f3f547a4573','a3c1078d-f4e7-48d7-8868-c9be0a7da86e','b67b3ebe-ff42-4290-8051-f494db360ff6','c7327edd-5f49-485b-b037-8414a5efe15f','d63aa0a3-9a41-4159-a8b1-95f2c403c58c','de05e573-d131-4c58-94e3-817d80ec8441','e0ac892a-8d05-47ba-8e3a-ddacec578865','e6375804-d878-420b-a7cc-160378a0eb87','e7b33d3b-5228-403a-957c-daa8fec44f97','e8326216-0845-4047-a09f-06d4f8a9ef9a','edbedb6c-1e8e-456f-89d2-8ef3077d1632','f1a6df5a-6183-4b99-ae10-6e6a4e17bd47','f50d4f80-ceba-43cd-8fa1-c93ebb5589ab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.489')
+  where id::text in ('017a2702-dea3-4bb7-a65a-276f171fb6fc','a00ead95-1592-4f7b-800d-3a900a0b08ed');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.8')
+  where id::text in ('017ae352-3cd5-4100-a5b0-c4d95952108b','1e84c4d8-9a5c-4a26-bb98-e9cd59299402','2c5b38e8-161a-46e6-9f88-275eeb307ab2','5d857d58-7cfa-45a0-9a3f-171ba16d5596','74c90a72-4e3a-4902-a1d3-94bd5d10d7e1','c481b916-0f00-436f-a823-ad72747f9437');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.337')
+  where id::text in ('017e5178-5163-47ef-a20e-7f3ec186b956','11ef183f-ac52-474b-8687-1ded5344d471','26340530-460c-431b-9536-52bbd3b4a779','42b67785-5210-46c9-b1bf-74d2c04ffc93','511240ee-86b6-41ac-b4be-948db48071e6','5e15027b-d732-4bdc-8baf-efe6c74b55f3','818c72cb-6277-4b90-b446-8a3afa86a6a3','8bafc065-2824-4ac4-9885-e81ffe9d545e','ae4c9c1d-e84c-467b-9311-e23fb8ac9761','be7aed09-23d1-4f68-bf82-6ed3dc2a969e','d05e4b2b-9567-4c47-aa93-364f51926c88','ea1fa8ff-d813-4b84-a9bc-343468f41c44','eede4fda-4a31-429e-a36e-140c89c89c59');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.516')
+  where id::text in ('018bafd0-6a27-4494-9400-61df6e4272fb','4c4ec0a1-0b21-402a-9f22-926f3deebb5d','b0e93357-d858-42cb-880d-eba2d6f465bf','eea6d65b-a965-4f56-8a2f-e1b9d9b2af2d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.122')
+  where id::text in ('018f59d1-5038-46e1-9a6c-f6d5ac7bf476','09b080cd-2aa5-4312-bb6e-f4d7859e19f2','39b4ff1e-c741-43ce-90fa-a26451019745','459f58bf-4348-4b2b-b76f-09219e5f7c82','609bea20-7efe-4a3f-929a-f7198e06263f','6cddab33-27ab-46b6-893e-a6c3bed9a306','77488e6e-bc10-41ca-ad5c-d44653f1f1a5','7cb20dd5-e92c-4545-8975-ea1078635d7d','afb2f87a-2d48-4638-b59a-b5e31af3d401');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.54')
+  where id::text in ('01934f2a-001f-4415-b674-9aa62218e5e2','1fa99b36-ac80-4af7-90ee-174f52b0a291','26cee92e-f100-4912-8005-7b8b8555a7e1','276d03c7-6b74-4132-981b-eda69d4b8886','3ddd865d-d4fb-4002-a172-93f7c1d32860','43605b57-df01-40e7-a0fb-840b7a5c470f','47754ac8-3d33-4d1b-893a-7d3716317a1b','5f060209-b789-4125-850c-cf87fee70730','6e01ef31-81c8-4a0d-a5c4-b8b31d0202b1','7b00e376-2e87-47cb-b95b-d5730bb508e0','92898c71-7596-418e-bf16-83e8196890ac','9a15e9f3-9c08-46f7-8a2a-a070d80c8042','a8a74073-328a-4de8-b190-b23c1f6b680c','ea058c25-c4d2-41f2-8325-d5c1a0b43a97','ee9ea56f-ac5c-400a-bcb2-bfff3cd943a8','fca20d8c-eb41-4705-bc16-050ed107fb3f','fd345504-1705-462a-8b7d-2eb2536c494b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.56')
+  where id::text in ('01957b6e-7ad7-437c-bdb4-20af3167cb63','06933486-f22c-4b2f-8c91-14316849764d','1f3e1ed2-e1a0-4618-9020-7c49f26f7195','446ebdf1-8f08-49e7-80c6-aebe8656b4a2','58528f54-7e63-4318-81bf-d7b136dcaa68');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.174')
+  where id::text in ('0195b230-07bf-49e0-95f6-477eda6f8538','4ab93da7-acbc-40d4-9eb9-5356960151c7','8bfa5512-a139-4e82-aa51-a91fdfcb41a6','c0335660-7487-4d98-a8af-825b1f78c670');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.63')
+  where id::text in ('01a3f147-9d9f-49a3-9931-7a8dccfb2aea','029b7b1b-f639-4865-b3cc-c18a89b666f3','144eeab2-2ee7-4c61-885b-0442bdf768e5','245ed778-f877-408a-886f-3cf08e285ee6','278b6b99-ce4d-423a-a320-bb9b79bb0bb8','33a9eeeb-ddbd-45d3-b96a-994b21b0eec4','8fa78159-b64e-4091-91b2-1bbcbbbaa086','e01d5b26-28a3-402f-907a-4272d4e84aab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.265')
+  where id::text in ('01a7baec-5748-49fb-a1f4-ce78796491ef','2354b570-9e6f-410f-a2de-94441adbf493','241dc70f-b584-4acd-9a51-9481654fcfc9','2b4548cd-6872-4148-9578-722e5c39ee36','468ed58d-a099-48a0-95a7-8baa1cdd4e24','4fe1cbf0-7b2f-4a80-8a7f-1cba0d8a9d67','54c399fc-dfcb-40fa-986e-a5d901b48293','83d7f329-7a45-4fe6-a438-687ef0207b31','ae6bede1-689f-4102-985a-82c9b3c1c4ac','c0b49cac-1f8c-4289-b928-86a4a2887309');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.378')
+  where id::text in ('01a8f898-f96c-4ee1-b88e-9e2d4ba13365','1a790425-8904-439c-9d22-0a7179b4a31e','30d9d79a-3a2e-4eb9-8344-458b1581fdde','35cb3fe7-0a0b-41e0-930c-b5eb170f6095','3fcdb56c-d38c-4486-b0d6-23191731e68b','40a09f18-70ca-4908-bc7f-ae259dd08c2a','4a1ca6db-1f5b-49e7-8138-0ce27d003532','65ede97b-6df4-4f18-9a5a-721b6e5953d1','84fa00c5-241f-41f4-b1ce-f896b88e31dd','8e99cc3c-ff13-4e4a-a826-3faaf002c391','a0b4a9b6-40c0-4474-af65-0f06345e78f6','a0cdcd15-83d2-4a24-b687-742ee575f3af','a734a285-9fa4-4c87-a6b8-380fde2b4f5e','ad188e8f-b8a8-4445-811b-ef7ffa0d2976','af6d2492-f4a7-44a9-a8b6-08bc872a143e','b6732eb0-d69b-4e9b-84d0-3584797ba23b','c40ff97a-dc74-4b38-a2d9-223762c23208','cae45887-e525-40c9-b6ea-32fbb368f8fb','d18b95df-dd56-44b3-8a3f-6b8a94d830dd','e1061822-065f-426f-b292-17704721155b','fab24c6e-559d-4e00-8910-be23a1750ffe');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.129')
+  where id::text in ('01b0be8c-fd49-4983-b910-9c275c41d378','2b194c56-12f3-4cf9-8f39-10e8d5908153');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.231')
+  where id::text in ('01b3c205-8527-4b02-824a-044136c2f2f6','03a962a2-28c0-4173-9b7d-c44dc2a1e8e5','054b1298-1eb4-4756-a6b1-bff7ad1b5dd8','16567f6b-a1dc-4cbc-9910-65a693c4ab00','17bc8cf0-363a-40ab-9ba4-c2534988ade3','208a259a-3db6-4deb-86b3-53d3d5534af2','5d76b49d-a063-4ac3-b2cd-6390d16dbc1e','6052bd2a-10b3-470c-a203-41397470f814','6780a210-741e-416f-a014-a6d55913bf60','70570c93-1031-4070-9f63-039504b23eae','a677e275-7e31-49fc-8836-84d9693e09ca','b8cf0b64-897c-4b0d-b850-5de84947f153','c3a26470-08f9-473a-b772-7e55d7eb4ef8','c545d1a2-1bf9-4c16-bc18-83e12e95d068','d24ed21b-fd82-4e54-8407-d688253e1be0','e0b63078-767e-40fa-9d51-cfb7faccbb33');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.117')
+  where id::text in ('01b4d3dd-ae5b-43d3-874c-431245f22ff6','25df9cf4-ed9e-430c-b1cc-d09fde152cc0','33bc5f26-cd78-40e6-ad12-f23b83a71834','3657ab22-50ce-4a25-bf9b-0b4fd14fe398','52de8364-150d-4184-a289-d9d564c5bd61','62b70b72-68a5-47af-9633-6ac9298b7075','67c5bff6-9b5f-403b-b800-a50698f94af9','6dd4a807-bee7-4071-a014-97985b034c55','861a3c43-7351-4e1d-a531-9d0081f5dbab','ac60bfeb-9450-4443-b4bf-13aa08f06b72','b1a5b5c0-81ae-45e7-b482-b71b157cad6f','b3c2031c-6756-4a8d-b449-d07b643751db','d314f7c8-5648-4da1-88de-2e86f8aab1c1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.381')
+  where id::text in ('01c2a25e-cb69-4ffe-b0a3-56a4256b131c','1d9af67e-91f6-416a-a783-505f84dbacb2','844bb84d-d37a-490f-a07e-3d1a1c4741f9','8f9b9414-c12f-42e0-bdf3-da8d9185c7d1','94a6448b-258e-4983-a403-e6ba4792575f','98a14590-6299-4141-9f1e-5f758723f2ef','9c808b13-9893-471b-9157-4c32f72ebe2c','cb9777bf-6f8b-41c0-8ae1-4b337e6ab851','dd522e09-e322-4076-a304-f1dc4bdab80c','f2f1d43d-1d6b-470a-9686-0522f039dd36','f4d30673-c824-4bff-b13b-8aa6266414e7','fc9fff3c-7e12-4ff6-9ce5-7c509aff68a7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.389')
+  where id::text in ('01c3e6f7-8b36-40ee-a997-8de0a8218718','57575312-d67c-4b33-9170-6815e0f4187c','c015b88b-64ab-4ef1-a927-33041e130f4f','ccc30744-3134-4678-a93e-f6c6cd313564');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.365')
+  where id::text in ('01c5c26f-91d3-42a0-8499-bcc7f624271e','0531167e-cd86-4632-9a1c-7f1ca4381044','3e6b04e8-a1c6-4a3e-ae03-8805b348b4b2','3ecf5bb5-26b6-4cc4-86c5-2c303fde805a','3f36dec9-f19a-4add-8bf2-84e1b25880f8','41970358-161c-47ab-97e9-51672564ec5f','5423f8fe-04d7-422a-aeab-abac236294f0','6ea12051-4788-4354-a58c-29511fe9cd35','78f35783-1c58-4551-ab3a-2b82942645eb','b968f950-fdf0-4df4-af13-f12aa2cf93f8','c418f6ae-32cb-4390-b2d7-b872b33ce1cf','d8a8c474-24ab-4fda-ad77-307348b5add3','fadbe761-6505-416c-a628-bd6f090e5011');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.324')
+  where id::text in ('01c79435-8e7e-4755-ba52-4480835d8339','03c84098-9529-4eb9-ab30-5a8f10cae7ff','05f0b58e-58a2-45ae-9152-943bd3518deb','128dc9d8-df79-4678-825c-4dc6cf532228','3d6755c9-9b30-4deb-bb8c-55dd71fb65c4','4d75a5dd-94c5-49ac-a01f-4474fb261123','64eb7a1a-61c1-4094-beb7-162653f438a4','6a96bf51-2574-4bca-9e2d-825c32eacddc','7adea252-ec4a-443f-82b7-447b9c0dd3bc','df08c466-e03a-4428-a573-53c12423ca21','ef4aefb8-5ea4-4d15-b912-184a2643292b','f2403659-e2bd-440d-9447-4b00813fda79','fc2a03a0-2318-4e56-88a3-f917ced9b171');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.109')
+  where id::text in ('01c95a84-1a59-4e76-bc90-94fe2d86641a','12983903-e6c7-43ae-8225-8e06cb3e5e75');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.191')
+  where id::text in ('01c995c1-c43e-4c4e-bb88-3d755eb656a6','04d07673-01b6-469b-81b1-1eb6797daad2','305dfe86-ba9d-4237-aa0f-44abe747369a','3b48f895-12e5-4131-b8b1-1bb360a77128','77654e53-7c11-4cc0-880f-fc73047ddf0a','a6073e44-e8ba-487e-879f-31ee77d85718','a6dea1e2-45df-41d3-910a-a78d9fdb11c3','a8b1d25a-496c-4263-91e6-324f0f1a9281','ade5e05b-35af-4894-a942-2175e47dffce','c7be1dc4-bbec-4c85-8091-fe935dc512e6','cdb142ff-cef4-4bd1-9c21-4d361270f73f','d0e2c6d4-c651-431a-92e3-85d6047ef5f7','eb3d0fed-94aa-42c6-8adb-e97f23c82c27');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.64')
+  where id::text in ('01d5b215-01f4-4305-87ae-cbccb9ddf1e0','064136d9-8928-4864-b8cb-a190fc3309df','09917272-4e1d-47eb-a04f-11766587995d','3392ddd0-2e0a-4de1-8089-73f882609389','3eac903e-7434-4e02-b115-9349836a3154','6fd0f33d-f6cb-484e-aa53-ad0c91cf4409','8aeadf16-3ba3-4bf1-8a3e-d3089f60e16f','9c2abb01-d201-4a0b-88c7-1498bbeca005','c300e34d-db23-4a51-aa99-c3b694635599','fd1a855d-7cbf-4d96-9800-eb0f789c940a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.67')
+  where id::text in ('01d9506c-293f-4b50-99da-335f6d45fd85','0aa7fe9e-a793-4598-b5fd-fe24a63ff982','107f0bb9-1f90-40c2-99e3-c7a4a3ed0cab','1b2446ec-ee82-4cbd-86f3-72c85e7737d8','1b3aa986-ebe4-4db4-8137-940b62ed5ec4','2273a74c-c82e-44fe-9f19-147395ce594d','27886f82-1f0c-4a83-b2ec-f296bd14ac38','8b91ed32-546e-4e41-853f-069859f297a3','eebe16db-c831-4c25-b4cb-2a56a8f29df0','f326a4bd-e975-41a3-98f4-68ade8756301','f62ba30b-9f5e-4d4a-818f-00888c196683');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.267')
+  where id::text in ('01d9ca2e-ef2f-4778-827b-6c112182900d','0944bea5-d5f7-41c6-bc29-1ec9bf803c41','1f714672-3e56-4687-9193-a04370edf5f1','294ad929-5933-481f-b712-b69a2c028de1','51a2d6ee-ed54-4478-bc4f-3c3ace1dce97','685b208f-bd2f-4531-9d48-837b2a1487ed','7723c6ad-3790-4bd3-86b8-08dbbdfc6ed0','88931416-9379-44c3-87ef-22ad5a82abfe','93223ad8-7189-4742-838e-ecff3d117e00','c1dea735-5f70-4de4-9050-c10f362fac76','c8f0dfb2-e053-40f1-b013-cd94accf4fce','cbaa79a5-e27d-40ea-b97f-f2319e4d46a6','d7272feb-e406-4a08-bf1c-d5895f3144f3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='11.2')
+  where id::text in ('01e22717-db84-4f39-b877-20c5631aa707','10608b68-31e0-49e4-93c5-58429492c662','9cda2501-9168-4086-b4f6-ba48512e8e59','b6fba81d-d289-4822-8671-94845b9e6b2f','c71e0cd0-2339-4576-b9f2-ed4b31cf5f87');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.205')
+  where id::text in ('01ee4d3a-1568-45b9-bba6-eeb88d7157c4','1db6572e-d4e7-476d-843a-1cfbe3cba763','3a6e776c-f4e7-429b-87cf-f959d2148a11','723dfe27-3908-4fd8-9a71-f60a28f105ab','73255f26-7591-4ff3-abbd-f22b58bf6bd1','740424b3-f839-44d5-9436-7b1d6dc4d1ac','78302dc6-28c4-4217-b71a-c2258340e4f2','801f8d3d-ae4c-4cac-a0ed-eed9cd8a8db0','881aba88-0393-4ddc-b901-35c21158f149','a339811a-2034-4dd7-8452-90b5b35de328','b8e5383b-df81-4aa1-95e1-0cd6bbcf8b21','bb91ce51-f835-4024-9aad-bae3623b74d8','c1ab04d9-b7c3-4780-a296-fd6641faca49','f90b1894-c8e9-4287-a102-2a0349c60c7d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.518')
+  where id::text in ('01f249c6-b18b-4eaa-a437-825673849d47','21e65aa6-b090-410d-8079-398534d969b5','a4ed7a96-7acf-4297-9b56-4c1c0fd152e9','c0cf6f9f-9e21-4c00-b9b6-781255456a77','d0a9aeb8-6a5f-4e59-bdb1-3a078cde2b7d','f32b71c7-705e-41f7-a660-65c7cfd119cf','f95112b1-549c-4ad0-8d23-6c63086bfc3b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.41')
+  where id::text in ('01f85f72-e2cc-4dfe-aec5-b5c9dcbd99ba');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.285')
+  where id::text in ('0202f7b9-d72d-450b-8ac9-cfd45c8a584b','04dd7e74-dcc2-4d30-ac08-9bd4c5380061','256a76b6-b488-4074-8287-37366aced3ac','48b09c0f-09dd-4724-8883-235177157837','4caf8386-aa3c-4e05-9f22-a053bb5c2de2','4dd973b4-36d7-407b-ac5e-a6368e93a886','5bf78f30-e91b-4296-9aee-3ddca08622f2','7391ed65-c2a8-4f1a-ab13-31d4d1fa68b0','846c19dd-7a6f-4e58-bb10-3d96fcc68229','8798dc0a-8190-49ba-8dad-15140c830993','9d0b06a9-a3d6-4e01-9892-b0b34f3fe58e','caa287d1-64c0-4ef1-9881-d73275c69536','ce00e280-df6f-4dfe-a956-5d1cec2a29c2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.373')
+  where id::text in ('0211f29d-9540-4a5d-a9ba-eccb224f806b','147f6fde-2b35-48aa-acf7-e3d4b0c64ff2','15aa9955-724b-4034-91ed-f3117fdda5ce','32035dd8-aed0-4305-bd33-4e9e0b7c4802','6fdb058d-1ba9-4c9e-8baf-aa6636695847','80ff9c7e-f9e9-4009-ba38-920acfaa5342','88a14a55-0530-4bc0-ab1f-2d647da05ce0','8931832f-6805-439f-934b-b44a426d5479','92ae97ca-702b-406f-92cd-8aa4725be1d1','987b6429-e7f0-4a12-8ee3-c1d5d54e516c','a306ba86-fa66-42cf-8512-7316213bad8e','ae5ef31b-86b8-41a9-8430-5168c73aecd0','c902676f-e30a-49db-bc28-c77063b871ef','d1aec9bc-d5bd-4126-9e81-6cec07cb41a4','d2a9ddf7-27f4-4820-a8df-39991870f3b9','e596f4c3-dacb-4264-b47a-4955a69af277','ffb3f7a9-22b6-473a-83bc-62d7a9094f18');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.9')
+  where id::text in ('0212087d-4199-4798-ba87-e7208f19bdc5','107b102a-63a2-4045-a5be-37e8d0692d46','5dccf89e-a8aa-411d-b8be-f06627b88437','5e71a49a-b6c4-4ae5-aafa-e3552e7f68b0','8e9734bc-3836-434c-a16a-47832579f1c1','90af3651-5179-4315-9779-d703ea920d39','946bb2b4-d286-4782-a81d-17f2b23dbf3d','b7d58ab0-efa7-4e1d-9494-bb2fb33009f1','c36d219d-eb5b-4d30-a523-a0eee08f10da','c7292db0-02b6-483e-922c-711e9b347784','faddd821-898f-4279-961d-1b6a30a47005','fca86a73-7263-43e3-b764-c3b613248638');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.408')
+  where id::text in ('02139af5-04ef-4892-a8fb-2d153f79af8c','2f465957-d168-4ea0-8099-fa44ed338c00','4f116569-becf-4ad4-9d8a-5355e0ce5ae2','802121be-b989-4e49-9a89-a4c36432d2d0','8447c9c4-dc2e-4f9b-a39d-0e993cbe88dc','93253a7a-1137-47a5-b60e-19d35d49b9cf','99de0e12-fd99-43ef-a157-35a75d7c3173','a7b41da2-f052-4029-b8fb-f1d5a0d20a22','b1921748-02d6-48e0-846b-9719ba116f55','f7509117-095d-4584-b8c9-da584f0ef3c1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='11.6')
+  where id::text in ('021ab1fd-c3cf-4a3d-b3f4-abca995c9c06','38b53961-135c-4e31-b896-cfeb74607e7f','56696c51-fd1b-42ea-bb7a-b56fc60f1604','9aa923c7-a11b-4f71-a89d-513730d41396','ced21d9d-1ffc-4b72-b452-b393171b4341','e4faefd3-0e15-4858-9b11-89efdfad3222','e60f3eeb-29db-4b3e-acb7-82233eed8471');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.77')
+  where id::text in ('021fc9cc-7694-4b86-9217-10150b789bf7','3a775e53-f2c3-4756-9167-a7847757116f','40f2d6a2-35ab-4dd5-ae93-02f8131bcca7','5030086d-61e5-42f9-be1d-ab0c4e42a391','520459d3-c026-4524-9b13-ea37c4dc4a7c','56484558-e489-43eb-8229-37404ce7afea','567857c1-2bfe-4d95-814c-1bd9ac64dbf3','7fc13fc1-04a9-45e4-b300-7be811fef4e0','82e0b79f-2204-4fa5-9b35-b170451aef13','8b738e01-714a-429d-8c45-a2483ba58198','9c4ae543-ce4a-4184-a157-392abf7d56e0','a4eb608f-b140-4f3c-8dfc-cbeeaa2cb977','bd27984e-2cc6-4810-bda2-0aa4e542f98c','e697ff08-3e68-417d-97dc-fc5817d04edf','f2b038d5-7331-4043-993a-46e62cb08fdc','f8161582-f4f9-4027-8bf4-c8ced5ad1894');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.26')
+  where id::text in ('02311d21-97b2-44f2-b630-ea66482e0295','2cacc9e7-8b88-44e1-91f6-75ac1753ead2','8aa88340-7ed8-4038-b74b-e377f780e921','d59d0cb6-af0f-46ce-8663-48955f038239','e691c4e6-dccd-498a-a6e3-0733f14c92a5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.123')
+  where id::text in ('023359e6-cf71-4efa-9abb-0eaca4005382','0bdc10ae-f52b-4d4e-bc72-982bc3a6eca5','0d23d288-22be-4b60-968d-6edd00a16ddd','413b8ea6-9325-4c74-b713-a143741aedbe','780543d9-8b99-4751-9209-64818b25de2b','86210dde-2b26-4628-bf3b-86014d7ab70a','bc1bb7f9-b050-4eb1-9f35-028ba8caa5fd','ff8d3e27-9845-4282-a4c0-d7a8da91a318');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.83')
+  where id::text in ('02353acc-0a93-4f66-ad0f-4b70431cfb3e','101ed8b6-ce0d-4f98-bdf2-c420e367a830','4bb7db5c-12e0-4e9f-8cb1-2f137cdcc2af','680a9a61-893c-4506-9afe-1d2cbfd9236a','b67a4dff-2776-43d0-849f-d50337fa3b2d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.248')
+  where id::text in ('0237c63b-0fef-4204-a6b2-2a91ca5db1ac','0434464b-c903-4844-a4dc-df7ec46056c1','45eb71c1-60a9-4c91-8ffa-30ccc2fdd0dd','51e701db-0a09-4e5b-ac10-ea5fb64e130d','675b32fc-831e-4767-b164-c63a5d670fe4','8138e733-f67c-4636-8675-08ece65c816b','887e0cef-8bc8-4028-8f31-1c4c51663e83','d3cdd522-0e18-49e8-a2a4-a54fc2453c17','f1c97494-2078-4310-a0a7-5e13df5e4111');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.19')
+  where id::text in ('023a6e81-40a2-47af-b156-65a0a8fa933d','06898818-069b-44c9-9eb0-7e3d3c7a9c38','28b4b312-3cf2-466f-9fd7-bbdd8426092d','2ce5a2c0-2aab-4422-9b5c-06a75679a630','50ef2513-0e24-4ad5-af61-c25de63c8a5c','545d8ead-4614-41d4-9ed8-5c7adcab2ab6','60f9d65b-023e-40f4-aab9-a6ab0db883f1','7cf35bd7-0924-4cd6-a219-d9f6972cb966','90a27b0e-e6b6-4274-b920-1a1ea185bb71','da265e3a-9673-4296-9fbd-1023f9e46291','ed23e5ea-9700-4b9b-9ff0-afd1675ea157');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.374')
+  where id::text in ('023d46b2-d751-4603-bccc-0ad4d295fa87','025c178a-1078-4e24-927a-f41ad19830a1','30a20461-39c8-4a5a-b5e7-d61dd62b5ccb','70cb4937-5734-4360-838e-ce3f8c74af6f','971cdc84-306e-404c-b4c4-d7c2f518273a','9fd3641d-daf2-4974-87f5-c79afb923e65','a4dc64f6-4eb0-4d6c-8a74-9584e3ac2002','bc63bba1-7c3f-4d98-94b5-63c9676d551b','c2c8d199-086e-4485-b6f5-8abf860aa30d','ccbb117f-c04b-4acd-9607-7c7b3811021b','e8598a23-e20f-4cca-a62e-fcad2875a7b4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.48')
+  where id::text in ('02424863-0fb2-4b33-8b2c-1f6f5ba8f9dd','0b2e3cd4-fa7c-4db8-a0a9-8891a70181a8','1346c9a6-18b6-460d-9d1b-895c38df8c78','33b62e67-531e-48dd-a5d8-d6e50343dfa2','439a46ae-1fff-481f-bef5-8c6e2db4faf5','56a8ed48-623f-455d-8f11-551aa73c5a5d','66ded2c9-3b1f-4adc-8132-dc8140fa4bde','7546d512-9e21-4503-a928-b898f087e4eb','80a8772e-d892-4f2b-b5c7-66013d2dad94','8e04c4cc-4630-40a0-8f5c-7363e913e503','a140d8be-02b4-4a86-8fba-9296d8b4e101','a160feab-6568-4065-acfa-83e5b140ab03','b26c1f16-bdb1-4bb9-b2eb-e7557097609f','b927d91d-f85a-44ad-b015-0d08123bfd11','c3301627-3d21-46cc-b40a-96d79dfa5d7f','d1cc0b04-938a-49e0-929f-51b36ed567a2','eacb8aa7-e9fb-450a-a7d2-a72ee70d1228','ec6b18eb-6916-4353-a842-aef7d09fb9a0','ecabe003-b43c-4580-b320-3ce61804d37b','f1692b01-0261-4295-94e5-3105bdf493a8','f93e8b9c-2cd6-483e-8869-1da03e6ec5eb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.345')
+  where id::text in ('024481b7-8ae7-4130-91e7-3cca1b7b35a5','12d89a77-98d2-4349-9588-63019c46f39c','21904796-b59d-4556-96e9-aa64794a7a04','25e854ab-f99d-4669-99e0-27e92ba3088a','a685215a-2026-4bc3-b9a2-cbf0aa4c602e','dce66205-f921-433c-aa60-7b27cc999500','df780392-c25e-49c9-8a91-1613afc75286');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.116')
+  where id::text in ('024d0d79-e71b-4bc3-b704-e0803b5c8862','18070200-cd2a-4f8d-879d-a2d00fb2b05e','1c8c269a-16b5-4199-aa68-dc8ad87dbd3c','36360d1b-c957-4add-82d3-113feac1b308','96887201-e087-4c77-bca9-38981eb5c809','ea34637e-6962-47af-a242-7673d08bc0e6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.3')
+  where id::text in ('02535deb-d11e-403e-be1a-c29b118b5afe','029538c6-10c9-4de3-aa92-49b271538a5e','0849f843-b94e-4538-a8fd-89008fbb680c','099e7f78-b2b6-4917-8eeb-f3f948e10fb1','0ddf3523-f74c-4949-8b1d-d6160a618680','1d43b244-3761-4358-a222-4b0f053970ed','209e4ed4-9fc0-4265-9a67-1707a8f34d93','23d36cba-3a34-4ab4-ab78-bc19a7f82dd1','305c6b65-cf16-486b-9e91-6aa01048a718','4acb77a0-137c-47b6-982b-6bff725a513d','590e34eb-b07d-48bd-a594-dd42f669ab09','5ad3c270-a1f7-4976-8216-669878133804','5e88a32f-ab14-4065-b4a9-8385bd9439ad','72066c52-c452-484a-8242-9c9d63663f71','72a5293c-b1ad-45ef-bfb1-843f5069f44a','765e302a-2dd7-425f-b616-a45c0605b47c','7ea96e65-ca64-4ae4-9153-2503fda81f0a','8abf443d-8021-4222-9951-918b22216421','8c12d7e2-d142-4d75-a197-2f4f41e9d448','8d895c2f-6ac0-431c-982c-6c5b69ec868a','93874459-c087-4c2f-b75c-f47162c9f0a1','a4dbb21a-dd01-4e3a-b6bc-1c8e4b8c6860','ac3442dd-0f50-4950-9756-82b0630f4e3b','c43e157e-c873-42e4-8e13-a714ef72c052','c94f7ff1-37f1-4fd6-baac-67e1c66208d3','dbc308af-d6d5-48c9-82ab-59bf36dcb1ec','f86da357-82aa-4df8-badc-8a3ac0380683');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.295')
+  where id::text in ('02579954-1a34-4240-9870-a30b47a0d5aa','0371a599-dbd2-404a-959d-3894fed4dcf1','059967fd-e51b-4517-aed8-dfbb5946bf17','070e5fca-c8ca-45e5-a153-435902bb629e','12b89bdf-78a0-4cc1-a186-9253d980f98a','1a7efb43-1d97-4fde-9717-6294a6b3ed4b','3b60f968-7e00-4d64-a1f1-845b6a97785f','44255249-efb0-4e44-8ddf-e17ed907fc14','4d6741c8-2dfb-4829-9f21-722df5800521','5dc94e6f-09da-4c0d-b229-e394646711c9','5ea828d7-c0bf-4125-959a-88a99ac69124','5f123ee2-49d5-4023-a714-c7ca6db0c319','69a4f0cf-5fd2-4c44-aae0-3f4f3cf39b8b','6a2a2f97-2066-4cc8-a7bd-fa504864e724','6b78fe9e-1b75-4ab4-98db-1aa043a4b291','723d2e67-d78d-4381-a2e3-01145d3f0695','98cc0b1a-b8fc-4e5a-a8cb-fde9c528977b','b6d46b52-c17d-4514-a02d-3dc4a33e296b','bcd59a6a-d15e-49d1-b500-9e6638432d6b','c4c9281a-f6c0-40be-b464-20f65199549d','d33ecd7b-ae22-47d7-bf98-f94f82d51175','e0addd66-44bb-43a5-b63f-bc9083f9fa38','e5b5f40c-1dfa-468e-b416-7d475e7bff45','ec8c9062-6edf-4063-8210-373d9dd8104d','ece66e24-9687-4301-9d86-4a0e7196aa11','f004bb30-5a02-4adb-9f9b-938fb538899d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.14')
+  where id::text in ('02590ae3-bc46-47aa-8889-c9e34e8b4b5a','050c56db-fa6b-4d38-b3e0-9135eb83c690','15f52823-0357-4cc8-bc4d-cfa5ee3a870a','1cc3846b-d567-4ec1-b62b-31faddca628f','328cf890-fd5d-4fa8-847e-71d38838f08a','32b8ac5e-9082-4842-9512-753eea799ab6','4039de74-63aa-43f4-ae55-2aa296f99342','44ced65d-f05e-4836-b4f4-dfe2252b594f','4dc4ce4b-a785-4291-8749-90b721c4997b','5fe91d14-5e9a-47e9-a144-0286265a5196','729ff7d6-135a-4ebb-b675-d543716e103c','9786df94-acce-4524-ba09-69a371e38164','a80c5021-b433-422d-900a-c20727416fa5','bc729bf1-633d-421b-8d66-2f20efb1c737','c514c02b-d414-4788-9060-4e5f7724b06d','d3ffb540-945d-4daf-9dbe-708d209854ac','dba8083a-2b2f-4b6c-9378-80787c976918','dd7eddfd-b28a-47c6-ad6f-842bb7016126','f836efe3-334f-4e77-9147-e2ec7bdd3ca9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.23')
+  where id::text in ('025e52b2-95aa-469f-8b19-aa2a03ae377e','07daf58d-bc4a-49a6-bffb-c8706e225e02','104f5387-b9ef-44c5-9274-03843e422991','16bf5a1d-517b-4775-b9fe-790ff93237d8','32ff8acf-0ae8-4d20-b046-19c152e62c5e','3378c14c-cf88-478c-a746-8d8b2e7e01cb','33e2d9fa-624b-4cd9-bc85-74ba50a3e79a','3d542438-995e-4be3-80ed-2aa49b0e8722','433be54e-6fda-40a0-a059-3017419e19e2','8ddefbbc-25aa-4273-9be5-86f6689e29e5','8eba9e06-f6d9-481e-b95d-6322b556ffc5','9079b085-6cbb-4b28-8760-04043290a04a','96aff92a-2394-4214-98a3-721d20bdc010','a1a9abc0-3a44-4a12-b8ba-6c9937524fde','a2e86944-8659-403c-b99b-96f723c57e21','ac29c18e-257f-4312-9de6-106427e8a45c','b682e734-d4f6-4227-9fea-3fbb2cb52aa6','f183b94d-77d8-415a-a4ab-2973760416ab','f3802170-438e-4e67-9ab9-68b7c7b061ae');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.243')
+  where id::text in ('025e7480-cde2-4e5a-82bc-08cfecbacc46','22c57c43-6e16-414a-8ed6-21f35a61b175','433a0693-160b-49ab-b34c-035e0a21c579','49022c52-4f16-4a24-b172-9465eeb1ec11','634d796e-cf0a-4f21-b81d-beebd04be875','72efcdce-4d59-4676-832d-09f994715580','9d482eb5-184c-4c31-a695-a392cd695d4d','9fd21a78-aa41-417c-9edf-934486fc0649','ac1abbab-7ec9-4973-9570-69a3e9ab5808','d801924e-9aca-4b70-8537-7fc87ee4b562');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.376')
+  where id::text in ('02623918-8843-44f1-98b6-738ec15f1c1e','09e73e9f-7d16-4fec-9f57-877a31481221','26c7656c-7a6e-4764-b2ab-ce5d7f04c1aa','2a665a87-c0a1-444f-a36e-f0ec2f726573','34885270-54c0-423b-ab11-450ca47f6601','466f42a6-5fba-4342-a474-31dd740002f5','5537fa72-f730-49e0-9999-8df05f2fb929','55a0eb6d-483e-4412-b174-8359c3ef79cb','608b4a4d-c4ab-482a-b508-f4b18ebcb9a4','697c9096-587f-4dc1-a094-31e55c58bff2','72d91263-e499-4e4b-bfb3-e8343d960a42','756a13a5-2900-41f1-91f8-c4909ad30e9c','79186131-9571-4aba-a227-013652b4a161','a038a2b4-497b-467a-94a6-8e3e94051e81','aca12e32-5ddb-4450-a9f2-93f923c90e5e','ae522963-5a50-4344-8df2-ed87988a9988','afe86c15-3b37-45ce-9918-40ba9d10d854','be53ed34-d732-4df7-9874-9f84990f1340','d4530df5-5b31-4151-8f7f-3d90a54fe539','f96f07f2-490a-4e14-bc06-f0de7b0c5c4e','fff4d3ab-5445-4a2a-b732-3171151e32ec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.129')
+  where id::text in ('026279e3-6864-4f8e-ab9a-a8e589e109d6','121d068d-6550-4514-b1c1-9a95ec1ae168','20dedadb-9f62-4021-a15c-f711972b1090','26d43802-05bf-4f68-8282-0932fe6ac617','50bb7684-3810-4a6b-9669-e3edbe80fd52','5e9ca58a-d134-41c0-98af-92461627cbf8','771d074c-eff8-4c1b-9723-bd1ca9faacda','77558d48-ec39-40ca-806e-79b0f7e5a479','80643fd1-99c2-48ee-892a-6d936c024c8d','81674ccb-b264-4ca8-86a4-8ec06ab7c338','81c5d07e-53c4-4319-ad6e-6f12368c5193','8fa964a3-d177-41ba-a13e-a3574f105cf3','99f51896-fcfd-403a-a21a-70db2a7462f3','a7e0825c-12ea-4820-ada4-dca6dbb96ad3','b24278db-fed2-40fe-b432-5aee728b3325','c9c686aa-6d08-4ac7-bb41-330b8488a35f','d21749d0-ff1b-4201-b74a-ff3ed0b96de0','dcb7f9bb-c4b8-4af9-b751-313e1525ff6d','e3245aee-c0c3-4df4-9afb-f5204faf2576','e3ba723d-92db-4049-9dfe-6c635a61df9d','ee7debd7-f722-4185-b774-486a2e44f156','f01aafaa-7841-4338-bd96-3a362237eb46','f70f2105-390b-4faa-8c95-32ce93629576');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.44')
+  where id::text in ('026951a7-ddd0-4b4e-b1d5-fe1788ea8596','0e58fb12-9201-4ba4-962e-d3c20bc35652','12f56f7b-72ed-40fc-a3c4-7aff236d420a','14b3784f-759a-4dc8-a2eb-bc28fb49defd','1d771e60-025a-49e7-a26e-4c16922f46d1','2d393377-92ff-40c7-9274-e9fb07a68476','3ddfba1a-2e2a-4256-adb4-4af209935c5c','45e56659-d927-40cc-bd97-e26770450407','515cd61e-f875-48c8-a731-274c8be0ab89','5e526127-cb4b-4889-8992-911e0fac78fe','652ce29c-6482-4170-aadd-f3f6503bee79','686bf7c9-16b3-4f38-8715-6e0c9ae4ed1d','69dbc886-fd02-49b0-8770-b780f9fd1ba9','7f25e510-d323-42d5-bcde-06cf49d19fa8','8932f947-7a0b-406e-8f86-57a2ebcd69a0','8e21dca1-423f-4d2d-849b-09f9e81d3dc6','91b172f6-0c0a-433b-b9b0-aa58363002c1','9f6a2630-2709-4bff-9b01-ef4799faff3f','a6adb089-d418-4a66-a6ec-886f747c5c35','a7271b23-8167-4e7e-805c-f0c06f281ca5','a78e448a-06a9-4009-bf72-6e708bf2e266','ad3e8e11-8fb9-4b40-b24b-b21a8b0c347c','b2f290cd-982b-4f27-b3b9-ec294aacc759','bdc383dc-04aa-494a-be27-b7614aee5f06','be4a8118-4fe9-4e89-9776-807ced000c1f','c3eafda2-5c8c-4173-abc1-d616917ae96b','c6cc587c-04e2-46b7-9bc0-36287201d04a','d12cb37d-e3a0-4af7-a549-45dcd2341485','d7b0f3fc-c97e-40d4-b921-ec8d2acd2a37','e14d38fd-6fcf-4fc4-9f9a-7a3f6c3c6f32','e728945d-10f5-49ce-9d5e-604806b90da4','f2305c3a-1a60-49d5-8041-c2072663e3c2','fbd0deca-c038-40fc-a1b9-a4beaaa3f6ea');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.25')
+  where id::text in ('0269b524-5430-4c15-a858-561f7d9f8622','0e044179-b23b-4e69-96e0-b99c2c8dd85e','30043dcc-7c0f-436b-a5fc-d7ac5a1b0902','3d0cf6e8-e64c-4eb6-a40c-9aa18f07c870','3ef87722-aa25-4c94-afb0-0540c63f263a','4e164956-11a6-4c09-9783-03c212c26e28','50d0267d-61ce-4a6c-8618-320189c968b2','65141073-604f-4ec0-a715-54b6d4af8c39','6e300a70-5b92-47b7-af94-8e5211fa0ec1','781876b4-135d-4b15-b8ec-2ec52271b196','7ee0f208-faf7-46be-b35e-c5a086c55157','892113d4-93c0-4a30-bafd-d405636c70e8','992e61d9-586d-4758-be88-7738215ca1cd','9d69111e-5d55-44cd-a008-d1791f0c6d6b','a1ff784f-2eed-45ee-b73a-b7eba10a35a5','a64b1dbd-35d9-485b-9bf3-c205e55fd909','b21a667f-e4f4-4282-ba3d-1814b12ad90e','b228f948-2402-4347-9f94-561ddb3975ac','ec8cb888-980b-420d-8665-f4599f9ea781','f4d107f9-e1fa-4914-8b06-eceb32482769');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.389')
+  where id::text in ('026dd9cc-6b77-4fce-b89e-b1924df09564','289a6f0b-2e7d-442e-9355-8033f89b6991','703fbb6d-eb0d-4fff-bc83-ca90c669b847','bc56ab7b-c4ee-4360-a714-94cb97428562','c89ef26a-4acf-4daa-a202-9d6eca0c2d9c','daf76309-64d9-4cc9-a5e3-c57b6f1aa662');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.207')
+  where id::text in ('0276b80f-bdbe-4bfe-961e-b60ad6a9a1ac','0ab7c168-9f40-46d6-ad29-e22711fbe109','0d0f5ed4-e634-444b-9774-5b8a805b34ee','282dcb89-cdf1-48ca-8e8e-226992e5ec90','2ffd784f-16e5-490c-8c81-5bf9ea8c0000','32acdabf-0bd2-4ea9-ac46-7c63ecdcd475','350fce84-4465-420e-a3aa-a6612925792c','415a94e6-98e3-42c7-a35f-2ec709f9c5ac','52ad755e-7c65-4770-9264-9fe430e0c682','5920c9f2-e1e5-42af-bb20-ff431feefb5b','59a44e37-d458-4de3-9540-51bd6e0015ca','5e39d297-b2d7-444d-a564-c376928336d3','5f424bf0-7e82-40fe-ad8c-0bd96edd1808','67c6d2f2-df2b-43d5-80cb-8d2979958224','6e199723-cb37-4574-9e75-342553f7f467','725edc4a-113f-4ba1-bace-78dadc1953ce','76d3f005-6982-4490-bb93-cc25680b1147','77cc06ef-6fbe-4514-a690-48bb6d27e849','84241037-6f1f-44d0-908d-f24f86bb2e84','96788fb2-54d0-474c-966c-df6200d766f5','b38a20a2-ad5c-45c2-92ba-df7556ffa892','b75880e8-4f83-4ff0-bc58-5178223e2dbd','cb7d6a65-bad7-4685-8266-816c5dd0845c','d2139b88-f106-419f-9931-53f404aff4d8','d547a015-4aec-413f-b591-f0f8db7e842d','dd453d2a-7f74-468e-a3ec-ca1db210a7ac','eaca339e-a757-4b8f-a5db-63dd541aca9c','f4cbb9d1-885d-4b3a-b11d-06e31ae2fe62','fa8a2b4b-f05f-48f1-8ab5-b686e6fcfc72');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.345')
+  where id::text in ('027b9943-f0ea-4afa-bddd-45ac226f0df9','07ded473-bcd0-4705-b1c1-0abc1f59b5b7','26d8c90b-cfd0-4f9a-9a03-78c18f39cc6b','34e9dd25-480b-4ac4-870d-1f3070cff4b8','3d5fbcad-89d7-4662-a2c7-ebafca879d7c','4cdaeac4-17d3-4edf-8227-9d400ab32c50','87066bdf-f38e-467d-9896-cef518a1111e','a2681326-e120-4935-9d64-0e4d38b7c15e','a8e15c61-2222-455d-b4fb-c42a54f9e351');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.374')
+  where id::text in ('0284b1a8-8ca0-4041-a962-f8de4f11feeb','13fb7b55-038e-4d74-a5f8-f1a1824fa007','19ec542b-7deb-43c0-8649-d450eeae8be1','22187372-a922-478a-8fda-f3c22a14a622','22b7d9da-1f47-451e-adaf-7ca6cab41132','2adcd674-1262-4200-b43c-662a8f3931f3','3754b53c-7a9e-4f2c-b054-1cd0497c5951','4b079629-3c0a-4fd4-ad81-880ecc00d4cc','5025b380-aac3-4859-ad7f-941d3db89c63','61b69816-a064-45e8-ad96-4ce10b28a318','662c497f-e191-48af-a7a0-2b8dfe0dcb90','98b07d6a-f8f4-4a69-845c-52e7e8717066','9c896ad0-e5b5-4ac0-baeb-9a633ba36b1d','9cd2c8f9-ba97-4360-9d5b-29245b6e0c10','a9a59156-15a0-4cf2-a42d-dbb46ab544d9','ab1aacb4-41e2-4128-a7f1-eac858348763','b25fce49-205c-487d-aedc-c9b33df11400','b38524b3-36c3-4d44-868c-17efe75981b6','c06b9601-8f7b-4d6e-89ed-ea22165fd4af','cd29c2b0-53da-4047-a7e7-896e283097d6','f4154c5c-57c1-4a17-bb42-d493c84e5e07');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.18')
+  where id::text in ('0288a406-e228-4a4b-a3cb-1592efefbca7','29e69b81-1f13-4860-919f-6daf9b7cd699','38bc2b9f-68c7-4590-8a09-009b00a07f88','6902ea3e-5ff8-4e9e-a23b-09e904d36d33','8d4b3fad-ce7c-4039-900a-4068a9a607b3','b6caa1f7-f5da-4929-aebf-3c814b3a3b61','ca51f09b-f9a3-43d1-9ca6-0e10d3b20693','e53a6485-3e8a-4ed6-b70b-a2d3b874becf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.2')
+  where id::text in ('02933a17-f396-4a6f-816b-497b5578dbda','4791ddb3-2264-4a83-a5e1-496ed764e8fa','7ed54bcc-d537-4e57-93cf-19e488df8f98','7f240712-81d7-428a-98de-cfab26339b90','d7da934e-ef39-400f-9b15-be28d650436b','dd0b2c9a-3dbe-42c9-934f-d46b74a43cd3','e665ca5a-da59-4588-86b5-229053856141','fb51b397-e428-4d1f-8295-97574d28c44f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.344')
+  where id::text in ('029ec0f0-4ffa-4822-ab01-dceee7f923b2','360e2cc8-3be3-43e1-92f3-18069b36a726','74f540cd-9bab-4f4d-bc40-0471bf2e2798','adb4a67f-1e96-4d96-b870-8b761aa2e7c5','b3f995a7-f7a3-4d88-9dc2-d2d0c941e226','caceb900-fdcf-41b0-8757-610a13b77506','de11b00d-4709-40aa-b2cb-78cf341e3ca0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.31')
+  where id::text in ('02a2662e-5dc1-491c-bdc3-41f74346f138','0fd91894-af7c-4307-ba57-56aff8a9a894','4d54464a-df48-41ad-a07c-3897957b5496','8628b3ed-81a0-4813-be22-ac952a39eea7','a4f13a27-5998-4736-8a4b-017ad2c8d987','bd64e0d4-b019-4bb0-8942-5c02a17339de','c46f805f-b4c0-4b6c-acf3-b32b170e44e5','ea802240-0cd5-4907-bc8c-7ac882f084b9','f2c51224-e095-4b19-9cf5-a2b094f56eac');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.13')
+  where id::text in ('02a633ba-271d-4cf9-af30-e272c04bff60','13f7e149-4fd6-4c96-a29f-42a6ea516705','1d58f24f-39c9-4b48-bb70-e5a5a4e62dcd','23ae9606-b91c-449e-8e2d-f33bb52dd976','30b220c2-0279-4ce4-8646-4b36bed20a08','44489655-d725-40ce-b90c-fdb238b3020d','6b8f99aa-9096-494d-a1e4-8ebfe3f38f67','7054a205-5024-4c4d-8746-910f6d7ad3ae','7e34ad02-309c-4f54-9f85-03bd09afc068','8a6ce687-d63b-4d1a-ab69-6784de22ecec','8cd07d2d-1198-462e-8aa7-8ed0e331c6ad','9387e575-5083-4917-b882-746d8af66b9e','a08fe4ea-f7b3-4a8c-9108-a276aaca2bde','ae2c8802-098c-4efa-9f9d-57a993d3550b','b8ca7321-e038-41f2-8bbc-63cfe58a177d','bd8063be-a272-4c12-97ee-d3cbd19f6498','c3a8c07f-44d2-4c80-9709-daa88d56e1fa','c83006c1-11d7-47a3-9a8f-78405426aa7a','ce3f6455-0665-43bd-b008-4cbdb52cb006','dc807a9c-29d8-46f3-bee5-fd2d5df5c240','e63f32f2-8236-42d7-a7d3-0312b48c6f64','fc8c27cd-a888-46a9-b366-3a7ecf9191b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.238')
+  where id::text in ('02a70f37-7a90-45c2-a338-a27b255324a8','16d16b00-94d0-4f6f-91ee-f2a0bf1451c8','38aeae14-51df-4dc1-b078-2ca81f1c6159','85a14eea-4f63-498a-acdf-3e993fafc27d','b4ebd2cc-0750-4031-ab34-6ee4536fc1b9','fc6c73d7-0123-40ca-a654-044eed4d299b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.127')
+  where id::text in ('02a7e0a0-e293-478c-8a69-3c0cde62accb','07474a9c-bd38-4124-84cb-db590c9ba17e','2fade1af-3573-4e81-99ca-f6f5f4759519','37343d10-820e-49d6-bbf2-42775959c73f','7c6c6aa3-1df0-4af6-b44e-81e63580ef58','82470d27-4b25-4c80-8241-89ceebbae6c9','876afdec-0235-4c22-b4ee-df58a81d9382','97598530-4501-441a-95ce-0c5c116a9366','a0688ca9-b48c-4574-be30-b515c98005ad','a1f6308b-93e3-4eb5-b65d-cafc54669915','a327bca9-7b52-4d1e-95af-3d70bb5819de','a7ab714a-1ac0-4101-83b0-08e98f87bdfa','d08cbbf9-1ef7-49b3-aa17-f88341aa3fd3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.373')
+  where id::text in ('02a85bb8-d70b-4fb6-b2f5-1fac82bc0955','22b49da7-d6eb-48c3-9ed9-921dade149db','637a5885-a17b-4a81-b2bf-672b9541ce33','679f2785-baae-45be-9db0-360aecd4e6cd','8b81fb4a-4a33-43b6-b0c5-6ba21a1b6305','c6b71a8d-c845-4979-b55f-ee6896426e16','e6f22cd0-57fe-4386-b4b0-c8cf0081b8dc','ee52d335-9cae-4159-8407-4fea92f74862','ef495159-0362-4d6b-af21-43bfbffa2544');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.184')
+  where id::text in ('02afe1f2-e7bc-49df-b893-3e0063adfb81','16f3fda8-a04e-4ac4-81ce-334de5f6c66f','6d25178a-38c8-47b9-9154-667eb081c038','b23b917b-a68b-42e1-848d-edd1d80ba88a','bc0a668b-dfe4-4648-8642-fc55f91f96c9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.641')
+  where id::text in ('02b03fb5-1497-4261-a937-8edc29380026','0c1a12d6-8561-45ea-b888-117d7706d967','18af6675-9b39-46d8-bebd-be886a2db327','1c1c5d1d-ab26-4949-8fc6-366069687aca','e636d2fc-920a-4e9d-9993-b2daf216007a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.151')
+  where id::text in ('02b52dd7-174c-4e2f-8850-11489c8ce0fd','09ab823e-fe8e-454b-ad55-2d2fc0df293c','295881e9-51b5-4e6e-a19b-f0e991217aeb','47929831-9f2b-4b5b-9ffa-ffbb1e81e6c5','4cefdea7-817c-4ba2-b2e5-fb6ad9c41dd4','d0025e43-1cda-4404-a90e-f434ed280e25','ffcb0db0-dc32-4946-826b-22c679504f4b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.214')
+  where id::text in ('02b8f6dd-2da4-429b-851b-c2a6092bbf4b','11c3fb7e-462f-409a-b024-00973a860f68','4199008d-69c0-46fb-9bc3-6178f4a058ce','49cc345a-892f-4936-a185-b733ddf88c41','60377f6c-e40b-42da-adf6-63733bac09a1','61eca6a9-f445-45a4-b130-2dad5ba12212','6a4bd31c-f725-49b7-9273-c9ae6af3452e','6f062847-9525-43b9-9d4e-30c78806caaf','72bc5bee-b7fe-422c-9687-6a5a66b6dab3','7871927d-ae04-4290-bce7-1579ac18b0e0','a862152c-20bc-4ca6-9769-23d7bc5a146c','c245d172-bc9d-459e-bc1d-113871f096d1','e8032e28-9712-4a44-9a94-a3ec7ad5624e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.234')
+  where id::text in ('02c12b8a-6d1b-4f55-980e-49c836e79356','08ac1ebc-c3ce-41ff-893b-32d20cc923b1','1ad322d3-ab05-4f12-8891-11d68e6f7f63','30efd00b-ce48-433b-8faf-d6ac1c18568f','40660aea-b687-4217-9817-a1b71b9d5ccf','535bdba3-7f71-4dde-aad2-dc79ffeff8ef','a3da013b-1378-464e-88c5-abf0e0518498','dd375b37-5294-4ffe-bb3c-2136eb84f772','f6485594-9251-46bd-a0d8-15865fb85a98');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.325')
+  where id::text in ('02d01095-c001-426a-b31e-a964b16481a3','0cdd99c5-c8a4-4ff8-b03e-c4e422bc9c26','131a14a6-2c71-440b-afcf-858fc852a37d','441f038d-4b7a-490d-835d-c2c611493aa0','59cd787a-0cbd-4569-9107-ffd6450ae138','731f6e42-2e6b-41ac-b1be-3306b4e3dc53','84f0e978-bb2b-468e-b484-d7a5711f5838','943f8c37-55d8-469f-9043-b14e035e46f8','9479645c-3536-41a9-9bc6-f6f04d175088','9b376210-834a-4557-923b-bd12cbd2261e','a5b9d149-d46e-4280-b14c-42b8b9498ddd','e5aa1f0d-9920-4633-863a-d5bcfa40f593','f7d595d0-dba8-44c7-95e5-35a239538a52');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.55')
+  where id::text in ('02d2ffd3-c8d7-4f3e-a344-770277fe1b7c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.121')
+  where id::text in ('02d37431-dd2a-4f56-8990-ede83c9e107e','4453e04e-932d-4f84-8caa-c3eb400182fe','9af03613-3b2d-4327-9e44-de357244c4f7','9f9e51b7-bc92-4931-b767-125852bfaff4','a1855b74-df45-4914-ad29-c4cf44dcfe38','a6f10364-d788-4cc9-aeec-977e758d3b15','e8faf643-304c-4a71-af87-85614dde8b5c','f490929c-b8fb-47c2-b582-45cacf33eb5a','f55b0c19-21f0-491a-b4e2-f1a4ebca0f41');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.21')
+  where id::text in ('02d63e21-d73f-4a72-a83a-80a26b2af117','0f220b77-bc6b-41a1-a4b6-4bca6f3ecae0','22191b54-df5c-492e-a878-042252a482fe','2300715e-f3cb-4ec3-97c6-9e091ead4dae','6b9f4af5-ff4f-44b5-a259-810bd8a6db57','74e000e6-b59c-4dc5-9b11-3345d1e96fcf','763cc7de-8406-42c6-b390-68ade7fd8741','8185e5d8-3e9d-4568-bbf5-acb27b18371a','8aea9e6a-0196-43ea-b3dc-3bc176054d7b','9424a91f-53ed-4563-abcd-e1d089a790cb','e1dbcc6b-d217-4b28-b37e-b0c82b8d41f5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.115')
+  where id::text in ('02d75899-1aec-4621-863b-1eb95a56bee3','4a0eec82-d64d-4087-a613-bce0e6cc8169','527967b0-8494-4a2d-869b-cb27372e42df','61aa8b70-1adb-4b06-893c-a68300e1fd7a','904bdea6-300e-4e0e-8317-69a184dd777d','e31e0116-6c5a-4a33-8ec0-8875f8b01e66');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.353')
+  where id::text in ('02d9edc0-7c51-4b7f-8168-77f86dca73c0','28b9c4c1-6ced-490d-ba89-c487991cf0df','66aad8f9-b1a0-4ae4-b6ee-edb3150a0e9e','729b4370-40f0-475a-94b8-9da8b5c9fa84','86a5340e-e46b-4f90-baae-c5fb8fe2d3a2','8cffaaea-74eb-4570-bccf-fdc584c143f2','a45815f6-e9b0-44aa-89b8-e7792188722f','caab153c-4220-4bd6-9333-c2caabf94146','f27c89ca-8526-4587-a71c-a1faebfb41da','ffbca3ea-54d4-4284-9842-651b8fe1aec9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.534')
+  where id::text in ('02e42177-f3e8-4c89-8936-f2d163fdb8b8','0ee91af5-c9ac-43b9-8c78-90a461237148','2c984348-0d64-4be6-a22f-cebab3a35720','45f97a00-fa63-494f-ad65-595f2d5a2a9c','5c62b067-f05c-444c-973d-5628435e7467','5f00f50f-adff-4ce3-b276-f8302afba642','7207a424-bb17-4160-aa40-9c2ae1618e9f','75d6f540-2727-49f0-ab10-67145fd70c8d','a0747eda-09e1-4196-b7be-3e1a35dd2c01','b67a9f22-5a84-40ee-bb4b-719c3e8d5521','c5ad8cb2-14a9-4883-a8d9-5ea74da8b650','e57bef5c-6569-459e-bf3d-42358455602f','e6dad931-48ab-44cf-86d1-9ecbacf19d2b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.96')
+  where id::text in ('02eda934-1dba-4d7b-9572-aae7ecd85fe5','0854039e-7647-49e6-b8f3-ee1eea711f8f','491836fa-c8b6-4e78-aedf-28410e82f5bc','5f7f29eb-33f3-4352-b7eb-f05204e957ef','6c2fb373-174e-4b67-be39-2343a7f6350d','8e4af45e-1f3a-4bb2-968e-0209817957eb','adb7e021-b8fc-42eb-aa99-6bbf5440dfdd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.128')
+  where id::text in ('02fcd6f7-f4f0-401d-b049-ebdf2c1269df','19da8824-82cc-4a83-9ba2-ea230af2a440','579e7b22-2127-4f0f-bb14-a8e5b2067117','f032a1d4-5f23-4bee-9711-d4dde5912f1c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.407')
+  where id::text in ('030984ab-8bcd-4336-a4bb-d543e7f8678d','295d4d66-d2f1-4ff9-99ce-301763871113','747325a0-e7a2-411e-a17c-f4f0410eeb0f','c4e620c8-ad1a-4851-9e97-08ed2f928db4','d4b9c48d-5d63-4ee7-a65a-3d3114bf363f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.34')
+  where id::text in ('030b32ab-6c60-4852-a0f5-5576461d4be4','0c081480-b035-4018-957b-1ce4110ad3e8','0d4d69a5-5635-4081-ba96-cae19fac652b','23809855-ff40-47d1-a557-7255275f2a42','3213b829-20bf-47fa-9a5b-0a646fd72dcf','442aca44-44ac-4ceb-a74e-4f0c8ea28de3','7e342640-8f9a-4111-a1fb-6c97bd325086','8aa1c72e-330a-4c67-b854-7c9d1e6c570e','c7b95a00-a13b-4f80-ac99-24f743c247d6','f22fdfac-1b04-4c5c-8727-b81c2ea5f8dd','fbf736fc-a492-4a80-b43d-e29ea9654e96');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.4')
+  where id::text in ('030e33f2-b5c1-4e68-92ce-8cbcf38da5ae','04b15642-44b6-431e-915b-a3ef37b22ce5','0b0f9884-6a70-4ba5-a2d6-108403cd9cf8','1b708e40-ad11-49aa-855a-83f9a734da97','42be52f6-f51a-4847-8015-fe157112d342','49e0da3e-dc9c-40f4-9204-345c3d1e4c9e','4d1b24ed-6439-4a77-bda1-19339284959c','63286ecd-471f-4104-a12f-2c6ed92c8534','8be34b74-ebed-462f-ba0c-c3f87be157b6','99ba2db5-32f1-473a-8164-cfaf1c50fa93','9b9f9716-714b-4b15-ac9f-cb69dfdc1d90','bbe65690-9f64-4285-8082-a9ac17c59ec9','ce4f5b7f-65b5-4fbf-88c9-c88914217930','df86f16b-b3d7-4804-b7ed-b02ca5eaebf4','e4ded4af-dbf9-4108-b582-0fcb160f8ae9','eec5dcb7-d26f-4bf6-befa-fad081dbd39e','ef9e932e-30c1-449e-ab7e-49d320dba7ca','fbf6b7f6-508b-4054-abc6-927c4eadf740','fd932042-08a2-4486-8759-3925e5b3c691','fee28025-cbef-4394-9efe-7f2904bb347d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='43.3')
+  where id::text in ('031777c7-8e7d-429b-b933-234c442cc683','479f5816-9929-42c4-aa19-73f96092c84c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.88')
+  where id::text in ('03198b40-faf1-48d7-9b09-b46c18d6ae64','4a7b7473-174d-478b-b03e-6566639a9f6b','8c96df3d-51ed-4fe3-ba32-6a0f3d333e5a','d7c68574-4c4c-4511-9112-9cdbde5918e2','e4c468f9-c50d-42cf-89a1-f8f574565e92','ea28e3a1-ec45-4fc1-b3b9-ac998cea033d','fd588351-53e9-407d-b629-d34dd5dc7782');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.219')
+  where id::text in ('03198eec-0698-42d5-877d-e6c7854fa9cd','08fabbb8-8dc4-43de-b191-b819bb231cce','0e38ab95-2280-4214-8ece-e3d15fe3cdd0','0e5d6dfa-d407-4c72-a23d-6654aefbc19d','18f435fe-4379-4cdc-8e0a-579fa21a9761','1d3fab02-8acf-4cd0-8831-cfaaf67ef83a','3890a544-d5c3-41a1-9349-4d2a5652c1ed','554856ba-68ea-48f9-9f0f-ff0649c3e82b','5801f407-45be-4843-92d4-16b93cd5ed06','66e4915e-10d7-4174-b7c2-c2c3555e06de','696a1916-59a6-4903-8276-5d72c0be320e','6ab3fc19-4842-47e4-b4fa-6b9c239a928d','79027163-12aa-4aac-a05c-6620ec9c0a81','878a1bca-17b4-4383-a641-24db3b4374d0','989c1387-929c-47ca-acef-0204a41bb5f5','9f003161-5632-438c-b6a8-2c66fb90160a','a27f6e6d-b881-48c5-ae49-51b2147ad131','c07717ee-1f95-4d7a-9cf9-2b58e9066ab7','e93dd605-6d32-47bb-a11d-d2f485b0a2d8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.245')
+  where id::text in ('031c47c3-b3e1-4946-8dfd-8b3a7eb48792','04e151ad-e24d-4be0-a0a2-1e950c45c796','206c646b-137a-4639-9384-e69470264925','4bf99f5a-8c03-4fa0-af3b-cc751cbb26b7','69aaec62-2ead-42a4-9239-155ffe68d58e','75f16d54-c88d-4eb8-a262-e0176364c0f7','b37006d2-fd14-4eb5-a62d-30bea0c6d6c8','bf02410c-bc06-426d-8a69-4bb7285c2270','d50b9399-0244-4e18-a295-0c6c58672c92','db984611-c96e-43b5-b612-26978ca0657f','dbe84135-4428-4530-9496-8f7857de3e31','f2b019c2-1043-46ba-8ff7-38f3324f09a8','fd29cf11-bee7-4932-ba7f-19213721b943');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.3')
+  where id::text in ('031e06df-bc74-4fab-9990-36bbf9a997cd','6a8f3fdb-1e2a-4d6a-81b1-88d932280bf1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.532')
+  where id::text in ('031f3b9c-6089-419a-8592-d087b1cee97a','05395078-170f-43de-876b-54d4640b3eb5','0ca90709-1a34-44a6-84aa-b051d33e1f29','1c9007d6-daf1-4678-939f-a0c47dccd3a0','59a87a87-2cf8-4074-897a-22b644fafb86','84d75164-2f87-41e7-b43e-d835052ff82b','99bbacbb-ded9-4a85-a16f-0464ef76a3df','9b782166-70f2-43ab-b814-62acdbba4416','a35498c8-6c71-4bf1-9903-99fed4b4e282','aa69a8fc-4d08-4709-9f07-dfce9c18615e','b0d6a3b2-f66c-4148-a7b5-442881e7037d','c35603fc-6813-48a0-a59d-f7540877785c','f4850b3b-c760-4e5d-a544-a1cffab3fc3c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.1')
+  where id::text in ('03203332-05a8-4ad9-8805-9fdb1f957db8','0bb5b7d7-eb2d-4437-adee-0810d4ef9815','2a026fc7-fdea-4404-999c-7e4085245e49','59d5c693-227a-414a-9f32-4965c0c46579','f9c45d0b-7d9c-4034-ac87-7f76879bb2a1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.204')
+  where id::text in ('032698f9-0daa-4c15-9e84-b05d742640d5','068a3dbd-cbe0-4b6d-ab5e-d03b7d450bf8','181c6372-9b6b-4e7d-b1bc-a3b82349e6d0','22530223-a37a-480c-97f7-5cb354225be3','39e7cfb6-d829-4485-b401-34570350ceb3','6ecd9ca1-097b-4224-b597-53dc7aecddef','7974c1b1-47e6-40ea-ade0-b7fa661b03b5','856cdf41-e1dd-4682-82fc-981cc375aecd','ca8264e9-4892-4b31-86b4-ea85c14bea96','cebabcb1-3300-4a90-a04b-aaa96faf4ffd','d11fcf16-78d6-4f45-bbdc-08252b6b4377','dd640fcd-df00-46a0-a53d-97613f34f5ca','eff18ae4-c614-4b56-b160-5b28b4ce4156');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.203')
+  where id::text in ('03347d87-dbd4-48fa-a5ee-bdb0d3382b6a','0764c79b-d58f-4f80-b65a-df4aba68b9a0','0ddc673c-3cda-4581-8588-40a98447317d','1529d336-7045-4a6b-b97a-c500da84d8e7','1a5635da-9bed-4794-a306-0626a4e0b257','1e1e0d6b-49a3-4daa-a96f-3c8f47a73677','1fdc06ad-0680-4ff7-8954-16678abc86c2','2023cfb0-31c7-4c46-85d7-a2b95545fc76','2187016e-4574-43b2-a066-85d8e318f270','316d5e9b-ba1d-4387-b80d-7461a441a592','3c72e1a9-d507-4913-b486-8779069db436','3deba34a-6cb0-4b79-9642-7df3c6713d72','3ed296fc-693f-4580-ada2-f15b2d5f4bde','41ca4192-86a3-4816-a371-41bf60799da1','6438afe7-6821-4196-9c88-1a722ae25492','6dd6e9b1-f6e3-4232-bfbc-7e9d04ea8d17','7a259ac4-48f9-44fe-b18c-e1bb71c5513a','7f90b5d3-64ca-40a4-a5a1-6d0c86fdacac','8874267a-3909-497a-8503-780e6fb17552','8a2447cb-4bc1-49b4-8d80-cce8ea723456','8b6f2b87-10ee-4a25-b61e-3da61a54b765','8f0c4879-e009-400f-a7db-9cad673f5841','94e70192-c7b5-4da5-a3f7-80b5a177fd46','bca62f23-9cc2-490e-85d3-647a6e22d14f','cebc2652-db01-4352-bc95-741512608e62');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.1')
+  where id::text in ('03352a5e-61f1-43ac-93ae-892219f70c63','10d014b4-0e91-48b4-9dce-e3b1ff8a7ef6','31abf86c-d773-401f-b4a7-663462116a07','47478741-80af-464a-9c58-c1228bdec3f0','7d09235f-83ef-46a5-83ab-72c0ed87084f','857e79d6-f5ec-40e1-8448-4f01b223d22b','cd45bf46-e822-47aa-a29d-33b49473f787');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.272')
+  where id::text in ('033b15d4-8229-4e69-90d1-3abb2af8f9bf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.437')
+  where id::text in ('03401619-9c9a-48b2-b98e-18b02b62ff25','57e798e9-f875-4c2f-b800-5909f9e6d6f6','8b5f5eaa-a475-45c1-8f92-53ab80a8746c','a8c8e677-b0db-4bc0-80f3-cc58ecbeee49','cf845892-d850-4270-809d-6b1436757b4c','f53ad161-a0a3-4ffe-982d-2ba021785963','f7be1f50-d0f4-48d9-a6a4-7b96ce3b7eef');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.34')
+  where id::text in ('0348119f-7de6-438f-8f23-1ed94bd1ce1e','2fa923a4-c4cf-406d-a82a-19e73a39ba46','464f36bf-b073-44d0-be4c-b8dcfad679d6','4bbe7098-75e8-4d2b-adc0-3d019a5ca3b5','630648e8-bbca-456e-8a4f-28dcc1d5c9cd','c211fa56-29be-40ae-8f77-8076d1badbbb','f5711c38-c514-4f02-b6f9-36ab5f10486e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.319')
+  where id::text in ('03523e2b-f97f-4a28-a697-4d851a000ef2','0a2821a8-6a9c-4fcc-a6f1-a3e9d09fbcdd','3ddc165f-f9fe-4857-a9d9-fd1c9feae27c','4220fa60-7437-44f5-8f2f-cba3be910518','7ba14b6d-4d9e-45f9-979d-11bfde23019f','87791939-65c4-407f-a2b2-5bdd6eb5ca07','a5fc8f16-30d2-46cd-b65e-ec3c3a3bbb7b','b18cff12-3cea-4af9-88ef-b76ba2f47458','b4402f37-ef7e-4d87-addf-c15fc3fb125f','bbd5215b-2123-433a-b9f0-5fe649cd001f','dda2c949-8d3b-4214-9a15-16d2f75622c5','e6a8cca6-931c-436a-a175-956d0c255457','f2724346-3001-4fce-a711-3d1affd7e85d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.379')
+  where id::text in ('035654ae-f1ba-4720-991e-5a30eb309a2a','039cb69d-b4d3-4e36-886c-2ef2902a3f74','525548b4-133b-4160-a8f8-0dd86913001e','82d83db5-755c-409b-971c-3e73c1e79d18','98bca1e5-e4ec-4b3f-bc9b-3d3b5aacd1d7','9f3e01bc-b237-424f-a882-6ed5f5b0b87f','b7af5d50-5c9e-4178-9703-d5586ef37650','d4b24328-8b7b-4670-8f3d-6dc86e4a98eb','e407b939-bcaf-4723-ad72-13d100f262bf','e9183fb6-dec9-41df-a66e-a519c8bd5d03');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.333')
+  where id::text in ('035b00ab-5104-4105-9567-40ed0c90e29a','1bd6541b-31bc-4c35-a5c3-f06da04a9c17','1e1819f7-965d-47cd-846a-9423ab026bdc','25336f84-5840-4fa9-b34b-91d813351581','275fecbe-8f18-464b-a2da-675ad141f98b','2f7efe33-fb57-44a8-8444-633513bfd318','400e0653-0c51-41f6-ba20-195db7040ab0','40e972b7-5ca1-4f20-8a4d-e3cbf0dedc5e','429634ea-e422-47f4-89f8-3821f81dee0a','561fa475-3962-4a0d-b979-a0fba7f7c479','5f5b15f3-e5c7-4e25-a0b7-fa1563a4708a','6110a5e9-2078-4cc8-921f-9ec22f529a6e','67fd5bb8-0daa-436c-8eab-e13463eb4ae7','72a2ea80-1878-43af-ba05-9345081c4948','7f6e968d-61cb-4f84-a750-0beef01b04e8','89fba299-229e-4f47-8040-502f31fe754c','8cf9371b-fbd5-4366-bb58-75b44682e50a','8f182f6f-bfbf-4700-8633-c0a2a5d81102','91bb7a08-37ab-47b0-bfa5-b269f91c3c02','93745dcd-4d44-46ac-816b-45cde46b386a','9b24066e-e42e-4afd-8eac-7fffe230781b','ae4fcc76-028e-47be-87aa-7ba146363aba','b1a014e8-7627-4d69-b9ef-bd3e4adbb95c','bbec2b58-833b-403e-a666-c84e3b04deb3','c3336afc-5969-4fc8-9bdf-40854d520323','d5fbbdb5-7f03-41d2-b631-dd31183f093d','d91eb5da-15dd-46a6-8451-22d541762267','f1fe926e-b8a8-4e04-97bd-33a4de5c0424','fea55cb1-705a-4db9-9373-8724af9b8caf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='22.5')
+  where id::text in ('035b3d99-8323-42d7-aabe-3ede9e99636c','10656cd6-77e8-4a9b-9a1f-0a74da0ca502','42619b21-15a4-442b-8df4-b43b41887ac2','463f4637-0613-402c-8680-9f6e75d59c7d','7b5ffe45-07a1-4815-9759-97ba57ea93dd','7e296c35-0721-4392-9169-c57e22922468','9a0bf372-4611-488f-b75d-110c81cb60fb','b24c3682-f0b7-40fb-9f92-2549a8e0ca9e','f3adf3d7-b92f-4637-8c4f-922fa9422c1d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.43')
+  where id::text in ('035f7ecb-6ae6-4769-84c1-f5eee5866875');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.18')
+  where id::text in ('0367f8c7-247e-4f73-8c1d-e4f061fd4682','334f23af-4f81-4137-a3b5-af81e487cb2f','79ca65d0-4559-4c37-80fa-bfe555a5927a','dc45c81f-07c3-4840-98f6-bc77b20029e3','deb23d2c-5864-4ec4-b9db-af9dc448f878','f9c3bb73-1650-449a-b5eb-69cd44949b9e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.149')
+  where id::text in ('036cc62f-183d-45e2-aa21-92cfe8be331e','690625e2-c219-4f04-a7d2-e4faba9b6e3f','95c27db1-cc29-4227-815b-5e2656472588','99ce2c79-22ad-46c7-b94d-10e923abfea9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.371')
+  where id::text in ('0379c7d7-1186-4ef0-8fdc-617526fcc07e','15980803-a83b-43f2-93a1-44bec00678d7','5b17134a-9211-4774-9885-858a5235f7e5','5ed69593-bace-4ffe-b50b-bba689c9c7b3','66e04561-b766-4ee9-8932-bee7628accd1','6ab7a48c-94b8-46d4-9e65-1d2e2e18de4a','7fc648e4-b72f-4b83-80c8-e146231663d6','99392056-8a65-42ee-8027-b668b37b4da1','a4f85a77-0191-4043-a680-06fc850383bd','b630877a-0b21-42e1-8f09-312043a2858c','bf95dd44-9d50-4f2a-b725-9be5118a83c9','c3f5d984-eae5-40d3-bd7d-017a8d691d8b','dace38c4-4eb1-48f7-ba59-bf0276250ad4','dc0dc42d-a01f-4983-aa19-18918ac5e1de','dc0f9d0a-9b29-445e-809f-b1977ac6490c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.434')
+  where id::text in ('0388d788-da4e-4d45-a87a-4b1be8b0c070','91cbe115-1c6a-41c1-828d-a2eee9557d96','a9af2522-20e4-4730-b99e-cc20d42222e2','d6487a3d-d11d-466e-a978-431ec1e381e7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.57')
+  where id::text in ('038b547a-2f36-4c0c-92ff-3c9d8d55b780','0a5da1e4-6be6-4fca-84b2-245eb2e34cd7','10002191-9c68-4eee-8c38-d7639ece55ff','169a6cc5-95cb-41b7-aebc-fd631560609f','1b6692dc-4a60-4057-ae3c-7b51b737d016','2e7509d8-8328-4809-82fd-fcbd08a0c175','4007d207-244b-41e2-ba84-d5d5bde623a9','419172de-9f1a-4c86-b623-1a5a592918c6','4c292e00-47ff-4b59-9e4d-40df64446e71','5515e719-ffa8-4fcb-aee7-ad243d750710','58044c61-a152-4fd5-a15a-7bc7f0f71b40','715308c3-dcd1-4fee-8fef-1b7aac5e329e','727c985b-c2c5-4225-ac7e-194eb6c0ee80','743c0680-3f84-486c-81a2-7605561a763e','790eb328-9f08-4e26-bdc9-96e5d9dcd043','7b463872-9151-48f8-9155-2ad6a86b12f4','834f1cf7-cce2-4889-8730-9d3cc63558b3','94415dfc-5564-44cb-84a7-82b05806f9db','98ca39de-7379-4878-a3de-2c450df01021','9f3eaf53-51a1-4059-9328-5be8fb2b064b','a9c2cdd9-16c3-45e1-aab5-044ae4bf8426','b16e32a2-c5db-4138-8e33-d0b9553b0161','be55bb90-bea9-4eba-b6c1-9b222af12f66','e0d97bd5-6d6b-4c12-94b5-277d89951682','ee490e14-b123-4ccc-b093-9ba0bc59258a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.32')
+  where id::text in ('038b950c-1fa3-4955-ba38-cb7801c96ad4','13780405-1da2-401a-8d38-82396b289d84','6cf06d51-4c45-477e-b450-7afa106123bc','abde404e-3ee7-4910-800c-b17bc1ae2e4c','c0bb7ce6-61a0-48be-8c32-ffb1df2ba636','e2ee7946-0388-4f61-9830-5fc2fa981e1d','e660e6fb-3892-428a-a858-8befc53a6837');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.211')
+  where id::text in ('038ccf17-8b0a-4f96-9e2e-b861207f40b5','11e48b9e-c6cc-4b2d-85ec-5f3fcc99cff3','2f513778-5224-4696-8b60-b40dbc98cd8b','43676698-2358-472a-80bc-de6cc963d798','744aab3e-2280-4411-994c-58ad1055b950','a79dc252-0a3e-4046-b1ee-257d4aaf199e','a83d3379-6f8e-418c-ac78-408267089802');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.291')
+  where id::text in ('038f5272-2c06-4335-a51c-74a82db08faf','0429eabc-4483-4a4a-a75c-922ba649509d','1b818a3a-e589-48c4-a703-86fb732d2cd5','71f60f14-ca90-4d7f-8e51-559678c59418','8a0ae39a-7cd5-4295-a9ec-08105b8825c2','b52d4500-caea-447e-a0d5-f59755943273');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.52')
+  where id::text in ('039931ef-0084-47a2-966d-4129e94ae50b','0c6fb00d-a9a1-47aa-9bd4-9e78914a35bb','15bf30b9-faee-41ee-ac61-75e97573f9a3','1a7a2f36-81ac-43ff-9c4c-4f6662e3516b','2f5717ba-7284-4dec-8b40-bbab0b7d3683','abb98795-480e-4cbe-8fd8-2edfd65e7b6f','ad9a396e-9495-43eb-877a-9caab0ee7cc0','b0107db6-8b8d-4b6d-9251-282ea9fe8931','d9fb8149-6dcb-43a9-916d-c2a34d297719','dc20c25e-168f-47b1-8ab3-75034b24ab06','dd728d01-6b35-4c4b-a927-74b5e779917d','f1aeeeb5-d93f-4738-a1b5-029a2735d63a','fc39527b-4597-442e-96fa-14c97d1e0dbf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.364')
+  where id::text in ('039e9c37-b9ee-41e3-a2e5-8b41ac03a3b4','2806b266-9d50-4bff-b663-2c67cb818f5b','38eb0626-1493-466e-8346-ea03e6efcc6e','42b10793-539a-4169-b26c-07666eba12ef','5363b492-ef04-4f0c-af96-1e4edf5cfa5c','63e6204e-f173-4a19-862d-64ea08587e87','6d29c2c7-dfa9-466c-83a9-333e745d0483','9770946a-6126-4078-8fec-435c43bd0dd3','a59c7e77-249f-49c9-94c1-463ca8f5f5af','d0bc5eea-b3dd-46b1-a5bf-1af478a1e4b0','e4798669-012d-4793-b81c-5ff4a61b3927','f16ea4e6-b0fc-4663-b3e9-fccfb4494b09','fffa5433-522b-4722-8673-b0fbb8b01eba');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.294')
+  where id::text in ('03a42d1b-07b6-43ed-919f-0414f67b4d07','413c1af9-6f00-49c1-ba52-4b91c1e11155','677a84ec-3520-4cd9-bc2c-5bc95fe362bf','98e5ca90-9074-42a8-8476-cd2f59767f5c','a26652e4-f31e-4619-9dca-b3d928e621f2','c2484b4c-94d9-4c03-bdd7-f3adfb0ccdf8','d239d1ac-dd73-42a4-bc76-cdc6c7a890f8','db60c119-8dc9-4a80-8d8d-7e184d764895','ef6509da-b8d9-4dd4-a1ed-d735591f8ea1','f9664fa5-b9a0-423f-8e8e-06b99ef3ac83');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.183')
+  where id::text in ('03a5ccd0-5d35-4179-b961-95689f70f4b1','1ead847b-a7d5-409e-98c4-d3b818307dbc','2343d740-b2de-4284-9cff-cac390119744','491c9534-c5a5-4384-9c9a-5d9bba03e40a','50c627d4-11fa-412a-a85c-20138a8738be','71590577-93a0-41a6-bd84-eca41c0193d5','7fdfed5a-ffac-47f2-addd-ea3866c35943','a8f868fb-7fc4-47c5-afc8-3c17d2b47589','cccabd16-01af-4379-8f0e-af661a4f6d33');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.24')
+  where id::text in ('03b72070-7595-4c32-9d4b-ef7751744e21','0414841c-3f4d-406c-8c5c-490f756e5722','eb4381eb-f17a-428f-8f15-c06a862090a1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.369')
+  where id::text in ('03bf6661-c77d-4aec-8806-8b71af61451e','3b7ea244-a903-4adc-8efe-bf04c22bc44d','3dc535d2-d1fa-4ea2-bc1f-377221aa59d5','443f1c01-da81-46aa-aaa2-d56e1eec3477','5c76f0cb-7a58-4f2e-8d5d-9a6cd7bd851d','6ac85e9a-4b0e-464d-939f-fa1ca870f81c','82b77a5d-94af-4a17-af24-7428f6bba9f5','b9fe8272-189d-4bc7-8003-154007cc572f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.369')
+  where id::text in ('03c746fa-32a0-451d-aeb7-20f793b4d61a','1422e390-0c99-4a5d-8e20-c340cfbab83c','1bb3b76d-b261-44de-a361-05701c0a280b','325734fb-2e25-47da-9d8e-3260d13fbd7d','3b8d52d3-c3f9-4096-86b2-68d196459b37','3f4edd9d-bc86-49b0-af26-fa277dd96615','513205a0-75e6-4af6-a36c-cc1b79ae607e','64fe11d4-6a3f-4c2f-ae94-6266ec746ad3','6e939bf0-c0a8-4207-9749-980852913f98','758fb068-a210-4e94-a487-3de6d45f7121','826a7b27-f766-4708-a8a6-5bf94235e0d4','8e95bc10-ffc6-4581-a15a-c3db31b26c4f','97fdf501-a0fe-4049-8a79-4fc5a6d1a9fd','999b4643-af85-4f20-9d5e-52993a2dac96','9c76ae1b-2c36-41ec-85ef-b7c01b1e126f','a8e6ca7d-67a6-4ca4-bcd4-b0bea4da2f8f','be57cf98-3307-4e0d-98cb-cf0868833b8b','c10a5928-980d-47f0-86a8-1d6e3b0bf026','dda480c0-38ef-4405-9993-634ff12a8123','e0c0f019-daa9-4362-91a1-3bd29d88a2d2','f5ee9fd5-1823-4f17-ab59-bd26e02b02b9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.101')
+  where id::text in ('03cb1501-9dd7-4a7c-bd13-0f9253a8e375','0d4932a0-67c4-44be-893b-2ed8bc3f6ca4','11daf1ee-aed5-495d-8f60-cc0611267b44','1f1a5ba1-d1bf-479f-84de-baff12fc0b12','2eaa62ed-553d-4528-9751-0ab2d1b33b36','2ffe3482-1c46-4ccb-8ab9-c72859fe8f3b','426b9255-6856-43c2-a7f0-5a350a2a7efe','57fa8147-7214-4e3b-86f6-4064472bcd9a','61447b74-7e3d-441c-a1d7-d16caeb7045d','6e4f51dd-d4c9-4aec-addb-755632f7eefd','81fc8e84-d647-4c52-bf76-2af2d8f9123b','88f0e305-7f6f-497e-90b6-0b6964710ad7','aecfd98f-8c6e-48cf-a880-35ef4039166d','da987527-44b6-47e2-ad57-279fe0314fef','f17d0070-345e-499a-83da-5fc1eb76c991','f2f7353b-0d81-48f5-98c7-21162bce3eb8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.215')
+  where id::text in ('03cc9606-854f-4977-a5a2-4202871e5d2f','08f732c4-f809-4210-87fe-38d68880553a','159c9731-f85e-483a-b933-07dd1812cc0d','253f45fc-da49-438d-b4b2-c4bcfefcc4f1','2d34d85b-998e-4c10-a3e1-d0b804ab205e','366ca5bd-c4c1-4e6d-9e65-afa6f05c1ce2','6b2fa43e-b1ea-4182-95ea-0a0ab1b83219','73821446-785f-4dc8-9707-e11bb400afa8','7ef39440-c7e2-44ba-ae0c-d1512ea63f7d','845f0ee4-83cd-4c09-9c71-480acde8d385','9fcafac1-8da2-44af-8d8e-97acd24f8430','aaa377af-d50f-481d-9433-3c09d98dca37','bb442ed2-1b95-4871-b9dd-1850b8a89c1d','bbed9dc7-c570-45c0-88dd-6314b9c8ae40','da06f603-9944-447c-b5e8-4247dd4b5155','fea4f942-cac9-4c24-912a-3e3cc0db1f86');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.102')
+  where id::text in ('03ccbd9e-90a3-408c-8251-ab6930d2f349','08a19b01-5766-4608-8a57-cbbf732271b6','1a91f4c9-299a-4529-8d17-6f82e9d3fede','23f04ff6-bb53-4700-8a39-c306a086e779','47320623-aeff-479b-af08-41c4967daf62','5da03916-e2d1-48dd-9edf-ad7400472909','75ece564-04ea-4d79-8441-d5c9f7bfc228','8916adf8-ff2a-4c6e-b430-a93f2376d8c2','8e6eb624-656f-46c4-b8be-a0226ad74e00','aa8d1eb3-4ec5-4240-acf5-6675b06160f2','ddd009e2-1ae9-4c87-bb44-bc8271cdc79d','f07ae33e-2fa8-48b5-8b5e-64d1ca8ec902','f6c3168b-a2fb-4062-8cc7-62f8678003b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.384')
+  where id::text in ('03d55bff-067e-4738-81ed-c245ea216956','173ca809-a3da-4994-89a4-6d5d5e990591','2fe34db7-063f-478c-b996-6b2fb2f10287','745827ef-d39c-4515-949e-327ca2e77935','8cabceb0-6ab7-4690-970d-30a47bd45502','a7b70347-2fa5-4157-bfef-14100dfe7f8c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.48')
+  where id::text in ('03da4aa5-bf1a-4908-ac8b-749cb8a79b93','4eb2653a-3bde-4947-af39-44f0471307a2','53728875-69d8-4009-b60f-dbac95cbd3ba','565aa341-b922-4c69-bd49-006f6b9fb5be','688e32cf-ffda-43ee-9ef6-16cbccdf7b90','6b873570-2575-4d80-ad13-7700a34598f7','7cabaf33-e87e-4ffb-b640-c0fa2ca30fec','86bfdd64-d781-418f-98d7-27705a518818','b054bc11-c183-406c-b36b-297bc72a0a15','b64a0033-e02c-447f-b7ed-3a9f3eff61b7','d6e5ab5f-34b7-4958-ad0b-372d9471d530','ed4dcb59-adba-476b-be27-b1c5af0e0821','fcb804cb-d164-48a8-9b83-1de773e71ffe');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.46')
+  where id::text in ('03dbc3dd-de67-47e1-b42a-316dcc36bddb','57cd0596-7dda-4b31-ba57-76fe269498e1','7d7545f6-0685-41f1-92de-20e46714efdb','7e142cc1-53db-4437-b0f6-091588c0ad14','989299bc-4656-49c1-890e-b14a14389a82','9cb80de5-55ea-4a94-9db9-d34793d0b9ae','9fcaf86c-1f1b-4703-8b83-08ef3a7c149a','a72297d7-92bc-4c9d-9691-d68bfbf7acd3','b3293043-3ea1-4572-9e9a-ffecf559a928','bc576a9e-8943-46ea-95da-dcacbc66a41a','bcf9371e-9e17-4133-b01c-9b2806913974','ca33881e-0abb-4f7c-ac5a-ec92f28ea27e','ec8ebaa4-0b15-40d5-8383-aae977f3f848');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.263')
+  where id::text in ('03ddc9bc-b371-478c-9469-b81c671b52f0','0b248a2a-89a7-4785-bd4f-369f2f42f5e7','151f1b39-4d63-4bec-a341-5ea04137ce96','1b10a206-28dc-4719-a1c1-cce11f84f331','2984b1c3-3fbd-4756-be04-65502274f2a9','45b883a5-988e-4d1e-a244-f9662ed0d142','4d68b348-9a62-48f4-9a15-e64c2556fe94','72c8ce79-6809-43a5-9927-0cd4ba148792','95a15c73-d290-48e1-a085-7cdcdc7594d2','d0c83779-fc3c-447a-8664-36915e4615df','eca565e5-abb3-431f-910b-39afa91adb4b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.228')
+  where id::text in ('03defad8-5ed9-4e94-9b73-f9156368de8c','7aeeec10-8e3d-4a5b-82d6-f07c73b3d135','b8d761f7-52a1-4d24-be63-063470ca8f61','d1f0d881-d172-4715-8437-1dcb4a8d30d6','d996ac97-509a-415f-87af-f18842f2f66a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.117')
+  where id::text in ('03e00468-03de-491d-b7f6-f8e13e2e4bcc','0e513d0e-91a7-4eba-a619-e88945c77acb','57ce101d-ec7b-4bb2-8b51-c99da296bd7e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.372')
+  where id::text in ('03e111ac-5fb4-4634-bfdb-ed66b783e51e','39d25f0c-b922-4ddf-99ba-afcc08f3b573','4d178e56-7f30-4231-8d28-f1fc487b0de8','58540247-b785-49bf-9034-61e1478798db','59583adc-43d0-440e-9254-5b372546492e','67f98153-ae31-4a2a-add0-90b6fa5c1668','742f41eb-98b4-4740-8f86-d89e79bbd2db','7b32ee98-ec55-49a7-a9f0-0810193a4a95','802cb8fa-0a79-4cb8-9833-8358ce37125f','861d35c2-ad57-447c-99cb-6c98386f3dc8','867b0001-b74c-4406-a76f-8972fb6ba037','94b26b40-929a-4cca-a38d-62cf0aa4d43a','95ca5afa-54eb-43ef-82a6-806269548d68','a7df1c2a-53b2-41a2-9b18-8092342203eb','af9faf0a-872e-4f54-af2f-c5cfe172594a','b11c1e31-4e59-46ca-8401-20c108514f42','c4d88916-89c6-41ea-89ef-6b9fe0082643','cb1320f4-772d-487d-bad0-72c1a559a18c','d95e8166-2669-4261-93e9-1ec220f0432f','dec078b4-f809-46ca-9a3a-4370e1b4da9d','f4eab9f4-3e61-4076-99bb-e262bcddd675');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.4')
+  where id::text in ('03e1a439-374f-4400-8dfa-817e309f5e29','33cd8bb9-7e1a-4976-9ab2-8fd9ff89b9bf','481dfec7-e728-4cad-b302-cfd9afef6f16','9487916a-fc6c-4fe0-9123-4362f935e085','f9a541f0-96cf-424e-9b0e-78dc6a01df22');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.628')
+  where id::text in ('03e1f853-7a9b-4893-9dfc-961639473d16','182c1e29-5a0b-462c-8f6c-db03ddfa9bf2','1910937b-f45f-4305-94d2-037f8dd3d7a3','3457cf51-4a9d-4849-95f7-7f9119edc9c2','3631ab95-9ad4-46b3-bd5a-e66c9ca5cfc5','36e30f05-e992-47fa-8c8d-77c8cbac9133','40bbb174-d7fd-4c94-9344-4ec5ac0fce8d','4e8b3bd5-124e-490b-b971-8279a6e008c9','62cdeae0-2287-4890-ab08-8710d39a6e11','6553ddbc-f2c6-4be6-860f-cea7e384db32','7a99cbda-9687-4cdc-8f2a-a57538a0f721','7c68988c-a1d7-4c1b-a33e-1ec867a53c7e','8312897a-81a4-4ead-b8af-152789bd173b','c70ca39d-2f85-4ff9-acdd-0cbcec6722fc','cf333344-b2f8-441e-8a3a-a9d090149c6e','de9235dc-816d-4cf7-b4f5-bf858db619e7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.95')
+  where id::text in ('03e324e9-8f4e-47b5-a642-39f3b600a676','2b45580b-fb6d-451a-87cd-0a8187b0785b','2b619bd7-29c7-4e38-acc9-1e9c8df70b05','5d3da108-c4b1-409c-b0b2-b341b21fc7a8','8dd626b5-75bc-4078-9e6f-d1c58177a12e','9a652dc7-922b-498a-87ae-e0ac57a3ca5f','a5ac6527-7666-47da-adfc-4d521201753f','a802fd1e-5abe-4c13-ac20-2be97049cc77','dba6db28-890d-4170-afc4-663c0d99a85e','df2ce26a-1626-4c6f-a181-904ff9bbd0d7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.263')
+  where id::text in ('03ff9bef-bc13-43b2-aa74-3366a11717be','5e5af19a-0cd0-4e45-aa91-ba93cf7d0f2a','85269659-e681-4576-bfef-664b1e2895e8','ed677e49-30e5-47e1-b5b8-48edb294ca8c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.247')
+  where id::text in ('04221f09-e4e9-4608-9c58-9117fe6eea1b','0d68a83f-f98f-4bff-bb3c-80f0f6eae5ee','68bdbc59-291d-49be-90ac-fe28a4946a76','c009190e-b067-4cef-aef9-b49c1a0169e0','cba42903-2940-4d3d-a402-1f9f5726a70f','e767e93b-815c-4ab6-9927-c166688154e3','f05845d6-dab6-45eb-b942-b3bdf824190f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.512')
+  where id::text in ('04343d3a-784b-4fba-9b7d-fd62dc8687b3','10a56667-9e05-4b76-be13-ec77d32590ac','342744eb-0370-4964-8393-093b79fe6ead','3c88b222-c5ee-45fb-abee-e45ae493d74f','53b4002a-dd40-44a0-a3aa-2ddfd8c2c0f3','59478bc1-5688-4836-997c-f58c35585ea8','5d64e6e8-b69a-4366-9558-40d5e763c329','656912f6-284e-472c-9688-d34314ec69fa','aed12721-04a5-4c2f-8bf3-8d306e89098a','c423a6ad-adec-46b8-92e7-0a565898b7b9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.178')
+  where id::text in ('04359c98-793e-4d02-9880-bcb7b815d82b','342a3f65-0dfe-4d30-a0fd-c3b095bbf776','34f3a6ed-d827-487d-9312-21a2469342f0','5560b391-327b-473e-b95b-74560ad92787','57d88ad9-7642-4602-ab89-f7a683c299b8','61c989f0-d106-4f15-8347-8b6ac69bf698','8202a0fd-b4b0-4782-85fb-1c83ed50adc8','83c70ea8-b3bb-4838-bb13-77c6239659ac','c73b3353-c71a-4788-9962-2d06263155f2','d0b32543-67d0-4829-a943-b1fd6ddd295a','d14277d2-6726-4e3e-a90e-10ac3eb06a1c','e024c8f1-4b1c-4d80-b255-0521a840f1a8','e615e017-7e9d-4550-9f43-66b159a98125');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.336')
+  where id::text in ('0436a4aa-3cc7-4a19-a6c3-755067030083','10d5fde1-e16d-4f91-bfad-5f97febc7ef8','20e69bbd-3703-45bd-a6dc-0222a69f996c','6d587c4e-b9d2-48f4-a1fe-07253f2fa9b3','86b6c0ae-7b9e-4463-a802-37383949c2a7','8b18bf97-b299-461a-b281-c3bf30f7b744','97383adf-1635-45d5-8c77-accbdba9ac9f','a0e95d6d-bf73-4330-8561-4b004be01d0d','a763f079-0e5b-4e23-af4d-df7cddfea669','f9bc1464-1362-4317-a9b8-491e2f580024');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.155')
+  where id::text in ('043df696-4cef-4457-919b-a498aad80171','35678a27-966e-4ad4-a4e0-29e3a4623175','396b1b3b-1732-4560-bbc2-f6167e19f66b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.123')
+  where id::text in ('0441086e-42b2-4df8-bf57-5323091a4b60');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.51')
+  where id::text in ('044326fe-3abc-4b65-a8df-17ad14274c7b','8438faeb-d768-4beb-be4e-2b7957e5d1d6','ebf808b6-c4f8-4615-8cb7-7279e0d48261','efbc6993-0ecb-4d41-b6b8-3cd22476d9cd','f1f431a5-06c7-4163-8d1e-403dd43d143f','f61fb1b4-4127-4aef-a235-91423556860d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.144')
+  where id::text in ('044e4cb1-8469-43c1-8456-900f832e9dc5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.59')
+  where id::text in ('0450d0d1-d746-43b2-a109-165cb93aa21b','08adcf11-c080-4441-8a18-6061e316c17a','0ea72c2f-008d-41b0-b904-da9ecbdc7a3d','11c2fd6a-7303-46d5-a953-ee2ca08b4bbc','1377e464-47ec-4c65-aab4-64d9a8fe5144','1cdeb82e-2b04-4343-b0b2-c77c296c0f19','1df53eab-fefb-495d-b468-64cb54580316','2d9beec0-6626-491f-b445-46e36528ee30','34e0760f-c59a-4c77-9a8a-9e109eea41ea','43c6aa8e-a1ff-4274-930c-208a39e2d37f','676a4d1a-4ea9-424b-b5c4-f98eba5105f7','71f00d9f-b133-4b85-9921-6bc3c9c86764','8332f985-30fe-4b9e-be66-4d1679aa0cdb','980809da-4816-4732-9929-898526bdf607','dc9fa893-d360-4575-a5d1-3ef95da06b2c','eb13c625-4142-4b77-80fa-4297f40a922e','f81d7938-1084-482c-8d23-d323d89730a6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.473')
+  where id::text in ('045a3171-1814-4e45-ae28-41f973cbb16f','3a3ceac0-e4b7-4552-ac9c-d9b7423816b3','e5f93687-c64b-4252-9759-40a6e8c02f45');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.272')
+  where id::text in ('045ae5d4-7b71-4b95-a3ba-9e3611f9492f','12e72749-64f2-4662-b700-3f07efaae9ed','559a94ac-85ac-4513-a725-1f974c15f9d5','71bd62f5-51a9-4e1b-9db9-2940fe05193d','7348e1f9-ad06-4e2b-99ab-61c7349976c8','7c4f0f8f-b0f4-44f0-8c23-2482b80b866c','d6e4dfb1-272f-4c11-bc92-ecf074a614cf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='22.9')
+  where id::text in ('045d13e6-3b98-4ff4-82a8-99984c6c4d99','7d0ba6e2-a87d-4096-92f3-8f4179140eb1','830471ff-dc14-4cd4-93ac-c1746c348cd1','978de8e7-6fd8-4ed6-a364-8c30b1ed40ce','b31c5a46-2b3f-448f-bc7d-a462027ca0c1','bed5ed6c-aafb-4546-b18b-558983626402','d934c5d4-4745-4d97-affa-21d1e5c1fba7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.151')
+  where id::text in ('0464a64c-8436-4ebe-9335-7c0b6eeb4b5c','05bcc1a7-0f2d-4987-8ab4-a222c9a02e22','2d1bfd2f-b813-4ef2-af3f-2d987278539a','593d23b3-5018-44a3-ab20-9a93ebb6ab2a','9604ecd6-005f-44f0-aebe-e0771eb0f1d5','bcf72a7c-43f4-4a34-9714-7191bebc3731','ce3d5618-f2d3-45ad-938b-bf419b8da149');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.37')
+  where id::text in ('046a2c54-161b-4458-81f2-a8488e852fd8','123b6322-2cbb-4f11-9c75-f848535ce5f6','386c86df-8d20-490f-aff0-8e29adb1be11','5dcca2d9-7012-46ef-85a4-688fbd51be3c','5eb067ff-78a9-4e64-9509-ff1be6aa8489','643d9de3-36c6-4062-b3b8-9cce3c5f7804','70995f93-e5d4-4e70-a6bd-bc459f25f0e7','85390762-d722-497c-a822-3a9ad64f7266','8e075f09-bac4-406b-b787-fecb27522c16','8f328358-e661-4f31-96ee-5150a5556991','92f5970e-d6ab-4706-a64a-7e62d778b3e7','9655dc08-3d93-498f-ab01-f7255a865a1f','a3602160-952b-4aa6-96bd-2f78c5f4bea2','c31f0362-3f0b-4ee2-9020-d556189f1959','cebf4615-dfc7-4dee-b91a-4f89246d0071','d4f6e459-640b-43b0-9a6c-0751af8d5c03','ddc9be82-eba8-4c4d-9a90-6171a91a6bed','e05f63f8-bc67-42c7-8675-1e984b50f055','e54f674b-6ec6-46e3-906e-8496401c8d05','f8771398-79d6-4bbe-9003-39fa8463dd91','fa5bbf6e-ee6e-4880-8ffe-5e6a30670e45');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.65')
+  where id::text in ('046de697-56d1-4680-9176-9c2e4b2da1ef','2ca032b0-1266-4dce-9ab4-332ee5d603d6','b0f15a6d-006f-4456-81d5-c3bda9905154','f7ee94fc-e0c7-44d3-bc18-91f1631866e2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.222')
+  where id::text in ('04721851-e7c2-4a8d-941a-b1f6f0ad3de1','16a27663-0e76-485e-bc31-6aaa164d20e5','473f7691-252f-4670-a313-eeaac8cebd51','688930c9-f2e7-42be-a57b-78b90f829762','6d7e56d5-fdd5-4c58-b8a2-f7aa599d1cc8','71666c8d-440c-4f76-aa55-58277aa88de4','77ab93ba-35f1-461a-a37b-22170936aa83','a0f9768f-11a0-487b-9fc6-a4d3f6ff841c','c2cab6e8-2404-4187-b45c-d2d3887fe6d9','e4fac4ce-1076-4b0b-a8c1-a555b1a25840','f417cb48-2872-4df3-817a-8a14947df410');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.363')
+  where id::text in ('047b3ea2-d154-4ac0-8db6-fc6ac0318891','2bb58201-53c4-476d-bcbc-72500cdb9174','8a1070a4-5e1e-49a6-9354-59354b26e951','8ee1f00a-4466-436a-8aa9-cfd2441044eb','ed0f3068-421f-4954-9ba5-f199d8a224f2','f7ff4d0b-9981-4651-b2f3-25ae83c1bfa8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.147')
+  where id::text in ('04802b3a-d853-4578-8df2-e75c57985c4b','3ee28120-053d-4444-a3b4-87298ce34b75','6f6fd340-a0b6-4550-965c-1746fa2d396c','d0a07236-4226-4565-a934-7b5937d2d0e4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.331')
+  where id::text in ('04836162-d578-450b-8a44-aa5bc0a7fae5','2e19e2fe-9b98-4a58-a365-9e95614b056d','5150824f-174f-4657-a9ac-ba37a62591ee','b7deba89-82ed-4529-88dc-f4e5da77d5c8','df87807f-459c-410f-b504-162313dc5e56');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.125')
+  where id::text in ('048497ad-a30e-4e29-ba31-945cdf986eb1','0655c86c-9b0b-47e8-aba8-557ccd7a828f','0a9fd9b5-0f45-4ab0-91e7-820a0e41ced4','1a6c5a4b-1136-4374-b71e-3831b84751b7','203d9728-4472-40f5-9fd0-aad8a18df8ed','4f2e7f50-a9d6-411f-ae81-b7e166b0b7c7','5bb87cfc-4ded-4787-9e80-133816c6785e','6165dfb0-e480-4c3f-9eb7-4a0563e6b544','6971a05a-f7f9-444a-be22-af1563c3260e','77e2ebba-3344-4375-8a80-0f4d552422f0','91b9c875-6def-45cc-aba4-e7ff745d87bc','a6eea711-7153-4c09-86a6-dfdc31f6b969','a98b941f-2e3f-4ce0-bffb-7ce157505572','af688868-1a0d-4ea9-a4ab-9b0e4f28271c','afd4270b-36b5-4d0f-94fc-d5c4e3e75b14','bb3a4c1f-e7bf-4a82-a083-3826b6775ac6','d01dcaa4-bdd5-44ac-853b-dd6cbbd8f732','dee1110f-9586-4dfd-91cb-6246b029f554','ef3ec586-b057-4b85-a860-6c3d85b85419','ef4164bd-a426-49b3-94c7-49659ed58699');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.309')
+  where id::text in ('0487eeeb-7dd8-444d-8615-8164cd0149e2','290d6c97-bbb9-415b-a7b9-2c7d3564cfb8','3365f1f8-6a86-4f23-980b-6b18bc5b212d','3376aa53-d374-4715-91b4-b77cab38507c','7315dd39-5c09-4300-96ed-af69920c92a1','8c6fb568-f901-4f94-9c9c-765d3953818c','a9d96606-1f9d-4d80-90f0-2c85ddb479c6','c24a0dbc-b2b1-4a8b-88ec-53e47a0e72c9','e9fae17e-f195-4807-82b2-7276cd60a729');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.4')
+  where id::text in ('048b8aa9-ca74-41e6-8e4e-fc9ed86d0e6e','42a534aa-ec3a-4b19-8f81-98fae3beadde','7bc61f8a-0043-4392-981d-caf6480ae628','92eefce0-6e5b-4197-86d7-e6404e75a007','e35d9112-486c-4160-8221-61db18aab334','f6d801e2-46f6-414a-a2a4-cb631cd8289a','f83f1382-eba3-41ec-b6c5-fdb3fadf9e15');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.23')
+  where id::text in ('048f9318-2403-4f8f-a483-079d04ec0380','269f736a-da4b-4c41-8c51-d9dbc11beb65','98aa69c7-94fd-44eb-a7a8-9fd980c0bf0a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.403')
+  where id::text in ('049118c3-6369-4110-84de-f83a98448660','211ed039-765d-43d9-a96a-a628cd41f107','9064a08e-4bc6-4919-8ca6-1c74ad98bc49','a19fd6f2-7b04-4289-9d39-4825859821a2','ced12e3c-c628-4eb2-a038-5585b35f0a0b','cf603fbf-3038-4f3b-8aab-081cd9c08dee','eb3a9c03-e06f-495a-9d58-02950ad72290');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.339')
+  where id::text in ('04914ee5-504f-4b72-b1dc-0fc12da96d66','1baba5e6-b587-4e54-ab44-2e7fbe1cc86c','1cffbf15-4f74-41da-996a-545d1398756b','29b0b12f-98bf-4133-a4c2-d868930eda3c','3dd01969-5622-4eef-8e5c-1a15e93cebe0','5561e62d-c6ea-40e2-9a09-691a9cd89a86','6544e714-a621-4130-9e07-7f3b1ed5543d','8bbec33c-3907-4c4d-9aa8-6b0360676e28','95e41c9c-102d-4d80-9a82-ed96eacdf6e7','99b5a9b1-51cb-4b7b-a287-91c3b8d600ce','ae0ecd74-59c9-4d20-a72a-d02fac413108','b2f709cb-86ba-4d33-a535-fc3d7c69d9ba','ce419117-1d3f-4a68-b5d5-01015a79e8e9','e32e3ad3-f919-41f6-bcd5-bbdbe80e07e2','e7d19540-9a49-490d-93d7-b2f0ec4ef3c1','eca8e0d5-3bd5-4645-80b6-6a1ba3fa9350','f117e31f-9f4a-4f23-86cc-396a1741b28b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.188')
+  where id::text in ('04a01570-7dd8-4739-822c-79fa94cc98bf','27deb16f-cb0c-41b8-bf02-4897499e4c85','4b129122-4756-4f9d-af98-fab0af2a4f2f','79e21739-87ec-4e57-8177-665334503103','df7145d1-8fbd-4962-844c-d1045b1d773e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.184')
+  where id::text in ('04a27bb1-1849-4c1e-8e87-b9d910eecd9b','da7454cb-5577-435f-9658-0d795cb58dd6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.8')
+  where id::text in ('04a3c9fd-7926-4341-84b7-59c3fa4df924','0719efca-52b9-4711-b84c-393173bd0b3c','5f08b087-038a-4c1e-a330-74c0378a6c36','5f30d01f-dd5e-4cee-9b74-d08b9ca80d1b','9efc6f97-24a7-4786-be73-2ea79610d98a','b956597c-009e-4c3c-80bc-c4d16da47902');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='21.3')
+  where id::text in ('04a3cf95-108b-46f3-a5ae-800b5908a0df','e54cef14-64c3-4ee2-9c91-6a185f420f9c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.35')
+  where id::text in ('04aadf51-6bd9-4d6c-9a7a-8fea1e6f10e1','0a79c209-4c66-44c7-812d-a8abaa966ba3','1dff5cc8-4c0b-490e-b7ac-6e23e43932de','29807185-a2f2-43a5-a3b7-7595bd12cd44','39fa5f5f-d653-4ab6-9b63-7cb6d67e6504','59dc1792-8151-45a0-bb08-25ce00bcb12c','60d6c9b9-9dd0-4c09-b7bb-0984e1636e14','70f38d07-dca3-4cf2-9f85-e93a4d382740','7c4cef27-c00e-4ab0-8879-7d6fbbe4c655','7df24033-a971-4c75-99bf-162c5eb368b9','7f00c7b8-b160-45c4-9070-538671bda787','914fa4bf-a9f7-4de2-865f-a9c33fad65bc','95b1ce20-9492-4093-9171-2c9f22293723','a2321e07-96c3-4611-a27d-037bee7f743d','adbf4b79-4b47-4ca0-9989-d26824039856','bc9962c9-e008-4af1-8fb8-39259fabe7bc','cd7184c3-34ad-4507-92c1-79a1ddda01f7','d1d38079-27cc-4310-b77b-ee1533113007','d5ef8120-e6f5-4739-a489-fb7df7a4e946','dc97eb8a-6261-4a81-b68d-3126259b2824');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.45')
+  where id::text in ('04ae4db2-c931-4365-8500-2f0d7717b7e9','61cf5d09-c513-4812-8b0c-a301d97eff5b','71227674-7190-4a52-bb2b-a0303eb12a77','89b76828-80de-4c7b-85e1-ae3ba754161c','a06280fa-ab45-481c-960e-929568800b83','b03fe65a-1400-442b-915c-c76fbeda612c','bd87a5e5-f4d1-409e-94c9-ba2c42248279','d8eabdb8-7a6a-4467-9507-14a688922b14','de970740-439e-46db-a991-4f1f320fce38','f79d7dcb-e22f-4876-a3bf-9d7e58f72f15');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.229')
+  where id::text in ('04af1b2f-835d-4b60-a7a6-dcf6bad65bca','0cd90687-b227-407f-bc0f-95f116212e57','15f0045c-c8a1-4726-92de-ec3f98803c3f','3f07dcdd-f62c-4251-8daa-9ddce6913eb0','54e341bf-5b37-4d96-8d2a-148302960779','608027cc-be32-4964-b763-e968a367f7c6','9518c990-cfb2-4ccc-860a-c229cc4520a8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.104')
+  where id::text in ('04b42208-0372-4a45-9b85-1dcb7d60813a','129d66a1-a11a-4c13-8422-363de14d3dee','143b820e-e583-493a-bd3e-0eaeb9cf3010','155cbe1c-39bc-4282-88a6-b146ce410a6b','190eefad-a259-44a8-9a1c-12ef45b5d67a','255bc4e7-c8dc-4a21-b8a7-241ff2590200','25dbd785-8f8f-4e51-ae02-245858d7f44c','26bbd2ab-dd24-4bdb-9bc4-fc8c57bd05bd','3d0f2964-0662-4899-8818-5cfa1e360dc2','4a56c7cb-e5d4-4964-8df0-248cf4531610','514cb4a8-c475-4372-960c-afe91be59710','51a6b773-3436-4977-9b53-33ba13b6768f','54ecf06b-410b-4db1-a49f-911b0ed502ab','5dfa7a80-644c-4eab-9a35-e32c644606f2','69ac9930-0b02-4ab2-88a9-59b5e2a201f2','6b921a45-2f99-4ae6-a2a8-4b22e938e29c','72578b87-6daf-4b11-b709-092bb77914e0','7caa638d-5625-4243-b43a-581fb361ce20','85ae00ba-4310-429c-8cfa-b6ed6c9eefb0','9079e795-0271-41a7-a24c-ea3bd4677761','b07b7251-ecf6-411c-929d-e24a8c0f03df','bf440510-b4b3-40d1-ac32-06e999c6cbd1','d8bfc2f6-72e0-4a56-a4e4-756248a36ed5','d8f2ab54-62e0-467c-900e-bb3e7b8a4c38','dbcc3f13-f88f-4b5f-87e6-eb7bafe43198','f9a7a15a-1d8c-449f-9938-98ab7126b420');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.51')
+  where id::text in ('04c004dd-2fc0-4cec-8992-59094ce70cfd','2b889700-05c6-487f-89b7-6751674b11d9','6f269fc2-9206-48e5-b5b4-b1cdd4ed6458','78850a11-c448-4d7c-ab40-af9ad74d7b18','90e3c745-6431-4cad-8986-757957476307','94d680ea-10f3-488a-853d-851b73a9fe48');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.49')
+  where id::text in ('04c09168-7857-4c06-99b7-32b34f6d0bba','213c99d7-4fbb-4ba8-84ec-1b02d8bb0d69','2ebc6ae9-62f9-444e-8a7f-0f59cb9e0d05','60f3e520-51f2-4d67-8c7d-f0d9f4c68d78','9a92decc-6a63-4a77-8079-11b631058c4c','a5eba017-f208-4b4b-ab7a-8074aa387af4','c1817438-76ad-4969-b0d6-7f249d851c4c','c1d8187d-fc81-466c-96c9-03a4a22481d9','e548abcd-2944-40f5-bb3b-4b2e8d991a2c','e57a8f21-7dfe-4ae6-9f69-201bbbd2da9d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.524')
+  where id::text in ('04ddcbd5-1c00-4461-ad9c-1c908133080c','1944ae9d-27db-4ff2-84d1-51f91f7d47b0','36678f3a-bfc8-4ad0-a6af-5148931af103','56353422-234f-406d-a138-f96cacfcc2d1','58342d22-87fb-4a00-b8b8-a60bbc503c95','65f75777-9e5c-4b60-834b-0c8ef2083bdd','77e6c34e-fa74-4127-82c4-3a8cecdd1ffc','db0db375-d1f1-48a0-955e-5edcf684a57c','ec7d29e6-27ea-4ee1-8391-24754be8df85','efbc6c1c-248a-4137-bae3-820d86db29c7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.114')
+  where id::text in ('04e44ebf-e2e9-40f2-b286-00049d25ab51','12df65b7-8952-4f96-a5a3-d321d4418ad0','2d1aed2e-66b3-4b44-a399-e5864e53e6a7','43e00ea6-d752-4e71-9388-9d841c6b6770','67108f75-a999-4d32-9fc6-ca3a7fcff329','d1162577-7ca3-4a0f-95d2-0327c30538aa','f1179075-06ae-4f02-bf97-e695fdf39886');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.134')
+  where id::text in ('04f2412c-7184-4e20-bdec-a0015d22ee7c','09f02b97-53b3-46b7-9160-c7af8b7057b6','56142f40-0f6c-4539-a49f-0ce07e1dc0d3','74e39daf-44e1-4e9a-a153-f1b56028fc74','7dfd3a0a-9931-4b22-90ab-2754189e1121','87c14173-9a5d-40d0-8259-c8ce49467584','c25ff67d-de98-4e99-80f1-b505dd33c53d','c42c40ab-6b4a-48fc-b24b-d41acc40fd7d','c5a61ae7-6092-4792-b49b-3b81e154f152','c5ba41b0-e5b7-4ddd-ba41-b42d7a22a435','e5e73f07-27d7-4404-be06-ddb96dc94bb0','f33f1d31-1743-4748-ae35-9762bbd2e65e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.529')
+  where id::text in ('04f47ab4-dc9d-4e78-b6e3-e28031f52ac1','656cd23d-58f1-4f6f-a829-71fc6b2b1e27','692d1b90-7aa4-4b02-9f2a-12556fdb82ed','b1eccc9b-fdaf-48af-825c-936d072e62b7','d01570dc-85ff-443f-93d3-8a8816281788','e54fd4dc-fa66-4282-a202-61623c9b748e','ea66f300-77e4-4db2-b928-5090596d875d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.513')
+  where id::text in ('04fe786e-7e19-4458-a1ea-466462ff0af8','4f719701-ce3f-47b1-a85f-09eebd4f424f','52387669-a464-4e6d-b2f9-c7eac2b0b975','9c8c1cd9-9595-4228-bb8b-439b4efd0517','aa4c34bf-51c8-4c1f-9a9c-64b84eab2653','aa9bc053-c06d-4561-a2c6-4b2b0fb3e3dc','cc653bc9-872a-451f-b043-589402c7fbe2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.299')
+  where id::text in ('04fef739-27ff-4400-b22f-0fd443d6be07','0af93b4d-1446-4879-b57e-8a0a965e4d69','85abb7b9-837d-4ec0-be27-cdae44b68ea5','9ce83b8b-fb78-4d89-9420-69386eafcefd','aba9a7cd-a324-4ac3-bd4f-25c199433998','f006ef67-897d-450a-bcbf-6a984c41e0af');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.143')
+  where id::text in ('0505bb44-da09-4c03-b82b-005b305e3905','317f1f53-d7f5-4b85-b78d-09ad0f1097d4','321fd7a3-7c09-4dce-991d-6fb2d886cd3d','e3d6ac3c-a74f-4b14-ac88-f1a6f4ce96da','ea46cf37-f2cd-47c7-98e9-4a7070254a5f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.365')
+  where id::text in ('05066e2d-c219-449a-919e-0ff5130d1b89','495a4ba2-484d-4731-8dc6-8c52670de11d','6a92522a-8900-4951-9799-c340348a929f','6aceceb0-ed89-4e17-8f8d-3561baea8461','8c45eb36-b48a-4a51-998f-7fc3acfcf341','c93a0d30-a003-4b2a-a278-493c4e1f9ac9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.37')
+  where id::text in ('050b104a-55ec-49a6-9a4d-0479156da7ea','094a6531-bc9f-4416-ad3b-4471b7b1db09','0c1e5138-b518-4b11-91e5-b3348f2999f4','124c7bd0-101a-4cf0-9bb5-08360c91eeb9','4c116712-e3c0-4ffa-a6dd-be2447743273','59ec4448-926d-41ce-af50-fc118e43a8db','619ba7f8-6d7d-4834-b583-1957cf353773','cf2c9c7c-f8c3-466e-92dc-3d838608a0d5','d702b3cd-f37d-4bd2-8ea7-db0045004abc','e1d5d315-4d51-41e6-834e-1d6c450938d6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.331')
+  where id::text in ('05267503-39ec-4274-94e8-5585efb6212e','130eebee-b909-4b83-a432-14f0e97483cb','13c527f3-04d2-48f8-928c-a4f7617441b2','1def79e2-2409-4e28-a8cf-26d356defab8','519ac2ab-3410-4b51-b616-a950f8517f25','6b5756df-64d1-4a53-90a0-d83c6a210206','6dd1b5bf-7d55-465e-af2b-729fe8c35807','791e83b1-b06c-4472-b360-05dd2907da58','85681e34-7889-46c4-9ac6-be8279ca031e','86f3c246-51ff-4f3f-b010-61e44d0dcced','9d1048ae-6047-4d5c-9892-7151e6d7a701','a70d47fc-de9a-40a4-abe8-cab364f1a835','f5fc963c-f28d-40fc-8a22-f2464c6373d2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.356')
+  where id::text in ('05334981-d2a6-4aae-b21f-34365a649e84','07454e64-a8a8-4162-8425-4be764403235','085a4430-fd45-498b-9ade-6b0dfae4f59d','0a7ec405-1c89-473f-a6ae-cea725e82ac8','1726eae6-ce36-4c2d-a1ce-ffcb76719ec0','1d7ddf63-13cd-46fc-8854-1505222207e3','1f075172-7ab4-4737-9a60-c337504670c4','31ed7566-cb55-472a-9244-4e7be142c462','6014f8ca-3ab0-4013-987d-49b52da349d3','75137bbf-c7e0-45a1-b9bc-01af99b548ed','7a6d03a9-e23e-40fd-bf42-1e061387dd9d','7a9bf3ef-d563-4456-bdbc-778072fb511a','9cb78469-8a5a-4488-9098-4823c13a5d05','b5bf90f8-e612-49a4-b89e-ffa48836fda8','b9cc3cff-65d1-44b5-9851-82144b3c755a','d294f530-65c4-41d4-8898-6c3f6f892473','d5622f18-860f-4398-a352-ed8da096aa45','ea323fee-d21d-4496-b2bf-6e9806c799d7','eb8c6738-efea-423f-b97d-3e3271d2c13b','f71da08f-77b9-41b2-a895-f26226aadd2e','fc6e174a-e66f-4d6a-8967-f1205f7cba39');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.154')
+  where id::text in ('053670f2-f6da-4ae9-9815-5c02e0defd1e','279c251b-ffb8-4014-8864-a6c95250290a','2aa67583-2df9-4552-a8e9-94c080107394','50c292a9-e35c-480b-a66b-1bdbeaf0fa95','5bc94d50-87c5-4d91-b80a-4cf6e24e5055','754f14f7-465d-4c8a-9dd0-13657d0d4c47','956884b7-5ad1-4438-b3be-9cec4dd97579','99f55d1e-8a15-4d32-9d81-56374b76c72b','9ac31b43-6680-4117-965d-4f95d26a54b6','a2e79d67-7c91-4022-aa56-cd3fe0ec5e0e','b36bbcb6-00c0-45b4-ac94-73a923765dfb','eeda451f-4231-46fe-9abb-967520785756','f5a7f688-3cfd-4b1d-b99b-557859876cae');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.72')
+  where id::text in ('05378580-3f16-4397-9fbe-0859e2da9f60','3e4c943a-4d94-4cc7-a928-3b20550be51c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.18')
+  where id::text in ('053a7a62-46ae-4e5c-be01-c0ccf28e1a1f','0645574c-c1a9-4fce-b164-273bab57facd','070a11d2-c6d1-4975-a1b6-c894d8b1fb5d','18703485-3fb6-4ed6-80d9-a696048fea29','232ba6bc-11c3-4908-a1e5-5618eedd1a3b','397c2422-44b9-4158-9fe5-347113981e49','4aaad021-c6e6-4711-bfe9-ad3ebcb5fb55','53ca20cc-cbef-4c94-8cec-4288457d9dff','54810140-6830-4ce0-a754-27a32b3e4ed5','55615b4f-c829-4d67-8fb8-02007c0b67a1','6b23a9bd-d779-4398-bac6-26e2ca2ebd5c','74276c4d-fbe7-44d7-a3f1-38c3328723ee','74ae7d08-fb96-436c-b565-c403b9e064a6','8a1fc8bb-9912-4ab6-9aae-b5f64b3d7360','97a6ddc8-856a-458f-94ab-70f72614b6d5','9efb22ec-42b4-4fe3-9c8b-d6cac6158e74','a0c93b02-71df-473a-85a1-00ec3ceae22b','a1323f12-f8c5-478c-a063-e2c492309860','b8bd3021-c5d9-4399-b936-8f3f69db242b','c4f2ea47-806b-4f5e-8df8-c33178e9ac89','c59d52ea-c8db-4d41-ab8a-755c008b2954','c5a48904-7f3c-4e0d-8453-4ed350edf9d4','e1ebcbd1-3b6d-493d-8549-046704c3deb6','f800050a-d538-44eb-8000-2e9477e31aa8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.53')
+  where id::text in ('0543c2fe-be8d-4050-8ebe-1e583c93b785','211cf313-1eb7-4b5d-8c0c-4b5fc5ebbf37','36431181-9683-4ca8-bdb9-1904b7d33606','66f48342-d4a3-4a2e-98d8-03bf8e90461f','6f47252d-942a-44e2-bb35-9ee8e8f2f291','7178a2c4-31d8-4322-a003-735d5a8c3a5a','811674a0-dfbf-407e-b188-a18e06750835','88ed9e82-1121-486c-b37a-6d89746b2efa','92aae76a-01e3-499e-b700-d2879c347406','9a107db1-b3a7-4d8c-bd93-8bdc9a797698','cf3ee7a8-e5f6-4d99-9b93-ab34ca578dc8','d38ca19d-3ada-4e66-b68b-5c3036005170','da4c2c63-8866-44da-b688-5609e8246a99','f1ed7e42-c975-46eb-b248-50b29a247192','f6f857cc-c3a6-4cc6-ac59-65d13fed7bfc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.514')
+  where id::text in ('0547a205-ffa6-48e5-913e-c04988603e3c','0e1d1ad0-1f1d-4619-b445-6db895688a89','9fe62ba4-3de0-4610-b5e0-218cb1e6644d','a1102214-31bc-4db7-a4cf-a5866cac753a','c67223d1-7642-4019-ab12-f387cf8df3d3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.505')
+  where id::text in ('05482b03-5edc-46ab-b829-33107d60cf12','3297af08-fc03-49bc-9f16-47a75a78c784','a5e2b3d2-6522-49aa-b165-de17d0f6991e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.103')
+  where id::text in ('0555f074-45e6-48e7-83ca-9b2efef2146a','12858807-d112-42fb-af4f-648aa9aa0207','1fe7b785-5468-4f3d-ae67-8454a9ed5137','326a4cf9-3636-45c5-aca1-a87c0b5f702a','4ffa0ecb-2fe3-4863-8784-87b8360c3a02','566b941c-bde5-433e-9da2-1816aa0aca1f','8705096c-5d00-4f18-a658-e15cf9ab7c91','8845f8c4-8891-47e1-80d1-231d0b955466','9319eeb9-c6c6-4c52-b593-3a9bae789550','992c9214-f0ca-4d4e-80d9-154aa396b075','d00f2d3e-b609-45d1-9af5-c55815fbca7b','d1356475-5d64-4789-b3c1-84339f98d0b4','f22c289e-4910-4cc1-8848-633c4a3f4c2a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.292')
+  where id::text in ('05578002-05f9-4352-b9a7-e5b0e9604c36','70b08ce9-7561-48a4-8357-5e4a8728a6b3','9dae207f-5120-40a0-bf9e-11c973de14d6','b78718c7-61b2-4757-b372-c6ad5a6dab02');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.541')
+  where id::text in ('055e0237-cc1f-423d-bbd0-10e79b5b5024','b920dc7a-0c97-42fe-878c-980e8180b7a2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.255')
+  where id::text in ('0568c541-efd8-4eb7-9cf7-eee2c7ed4aba','530ce26f-5fad-4d32-8ede-7b5fbc8bbc97');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.321')
+  where id::text in ('056ced72-51c1-4056-9eb2-53d7bc120fae','3826a309-f59f-4c5e-b859-4dd283eccc6b','9d44de20-5976-49fb-8b46-0dbe8da08f3e','f46dd56c-3b71-4be8-85b6-02732a900a31');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.5')
+  where id::text in ('056d47f4-687c-4bf6-920d-f53ab4a08b55','10c29fb1-cd0f-4031-a1d8-3f485fd9641d','37c2ef40-c328-4a9b-be8e-ab97b553892c','3e90286d-45ca-4610-b47c-afa1fbe74fa3','4b87de47-ebe8-4101-b1ce-34c7c7759f35','4dc6a08f-a9b0-46a1-b058-4daf1cfd0fcd','593e2390-be81-43f8-95e8-5f58e440a292','5f3725d3-78ce-44f9-aeb9-2b739027e6cb','700fc536-771c-4186-b1f9-653ad3595b97','79c2cccf-48b3-47d0-8e1a-9de0f97b4756','7ff979e0-9e0d-48b4-9c30-4bec2728383a','98c264d4-c89a-4946-aaf4-a8697714e2c7','a05765de-d14a-4b24-9482-da34d87682a7','b14c5a75-fe8f-4568-9242-e28a0624ead3','ba403308-b05e-40c2-8013-dfa1aa4835e6','bc792ea0-6535-4d65-b3be-b8fab8eae9a2','bcd6fcdc-5a83-4f49-ad75-b2ba04583ea3','c0ccb1c7-7b18-4c7b-86e4-904a1af488b3','d23ff74d-49c8-416c-aa8b-d57efa91c701','d28e2253-7e02-4983-bd1f-7543a29f03a3','e6658b2e-664b-45fe-8a42-83152feb866e','ea57ecea-3ffe-474b-8def-f8fe37efaafe','f896d74f-e8e9-46f9-b40b-2a2981e6487d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.167')
+  where id::text in ('056d6d4b-10b0-4408-abe8-599f08b5c9c3','0d3328b6-dd2b-4704-b05a-34f71fd163fd','1ccbbdf9-d20d-4bf8-9f87-2a8d26be05d7','2fc788ec-fe7f-42f1-acaf-c196ef3fd3bc','5694cbaa-547d-41f2-8929-8b27b693c1d3','59ce715e-eb60-406e-a128-a8c548b199ba','6390e408-29c0-4d6a-96b3-96c56a0a55a4','6f3a895f-c885-4ef0-a106-6990aeb8c43b','7391433b-4fc2-4808-be7b-3f2a1525e70d','b56a01df-a0df-45cf-bf4c-f5b0ba3d42b8','b617558a-643b-400d-bacb-35a0da1ce8e4','badb3830-30fb-4028-96cb-c2f601270a11','bb620313-fcab-47c1-84c5-2106d8f67831','d4bfae48-51b6-49bf-8715-e15743292a3f','de98ffa4-a3ef-4343-9f92-409ed2960499','e0a2b296-0cdd-46da-8f50-e08fbd12b709','f5ae8e5c-4938-4b18-9285-3747b729dd20');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.383')
+  where id::text in ('056ee73c-0255-4e34-9526-1aaa92bc874a','1fa0f2db-ba6c-475d-b918-ba4932a3640f','3d1861ae-cdcb-470c-a127-d7a88a2cfafc','67c304cd-1bdb-42d2-856c-b3f0357d9f7d','77d2c9d1-735f-4f00-ba47-7c387a222193','a0577c5c-cace-483d-9de4-6efea892a58f','caa544c7-87a0-47d3-8a27-271cd8094aef');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.243')
+  where id::text in ('057522a6-8500-4e66-bd5f-8b8dfe57d95d','0d083055-10ca-4377-80e1-b8b4428aff4c','0d622304-55ef-4002-a4c4-1208271c7773','43faf7ec-f68d-4c23-98a0-c4e007368bcc','48e6d605-41b3-4d9e-8f8a-7acb723bf9e8','5aa296d4-0760-47d6-9e50-bd05b02aa739','5f55335c-b158-4c00-be6d-27279fd717ab','5f87dae1-66cc-4ef7-89a7-148e8da83c72','662b10cd-164e-4f91-a247-faa2804cbef3','69107af5-a249-4991-8760-950c2da10eb8','7b8ca078-a699-4d1e-a05b-a013be05bbe3','a6400a2e-7bb3-43da-b151-112896de7b83','a8cf7461-1862-4618-8d5a-6631a87b8719','d48e4ce1-774f-40d7-b0a9-a0abc5ec18c5','e41d1aeb-7350-4396-8fa2-6bf024259034','f7169cdc-9707-4c4b-8743-cc3af6590cb3','fe864eee-94a8-4ede-9b79-705a1fb63492');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.388')
+  where id::text in ('05769b93-cd01-45d3-ba76-e900df664013','2234c603-3df9-4150-ba8c-575af4330958','7ff076b3-ee38-4a75-9607-f2b29dee8ee9','d7f3745e-9976-459f-b3cd-5ae94c65f45a','de354da5-0103-45bb-89af-21cadb820e5c','ed355068-14c7-4653-b9c6-e674d8a3eb1b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.91')
+  where id::text in ('05798b5f-d597-4f30-9f10-810b2380f598','654546cf-37bd-4601-8e20-c271b19e6157','88e8aae0-dfa0-4adb-aef0-6047ca000d0b','8eced20e-d5e9-40de-ac73-fbce78d51640','96d31e57-9b6d-419e-ba07-aed96046da22','ac3fbb50-8381-4a3c-874d-f3418e59faa5','b583b3ba-ebdb-4f88-a614-7af75e88f961','cb200061-453f-4c80-950f-b7d97e1fd7a3','da96ea75-24e6-4ce1-babd-ecf0b1e39d49');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.85')
+  where id::text in ('0584eaf6-5c3f-4e87-941e-d135ec8c0d9a','2a64ed3d-d42c-4f78-98a4-f3a7aa1c6931','a6207cd4-28dc-45a3-a326-b6c4ee6ad877','c259baf9-2540-4e2b-9a58-c27b6056a6b9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.357')
+  where id::text in ('058609d5-c6ee-4c96-90de-e6abcf1953a4','13b6021c-c7fd-4bf5-937e-e284b84ace5d','13fb271a-f1a5-4065-b220-6a7c274f9a85','24772d73-f9c2-402c-99cf-c16968f2c892','4009bf23-3288-4b10-854c-113f1c885da6','444b327f-c0fc-4af7-998e-bd7b4738e08c','55d117f4-aeae-47f8-b679-4a2ea903894b','567c2bef-3745-44c3-8900-fe49129eaf70','6276eea7-311e-4f3f-8ba4-220792edde5a','6b97fea4-42f9-4edd-b6d0-12399de85af8','73f799e2-a9ea-4309-999b-dc774765dc35','86594810-79ae-4c39-a9de-8a20b7d14a31','92453ebb-5390-4c5b-b8e1-aa63bd4965f7','961abcab-3103-428d-a6eb-c87b731e8d5c','9bec47e9-8433-468f-8a87-7bb8ad40c2e7','a042c50c-aac6-44bd-8d57-c78a7aa1ab12','a225231f-bafd-463d-990c-20b7bef17a1b','aad8ecac-4f7f-4cb9-9ee1-35467b98c462','bf407346-f9ee-406c-89b4-42b55121833b','c74a7f70-ae0f-4ca8-bfc6-022db327b9e0','cad64951-de9d-4e60-b2bb-0d4da622b36c','db52f8d7-f251-4b89-b937-4839979b887e','e23ccb93-8cb5-4afc-b51a-57e2901e365c','e6327672-e5c7-40e4-aa15-79b79112b8a7','ec43155c-7770-4aa6-849b-d27ee418f0d7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.504')
+  where id::text in ('05874c37-29a5-40d9-81a0-da44534b245f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.2')
+  where id::text in ('05888dac-d41e-4ab9-81e3-ee57b28cffb0','08605828-f894-4862-a84c-cd7523d5220d','1520264c-4bd2-4011-a593-25b962ce522a','17f39e25-a585-42e0-a52f-547b1e5ed477','29a3453b-6382-4c0b-9543-799b73959a33','3deb1837-daf3-42fc-aa43-903ec3234e4b','430b05e2-b47b-49b7-aa4b-d334a4139f60','4664c013-78b2-4bb7-abbe-bec5adffd8e7','47262a92-c961-49a2-abd9-cf4f19832867','58b021e5-0a22-4f17-9ba8-ecda5dbdbecb','5941c414-bbf0-4ff0-86b8-ff8ad2d5151f','6207f9d0-adb2-427a-94ef-502651d27d5e','74fcb2f7-984f-4fb0-b5ad-dc424d3f3b12','9c616e90-2cd1-412f-8d97-d92c895da369','9e8c3b3b-5d45-4602-a218-f37665cac8de','b7698ff9-a616-481f-8714-c4840ba84a80','baaabda2-e877-465f-8403-7165704e5190','c413a1e9-7747-4566-bc37-ed3fa11c9e81','cab8f91f-1736-41f2-aa66-168b4a08ffcd','d07310fa-42e6-437f-87ef-eb36f5d14d73','d13876df-3f6a-49b1-bbdd-99b3cca7cab2','eda6a35b-b208-4820-a31d-0de90ae0fe47','fed3f916-0075-47a4-8695-b0bf39a65ec2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.396')
+  where id::text in ('058ea380-35b5-49df-b47f-6384ff9659c3','2c2042c0-9c44-4ced-b9ab-1d8e7aa58d39','a283bf55-a1b2-4b30-8e82-c9d12b1421f1','ac3afecb-f306-43bc-b72e-698fa0bf4615','d98741da-8db4-48f1-9cdb-0380bbae48d8','dcfc8199-6d8d-4bb5-9b3e-30c794925413');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.116')
+  where id::text in ('05974dd3-d4c8-4a55-a76b-4dd2bf6d98de','116e5b71-0941-450b-8170-c205f74de1f3','2b2e1b1a-e7cb-4e7c-baef-60d47453b82b','3694f735-8153-40f2-82b4-bb109cc7675f','59da9082-4f2c-4a25-9b25-7900fd7d35a5','5f6d3b02-db24-4464-981e-fc9832717510','62389e05-b8f0-4052-9fb4-ed47a48c177e','7d74cc01-864e-4895-b6cb-e2ba39d485f6','81661cf8-67ab-4372-a8ff-2b8638fae6ae','a183a519-e8a2-4b8b-9310-56ee61ab5a0d','cd4a5f46-aaf3-4301-bac3-17113c6ec992','d613782d-5d7d-49c5-8ba8-35e3908d3fc7','dd4e86f1-9f2c-4976-9641-340bcb218f1b','ec5dc89e-baf5-43bf-9850-a7f1b67b9643','eebb1919-c854-480d-88bf-5107f00cb3bd','ff04c2f5-23d4-4f0d-8d9f-c3f53095fa90');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.169')
+  where id::text in ('059c20b0-59b9-4821-89e5-45597156e890','3dc53e99-4bcd-4adc-ab55-1a922974dd39','81a2354b-1b3d-4b0f-a8da-0c8f6f52f5c5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.203')
+  where id::text in ('059f387f-55ae-4d82-ba92-a6a1ef96499b','10af3bb7-3010-4550-879b-358d396960a1','2f089503-46ed-4d76-97ed-523eeff36952','3327f250-d141-493e-ace2-e7db0ae4b354','338f8356-6a26-44c2-8f99-c8c4066a8801','34ece0ea-1527-4fef-944e-02fee99c81e1','3e3195fb-faf6-4d48-93a6-be44547ccb46','60876059-7994-4c16-a785-ccfb13e715aa','7a684d4e-df12-43ea-bf78-446c70cd0571','800a01bb-26dd-405b-a146-a52e24b31f3d','9a48f745-1f3d-45b0-b2bd-cf83e2d8f125','a4f15825-987f-4109-aacd-24b3d162cd82','a8ba4d74-44a2-4247-bb80-05c2d291ed93','c6f1acc4-54be-41a9-8b95-9d89b33ef132','ec4a0aff-b736-469b-b9c0-34fe851f761d','f282eaa6-7df5-4e67-9d09-a4756dc02087');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.153')
+  where id::text in ('05a6821b-0414-4410-9403-c84df55ffb9f','1204432e-7642-4732-bb40-d869a038918c','5272c56c-a3aa-4c65-8d61-702c59c56d91','597f4d93-d011-4583-a3e5-0b8599782712','64cfed7b-e98f-453e-9aea-e99a17c04056','93ee4cce-9221-4b21-8ada-b063314bc22c','ba9b4fc1-c57f-4aa8-a154-c5cda7aa1001','bab4cd0a-4b16-4def-b976-79aa038304ef','c3e1d542-28d7-491b-9208-b249be0a2e09','d5f8ee69-0c1e-423e-9c95-c2f0f66106a4','d752ff41-7322-40ca-924b-40ca23d4400c','e062b2aa-e042-4d38-beb7-93fc78e5c82b','fedafbb6-472c-4a48-8a54-9f371e66558f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.26')
+  where id::text in ('05b262e7-5098-4e6c-899c-d54389ef9801','0fedf0b5-5aba-4225-8a27-9b0077349d48','1150b0ad-1cfd-46ee-8558-1f66471fe296','12273b8e-046d-4ce8-b52c-dde555735c90','13477c71-1a0f-4e99-8af9-78740be8a089','3c109bdc-42dc-48da-b9bd-822afffdf6b8','403e78ed-3638-4413-8271-27e2eb3d8aaa','72d5468c-80e3-413f-8763-84f486d2cc05','785ef897-9dee-4e3b-93ca-d030f507bbf7','8a16b9be-560b-49e6-b895-aabb5cc7607d','956fa2ae-04bb-4848-bfa0-7085ab5659e4','b49949a6-e7eb-4e06-8b95-492e76605970','cc8c8207-2ee6-4d02-90e9-c8f6ed0f6377','dcbc4822-ecee-431c-b794-ccb65497bc38','e19d9bb8-9c55-43f0-a8d8-bd365d8c7d2e','e3cc1dd8-0ecc-43e5-b334-518910fa8330','e7729d56-f7b5-43cf-a90f-5a39521a65b9','eb1f618d-105c-4289-aea3-0481f7ca69a9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.1')
+  where id::text in ('05bf9f42-a2ea-4401-bef5-b613ac31e1f0','228870c0-3983-4a4d-9199-195b4366bf21','37f40a84-8550-41b2-83be-8a511aad69e5','54f5ad5c-518d-4374-bd15-46fce51d3bf8','54fcf9cd-38bd-4193-8c23-a8fa113be1a3','5e3d8fe8-a18c-4ce8-a501-592fb0dac4e2','7666c10b-e2ab-4029-bfe1-134fe384299b','a9013cca-9a5d-4200-984b-bbeb01a85e0a','bbf19920-781d-4835-bca7-9a32e39c66c9','c2868ee0-71ce-474f-8306-40cb2290ceef','e03ed8fd-480b-48a0-aa7e-1fc84e6706da');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.12')
+  where id::text in ('05c777ed-6856-46ef-82b6-6c65a23e8826');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.177')
+  where id::text in ('05cc871f-35e6-4946-9ce9-56b2fbdc1233','ba54d671-f6c5-4470-800c-060f9b62eda2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.273')
+  where id::text in ('05d5e514-5303-4bac-bd05-3080d51b28c6','1205063b-f8ff-4618-9588-f555fc6c6ce4','53870d95-fc16-4abc-954c-ea09c69ae109','66253f96-0dcf-4d7b-a1be-50082224723e','c8b0ee46-89f7-46ba-a7a2-fd70c970e829','e45face8-c1f0-4b5d-adb0-b801a32a60f9','ed9aef23-07b3-4a81-8fc1-d2203d7d3663','f7e39bbc-4955-4ddb-91b9-7b4a5cfc0df4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.364')
+  where id::text in ('05dee44c-89a1-476f-a512-b50cb102da40','0865a833-508c-49e9-9485-4ebea4bda294','0c33829a-a9eb-46ac-85f4-4d6f29b52b65','1931d1ee-f257-413d-b4e3-06b6144b4413','1f86550a-ee48-4400-85a6-a0a04ad6c1b3','20ed87ac-ac6f-4e3e-8dda-c969a9d769e0','2325665f-5c41-46a1-a3d0-45c78514d1d6','246a3a6a-1700-4195-95fa-6db7a18659cd','27936c4b-39db-4e62-8c6d-9c5cc97a784b','27972851-352d-4f86-ab51-3b0c171bc047','2b69994f-2ccd-4282-ba32-c6c0fc86a68e','35c3eb69-2ba2-4fdd-884d-5e89dce7e329','37525e8a-81d8-47d7-b745-bc15aa40c09c','37c21451-bcdc-4a04-97f7-5bddda4c68de','52e3b9d9-e418-4803-ac26-c531df5b36b1','5e4cbcb8-5274-4ad9-a14f-5c384dc2bc40','651abb4b-bf57-43c0-951b-e4ef81a1c810','6c2d86b8-9177-4a63-b6e8-af5340c935fa','74181fae-ed76-4f8d-a8db-ba3840bd488e','7e0258c7-2a80-4676-ac5a-f954353b0910','8322f7d1-6b5c-47b4-b33a-4339994c58f5','8dc4c698-3021-464d-9289-df3209d757f4','92fd0769-25e5-4291-a39f-05ade81fdb0a','94e98352-2e3c-4ecc-b642-4516b9d49696','acab0fbd-4395-4941-a2cb-bc4fa4202457','b44bebb6-9d82-4147-a336-0f82650be8a6','c6742529-a656-4b9c-86c3-dce2b5a9d6c2','d3149f90-3a51-4aaf-9ed2-a17e49a0ef05','d5639c7d-8420-439f-89ed-b580c27a832d','e8c99e8c-7f2a-4bc4-b62f-ce231a6ff884','f3e04242-7f0f-4f18-a444-2b44f8e08bd7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='22.1')
+  where id::text in ('05eab4ce-dce0-48b6-bd27-fd02688c7dbb','0937915c-7d22-4f4f-a245-6ba157ccc0bd','10509098-b82b-46e2-8d04-602ac73d9298','10e2fb00-b693-4103-a1ca-f9cf259b9e75','2ff8e1a1-790a-40a0-86b3-2a19262a7ccd','31af5955-0e5b-450f-b783-91665261c1ef','4348b5bc-e88a-496f-bf44-a81c82a18cfd','44244648-b292-4583-aaf4-b8719a241366','47e7fe76-4fcd-48ce-b39e-0030db9f8c4e','4b8dd68d-5450-451d-9cb7-f156b44ee65e','53fd4227-8300-4a95-934f-734fa98fc1b6','549f8973-03b0-4330-adcc-f099070a2e57','59b7aecb-c7aa-47ee-b162-2fd4b7c835f5','60753a39-28ad-42c4-8ee8-8f81286c306d','9502f14b-a033-4c03-9799-16c338985c99','9d4ec0ab-7f00-4126-898e-9b2ec0be83af','cdc91ff7-4259-4bc7-9f08-6239ac776cd9','d311c175-5189-4239-b4d2-96b57f0c3266','d929f3c1-fc90-4f7f-bd79-6ffb79d60ed9','da5b12c5-950b-4d40-b237-6e0e7f316471','e0a45c65-b910-4348-b487-d20e1b55bcdb','e3ee44cc-8acc-4b08-a8c1-6513a17b09dd','fbbdfa9d-cecf-4e92-a1cc-a50bb6f8b5eb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.653')
+  where id::text in ('05ebf6d0-ea5c-4ebe-bde5-06b2491f2d4f','9bc7aeac-2920-48db-892b-ad690fd83f29','ada72497-8805-40f3-9510-7090d74c1580','cba85a22-ccda-422c-9514-699ed87cfae5','dedbde34-4bf0-464f-a764-8963126c6860');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.51')
+  where id::text in ('05f1ed54-fa92-49b1-8338-4a6ccbbb7eb3','1022a3b6-05b2-4d15-ac9d-e92fceed7fae','41ff2ae5-06ce-4d30-b768-44239fad316a','68a85904-9b49-4ec0-8581-87c3dc4188b5','6c4a0ec9-9901-4304-8ff3-4c8dab1c661f','988c8796-3239-40ec-abf0-7059ec61679e','c6b6948f-90c4-4c87-b089-a6cf20c68e3d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.39')
+  where id::text in ('05f5d6ae-8f56-4eb2-bca8-6add338b9e83');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.488')
+  where id::text in ('060adb36-1ad7-4b09-bad7-63055e698d75');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.12')
+  where id::text in ('060dad82-128c-4bd2-ad19-418a2778b02b','15839034-e129-49da-a3e5-687c4d472bce','1c405a2e-6606-45d5-a95a-624e204bc23b','20c75c81-6836-443e-8fe3-8c7a8e0f8b5f','28e1f0d7-eeb6-454f-b53a-bd8abaa4769e','34334dc8-18b7-40f8-b40d-79d1d8bd4480','39339820-409d-47cc-a78c-c028f35de6bb','397dac33-9734-45db-8e70-98100f3d775d','408ca283-035a-4308-9b4b-a4f9c34ebf43','4c7e28db-75ee-451b-83f8-9cddc8801f00','4ebe9410-b751-4c7f-ab77-62b2c12ff3fe','5354477d-2bbb-45fa-b7bc-c636982f4832','919403ee-0c4d-483c-9aff-94dcfbf19265','b07ccd46-1da3-4e13-83b5-5f4ddba19ec7','e0f31115-3287-4635-8360-b60daa5d6bdf','ebb3a14f-4494-400b-bb3b-f20fdddca8bd','ef0f1ce5-c8e8-4cb4-b172-e40ce00e8ef1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.3')
+  where id::text in ('06114181-2911-48fd-a4ed-d055e2ce6730','1b6fd552-dcb3-4d6b-b1e2-01073c3f4d62','7aa900c9-9cd0-4811-acc6-e751df85d7e6','cd300a88-0a4b-411a-98b2-622738e5a5f0','e3c39c6a-7b74-4bcb-95c9-6c9a2b03ffb8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.126')
+  where id::text in ('0612ca0e-bc73-44e6-ba3c-5860805e05f5','4c5164d8-c7bf-4b08-809b-b772a16400ba','53045982-d801-444d-96cb-3b451cd3239d','c2be0ac5-4267-4947-b74c-8b4703e012a3','ec9bcd14-d1ce-41a0-8645-694a18e633f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.53')
+  where id::text in ('06171e27-bdec-4724-a813-4e83af20ddc0','12f16a32-33f8-45f3-8487-42fcd5b99f83','3f61c4c5-d1b8-4dac-9665-8427ce03b6e1','60352551-46d2-43b9-b8f9-d00a8e943214','6559a9a0-5aa7-47e0-9288-8978c5838aa8','6e37ec63-f02d-431f-a147-69ac1f5fde7b','c7dd2e9c-fcdc-4632-900f-985757648981');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.7')
+  where id::text in ('06199f54-268c-4386-8bdd-e4a3a35d3041','13f2a0a2-f5bf-419d-992f-d04837cad6a2','53650e00-9732-4652-a8a4-54539bdeef2d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.257')
+  where id::text in ('061d0745-d21d-47b9-8af1-fc57ad0d64f4','58a12072-7e70-4e4a-bf5e-173d6b62bb20','5de6dc2c-0aa0-47ad-8951-d970142da3bb','8ac3c14b-4b90-49d0-b8c7-e1673138612e','ca914c8f-5013-4677-be94-8a0c91cc8801');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.28')
+  where id::text in ('061e4c93-65a5-4150-97a8-26cb18861ab4','201374c7-4ab6-4a4f-9543-fda6e11cc578','44c3cb2b-4f4e-4a75-86ab-e0c399eddfbf','a60de369-279d-40ff-a8cb-151d643503ca','d2881898-0066-4bf7-8ca5-53bfcb4ed3eb','e88101bf-38f3-4f6a-8a9e-dfc890705518');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.226')
+  where id::text in ('061e69ab-c1a2-4a18-8998-9aa10784ef7f','155992be-e9c8-42ea-be28-be324f63ba0b','18367bb7-ed93-4e89-9d6f-a3e1ec9ec539','1913793b-21b3-40ca-8767-90074a4164ba','1f86b2e8-ef71-48ab-8287-5142bf24e374','280808de-3b0c-4c36-828d-4c61f8ed7f55','3f7925f6-7104-4e15-a897-2148cc9e9443','55abb21d-d188-42f9-9ea5-7966a1eea325','5e5561bf-4a9c-4f45-944c-7210c0dd8bbb','65787dad-b7a8-4a15-a99d-e370b805e884','7efe6333-83d3-48fd-adc5-f7e3d48e41f2','d33e743a-d19c-4984-b2db-2cbb0dbddc44','fe177781-8491-466b-86bd-b3dc67771070');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.296')
+  where id::text in ('061eb064-6079-478a-9aca-ffde6dc22718','2ca10e00-351f-4e00-bce2-d6e5aa9a4445','3b70152a-1e0d-4cc6-a59c-fdcacfad5cff','3daa190d-5c87-4f88-b6b8-e8b15b1b04d3','64fd990b-0d48-4d22-8b80-4d6fa8fa2fa7','7962a39e-fd60-4958-9061-97df3b5c59c9','870a2442-e3d8-4b3d-bbd0-c3374294a253','d162ada3-84bd-4301-ab33-e4c4032601e6','e2d616f1-9503-4a2d-919f-f0888e31ef51','e482f4ff-3390-443c-bae9-c1bb9a50c911');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.289')
+  where id::text in ('06259af8-adce-4225-a92f-354f318f8a7a','51f84b37-d224-4417-99e0-ced80d09771b','5bb2ed6a-532e-416a-84c1-ed8696676101','65930145-d77b-48ba-820f-ead8e0440766','a2250540-6b21-4739-9bbd-100ebaf54caa','fb440c50-39a2-4239-9723-8a91d077415f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.162')
+  where id::text in ('062631fb-9ddf-48eb-8247-6b92d8b2bff0','09e003b4-0ffb-4d64-bae6-c1b0be7a725d','28d84e0a-017f-4a1e-a1b6-eb11a0f93095','2c0a0ffb-f475-41f1-a1a0-3210d045e75c','308530eb-9a2f-451f-963c-a8134c9b9915','3516c721-4e5e-49d0-9c48-d3bd91b8323c','45321053-242f-4a7b-8fac-271f9229ef8b','82a50925-b62c-49eb-bc9a-339cf3d5b1f9','833534dc-f9b0-4f60-9455-73bac44c3a20','bfd56e79-14b6-4b73-815c-e09b4840ee47','c1bd7fb8-43e9-448d-aea0-30505e9dc7ad','c80cdc35-74c6-4ef4-86d5-ffe7e4acbe25','ca95c663-3b6d-407e-b976-659c93152109','db6f31c7-6132-4183-b45f-a87248b21756','f469777c-c26f-4ef4-a9e9-169a85c7e0ab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.11')
+  where id::text in ('06286e1a-b8b5-424b-8c97-1563948cc623','2fd021d0-afec-4273-9b19-cc28917dfcab','63eb7a24-0056-4560-bd88-199697964ce1','7e1af9c0-771c-4aca-8b07-b48689414237','ae275b33-0c00-4a49-9083-c6f2cf7cf333','c9e45f55-447a-4035-b8db-102bd5f9f926','d67b0666-0ab9-4fce-9aca-254733c46c50');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.15')
+  where id::text in ('0629a687-8c66-492e-b638-ecb6b0df4a5d','0decccb3-0254-42d1-9d47-cf8a10636c1b','1d9b7d78-9182-4ee3-bc41-1dfb8b8478a2','29f7c590-aab9-43db-bbcd-dcc4fe215e2b','2dad40fb-bf74-4bfb-9c6a-219640cdd0b1','59934509-9310-4e62-9a43-573eabed8c39','7fd34f27-b24d-4ace-a606-517efbe9dc03','bdd124d6-f357-4c3a-8bf8-d8686375ce3d','c7ae1484-0967-4761-8408-8f528737c03a','e02d4554-bc2a-47d9-8b8d-5c8e1e00d177');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.221')
+  where id::text in ('062dae42-7364-49b8-87b5-6fc7373edd43','0e53d967-0824-4bdf-bcf5-0aa3c3506d52','28fc063c-8712-410d-8087-1dc9f539e169','2f60e085-b7c2-467e-a24c-e443fe766915','31a22cf2-430b-4a1e-971a-3810bb918af0','38aec9b1-8d15-4582-89a7-3ea3180af92a','52b8620d-86c3-48ab-8d76-ddad1469c0fa','74dfc4db-f66f-4bea-b372-8eacafcdb07b','7f6ddba4-7240-4393-9fe7-47a0980a288a','878a8ce8-9f76-41bc-ad83-9194fcbde9bd','8f1467a9-dca5-45cd-a2b0-0f65e7ced827','a5cf76b3-3676-43cb-a6d4-29d6de0477e5','a8e5813e-f21c-4984-8697-0d7587179493','b1210061-0741-4000-8367-ae85438f1afb','d5224c0d-4e6e-4d35-9211-62ac63ca99d1','e305c9ee-c91e-4a67-8e75-b6ef7a5a5904','eb398c1e-0a53-4b60-bf31-bf043bc04bd8','fe1f6162-ec65-47d1-858b-f8627598fe3f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.5')
+  where id::text in ('0634a73e-cbc5-4272-afbe-0cbee4493fab','137410dc-f605-43d8-b690-224b04f3dd16','3e926838-0b91-4fc7-8020-216461c23ae9','41d82e39-73a3-4ab9-bc62-580a9c9c174a','426b4676-5649-43f3-a49d-ab1afaba2890','5e043997-bdfc-4f6d-88a8-3401771bd103','6c9f676e-be41-4245-b496-cb47c61b2c7f','a77cab53-e78e-472d-8cf1-6b3990f4e515','dba6d72c-c87d-4d67-ac3c-6365415a2080','e23c2afc-2c87-4c1b-9f38-02c26dd59ca1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.117')
+  where id::text in ('0638a440-fecd-46d7-aff9-4ecaf227d259','1ad1999f-2624-4604-86ca-8d8ff6775caa','8fef532e-d530-4e7f-a87f-2c4ff74b78e7','e99d6540-fe78-4238-8199-1d43aecb3f86','f340f09c-0c18-488b-9569-1d811e5b39f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.199')
+  where id::text in ('063a0eca-4223-461a-9050-56f942dbd05d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.24')
+  where id::text in ('063f7a91-391a-44c7-8249-e55a8707bbc4','0ccad149-d315-4477-9bb9-e0291f142f42','1ee7d5b6-be7c-401d-88cf-e6eb2922cc4c','26df85ed-2c75-479e-a6c4-d69fe09e2124','47cda661-f97d-44e0-9bdc-76e43a97a185','48703808-a045-4843-a350-e6ffb9c99de6','54c297c2-7b40-42e9-a9c4-b795dc569154','5a3c5f1e-c1e0-4922-b5a9-23c2809b56b1','609827c7-42e0-4495-9a10-98fb2e3e6ec5','612251c9-31cd-42dc-91ca-e32828faffd5','644fa8d3-639b-4ca3-8d85-6def9f1e413b','704e874f-c996-4c14-9f51-7c93cda4de5b','7524f4d5-109b-4deb-a32a-12f737c730e2','9eda2ea0-fa52-4715-9aa9-e596cd539460','a14edc48-e5ff-47fc-804f-88dece405e90','a46a11a4-3d97-4bdc-8a66-96be725127cb','b5301948-0f9e-44d5-bc7f-6454c4e47136','e9397804-edbb-4267-b507-7e4940905ead','eb6c13fd-ac47-45e1-984a-698a66fe4f40','feaa0b0b-651e-4a25-93ce-d6b08802d8fb','ffdb70c7-3f7f-4e31-99b9-45fb7d21e2ad');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.546')
+  where id::text in ('063fc113-404d-42d5-9430-3aadf0ff9872','0b292594-a08f-4109-b7b7-89af52a54fbd','11676c55-61cc-4038-ae21-0d0f466cddee','15c846b1-15c5-49cd-97c5-de55ce9807f1','1eaac02d-3e69-4bb6-bba6-c3ba897a9452','249058db-6b90-420c-a813-b9181a09c6aa','3542e921-5fd8-440e-8fdd-ae49b9cddb9d','785afcc9-1f5b-4520-84de-f646aae73685','8d75d3f6-cb48-48fc-b247-76e76087dda0','9201a3bd-295c-4866-9b8b-d700c68176e9','a1419074-7eeb-40fc-80e2-6c5ffbc6f432','a29d2ad8-1d64-4e8d-9ffa-3afffeeaae2c','a4ee6232-2256-47b4-bdce-4d91ff0d80ea','a5ef5dcc-fdd2-4c94-a8cb-02f4d32f8d63','a9a87d7c-f434-4c35-b5d7-73c649b0db0e','ab08cca4-8fef-4033-b1e7-c84d521c35ba','ac862fd4-8aa2-4cfd-9583-24f1dc6aa463','be0f6ddc-81eb-495d-b397-48fab0c8059b','e7905112-00a7-4027-98fa-1f60db0ba009','f8dcd272-fb7d-4b5d-97ff-0a241e43a7c7','f907eca2-2568-4259-b1bd-8f7b0bbdda6d','fb31205b-0ea6-49f8-9da1-ffe4ffe0ff2d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.334')
+  where id::text in ('063fe2f8-1fce-46be-a4c7-74c1b0dbad51','151d588d-4ad0-478b-9332-d485ab5de120','1ce91e16-ca28-4521-9c22-af7aa08ca48d','23ad7476-e822-460c-8696-0e7b42a61f66','254713a4-0f93-4262-851d-72db903ee59f','28f68b8a-7c3b-4e60-bb7c-4877a1efd0aa','2e81e26a-8bd6-4f71-8663-bd1a197a6202','3117f648-574a-46ac-b3cf-fbaa59a89d77','333ff5de-99af-447f-bbd6-19083a32135f','34c20309-7218-4230-a1a5-a50db499a624','384d2c29-097a-40ca-b7b0-66f4643687f0','397cf674-2310-453d-a0e7-2ab045ef1b97','3cfeff76-c41d-44cd-84c8-87b629a55397','3feaa203-58d3-4be6-8cbf-3ba8e13e9fad','49850614-b7e3-416b-95e3-def14d03dcb2','59f6ac2c-e47a-496b-b7b4-955ea3ebdda6','60661b67-290a-48fb-82b0-b09d7b22bb0d','620abbb5-0649-4815-9a89-dad538697e48','6329a819-9490-424a-9ce6-1ddec8ec2eaf','7694cdfb-60a0-471c-9d97-707b0ee9c3d5','7b38ad2f-e36c-44fb-bf19-458fb92d53a1','98aeae5d-c26c-4882-a43c-e4c3d4dfd775','a553d6b1-c103-4c88-bdaa-319e90bdbc9b','af747917-c2b7-437b-aa1e-5cfba52517dd','bc993adc-d5f3-4c6c-bcc2-51f7680221d4','c1852fcb-049a-4907-940d-cfe4cf7b6ef2','c8074385-a005-40c0-8127-94c754f5936f','c976f17e-5ea6-4bae-bee0-b6ee497a3e8e','e836e980-c4a3-478c-a456-0ad1c0eae291','eb648d04-5a49-43fd-a0ad-a9d955205db6','f729dcf6-128a-4caa-b141-8b329c6c8764');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.153')
+  where id::text in ('0647c1bb-94b3-4f23-b345-7764cf010db3','093f1d39-43e0-42fd-92a3-d5d665fa1732','0b780441-18eb-4043-ab2c-41e4360257df','2b29b5f3-d617-41d6-a6d5-ea557719d105','30646699-cbbc-469c-aea8-ddf8e9adc9e8','38daf2b6-4558-4b8c-b9c9-10c58f200063','5c6c2737-aea2-4d41-9c36-e667e471a3e8','811364e1-b464-4ea6-b313-770803afebe0','c61a779f-b092-41df-9e67-363dbae3b543','df1956ca-3948-441d-9b46-f4e3a6ce60cc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.291')
+  where id::text in ('064dff02-7549-45c3-b9c2-f8ccb68f0485','24814268-bd42-4b21-9f8d-cac014bed6ec','3b6ed3c2-abac-46a2-87b8-a86ac1896044','3e9e7f7c-ec0d-443f-9ac0-138de966da38','4f726634-2208-41ac-a307-0b7bff16c8d6','520521a0-c0aa-4b74-9c0f-40b42ae5af25','822f1f76-9b3d-4d0a-b7f7-4eaccf17758e','ac9ad5da-97ed-47b2-8ddd-9f6165d64cc8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.7')
+  where id::text in ('064fc168-f0b5-46d9-ba4a-fa63a5a944fc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.28')
+  where id::text in ('0657d197-3aeb-44e0-95a2-3b1f2457b0b9','3ef06099-2ccf-4030-9c4f-c70ea434f03f','52c1c234-ac11-48ed-b05f-d38c9a56b413');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.72')
+  where id::text in ('065b533d-5ad5-4626-b0c5-a0e12aacae62');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.225')
+  where id::text in ('065c6532-3bd4-4f46-9415-c8e0a02af0be','670ea245-6016-4e68-bcd3-4bb230d770ab','8b8771a1-38a5-4bff-af43-7250c22a0a28','a0ccfb25-6e43-48bc-8721-e2c2a9c32c18','d3f4d12d-8a42-40cf-b8d3-e3930af46fd6','e8e5f984-d052-4bf7-9d53-7bad51179b1a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.98')
+  where id::text in ('065d8d6b-8c0f-46d6-a362-a0f0b540c087','14880bbb-76ef-43fd-b5c3-3f33d09d4f32','19cd3607-912e-40d5-bd8c-c51aebdc5467','284f8329-df78-4d68-a15e-815a3c477ece','40d73373-cd03-46c5-ada2-185835f820e0','d431bcbf-3f8e-4bbd-bbd3-782cead3d398','e54cec4f-9019-4d27-b76b-763f409dede2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.221')
+  where id::text in ('065f32f0-f830-431c-adf3-2e3666fd8845','50911c14-eb45-4160-bb98-577f63a12d13','72890bcf-31f1-44c8-82ba-f08720dbeea6','972f9f27-7570-4f0c-965e-e244eb2967ea','c3b5beb1-b439-4964-9fca-ea5a6d55175a','e88f4f33-2496-4e33-a3f4-599a1e7d9ae6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.18')
+  where id::text in ('0662b759-f9b8-4320-b0d4-f631ef461af6','9a2a3291-b826-4e41-a286-9d95a5453b63','a2272e01-3c7f-47e9-ac17-f78dc5709740','cc993f56-fc40-44f9-9ae4-5d5b4bfb4402','d68b8000-aa6e-454c-9a4a-61f43125f4b8','d6cfb993-0ede-4458-b0ac-0beecfa4bd68');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.351')
+  where id::text in ('066b6560-0ef6-492f-8998-d395e80a0fc7','443edf59-dfcc-4310-b1ee-f1b0b5d6c34a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.266')
+  where id::text in ('06747d58-87e3-423b-8a09-658743760bb3','33899c70-bbce-4156-9ba4-28ee29bad7a2','49730978-7675-4473-901c-eae6a9b4816a','7a49a128-b61a-42ec-a809-01d89e1187ee','92e296f4-08d3-4f3e-b6c6-4bf8f1c9ecb0','c3f6675e-975e-4f8b-8ace-10f68e5cb0c1','c64781a1-8a25-4bae-b578-8b05d42a7d84','e1cd81a4-3a79-4635-8e74-c7ae03de464e','f22199f8-ede1-40eb-bc18-749f8f1d63cc','fc13e632-da7f-4387-800f-e65975a62e90');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.9')
+  where id::text in ('067c69ff-feae-49de-bb45-439a517fc37d','46c40e61-b853-404f-9a2e-67662bf106aa','75bda562-0089-41df-8508-9579c91a6b32','c6bf8416-59a1-4d8f-9810-2a65b02caba6','e7a7e5f4-11f7-4ae9-951e-5abecba7c2ad');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.271')
+  where id::text in ('067f2bb4-fb40-4172-8cf2-1d27abc15aad','0aec1e10-2b5d-400d-932a-f70ba3a9d54e','89478256-1cc5-450d-9670-69f5602aa05e','cd34e815-b169-4bb0-a489-0accc3c979b6','cf83355c-bf67-4f2f-bd76-ee281646560b','e3306f18-3cf5-4df6-bf39-76a9dd8a06df','e823f768-a1b3-4d1d-b8d2-448ad454ea4d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.299')
+  where id::text in ('068636db-f30f-407b-9465-04dd672ab9d5','2d99b00b-e926-46ca-8ee8-238764463aac','38f3a7f6-28e1-49a8-9c0e-ce4c29411a77','b3252077-398d-4cca-8f54-f6be6982f871','f248dd6b-14b4-4c1a-929c-74e4e2dc85a1','fc946a51-b5b2-418c-9488-469a115e3e74');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.58')
+  where id::text in ('068aff74-4a83-4076-9159-145db022bf67','0b75ae19-b514-49cb-9c64-6897efee6fa6','1b3b760d-acd6-4f3d-a67c-b55549a28c4b','1c110f78-da05-4590-982c-83b0c3edd5e1','28d3ba02-a81e-43a1-997a-a212c0827306','45649b43-9e58-4571-9ef8-4698e455a877','4895a177-5519-4792-a470-2129da83ca08','5cf58944-da6b-466a-a927-7d497caf903e','6846b373-6b19-44c1-ba76-d4e3be05aca0','9409064c-b3be-4073-b84b-ec4d5df5e67a','955bf4c5-ee81-4c5b-ad44-b2798706f0a7','980ca8ee-32be-469b-b45b-501bf3fa7965','9bbd3973-58fe-41b8-ae6b-2c78a8b99003','a8f652a2-217b-40ec-a725-6273a373d605','d6038838-c474-4003-9d2b-558ddb9b3bd6','db56b8ba-6d2f-47bf-9ba9-0a1e30a33a28','ff2dfdf8-cdd9-4f3b-bff8-e4ea9b932a54');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.419')
+  where id::text in ('068bae28-7fc0-44cb-a585-48ff7dbd67f3','2c421cc8-b566-496f-b7f1-7dfd5a713474','3eba3c1f-74ff-44cf-80f5-092cec10b47f','4123aab8-d637-4341-adea-111da8f8c4f1','79b96c00-4931-4bb7-9f85-70d31c26d821','7c1ed8e8-03f3-4c15-a97c-10aa93c8807d','80551548-4476-437f-8f5b-59852fa06c14','967d5263-8729-48ec-8391-b1613693c8c2','9b1ab04d-e398-4aec-bbf6-a53699136b30','b07b5c0b-de14-4911-ab37-2d3361510a85','b515b193-9647-4cf8-92c9-abf31a60c7cb','c08f59d2-8744-4b7b-8bdc-6cb9fdf920c7','d8015200-6a35-4911-9f4c-2a5dd7e3fae6','d89a8769-1412-47e9-bb4c-be4d1aa7fb8d','e4f859b2-a44e-42b8-8ba5-b6af6af22610','fdb67f14-edbe-4900-a7fb-9ad11c287267');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.159')
+  where id::text in ('068e8846-1d37-45b8-953f-622ee6321c9e','07f5af97-9f18-4ce8-b95c-690b0d6626ce','08ae60b0-02b4-430c-b48d-9a79adf4b50f','4aca9d6e-7eeb-4c09-bdff-a4ca646f15f2','5413b1b5-79da-4275-ad9b-346db2300455','7b8491a7-7698-4147-b6cc-75b2ed2c1405','951c9ee4-5e9f-45e1-94fc-8ee3fcc0de66','b98766da-639d-42b4-9fb9-70d2b8f37e54','bdad8284-35d4-424d-a156-c7bf48485440','bf525fa3-27ed-4a0b-a126-6bb900d25a46','c8adea61-1079-42ff-bc11-2e8b3f4a96e0','d4b67eba-2af9-4991-99c0-eef6d884e24d','d5c2db20-18e8-4e71-a8ad-5e7ec8c87b6a','dde442a3-ac9a-49de-9ac8-7b32777b6e71');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.32')
+  where id::text in ('06923b7b-efa9-404c-a804-ede7322bbf46','5276ad52-b2b9-46bc-9f32-eaa789926677','5aa1ea8e-99f9-49bd-9d72-05e35761f730','6d5fe8d7-b747-4478-95aa-49f4d695b45d','7b1e0223-d806-4851-b8a9-2dc8f5ea7436');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.54')
+  where id::text in ('069e5f70-4965-426a-a532-8a16254f3a0f','15b64369-d8b8-49fb-8a41-b993eca1f3d1','255afd49-33d5-4095-9689-82deb5d0bc4f','27a64524-8438-46ec-b3e3-660088108386','51d9a6fc-30d7-41a9-a2ac-d813ac50bba3','6c8de827-ea3e-4b54-803f-1f568d3dd3d6','9008ad2c-769b-425e-972f-b7c12592b6d0','9cf477a7-49e6-4a89-b967-54da17ab579c','abe7ea45-e05c-4f77-9da8-f657b78bd500','c9b14d71-22b6-4dca-9133-58c4d1c08aca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.261')
+  where id::text in ('06a01b83-655a-42e4-8cbc-5b2030d96f8b','0a53bc60-b99b-4d10-93c1-6167593a6c81','13313db3-0c2e-46ce-8895-325d4944a6bf','15d52fa8-546f-468f-8759-bd2a4b91d523','24651eef-07c8-47e7-a714-f558a0bd3976','8ab5dd2b-475d-41fe-933c-720265649dca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.1')
+  where id::text in ('06a1048e-be91-4165-9064-3e00b0b3b369','1e3aa791-030b-4365-885d-b370d8c26274','fbc66768-814b-4144-b692-a7cf973f4e26');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.29')
+  where id::text in ('06a2af7b-16bc-47dc-8b4f-1c6245f8b802','55e5ec5f-0360-427a-b006-7fb9315ee84a','5ab94951-bc32-4cb2-9b3a-49bcc9a0dee6','767bd3f2-c2fd-4dd2-bace-614acd8383d9','779c7c8e-3372-49cc-b89c-f662c16de7c3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.22')
+  where id::text in ('06aa1ff2-f703-411f-a059-5c9463d23d77','277fb49d-26a0-463d-a716-384d92ab6a94','4439cbb9-91d3-4f47-8d01-5a5114af488d','7f589626-312e-46a7-adcf-a48b3c0215ef','b9ba627d-8923-401c-9d6c-3527a4d8c65e','d43e8581-3cf2-457a-937b-94b73fbf7058','db885810-33c5-42ba-8fcd-1ec4dffcecaa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.368')
+  where id::text in ('06abd223-4165-4dd2-adb3-776b6f6d89ec','96e9e3b4-78db-4a86-ace0-71b2edcda2a1','cfe28e48-5088-4472-a3cd-386942dfcdcd','daf49f7d-ea36-43b4-a7db-bbc896254df4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.517')
+  where id::text in ('06acc058-58ed-45d9-90af-7f4324946543','345d89fd-7ebe-43bb-b1a5-dc9adee17696','49d29af6-1e82-47fe-9f3b-c868ca6736cc','4cfde1d4-b7f0-430a-b047-4406f734e422','b88e21b1-d763-47e1-b1f9-96b3ac1e727a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.309')
+  where id::text in ('06b17a40-9d48-4d93-b3d3-4f66369e8baf','08faf22d-389e-44ae-b7c9-3dd76996d0c6','13a65948-5e9b-4275-878c-84acb4542248','1c9c7574-3690-4d07-9875-75112adad87d','24dd99c4-0d53-4a85-88d6-7702d883e3f2','43e05da8-008c-4ad5-a966-9ecc57ebccc3','583987ac-92e6-4de2-85c8-c8ae72ad7b4e','6f9d77d1-cf70-4ca8-8869-3fed5a2ead91','77bc6b10-5013-4f2f-a9fa-ff8057ba43e8','83db5525-389a-4b89-a4b7-7956f5cc36bf','b0093e17-445d-49c9-a7ab-fd5c985d78b0','b2c89edf-a5dc-4f65-a6fe-dc3e1928e7d7','b763ef62-22ad-4f69-a4ca-2b008276e13a','bab592f9-7d36-4257-bc34-6e9a9b3d7ef1','beef3c64-e848-4346-be28-97a347e26429','f28d89b9-fa01-4814-b792-431e617adad5','fce22adb-6069-4f85-968a-ff2f9d5104ac');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.124')
+  where id::text in ('06b48fa5-8eff-4972-9c42-b368780e61f4','2b0f542d-8078-4a05-9889-30b91ea91d4c','34109871-43a3-4547-89fe-7f36f5b4d93b','50e25c71-0ee2-4ecb-9357-35d030fe16eb','7cd5b749-b071-4655-ab0b-dadb7c45c5a4','8f2fe146-971e-4c99-b5aa-d83b4e534f4e','b179f614-f8f6-4a1c-88ea-90f040c3a3da','caa76c44-af32-4614-9169-d721d6d52dea','ea5cd8b7-c307-4ad0-9707-5b77ae99d338');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.104')
+  where id::text in ('06b5827b-fb1d-4eca-a687-e8e3800d263a','25e78196-fec6-4925-884c-67debef7ce2e','28f85a4e-ba6d-48a5-b6ee-a5f6ba957b47','47de4c0f-cc1c-4beb-ab65-26b3b4dcdf3a','5abc2893-cdb7-40b7-bbde-dc0f142e66cb','68ffc00c-a6af-4a6a-929c-bd2d8dae01d3','743f6f48-41ea-4899-890f-661367d3378a','931ea684-5b98-4693-83dc-6d9674da8605','a271331d-695a-48d1-8eef-91c2ff37f648','bcf529a1-b882-4aac-8295-bf93ad838fe4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.38')
+  where id::text in ('06ba9fb8-fc03-4d74-a61f-35804e31c477','2078302d-b7ca-4192-a1a0-fc960e9f735c','2841e436-4c6a-438e-a445-2bc123d9bc31','2b8ede5e-2fa1-4f4a-9f9a-e68188123420','2dc3a3c5-9bbe-43bf-80c9-aeb81add2e40','3d8bb357-71b5-4620-8e89-91cdc34bfbd1','3fadd8ee-690c-4075-86cf-320f62e6ffd4','58efc3eb-d0ce-4689-b067-a5dba2b7c27a','597a63f1-84d8-401f-9d10-fc865b1586ec','7f1eb374-838a-4a0b-9ea4-1dcaa8feca25','86c19f70-b824-457a-9fea-bc252f4d9001','999e0c1e-93d3-4b40-9d39-fccf9b27f8a6','9a55c817-e9ae-4f36-b383-ddd0660cd2e3','9d55d642-a36e-4db7-9382-61c4d3633edc','aec8d4dd-0a0b-4c7d-a37d-e2ca55a47410','cd40246e-dcae-44a7-9763-87e9e205262c','e9c26ac0-2c74-470e-8a5f-3b5c8ab3e28c','f4be0b92-d944-494b-be56-cb83adb708b0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.5')
+  where id::text in ('06ce530c-689b-4e22-b0af-897679992bc6','1f583f96-7e69-40ba-bc2b-d3ec431f46a7','23f8d512-b4d0-4aee-b6cf-f0aeea81c348','2a968298-d80a-4e55-a0f2-fcca4ffb5f35','3968d23e-3154-4991-915b-0165c9b27866','40f2497e-469c-4fb8-a0f3-18c67b51cb89','419fc0d0-fc16-4fc3-8b74-b8ad47f31b7a','4b780ffe-0767-4cd1-81b6-5b81ee992379','4c72bcdd-3eaf-458e-b02b-22ce9cca768a','60216693-0da5-43c4-9a5f-8c833aa98108','689af1ba-55c2-4e21-858e-bcc39e2293ec','796de23b-b193-489b-a065-8faffc9ffbc5','83be3781-6bdb-416f-9685-c3295098beeb','941cd99c-a41d-401a-8815-403951aea493','9b3e325c-ac95-4013-ae87-74c6f5a7110f','bf26030b-4d4a-4424-ba01-bbc6ebb62a0c','c0169df9-0744-4718-b67f-16fa11bb6973','ca3ab1ce-a42a-4663-95a4-f3ded758334c','cd575211-5392-4b20-8e35-b2b32ac01aa3','d28a3cc7-cf66-42dd-8040-6466c81b27da','d3676a94-e268-4895-bac5-4a6564815a62','dc5115e9-780e-4b2e-b5e1-2014b374ce3f','e61c1fc5-c779-4df1-8d12-2fa6d23b2bf7','e9be1d27-73e0-4597-8ecd-e853d840e359');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='22.4')
+  where id::text in ('06cee1db-f145-46a7-8e8d-533d83732a47','3ea0338f-46b0-4c4c-853e-7625375ec6de','53ec5748-1ab0-4d7b-a4b8-a8302f2d66ae','576bc6ad-d11e-441a-999e-18ae8cbde2ef','7db76655-b10a-40d0-8bcf-8030917ab285','8f218a9d-987f-49ea-a49d-0c474128779a','9233989f-1b33-41c3-aa42-dea76cb0a45e','9d5159c5-ca1c-4f2b-9379-34251c162cd1','9dad0bfd-f847-4b28-8336-e24a3dc13c4a','d36ca540-2420-4a8f-9f5b-8ddcd2d0705f','dee230e2-3b12-4104-87ea-d45de3208f9d','e1af6c37-9da8-41c7-b616-54d7f30457d0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.317')
+  where id::text in ('06dbf3a4-1750-42c6-bc81-0a0d6baf1f24','1eb701f3-ab37-4f75-af6e-eb48ff9c96d2','27369441-94d6-4d29-83d9-055c7115a2dc','3797491f-cfe8-4d09-baeb-f44e16febcf3','5fd29dd2-2301-4ca0-a53c-a9b49f8938b6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.47')
+  where id::text in ('06dc6b2a-87bf-41c4-9029-782b058ddedc','13c3db6d-9beb-4957-90a3-c9c19480bf57','27ef479b-df51-48c1-bb0c-0363a4fdfccb','2e17398f-dac5-42a2-a8d4-efe1232369ea','3346b268-7f9b-4430-b678-9e29dba90c1e','386fc9ec-1b0c-4f82-9bc6-cff778b8d82e','44792581-7de3-4197-a04f-1d768fc3efe5','5ee2f20a-f52a-4d3f-9f90-1ec4e2b4b056','71eb7216-e6ef-4e93-9a0f-1aa39b24c921','71fd8300-cff2-4b7f-a653-bb6c0c4e781c','c8ee12e6-3380-40c9-a1a3-4c6ba03d37e4','d5dbd352-1907-4f2e-a2cc-c7fb81b02e49','d7f838c5-78d4-47f3-9a11-ffd5d594b9e1','dd07ce60-efef-438f-8cb1-7773641789b2','e4f7072e-e2b4-4480-9469-de46f987640c','ed8e67c1-7d30-444b-a5fb-6be538013f62');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.57')
+  where id::text in ('06df0219-d95a-401f-b88d-ea38ddd2bce5','1c3bac7e-3c75-424c-adaa-cd5244b98bd2','36d336e7-3b97-4419-907b-a971273eb3c3','5125e54e-a287-4498-8f2d-23b0026264b9','b6ae9d81-84bf-4038-9fdc-ce3ffcb55181');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.21')
+  where id::text in ('06e31326-8336-4aa8-bea3-c3c04fa0de50','08e6005f-fe07-4071-8a73-f09555b45b24','1dfaf538-1bb6-425f-bfb0-f6bd15983c01','4891ca4d-4b6e-4a52-bf27-f69a7671ea5b','4d451b00-2d9d-48dc-b43f-6f46bd80da8a','540949ee-d6e8-4426-aaac-c6ed632d17c1','56fa6944-ff7b-45c7-89b8-d13d79248ae4','63d72549-5e2d-4bf6-b2a5-8a8d64ed03bd','7fb5211d-8b28-48bf-805b-1507fee0d1d2','856a3ce2-625a-4fe0-8132-ca593aef5764','8edd6272-5d90-4e10-88ee-182d0a51ff38','afd17804-0043-4462-96fc-0f1f87399ca3','c532c8d8-0bca-4dca-a543-8c8d6c61d243','c7610df8-48af-4995-ac8c-63b7546ad2f0','ce72c884-a689-4569-a25b-36a389e1f1d9','fdcf33a6-3f24-4a55-b02f-c44463b93be7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.64')
+  where id::text in ('06e54069-f228-466f-aef5-cedfa765e3e8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.647')
+  where id::text in ('06eb64c6-070d-43bf-99bb-ffc1a78d248e','5060f857-869f-4ef1-a2c1-ed64b145b2fc','6432009e-08ba-4956-a9a1-c63505c6a119','8297920c-350f-43f8-92e2-6b2802e07978','da241f73-cb8b-430e-b881-1c9cd8e6db8e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.273')
+  where id::text in ('06f0ca43-ae18-4164-b553-b133bd6d6ee1','0ba1a889-fb1c-4003-b266-8a5f8aed1a44','14757240-75c7-4c75-96d3-5797ccbd4585','16d8d33c-255b-4eac-bbca-a0e61cea419b','224e7746-3469-49c4-a9cb-528d71bb462a','93567452-a476-4ac7-a043-a4827a5e63b5','a9f5b8ff-0df2-4073-b422-1da87e9beb8f','b3fa8fe3-f244-4528-ae48-625813dea6dc','d0091fba-aec6-4d22-bfae-d9fd8bc67e19','dcc96b1f-fcd0-4872-b85a-083ef5d16d3e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.27')
+  where id::text in ('070f4d94-b477-4caf-b9b4-00d8c68416c2','14d3b344-81a5-4e3d-b2a6-8d3b596f1b23','1eabb737-c63d-4b1e-9123-d8ac1cc04123','482dcbab-9bb3-46d9-9d74-d494115706c1','69abd143-fd41-433f-874f-2cc0258241b1','871e4893-2444-4c91-a18c-bb24c78ab851','a50d8e14-06a3-4b6d-a250-3507b74a12cc','b8eadf44-f1e3-41e3-a372-dcd814deb6b6','b948ab5b-4216-49c2-8c2d-a29efcf1bddb','ba5c11de-9cd7-45d5-8c40-5d5c916638ba','be2a07ea-eb6e-4fbf-9e36-a65c4b0fd899','cffcad7a-2ee7-4ad7-83f0-3fbfe4431b63','f0fd4494-4fd1-4880-a093-29a315fa855e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.285')
+  where id::text in ('071174cd-6e8b-473b-a71e-a82136aa434d','1e4dd3f9-4af0-49c7-b5b5-39e4b2929db5','2e2e8c5b-4aab-40e1-bf60-d5b10be7c069','e1610906-23b5-447d-91e4-fa1474bb2822');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.323')
+  where id::text in ('0716d894-82bb-4935-818d-874509b4b632','648dfc97-d699-4d81-9442-53e4567d86bb','e21f2b93-a9c0-403a-bea1-204d0e73f363','e28e9fcc-1376-4021-ab5f-e3c3f005f470');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.49')
+  where id::text in ('07181185-870b-46e4-a008-ba9854e078ea','242b2181-715d-4a79-94b5-e7919a091bfe','2cb2b615-63a6-4604-ae39-674b97f68209','2cefe9c8-a74e-48e5-9169-71d925ea6976','2d0d9216-35c6-4b04-b55a-04491831c40d','3bd7e8c5-05d8-4a14-8049-cc058df73f55','3df190d8-6813-4211-9dfd-494cb91e68dc','42cd9b6a-f3ba-4490-89d4-e01f39f253fa','4316d868-eabc-44bb-adc5-d08da3fc85ab','4d214aa8-7744-4b17-a6d3-3ff086f7d026','50432791-0a0c-414c-a603-11889a89a98e','50a33a92-ea26-40d9-a5c5-379c0b55d211','658e8851-4b68-4e37-a591-36111b76f3d9','6df67f48-c7dd-4a3d-a893-bda39a6f29dd','6ee92660-543c-4266-871b-90e5d094c858','74be03a3-0b09-4e57-bba1-d809cdfff974','7b7365bf-1fb6-4e03-a79e-9661fbadb765','91009916-2b60-49c3-8e33-1ca4d5f6f067','92ac4223-f745-46a8-90ee-e4d656108ca8','92e72cfc-65bf-4457-a2e0-cc3e724b8522','b32cd802-6d17-49d3-983b-a017e22535db','ce005fd4-2efc-4e9b-bb0c-480d41e4ecee','d5909646-adc6-4909-8bdb-462ba52fa5a3','fbaa3937-c8d3-497f-a0d7-24d5245942e5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.262')
+  where id::text in ('072948d2-2386-441f-a9a5-86ead3f578d0','17485081-7915-4fad-a64f-8ee0e312414e','1c70ea5a-f44c-4a27-a851-663cfc3e5e7f','38bbdfe6-fcd0-476e-acc2-47eea816db0c','73e51d43-43f8-4a31-902c-94e32463902a','759a9a21-56ca-4c01-a6fc-92d71f151043');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.327')
+  where id::text in ('072c4a8a-23ba-44b5-b55d-e9d424a9bb57','1d59eb2c-bc96-48eb-a1ce-22e100636ac6','4090db8c-7658-4cb9-a845-f1aa13ba2865','6d02ca15-6a7e-422d-9b91-5f36fe92e735','75c4f9f2-749d-406b-9f2b-ee0e3a2db0ff','7b88d6a4-4416-4249-8b91-97b7f7334dfb','9a1e321b-0efb-4af5-8acc-2f43a77bf0ff','a288f52f-703b-4bd9-b0ee-e3214408d886','cf67d3fc-5bb4-4f19-a8f2-5c0c1c380318','e77203e2-b3e1-4529-9169-db2befc49222','ec25f18b-3ab2-4c2e-ad16-789a8209e7d2','f5b2cd3a-46be-46d9-b6d4-bf8768418de6','f5f1b57c-16af-4814-bae0-7491956d209d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.382')
+  where id::text in ('072e6033-a1a9-43f7-8fd4-d968045b8cff','73ea7933-8902-4ed5-b312-01ef9947e781','755e4f61-82d2-4b1c-89d8-209eb6485d5b','8ed30b40-a923-4e0a-bbd6-c64c96292d7d','b8a63bd7-705f-4665-91e4-dde933c5635c','b8b9d187-4ebc-4eab-b0af-9af4231ceb0b','c4efa69d-8d58-4921-92a0-12c68339bbaa','ce6c8061-7b6f-4acb-a9f7-e8d212e494f2','d599af50-3ede-4749-8e82-6aa2002896cf','dca9f238-eb43-4263-9aba-c0ca54b10adc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.223')
+  where id::text in ('072ff65b-d0e0-41de-a0fe-0f32367d783f','24925a3c-20ee-4c84-95a5-95a17825bf25','2514716a-47ab-4efc-9fb3-782bc7dfb401','2d6bba87-6d32-4d0f-8f8b-346ead34a974','44f7dea6-c89a-4c44-8d15-b0aad5d3d607','507daddd-6d04-4a09-9ac4-b54d582d7442','642aaf95-1456-4150-bd67-d3ebe743fc9b','85ba34c4-84dd-4dff-9f94-4b138485ae4c','88bca391-14e2-4c2b-8106-f1bec473c13b','b29f942c-d4d4-4ed4-8e42-527985ddb197','e2d7fb1a-6535-4f3a-bde7-5e833be5613f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.269')
+  where id::text in ('0732dac0-9fae-498f-b26b-67337350f1a3','078ad2db-1a2c-40dd-a030-8944e52cb298','090cd751-b060-4f34-b517-782a70ba1c27','18b7705b-3620-430b-92e4-e723b27d3b46','34fe0490-9bec-49fd-a851-1bc530e8f2e0','37f0531a-b64a-4cf3-80eb-a968ddabf16a','52d3bbf8-3237-473b-afd4-ce56680f1c6b','5af0df43-5d1d-472e-9ec9-7aaf096df518','6b245715-8c57-4725-bec4-015d7ddceba2','7e2385fc-b5b5-4438-bbcf-bb5c2f7062ab','931444a8-815f-4697-908c-1becf887f551','958c4db8-4abd-4074-a008-0452a07d1da8','a493b893-f186-460a-9603-fcb3869ca2d3','aaa79a19-a9ce-4103-b019-d94c300ba893','b114d2c9-4e31-46e3-8aef-d92d1c7918f8','df6bf779-4a80-4ded-bffc-65a62a888092','f147941a-6a55-4257-932f-dfb2bd2c29c1','f2ee52dc-173c-4572-be98-ddc6fb86c59a','f69cc44d-09cd-4220-b68d-88a91763d4ab','fa6a177b-5d03-458f-9449-d0164cf34027','ff31cdd6-7b1c-45f8-be2a-2292a6968443');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.276')
+  where id::text in ('073ecb75-c4f5-43f9-954c-9d8c9b0f1a12','1fb924c9-35b7-41aa-90e8-fe0d29ee66fc','24f5c6b9-6fd9-40c2-8699-08d9ec7bf7ad','2c370b39-81fb-4087-aa3d-86fa58ea1a3f','317c7141-a585-47dc-a2d8-a04b7ff5bbbc','626d01cd-6a02-496e-85d5-d8b1665ba384','89e61eca-1126-4138-a2da-1ed360048196','a9a6b719-2539-457d-86d0-490a9f38db21','b49961ea-1fab-4beb-9f5f-e68249a627f2','b7c582db-3b7d-4c2f-ae80-2ccff10abcff','ba41b61b-b935-462a-857a-74bc92cd634c','e66fd148-cab0-4022-8348-982b7fc87643','f80d3e17-c33a-405f-8d13-4807cf2384ca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.296')
+  where id::text in ('07448fc4-054f-46b6-af61-e76c1e27f3d7','0e8e63fb-eff3-4a0f-950d-a4e3c6aad8dd','1f406c2e-3ea4-472c-b89a-81a16adc568e','33a03487-d743-4e41-9eef-1c39ab466e45','3481a29d-7429-4ccd-9590-85478f3934e6','477c3158-c68a-405a-b43d-d47e743dcf1e','54abbf7d-273f-4747-991d-fc572899a984','70d4e4ca-5360-4a52-a364-65bcb69882a8','7b2e0a9e-6d95-4ce6-8f4a-fb51d5778b70','884c5586-c2b8-4cfc-8e6b-a41e78444072','b743d280-55e6-4a2c-8fe1-b0ce9de39f3e','c189c063-8a6d-4c26-9d34-ab8e68e985be','d03d2b0b-5cf5-4444-9624-3f055904a529','dc134599-ae45-4a07-b787-0f31ae77f46c','df127152-11ac-4478-8d80-00a0ab354234','e90f077b-8242-4931-a597-3638978d7eb8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.326')
+  where id::text in ('07476050-2221-4791-b3d8-cfc0c582f6ec','301098e5-804c-4918-bcf1-a31f0840d145','86e592ff-1d44-4e75-9a0c-1f545693c617','8a5190c3-1e04-4acc-bac4-03626b90cdfb','a949bd78-da5b-4b47-abfa-52af13d2ed01','c6b3f64d-5f9e-4601-bc0e-d5b75f5e5d7e','ff3115fe-95c0-424b-ad22-85fa23bcb63a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.339')
+  where id::text in ('07485c8d-381f-4c78-a9fd-44fb0b954cbf','14949628-29b3-4f1b-a709-6d5a247ee48f','330b66b7-d8d7-4c92-8d5e-12953be40a76','4f570fa6-ed14-4a7c-ac9b-7b65a77f21ac','5bcb70a5-9e74-4c84-9344-c549fef5331e','68809997-0524-4764-8bf5-5462a3330f9a','6db03c85-681f-4721-a113-f322a1f76757','d29bd361-9ab5-4686-9f7a-b2d2f594f5ee','da7d169e-e42c-4c8e-950e-d8080bd4439a','e706308a-c50a-4996-8769-358af3580a86','f26ded1e-ee15-4abc-ac33-301195ff8883','f4ab0daa-5189-43c6-8167-e57d52b9a033','fa8f1f3b-6970-43e2-9eba-f6765ef719cf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.116')
+  where id::text in ('07486da9-fb63-46c0-99d9-766b6c4d80ba');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.344')
+  where id::text in ('0749bbda-7edb-41d9-9dd0-fcedde568533','3b27b514-b922-416b-9d0b-4ba53580aa2a','444cc584-2044-482d-a244-6827d47d72f0','63469440-273e-47c6-86f5-816e57ce6703','640b68da-5e95-4bd4-b4a6-2e2bd05fce0b','64540285-d7b1-454c-9204-591f63a38220','7089f8be-c159-4593-98c1-eba16c2a59a3','8a914cee-f435-412f-96cb-d1584dc2c4d3','9c599a1d-86b5-439b-9d35-3f5909107304','a0299541-370b-4c09-9c7f-140129f95fb2','cc110a3a-81d8-4146-9daa-b520777bdc88','ea33921f-18a2-4fbc-8564-45a715b088c0','f8686b70-8aa0-4a22-88c0-8173095f3898');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.37')
+  where id::text in ('074d1cf2-3999-4150-9a15-1487d8869739','15117173-d5ed-474f-8313-25a29a41f43b','23d26aa2-665c-42b4-ac7c-164126d2f40f','510cd568-0652-4a18-b875-8c70b91bd3a0','5862066c-154f-4f77-abd5-43caefb4748a','6e431def-6779-4b89-a72a-3516d732a8ee','771135b6-6246-405f-be25-c8696e0117d0','a495bb89-8b63-4029-ac4a-355fa93ee926','cc8abf8a-a177-41a2-a117-cde79f2c232e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.99')
+  where id::text in ('074d41c9-2e00-4659-86f5-d124ea83c976','09cd10dc-39ff-4b92-92f2-123c4d22f467','1c98197f-3b33-4c2a-8f84-d4fb30fcad05','432e3484-657e-47c1-8f9d-b961ced854a3','58111a50-8e34-48f0-ac57-099c310471b2','6b694f1f-034b-441c-a553-352f40977a9b','855aba26-c6e7-46ce-8ede-02878611a8b1','9218aa79-8cfd-41ce-bbce-02f6cbeb32a6','c8af567d-58d2-4dab-9b2e-7046393c5af6','c8fb1850-e4c2-4ac8-88e0-d69a0e0a2d32','e5e8f403-2e57-455c-bcc9-29166649e7b7','e8dbc5bc-e8a0-429b-b0ae-230856913c02','f3ec45e8-30c0-44f9-bb63-99747d7f176a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.263')
+  where id::text in ('075dbfd6-6c80-415b-92f6-7edde8cd85fb','13620d5b-b8d9-4cdd-bb18-e9656bc1d137','461c1a67-4c39-4f64-be70-ae9c0134a843','4c5bd0db-cbbf-4b60-91f7-c73c7bf104ee','79a4ccc5-61ec-4512-9840-328cafdaa3e9','be8efcbc-ae02-487d-b254-d124b62ad478');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.355')
+  where id::text in ('0763e7aa-fa55-4810-b0f6-70506bd2b079','2ef1982c-4d71-4dbd-8b57-099371c7c31f','340ad787-18bb-481e-8fb6-b70863d6c56e','3e628bbc-32a3-4f55-b69b-320de382c2ef','44109f75-4245-4cf9-afe9-b172957f91d7','4c02fb7f-71be-4bcd-95a9-7198cc9958f8','4c716330-decb-4eba-9e94-2242078d99ef','5bdbb993-6e8d-4d1d-98c5-de18c767de7d','6c3b9a4b-f68d-4f5f-aebd-b225ba120566','6ceeee77-a3d4-43d1-839a-9cf9f7df8406','754b602d-6115-4361-96f9-b8f1c34094bb','89f75937-a0ec-4e4c-abd5-c250c291b22b','8bf1e996-319f-4c50-9dfb-b84086a9baa9','926abcf8-81ee-4ecd-af14-2f0415857584','a0838c4e-0590-4aad-9b01-d0c1cd859276','acd5040c-1e5d-4534-ad8a-e2dad1186132','bc11b1f4-befb-4c28-98cd-e5877867a5de','c12cf460-cfaa-4eee-9ece-98429b5d4f36','c51785b6-354c-403e-85db-9c8ad74d6171','e3e9983d-1d4b-49b1-9eed-f3effa9a4cf2','f57b3b54-9ad1-4f81-959b-bc3c7f79104f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.301')
+  where id::text in ('076bcba2-ab4d-4d15-9f38-0ce683f41240','09c891f3-031f-49b0-a088-9e1235840dec','0c785d9e-633b-47ea-a99d-4232139a158f','101bed3b-fbcf-4528-9ba0-6aeffc8aa41d','1a6c6e13-b4b6-4eab-9108-41650c546fca','25d71c9f-f277-458d-8105-274a54605d46','2aa4d165-9d92-44cf-ad29-5ba135167c76','4ed27f08-f4b9-4276-b08f-8a17d1ceefea','4f76c870-1bd2-47bc-96de-f39fbbc80b98','5e016595-feb5-474c-b013-ef8fd3819415','5e7d6654-0109-4cbd-b63d-2a1f69c5935d','65600203-2ee1-4ca6-b799-4ef803ad1855','7b1ee349-f981-4898-b9c7-869575dca822','9941179e-6605-4b7c-b8fa-7f873c23a408','ac93ac30-0c12-42e8-a408-1bb9dc51b680','b66605f9-1838-4500-aa99-d5acabadbf1c','bc07e211-27da-4e5a-a121-84a04914347a','cc459282-24c1-40e2-8b01-67d3a8b8a084','d4332361-8724-487a-ae70-827550b872b9','d4c432dd-a6ba-441b-8be3-d39c8e2f7f83','f5e3caf2-89b8-4d29-b85a-cbf19b9e24a5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.547')
+  where id::text in ('0775d53d-c3d7-4c9a-85df-0e553f9c262a','3fa8c9b3-5b45-4746-8dec-924521041856','6bd3db1e-69bd-478d-936b-64c31809637d','7f645023-c135-421d-9a6a-7c4411d3bced','80ef0d7b-87be-46c3-863f-ba33b03d4273','94b95eef-a700-461b-829a-a272fec179ff','b70dcb93-6990-4f23-9950-234d4c4de725','b71e82ce-68e3-4ce7-a8ed-1a4693a07c62','e759a4e0-9e0d-48b2-b82d-ae3fd686d7ed');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.14')
+  where id::text in ('07761271-3db6-4661-b970-1482038dca5c','1f8b15e7-0a0a-4c3f-9198-d648d9dcfaf2','2a718f0f-c181-430e-b181-5c522dfd3291','5658f814-a642-4cd5-801d-7bed79f3dace','5c880e56-920e-43e1-9269-c2e093919961','6c32fc82-eccd-41ff-8286-d8983292c831','8c0e0eee-0040-4832-9c4a-328bc33fa43d','a179ce69-2b36-49dd-9c67-4df838c90de3','a7ce6e90-03e0-46d5-8362-1bd8807cce96','dec748ae-701d-4402-904a-311c046dcb37','f86d65dd-beb2-43cc-bee9-ac038a04a94d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.107')
+  where id::text in ('07809aab-7ff9-48ab-b805-76bcf63931f8','2d03ca06-09bc-4b44-9dcb-37b7ceec803b','336ace51-7eda-405d-8057-2f5dfbf3a760','60fe14dc-b264-4302-99bd-7c533f642590','89d4befc-f5fd-496d-8a2b-d021a1e79d6f','98192a47-9a23-48cb-b61b-d8f360797795','adf61488-e0c4-42cb-9532-b13b6a55202b','ceb4cf24-f335-47b4-b9ba-1819b6260504','ee0650ac-7723-4347-a5ea-ca0efbb670bb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.46')
+  where id::text in ('0790f74f-d047-420b-9eaf-d54a9d4e8758','2539bf62-0643-4c0c-adca-68c67618fbbb','4e7b61bb-dcff-49c3-9a71-dbc6aca20d22','6edabd75-cbf5-4b17-b8a9-bc4cdad349c3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.73')
+  where id::text in ('07940692-91a6-4a63-ac4c-057652474fbc','47318069-ad2d-42bf-946f-8d793352ee17','54863110-ba25-475f-b6bd-d738ac2365eb','9fc60f27-5916-470a-8012-fb9f5f7c64da');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.17')
+  where id::text in ('079414bd-df57-43af-a130-4ed4f0ee7ffa','3d7fba7c-8659-42a9-8975-8779edeb2ce0','765def47-a105-4a11-9f89-f8edffef7cf4','7ee1d6a1-252d-4850-afae-69f72b5c3df5','817b7d47-ac6c-467c-a2a7-23470d9ac0fa','9372ae27-8d23-4e96-8e83-4decad7e0a94','9aee1615-b62c-494b-8838-0949eda42b2c','a04cd411-73c7-481b-98f0-9cec98cc7c16','b7539d59-a06d-4e9d-9278-03c8ddbeecf2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.35')
+  where id::text in ('07b2e6a6-7fc0-4234-be0d-16a32679be8a','0ca5dbc1-b849-4a92-b49d-ef3864f98237','23be4e7e-c8cd-4b4d-aa58-03423c4ada54','23cfca4e-c4d5-4667-af78-39c2aee02688','2d1aef1a-8717-433a-88f9-79a827c4b44d','4e8e4d5a-311f-4bb4-9b8c-5411313b3db8','67967eb6-973a-4666-868b-5e055581fe22','6861ad57-f09c-49ea-b6ae-955d643fee84','721a2c0e-1bc8-461a-8870-b80a949ed71c','73550db7-b7e7-4efb-8d8c-728e1c373f67','7c94fcd2-1f52-4985-bbda-461431699ec4','86ef6f63-c764-4d68-8672-134391d1271d','984db5c1-c892-46d2-89fe-24e5476b03e4','bbe90d89-2237-407a-8273-10b127c67062','c148f770-fb10-4b7e-9a19-8780108c35f7','d78f727c-be43-48c0-8467-6d62d235126c','dea4327a-8643-4f86-a274-eef171b224b1','e1a4d3f0-ba38-4194-8f59-d90023237041','f21a12be-235c-4bb9-ab61-c34ab03406bf','f4b1bcad-ed9b-4574-ad2c-145d81cca5ae','f6226944-adc1-4e0a-b600-72806d88aa92');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.62')
+  where id::text in ('07c1d389-f94a-47fa-a778-e77997e96ac3','24d6be9d-28f2-4e0a-afb0-96ef9f365676','b20f41d8-d75d-4c0b-ba1b-4342bc8acc29','bab59c52-083a-4f5a-b621-358bca434ec6','bceeacc8-6da8-4ab0-afb1-863d3d4d257a','daac01a4-5de8-4d13-ad40-63607a74f7e2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.255')
+  where id::text in ('07cd27bf-6947-48f4-98fb-8ad92f4e2097','2c6cbfa9-5aa0-4987-9262-9b4db084f544','505071b4-2c7b-4437-a3ef-1148c04cd0d5','6585d6e9-fe81-42e8-a18a-d6a50c0d1283','7c833657-7b4c-451c-a29a-ea916b15bb01','8c005442-d44d-44aa-9d83-f2bcf415e061','9df185fb-551c-44d4-aa3e-f0430e1499e6','b6148d1c-be35-4536-af36-67f30dc89e73','ef5f7d74-5d78-49a0-8fcf-408680251f7c','f2f34869-df83-42b8-bd17-8c7e148cb163');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.354')
+  where id::text in ('07e1d537-28ad-4e84-9c5b-8741a4265881','14615684-e197-4f03-9420-234281521dd8','17833812-a406-4f64-bf94-8cfadb9cd72f','3daeae39-cba3-433c-afd8-082aec129b88','49e89a0f-9627-4049-93aa-4e6d16bed5ee','4a089d26-673f-4ec3-a8c4-293fe06052d5','4aca02b2-3200-41bc-b21b-69991622b158','5ab7f966-f8e9-414c-8a8c-910f0831fa1d','649378c7-8a0f-4694-b137-64b3042c9db3','666e0544-27a1-4337-b381-6facf72a2356','85c0abf2-1107-4990-a7bf-3dbe4358ae55','aae8f886-1c6b-415b-a74d-026edbe6e734','af65428a-afa0-4568-82dc-19b93d7a511a','b374760b-687c-4c6d-8585-c79e87daf709','bc5d5d1e-457b-481d-8272-dd1de9719a2e','f58eb9ca-52ee-46fd-9309-7f35808ca7c4','fceb802a-7a46-4266-ab80-3254ff57e3e0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.9')
+  where id::text in ('07e5d24b-d8da-49a1-9b39-4b1fbb1a22fa','09838b33-3ec2-4499-a485-e4978b5b814f','18ce9b23-ba5f-4f5e-b672-c4ceabc6194c','1a3b78c0-8b0b-4c36-93f6-98eb30db956a','25b98504-c6aa-439a-90d8-5837abb2fbca','3872a95f-b822-4b44-8b11-ff8210212293','40dd54f7-ca5a-4e4a-ac9f-e8d733febe64','4f7266d5-de2a-410a-9818-97413c9e4f13','5907561a-f9d6-4274-83ac-d20cd086f084','6495053f-4119-4300-aff9-2c8ce42e1cc5','66b8e005-874e-40f0-a1c8-7559bc25eef6','75d0b372-f560-494a-bd53-593e892c45fc','7d0551c9-28f3-43fe-9678-c5b948711d3c','86670822-9112-471d-a9af-45ae28a6c996','89c5016e-31c5-4f57-97db-cd7a0ea28028','a0b1e451-76df-4b73-b77b-50ed5e6a5c3e','abf6510c-655e-4f11-b164-0b0affb27014','b515fe5c-5d47-48cc-aaf8-c3d134bbe184','bd3e640d-c82d-4085-8f6c-c0087a93b689','daad4adc-3c83-43fb-acc8-0f2519f510e4','e241fe33-6fe6-4418-ae89-a015f268dfaf','f106f460-3d5d-4ead-851a-ca751114697d','f44398e4-ceaf-4ccf-82a4-315972f85d14','fa94ce9a-3052-424b-bead-6f61d14be777');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.15')
+  where id::text in ('07f8b4b8-c0d9-46d1-aa64-6fbcdffccaf9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.294')
+  where id::text in ('08041fab-246f-4a7a-bc8b-601d31122698','086f9086-75e9-4bab-b6e6-ace516235f4c','0c182322-50db-4226-b615-62be46d79e8c','1e01a91c-4464-43ea-80f9-81b3be0e0c24','200b5f9b-1dbf-44db-b2ba-cc331c2c1088','32e9d3b6-8dbf-416f-b10a-59b20e980018','33e4f46d-e69a-42dc-bb9e-0ad0d95d1508','3598bd90-a4f2-4d62-b9b8-bcb22529d4d1','36527fc8-04b1-476f-9518-0bd39d20b89e','3aef768b-7b1e-42e7-9810-922951ea67f1','4b6664c1-7fe3-438d-b471-9b0c62a454cf','541810d8-c019-46a3-b9af-7c64c8de97c6','597b6986-ba80-4125-a2b2-a63df2623e9c','5aceaecc-d1d0-4f66-8757-6b5f6ea1db8f','61c2ff0d-0cd4-4eb0-9a5f-f0203198d3ef','8d4d61fd-a7bc-4d0e-9743-89a4315fccfc','9f8f67d2-73f3-4c5c-b192-ebe1c6687c8b','a05ff942-1137-42ac-aaf0-8ae646a35735','bcbcedac-c0dc-4132-a256-28b03991bacd','cb657fa8-558d-4dab-b5f9-f4dce67346d9','d7e4a160-38a8-4e7c-aee7-0c8726ada7e8','d805843a-c38a-4f50-8fae-e99734e63eb4','f2570276-921d-4cc2-a308-2165dded48d4','f3ef05c1-6b0f-4ce5-91b4-29faf6e4edc6','f8876a5a-493d-4cc8-9b3d-0bb4ad84eefb','fdeecdf8-fcd5-47b8-8e8a-006dd4674d4c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.306')
+  where id::text in ('0805915b-801e-462e-9fa7-f2190c325375','10e65b4c-c692-4ed2-b5fd-6c56c6079824','186de38b-f8d9-4741-8636-5f3d309ac150','2090291e-1abb-40a4-a561-d52c0edd06e3','3f163d6b-8a4d-42ad-917b-8f46e6ea8eca','6d68be3f-a5b3-4af0-8eee-00f59dc57417','6e8c4dec-4354-4658-9b28-c885f3773acc','897f38f8-9d44-43aa-94d1-94d7f1f2c834','8b88fc53-9333-482e-83f1-566da94614dd','8fb4f43b-711b-4a37-82a5-c29fc94e71ce','9415b26b-294d-4ea1-9602-2efde4a6c9fa','f1501d2b-70d3-40b7-8b4b-1a09a1c248af');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.8')
+  where id::text in ('0805cc4f-d896-4c07-ab7d-370e853a4e91','565dbb87-2e6c-46a0-8c11-04c3fbc98760','65444e8b-638c-4236-b99e-7813281ecb23','88cb50b9-5681-45a9-91e3-b2cb7f2eba31');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.97')
+  where id::text in ('0809db7c-d32b-4dbe-882a-c51c421cc758');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.252')
+  where id::text in ('080c2730-7f6a-4bb4-aec3-4d78087170eb','3bafa2ab-deae-4df3-b926-2f3676dd00df','53e4c4fc-26c2-43d5-90f2-7a4ce78cdf89','6c9436eb-cfe8-455e-aec3-11a42ff7c817','7e521c69-4595-43dd-99c8-7c25b6cf7290','ab646a7e-f025-48d3-b236-fc548dd51cd7','b8eca853-876f-49f4-8335-a2ca7f282714');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.314')
+  where id::text in ('081c67ea-c1a8-47f1-ad97-f7de6eb4a6e4','28d21f79-c990-4868-87a5-666b8200a63d','7e8d9dcb-66c4-4d86-b935-78d36bd82a57','a174624c-6905-4ce8-87f3-4b7e62989e92','ebba2677-db34-4f82-95a9-8988cc130ef2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.273')
+  where id::text in ('081cbdd2-a7c2-4bb2-a8ca-9d0d5ee1d490','0e9d62a7-4cb8-4f82-8009-b52756bd508a','15a0e501-064e-4afd-b1eb-0b8882b47492','7ac47aa6-48f3-41ff-ad0a-b05bedfa4a7c','83a9c3f0-7e28-4c33-9f0d-bc23fd25e682','a279d498-5efe-4c61-8d37-fdc8ba5eec51','e2f022d4-0c7c-4db0-95a2-b6627565665c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.2')
+  where id::text in ('08279e77-51a5-4d33-a693-943d727fb161','5547060c-2271-475c-80e8-541eab03f187','5e4196c5-b04c-414f-99fe-47fcc749179c','6f7b3ebc-983c-429d-a1c7-01ae7c8c0de3','76b4341d-3362-4e78-b3f3-f18c32a882a3','a503f483-f417-4138-b379-1661b58d342b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.33')
+  where id::text in ('082bb82a-2a4a-440f-99dc-1176eb785ef2','12e1329e-f5f3-475b-ade3-c4482db20916','17dff320-fecf-4bcf-a4a4-a062ef70f2ee','1ccea042-61d1-464c-88fd-f35ca46444f9','33a10d12-10f0-445c-b815-f37d10e40ab0','3c16239f-ea31-427c-be58-02f0a3bcdb56','57c0c444-0a9e-4f61-8f1d-f15b7aaadda2','588fc06e-a6c3-41cf-8673-8661eed69a19','5b6804d7-fe30-4aba-9020-9f6c0bb518c2','6029694b-240e-4619-b457-72b730ba05e0','79956375-691f-4002-9f28-95ef300c9f44','9630c85e-26af-4d92-9403-600e3127635c','971aaf41-7085-4eea-8fb2-af6445be9cc1','9eb9f593-3625-4caa-b02e-45c1b49ccaa2','a635bd59-b7eb-406f-93f4-76e27d266e5f','a7abce36-c2de-41db-b88a-2309633ed66b','b2a7a84b-a1e7-4945-8a63-12744163a229','c9f844cc-ed76-420d-84d3-57c67eb3df20','dbd96ad4-d718-421e-826f-e12c258192a7','e7abf524-ce1a-49b0-963b-772e3b82841b','f632d89c-58bc-48d1-a2f1-445826ab6f98');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.154')
+  where id::text in ('0832b99b-c60b-4e53-9689-2091c96cb0b6','6b30a807-0d21-47ab-8913-c0d95be1a98e','6b6fb6f3-451d-416d-ae22-ca119dc5f8ee','ef9f208a-b822-401d-8bc1-0d9de806a0c6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.224')
+  where id::text in ('0833ccd4-fe19-4aa1-a8a0-94dffd2f8134','10357ee6-f40a-43c3-8a78-023f0acc6067','13fddc74-7fb3-497a-a0d6-d360f9f9cf4b','5038ae0f-aa1a-4409-b269-42977b76a10e','534a180f-df3d-45cf-985b-ac3cadc27117','63d3001e-847f-4134-8345-3df3117e307e','8faa93cb-56a3-426f-9d1b-d03f051a12b3','b57f9154-47f3-45e3-be23-cce3905f81a4','d09e41be-229e-4b45-91db-1946e48834a3','f01ad30d-ae45-43ef-b368-c331fa68089e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.643')
+  where id::text in ('083501a9-1e3f-4d27-ba23-252c22f50654','0bf8d2eb-5176-453e-b6e1-8265387a611e','416c9615-6893-4fe3-bec1-0f8d2e63cbd2','76dcf843-2fd2-452f-adb9-ffa468742da9','9f03060a-0493-4362-b35d-9413ebe3ed55');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.19')
+  where id::text in ('08406ae7-1505-4fef-b6f5-7ce02ac95a31','5c08ccbf-e2c7-43e9-87cb-b5d99626f30f','6cf60ef8-7acd-4ec9-ab1f-d62c2ca150fc','b2bf44e5-ec8e-43d3-8358-9f1cc5d4aee8','c505647e-595a-4f04-a41b-d4d4b29173e3','d7948a84-b0b6-442c-873f-d460b2b0f390','eac323cb-4338-43f0-a0c8-4e730d704a57');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='13.6')
+  where id::text in ('08465156-1a9c-4985-9588-ddc0eae3df52','0b346535-ec8b-4757-b76c-f4734fe1f702','1ac63712-ccff-4909-8b79-d0215087b08b','3a2df23f-0bc6-45be-9b71-4adab3a25af6','624caba3-c259-4b78-8201-f55736ea3f15','aec7f386-592d-4ec6-a262-67aa80f7264d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.266')
+  where id::text in ('08498653-50cc-4ac8-9b8d-fced9eea4b60','27a8498a-aa0d-4171-8784-c8273cc29e90','631a34ca-458b-4fd8-90aa-3454d7a614d0','a06a7acf-31f1-4f59-a3b8-b8d989efa36b','b5455fec-bc93-47cf-a478-69f429956f0c','b7ac5ff2-f2b9-493b-9f0c-8d2fc0a1f527','bb1b9d0d-0d27-421d-a818-ed64822bdd1f','dde6add7-813b-4b3f-8b70-be3868b7a6d7','fcd14266-7049-4d68-a35a-d37ea1abb6e6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.43')
+  where id::text in ('0851df8d-de5f-4738-9769-1f5884592b2e','16da4e55-eb27-49df-b884-812fd6dcde55','376dcb83-68cd-48b8-87a6-0a1c9a6217c2','4cd8a590-7c35-491d-bf05-56c2f2871fd8','78e20753-7b4a-480c-9f0a-3b1ce866015c','943805f2-d872-4336-8064-c61ede60a839','c40f334f-4994-46bf-9b6e-8916245f9105','c5c9afff-e593-4a42-8d1b-665760966c74','d2958aac-0619-4088-8653-1da56f6c7544','f8f39d98-e2ff-46fb-9ed9-38947e79fdb8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.3')
+  where id::text in ('0852c553-fba4-4ae2-a93d-dc6588a6e919','5199a44b-c339-441d-a465-b22cbb7676d4','ee3f5df8-3a07-41e3-a683-ee13d7248d04');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.55')
+  where id::text in ('08586acb-ac64-4e0e-83a0-bf2a89d202f6','13e507a4-d635-4ac9-8280-b1bd03eeb137','1c136828-fce1-4f53-9640-b918d3937d47','3eff0735-d6cd-4e6a-adfa-b9915595bf08','450897db-81db-414e-ac5a-f70268e55a1d','67365ed1-a532-4d09-a615-2b8140468e75','712bd252-4b48-4184-863c-4f41c17170ef','7808a468-3fe5-497f-a40b-bcdfd3578174','87e7a547-9871-41aa-b4d6-c1f59b77b336','9a921cd3-cbc1-48f2-8c48-07d693d1ae19','b9aea6ce-9d9d-491c-912e-d5364888c8ed','ba090f7a-1f81-4f1b-97a4-0ebb85409ab5','f2bd2e52-18c0-42a6-87b4-9549a08ef48d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.257')
+  where id::text in ('085b2052-ae85-4e2e-a213-73e0e6202160','0bd12b64-6139-41b2-b513-754752bfa790','2f802a68-f067-4212-ab06-447df0558e2d','349fa142-c3ec-411b-8bda-e81cdad22446','40c98755-1d20-4a14-ab1e-48efe0f74534','4eebd22f-014f-4a41-b470-d035b7ef5fbc','4fa4b989-b7eb-46bc-ac93-8f2788e341f8','5baeb40f-977a-40df-b0bd-dde2e7814e6f','7e2cc26c-e18c-47cd-913d-96c7f328dc72','8bbc6ecb-13c0-4369-a446-ebbaa3e693f5','8cd9f351-7d7e-4686-8c43-01c4976d8453','96e85b39-b2a3-4ef0-a4b4-d79114f08bd4','b9f59891-b62f-4cb1-b81c-7aaf89c9b953','c970d08b-7fb5-474f-897e-811786bde39c','ed58e1b0-0ec6-40f9-b67c-e0a9df0fc343','fecad357-6928-4f49-91f2-737b823f2a17');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.379')
+  where id::text in ('085c36cc-7797-492c-9735-856eb0a2cfc4','11af4aa4-0bc3-4a27-8513-ed0bccb392cb','1e5714da-b0a3-4585-9fd5-fdbe3a6fa6aa','28cdb7d5-c7d2-4982-81f6-b5745f9fe35f','561b4f09-9d02-4cf7-b407-43fe133a83ff','763ad6ee-6e17-4e45-ad69-dc1dce5f35d5','794534f5-d525-47b6-97e2-60827a2d8763','87446aa6-3089-4bda-8123-3194ab338b31','9fa5f8ae-27d9-41b1-b571-12a1a016244c','ace2ea0e-4e84-48cb-9ec1-d2c05ef41a14','bae78f7e-abfb-4bbc-b357-49323eedc555','d206252f-136f-455e-8aca-bf337a91484e','e2c5bb69-6fcf-4b65-92a7-19f3c28428ec','e4966a40-41e3-418b-8a8d-f3c97401ac4d','e7c8b326-0fad-49c6-93c6-2793a584cbfe','f2812afe-1ad0-46ed-9aa2-3f7fe86e951b','fd8f9824-efa5-4aa3-875c-817c4f8f2989');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.88')
+  where id::text in ('08669fcc-7b52-4631-8d1f-0199b49bf827','10ea75b3-3516-49e9-80e5-91531cfb8581','375941ae-e4fb-4e96-b084-87074664bf57','402d1b2c-beed-4d11-997e-eec28da67d1d','7c3579ef-a265-468a-b3f0-c7cb47cb7895','8e0b3610-c518-4514-b149-f60202be94d6','b5d845f0-df5f-4bbb-93a3-fc87884071de','f05de077-07c6-4601-8e84-edec04b05898');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.28')
+  where id::text in ('086c22f8-89b0-4252-b4c0-f60688da1251','284e1926-221d-4142-9d73-887da46e50f6','4b1a276d-f124-476c-9ed5-bae7594c099f','c31722c2-2ee2-4952-8681-f1afa73990ac');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.325')
+  where id::text in ('0871ad00-9e75-4660-8b89-f2dccc75328a','0c649d2e-7099-4f6b-ac23-ab1d35830f1e','23af0587-e916-4a78-9c17-f250e4530216','2b810b0e-a634-4239-b39b-af5e0c8f3a1c','3a129381-306d-4e07-a9e0-683d2f828ae2','7a685d96-c906-40f2-956a-6fbe2893162a','edc4195a-42d3-4117-abf2-8653a937e1cc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.326')
+  where id::text in ('087469ab-52ea-4937-8ce5-b3a59f062b34','1e231d15-12ef-45c2-8d42-cea89336c741','25146ba4-993a-4318-b8d6-d9e36fbe598f','50d3f186-38d1-4033-bbdd-b3c7bc4a7472','99483123-b815-45be-953d-d9b80ef716ba');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.544')
+  where id::text in ('08775251-24b8-484a-bbcb-f3a8212c0289','1eedf507-a8dd-4f7d-9fa1-503d5af2eb66','3bd2fbfc-d3ae-4d4f-9e00-edb5774b715e','4ab4133f-b25e-4c2c-aa9f-3d5a8debedc1','53688db2-6eb7-4c12-a106-ff705cc2565f','73f5b1c6-90ca-4b0f-9ffd-14731a7b4d9c','8a61cc35-30cd-4e26-8499-ece676c3900a','be969663-0803-4434-b802-a2b65063dacf','c16b5e89-bb1c-4e01-859a-5ec95c83c610','d0fc7516-8ba9-4411-9eb5-3c9df7b0d7f2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.346')
+  where id::text in ('08781a81-bdfd-4cbf-a9e8-df9aa2fdb526','0cae410b-05b8-4188-88bf-c42dcbe93f94','22bfc65a-af6f-480b-a1f1-efa180c31019','408bb803-0947-49a2-aed3-0a3d6382a4ec','64efab58-25c7-461b-80ec-528986545fef','65e416de-00cc-4b13-83fb-1b6f34d0e90a','684b50c2-69a0-488c-947c-d3b27e57f760','7642642b-a18a-4496-ae6d-a9239c96f09d','795b3a9b-2de6-44be-946a-a9bce51790bf','a103bc73-ae9b-4ed1-8f52-a82639a131a3','a3ebe0d2-178e-4968-9968-2eab1cd6cb45','d595a850-6635-4032-a134-847159320b85','de3815ee-7bab-4fe0-a483-c96696d12548');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.18')
+  where id::text in ('0878ae71-2ac7-433a-aa45-fd13efdc2b0b','09452588-d685-4d27-8300-4984224ef315','15455582-2069-472a-9069-e37ad0c8d8a0','5b04e7fb-1900-4603-869b-37c3b234b528','5b222714-66a7-4e6e-8b78-c3a8702e9d59','6b2a1928-be92-46c0-904e-054db8b9ffd8','7241f6ab-6e01-4b54-a3c3-88da50fc5d3a','745238b6-cbbb-48db-8a99-80569b38778d','7f60fbb5-1688-46aa-8d8d-d19c618458d3','9ef9ee74-5469-4a94-ba52-32ef70f4583d','a1b402a2-063a-4519-80d1-e635eb41cd32','afaacd9e-24a4-45d4-b5aa-a095a1d2dbd8','bf04080a-2d52-4b94-a07a-bac52db5040d','d563208d-18a0-47fb-8fe9-cf2f56ba3972','f1d02ad8-a961-44b4-8e8c-c2e4e7916341','fd82df29-de7f-4ad4-9e40-621cc9e68d48');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.556')
+  where id::text in ('087e3aa6-2216-4e57-8452-001e112bfc66','0fe6bca1-6456-4a7c-84f6-440375b4d72f','30aaed2e-8fa4-4a77-a8b4-e515ee824ca1','5f609086-71d4-4139-9b69-29e6bd921d9a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.87')
+  where id::text in ('08861c11-a2f2-4e38-a8ea-efea39b28457','2f090834-c1cb-43f3-a7a3-202977d617d9','3ceb1196-b69d-4512-afaa-fc2f6af4634b','99c7273b-2993-46ea-8cae-94bbb6d7415a','da959324-e0a4-4e13-af22-99cd2dc71891');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.2')
+  where id::text in ('0889a1e7-f203-4d0d-a544-d106a202b29b','1adf6bc3-9824-4f40-96bf-18503ec5bbef','1cf6c58c-30ed-4eda-9883-7263732a16e3','22624a63-3a18-4aae-abe9-ff76cfb3463d','26640a9b-81da-4dc0-b5c0-a58b07249d8e','3650fda6-57d1-453b-b140-2c9296fc5194','4311bcb4-4ac2-4cac-8c50-c474e5fb3c88','6008e5b4-9e4c-4fb5-aa4e-5ad1f6b6bc9d','840fa64b-d1e2-4e7e-a54a-230016a8ecdd','8cc19853-faa8-4e3d-aae0-3236bf89ecdd','a35493e2-b000-4d34-9b32-69eb803ba406','a398e4c4-8f89-41ad-b21d-81cd1260303a','cefadf85-dbf0-407e-90b7-6b9b5dfc380c','df4582e7-a9cb-4929-aa63-5f84f5371fff','e0fdfa06-42c5-4492-8eeb-10850f35a50b','fd57635f-120d-4451-8f7c-6f2d55ada115','fd580a76-0d17-42e4-95f5-3f817d952cea');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.147')
+  where id::text in ('088dfa52-a8a8-4392-9514-8df9c5e41f66','0a8137d6-bc44-401a-90c0-682fad09f2c4','157ca086-5a8f-4381-87c4-0dd89443758f','2fcb99b7-11d5-4e29-a412-543dd740ae4e','52c75d93-e1a4-4213-9fc3-ad7ebbde342f','5d13cc23-1c9d-4e6f-a38e-bdcd1da88e13','739fe943-c61f-4899-a517-1089f556c693','9c9d8106-00aa-4446-82b2-6d623168b30d','ae1e4075-a908-44a9-a0a7-0767a672fd09','b0a91404-8443-4aef-b4b9-c4e503b90cb3','b1cd07ea-e9ac-4386-9fb9-42c1b0f2cf5a','ba15153c-1cc9-4349-adad-b2ee76e71b7e','bb5c24df-f641-494a-8840-54b0b1bea330');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.217')
+  where id::text in ('08903c16-dbd3-4323-91e0-0179286b5798','269fb6e5-de11-475d-8676-16f322b17414','3a507c11-b3a3-44b3-ab07-b4b1f083128b','475e844a-7c92-4d2c-a32d-1e2b5069f3fd','67bc535a-b9d4-4a4f-8a93-7cf4f2bb7cfb','dcda4415-9357-4c52-b0cc-9bd11b917e8b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.312')
+  where id::text in ('08932749-f016-4761-9b9b-1e36b5ff794b','14234086-e3fe-43fd-8d0f-7fddc5c7da68','255f52d0-b59d-41a8-84fc-dea42abd0762','2f20e387-b3ac-41b8-8ef6-8dd9562f211d','39c15c66-4501-40d9-b10a-af43c834ae9f','a4545b92-b858-405b-bd44-10ec0c136034','b129390d-9939-4d98-b9b6-082cb7d6d1aa','b7f695f0-c6ff-4658-afc1-ac2ea85bfe32','c443ab97-96d1-497d-89ec-19fe17d532ad','de384aea-9604-49db-b748-2642fe6bb56e','e13bb7e8-b981-4ce9-9c93-20d6caf746bc','ea72f78a-ed08-4aef-a64f-ed8e42681c1d','f426955c-46b9-4fa9-9afd-cdfc34c669f5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.495')
+  where id::text in ('08969f54-efce-498b-9b14-618f00828542','3b1101da-f336-4ab6-948b-c76bad779dd0','87d8313e-dc36-4bd6-b26e-7daa3ea8b228','a9404cdb-a3e8-4e42-9054-bafbc2b3d435');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.75')
+  where id::text in ('089dc4da-ac05-49aa-8954-42221a0273a4','2820f988-6b38-4476-87e5-fc7c2f622cd0','29a9ef37-f31f-4cf6-9082-11aa9b8f435a','c58e8790-ea1c-4aa2-aba3-b33ad8b027d9','cacbc466-16e5-47fe-b04c-42a63cc5ad85');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.15')
+  where id::text in ('089f4ac6-4d85-4604-a750-751e26653022','18b60959-8c2e-40f5-88bd-ef9efe8e238f','1daa9ec0-22f7-4e26-9f43-35102d596e7c','1fdd7a60-b86a-418d-9c7c-a0400b69ff37','517a229d-85a2-4aea-a8d5-2b4ec5ec14c9','931cb350-d29e-4da3-b5b5-c783a7cc14ce','c2c5acc2-da91-4888-8da6-dfa1b964228e','e8258038-7fb5-4fe5-adbc-4440b0d80bf6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.288')
+  where id::text in ('08af43f5-5837-4010-bd7f-7a77a2af4853','0ea05f8f-d2ab-4feb-b875-196dda0cb21e','166ea025-e681-42cd-a998-7ee97f5fe4f1','d4873822-e307-4a90-a64a-64e832358fd3','e5779c8b-069d-4ad2-ae50-d8e20f554292','f621e4eb-5786-4aa9-9341-5b222265d5f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.308')
+  where id::text in ('08b01c0f-91f7-44fb-af8d-20af9b0c4ff7','23b3e780-8b63-4505-bcba-eabd6e2c4c6b','304bbd77-1833-451e-91dd-2fdc3826711b','65f4da18-6332-4a1b-83c4-024118eac104','a8a94525-4fa1-43ca-90f2-64888f0fbfbb','b10f34d1-8f73-44d8-bd72-c13f0771c8f4','fdaf1d1f-786b-4dad-8509-660eb266c22b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.193')
+  where id::text in ('08b256a7-25ab-413a-aaed-15de64ca80d0','3309fea5-2f89-41f2-a924-db5ff92172db');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.181')
+  where id::text in ('08d4044f-28f1-4703-b3d0-03e541fee499','0e9a3d50-0719-4106-aa6a-0b0181478670','1e28ae8c-4540-4889-85fc-7e0e4d9aca5d','24855c8c-85c4-405e-afd2-aad85ef08516','2ce56aa4-cf04-42eb-a4e6-f500ad79d868','3f5bf130-ec60-4d59-903a-469567ab0b28','5a7137ac-a925-4f8d-b2b0-edd82e73a592','63b8cf59-215f-4815-8c98-9c8dddb5ebbc','7371a440-6592-434d-a79f-f4eb3e699f0b','79f6143a-1158-4938-8595-8540f3faeaff','7cd7c5d3-adef-447a-bc12-90f37638a97f','7ce8fe4f-584b-4c7e-b40e-5f8897bb3add','acde8055-2d93-4712-9109-87675a4342ab','b4881fb9-1734-425a-b534-bc6ff394fa35','d72cbabb-fc60-4b82-97f0-a093e66949ae','f738301c-fcd5-49ef-aab0-c5bb1505c7b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.395')
+  where id::text in ('08d4456c-d4b4-4731-aee4-4210b41a87c4','3b35d10d-88ce-45cc-a308-874edc9a0526','514dff64-584e-45bd-85eb-f800429a3220','5e6266f3-5941-4465-aa35-13e54ddfb24d','63ecb0e0-c6b0-481d-a674-dd7132c442da','6af00b6d-67a6-49cb-8798-db372b9a8ef2','8b84cf55-790b-4c46-af66-596d77649119','ab610f95-190e-40cc-819d-e1ee9eec78d5','f22e4d16-3f13-4017-8ae4-1b9426870982');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.166')
+  where id::text in ('08e5bebe-17be-4ac2-84bd-e6c4009b6707','10a3fdc0-131a-4628-a399-fab5881f6203','87ffa536-837f-41cb-85f5-72e7e81bac29');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.398')
+  where id::text in ('08e632f4-c55f-4f72-b0d6-26e0b1ee359c','5bbcf40e-ba54-4e00-ae27-5175e7d12419','69370a43-f53c-40a1-a167-4d0c7cf44ac8','6a80d211-b6ca-4288-a285-8b674eb8ac32','ca23a3b1-75fc-4ea3-b64b-92a6e24bdb23','cc07b7af-234a-4a0b-bb9b-5da44d48d6f4','cfec1093-8aa1-4143-9008-bcaf23390d3f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.51')
+  where id::text in ('08e63411-ff48-4e72-8093-489b0053b219');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.298')
+  where id::text in ('08e8e92b-7792-4079-bfed-8229f54a033a','31db9fa7-94cf-4dda-ae72-1b198de9625f','875b72d6-c180-4671-b863-39145f1e58d9','a5ebac98-cfce-46f0-a500-5b71c0907f32','af4cd51b-bf49-46a6-a1f2-d58db945ff0f','d6361f34-584a-4671-b424-67d8761fefdb','d71df9e3-c495-4133-b2c2-929bc3545cc8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.121')
+  where id::text in ('08e9c94d-c2a2-437b-a924-d57bf985fa82','119d77d0-0dfc-4991-9011-9a00c5d35fe2','52c75d25-af6a-4d91-9c8e-b2a05318d97c','58b22e6b-e501-490c-be4d-d7759af1a65a','647b2ec5-722f-4c87-b521-b3fe382a31d0','7fcacec7-4f55-46c6-aea8-3e5070f109b9','afa3498f-176f-4ee4-8ebf-1096df2791fc','e1f238a1-c994-4df6-8218-aa7fed05be95','eebd8095-17fe-49ce-963d-65d2a04c3996');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.107')
+  where id::text in ('08ee47e0-16f7-4939-a315-9e66231f0c8c','4d385756-b6fd-4ccb-a659-1cc14fb15fe6','c6709376-514e-4468-bb81-23cf7890d673','f850bbd3-65ac-48bb-8ce2-c394d33048ca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.452')
+  where id::text in ('08f1f145-6850-4abf-a5fa-a9c752856d23','97209a55-0ebd-4f6b-b7e5-50d5b269eeb2','cd8b0d30-f3fe-498a-ad30-e0438987d324');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.7')
+  where id::text in ('08f26299-a3bb-4016-b56d-84c36e26c9a1','19d0253c-4ce7-4ad3-b09a-bb71afb817c6','19f26a3f-847b-441e-9933-74c77ada105e','2b909fd0-f4f2-48d4-bceb-7bed5c4d354a','3ad3ac9f-0108-4255-b361-9c7ae9eeae49','5e4f083c-e75f-4be5-9a0a-99d1f698d0de','808afc6a-b59d-4fac-9162-c9c6d9d9cf98','ba52f55c-8160-4790-93d1-37c5ebd91677','d5303cc5-6960-4845-b6c4-ba6f960bcc77','df4ee5a6-7e29-4f80-ac87-23cfd091fe8a','e00d176b-7e02-4fe6-a42d-a7d652f18871');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='2.2')
+  where id::text in ('0904667e-09dc-46e0-a58b-bdb8445d32f8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.254')
+  where id::text in ('09075e21-130f-402e-957d-01e1cfbba587','0d400556-7e4c-4f8d-827d-843f579db57a','0e010fe8-ab14-46a1-ae43-0f75687b3310','110e28b1-1802-4575-b479-7ae09e0cfc04','174d034d-e112-4514-9ad6-115b8866bc34','2d51c888-4a01-4195-aed8-8a09df43980f','735151d2-6293-4357-9b84-3cb1696ed176','78d15f8c-8beb-4af4-9be6-51b57c2227c1','a8f1c889-464a-467e-a618-007d82626d74','b5e3d0a4-96fe-404f-9f3d-0f7802194eeb','bfc9d98f-e374-43b3-97d7-ad6de71e0425','c1f66fdd-3553-4c64-8d2d-91fcc11e306c','cedcad65-ceac-43eb-b510-100546d706b0','ebd51331-c6ab-4bdf-af41-e162a623ce10','f6572663-394a-41f9-ac91-933a5fac15c0','fc84c146-ef8d-460c-bf03-b5afbd46d305');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='43.6')
+  where id::text in ('09090992-dc1e-4b0f-b980-9c395b16b786','5c52819c-9985-457f-87f7-3c0bfa6b6474');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.16')
+  where id::text in ('090c4e05-9faf-4d1e-87b8-ab0655154645','251f1e26-5a6d-4be6-aa9c-0df79b0be32b','4da27ada-5822-49a5-b3ed-1dc5e7909f89','6932a389-b01b-4fd6-b8e2-f5040089c475','865165da-553c-41bd-a45e-7af88edddd5c','89b44401-f31b-4e73-bd68-9c65b9d3b793','a95f4962-c8ab-4d62-801f-c7383ff3f113','b0b7c371-af65-4411-a2b6-fd8cb537ff6e','e3d73e40-189f-49a8-8fa7-146c11699032','ef96d4f2-6b8f-495d-8423-0829f1176a7a','f0e108f7-8549-4f0d-aa3d-cbffeb31f96e','f4c60dad-8025-41bc-9612-e6b5b7eba860');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.44')
+  where id::text in ('0919b8ac-713d-46f9-8d4b-20ef28caa67d','20503fb6-a185-44a7-8ba7-2f62bcbdd7d1','2807ebbf-fd68-45bb-8404-2967ea5dc24f','72d9fa28-b7e1-489d-a3cb-91ad5e1281d4','b3f5224d-d58a-4665-99f4-8b9cf8434fa7','c62849f8-d780-4937-9600-c5f4adabcd5c','cb77058a-b6ea-4b86-82e8-6d4a6303de14','df59886b-9880-45fe-bc65-27a994d76b5f','f0612d34-ae68-438d-926d-7094ee94c978','f32df2a4-ef50-4d7c-a4e3-4cc4a97520c6','f37e8133-0b10-4f51-9f11-3bc3508b0a52','f77722b0-a726-414e-8c5c-423b26a7085e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.175')
+  where id::text in ('091d237b-f42b-489f-a04d-9b0e230d48fc','64b0c3c4-fc95-4b1d-9387-82eb34544568');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.292')
+  where id::text in ('091fab2c-d7a1-412a-a78c-d5ee4669811f','0f91e800-9cde-41eb-b7f9-7deb6da27ae3','3aee500e-589c-4892-9ff1-527b0f46cce9','42528565-a0f6-4c24-abf3-8a7f1f51b11e','62b009e8-9d0d-4541-9b14-887660dbb4ca','7574fdd2-ce8e-42a3-b8a9-87d03fdb773f','77a819e8-46ea-49f4-8ee2-ea45c87227a0','a431ac55-7c62-49d7-b40d-6ee0440370e1','d260b998-35fd-4a9d-87b1-2651f5cbbaeb','d579c70d-210c-4679-a3d9-de7c0a58970c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.637')
+  where id::text in ('09294c1f-a23b-445e-99b5-8454ac7713fc','36e2d01b-62fd-4728-bcf3-9800ef5cb55c','4a6d93d9-6e20-45d1-b972-ae98bd775a69','4b034710-6f74-470d-9f75-f29ad5049822','e5c153a5-8d5e-489a-9ec2-7b4fd9975d09');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.165')
+  where id::text in ('092bcad5-a29e-4e5c-ab5a-e671af719d8d','14726eaa-2b73-49df-92b9-4534eb609500','18be3dfd-7275-467a-ac08-fe880ef88273','222bf108-2390-4ea4-85a3-bf09d3b5ba54','297f6dbb-3148-4763-beb7-3d53e4f03c20','2b8c8fdf-ad4b-4709-870f-d52d99500807','3230fb8d-a3c7-4d79-bbc3-fe90cf4a41c3','77d19a7b-1d61-4081-b6d7-7900c329972c','f9388043-018c-46e0-a7de-16b0bad69ee6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.177')
+  where id::text in ('09307de3-53b8-4528-8cf8-96dd476ea772','1d1ff0e3-2de1-48f0-a015-e7d691dc6607','255adb76-1db0-4a6e-8bf7-113432be9ac7','2c22e7ef-6368-4eb3-9398-2845fdb19ab0','38320764-2a78-4f9f-a1fc-1adc781e23ae','45d84267-7dd2-4f9e-9cc4-61a6e0560b77','578ffbd5-b7b9-44b9-bb98-ef248af61d93','59c76a7e-d049-4d31-a402-8c59eee539ab','69973f38-785d-4824-8034-565c69d85a91','78a78f71-14c1-41f1-bf0e-108ada87d6dd','8431ee92-21ad-4cae-995a-56041d753fcc','8f130c29-6bfd-459b-a7df-557cb14c27ea','9f966d84-dfba-4979-a130-539deb45b523','b91d0c4a-8a3e-44c0-a1b2-ebf2d1f75740','e3e9256a-6d3a-42e8-84a8-b3aa37a2c183','ed7c3f6f-408d-4cdc-81cd-0cc0ff92b2b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.202')
+  where id::text in ('093b6f75-b093-4e02-9fe5-6c5950bd4063','0f27066e-35fd-405c-a053-8aa93184cd1f','1623c15c-906d-4c4a-b40b-1f2fefd8fede','44dfba59-a8de-4d54-8d0b-ceaddee0c0b5','5c8c0cc9-f285-47ab-8d95-b5e4b6b1e98d','8decebed-ea47-4d72-acfd-34d0ac32d46b','9b4394ca-8cc6-4edf-8c60-5b50e86e2b08','a55ddb8d-7d3d-4026-a05e-4886a0955b50','b5654ec3-3391-478d-bf9c-7785460a5d65','cc6066d6-9cc7-405b-a92f-c1247291746a','e0a3d8d5-5b27-4543-8d3e-4c1eebd70f38','e9c5ab82-e81f-418d-8a76-bf509f6ee2be');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.302')
+  where id::text in ('094177eb-7680-4d4b-b6d7-d3a5f34799cc','2daa538f-6075-401b-9668-81379722c02e','3432d3f6-d47f-419e-8c43-2bf171901bf5','4c4a1c56-5326-4ee5-9d97-0531729212e0','68ef3bc5-8fe1-4e91-93a0-fdc3a47a8754','b7a0518a-e0d2-4085-89ff-601d7a037460','c7935305-9bc4-43f0-8acc-01b4e5bf179e','dd5f817c-2c46-4cb2-8aee-77fa4afeda29','de7b2d59-3c42-4011-8533-95facfb42ac9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.265')
+  where id::text in ('0943b34d-d257-4744-a817-a98713641278','1325a93c-faf6-4067-8da2-6c3b7bd5d89f','1992a400-9bc3-4048-b3c5-5b431981cb30','468520de-9475-4116-8f4c-2e9792133b2d','6622bb4c-deb2-435a-b974-88cc7a969b8a','9ee48ea5-2906-402f-b994-4f6956225f79','d10dddc4-4a75-43f9-a7d4-c370367fac9a','d913af92-a55d-4d4a-8a1e-35d75c9141ef','f0035915-0b0e-428c-8779-3f4c11260173');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.367')
+  where id::text in ('094657b6-79f5-4360-a7b1-6ee407052472','4a56fc87-0ee3-429c-a03c-660d9b511091','5c1918c1-3188-4d3b-947d-98ad44975168','95e59e5c-a32b-4719-adff-4df80cfa71a0','c78ad153-6d89-40c9-bd24-85562698912d','fa8fbb53-3f8e-4556-8106-2b86ddb74e53');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.225')
+  where id::text in ('094b1da1-81c0-4a90-8e18-1d7ed2984486','0ca438c7-3fc9-4362-89b2-63b113abaf83','1bb574a8-df82-4925-bbe6-170aad10b812','3197bc45-9ba4-461b-ad0c-1e0c16278b7b','56ecf7b6-8330-4861-9549-51992fc40712','5f62d37d-21b7-4ccd-8102-a450f7fd4b2b','7e46cbfe-ad40-4340-9a68-04017133a60f','82e9f040-eeed-4ef0-9fa5-c2edada72801','89b45c03-8720-47aa-a3cb-ecadd3ae068e','b463783c-96fa-44ea-87dc-3c6add2baff2','b4dfd7db-cbca-4b1e-afef-389dddfaf765','cc4b8d56-5508-4f59-b246-e69e95ecba11','d403b385-33ec-47ce-9a3b-2646625fc4d6','ea648247-7132-417a-b212-8cc7efeaacaa','f0ccf5a3-8ce9-4cad-8a56-9c93dd5be9a7','f9cb4400-7305-43d9-8d49-13c15cddeb3a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.386')
+  where id::text in ('094f723c-b6fe-4eb8-a445-4427a11922bc','0da4f501-a173-4463-aa5e-20a6f83c83c7','520b1891-764f-4e79-8f95-91f1c1be57a4','6e8c3f06-cf8b-4748-8ccc-72e7604065b2','e51f64b0-a8c0-4da8-a794-b622255aabd7','fc88be71-4a39-4ac7-bf93-41f85a23a957');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.261')
+  where id::text in ('095769df-07e4-4092-8fff-03b5449f556d','0b4d9263-0523-4be6-aa08-adb0e3f2ec41','13715a21-5cf3-47c2-990d-84bf5fc7dc6e','17f612ac-62a3-415f-ad61-419e68ff2e19','309d6647-c3ea-4180-a626-987d1cebc5bb','4127520d-5864-4c57-b676-1f25c2169554','5c3f39ba-b065-4eb6-8d5e-16b24868fd57','6ae9b17c-80f6-4588-86a0-bfda1c5073ac','706900f1-d8d3-4f48-bbf1-f7385773ade5','73f80ffe-a900-429a-9976-b98fb932c11f','7f764530-a851-4d71-85a4-67c3969d6dac','7f8d0e13-a12d-47dc-bc22-89741a7e1567','96435ca5-14ec-4d74-874b-3cea3fff99bd','b13ba1e3-16fd-4829-adf5-246a16824a2e','b58f2cbb-cc7e-4421-a28a-0feebbae909f','c8cb922f-3d76-42a7-b0d3-d69888bb1ec1','cb53c3e8-5c96-4400-b6fb-673761afd6f4','ddef0fef-4849-40c5-9966-f41638f536a8','e62763af-177d-4239-82da-f3c86063d457','e7609a2c-dcad-4ee6-9021-fd4f88686eeb','ef5c060d-dbe7-47d5-adee-d2090a9ab009');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.173')
+  where id::text in ('095bf102-f41a-46ba-bc5b-6f153615d171','397e4286-23d4-4c85-a90d-5d8a1583680d','5aff580c-8af2-490f-b1fb-8e39ff41c98d','632bf295-71b2-4634-90bb-6403a6b1b431','8bad4cca-4fe6-4d1a-add8-50d77c1a9471','d4581993-c294-4db5-8eb3-12db63dca964');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.201')
+  where id::text in ('095db5c4-91f2-4ba1-a677-cf21d93e4f62','13cbb64d-3fa4-4cae-bcad-ab6817c2a32b','29285c4f-846e-41e0-ae29-f51085f20785','2e0930ca-afc9-4dcd-9058-de605bdf9f57','85456193-adda-4ae2-9d7b-87f2d067a9d5','97da42e6-a85c-4936-8cd7-3f9ca754d86e','a77d5b96-6ae1-41db-9111-c0ce0e033c9e','cb0f5ed9-01c4-4bb4-bdeb-4c60ab02f605','e93f6c64-acf7-4c55-b51c-c2b2010acbc9','fce46de7-ce2d-49ff-a08b-56020751da6c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.118')
+  where id::text in ('097acb00-697b-4010-8223-3c4e13901671','16a5418a-2ca1-4d0a-a2d1-1949c504c766','49a01e81-6134-411b-a011-71bb9d076c5f','a7ccf4f1-a283-4fa9-8cbd-fbeb5fd0f9f8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.4')
+  where id::text in ('097c7151-6452-4f98-bd20-8e31fb2f65d9','276b408f-9c82-426e-a769-03581b879a9f','31cf89a2-4cee-4b74-af96-7fd43ae36de1','39d6e02b-2ec4-4bab-b788-180b0f4babda','5d1b9833-0af6-41f2-a926-9fb881b6935b','73c21b40-23f2-47cf-9a31-e819da6c01fe','ada5d82c-4a3d-4a98-9cac-d8017cf1b5ff','b1f80cad-9b2f-4293-966c-2dfc3d1d54a7','d0da1d36-bbdd-44ae-90d0-2b84a1aea6db','d5403cb0-3677-427f-8856-4cbef226059f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.329')
+  where id::text in ('097f65e3-2707-40c8-8132-ebceaf94ecad','10bb4185-0bf3-4ce6-a2ae-a94df5eaa2dd','2eccea8f-ccd2-4ec2-9394-568b6bd29826','3a006aa5-468d-4862-bc46-2f47bd0a5563','8f03615b-fec5-4383-9009-539e6426a1c9','cab266e2-2d12-4796-b8a4-9ac4b83abe1c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.323')
+  where id::text in ('09815663-4610-4314-9498-03407b7c37e2','5314d202-725d-4926-b8e4-f9ce221c214f','8b896d09-45c6-4c10-8d39-edccc19c2fac','8fab9acc-0550-486f-b2de-66dc83a66167','942889df-cd8a-4d44-8ba7-35c7e370477c','a12da3f9-df07-4dfd-8570-f39a8eb01b29','b2e61fbd-30fc-4466-83e4-9d04d72e4e59');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.464')
+  where id::text in ('0984a137-95d9-4cca-8e11-15a5bf535b64','c9737cf9-1521-423b-8899-47c3d361e495');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='23.4')
+  where id::text in ('0988584f-27cd-412b-af7c-f7e26bd3a2c1','0a819878-847f-459b-9232-0b8e91b3a428','20210ef7-5d64-4332-91cd-b4e682069056','27c5c8d6-318c-42fe-b2e6-312c3da3a377','49577e84-58dc-4580-a765-b9637fc320c7','5c7ce0fa-b7fa-4194-bdd2-a5bcdac627bb','7d16481a-8aef-4755-a24b-79a6cc08cdae','8e02b088-e3b2-4a7e-be4b-a355280de085','92a7a22c-458f-4d32-b028-ae6c738d156a','ca934252-41a7-4012-97b0-25fb1be17b21','cb30319b-77be-4d27-9011-751fd73e6163','d598e230-0527-49a7-852f-e7b77ab5e905','e63a87c9-0539-4042-ae7e-39c7540a6b8e','e88845f5-9952-4c40-9fb7-bdc6c20f77b6','e9e3ce1d-7fc2-4925-8c86-354ca1dba944','f2b202c0-6882-4f16-a781-4b46b75b2827');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.311')
+  where id::text in ('098a5c9c-c462-41b0-9881-fc1956ce8a89','19f2b3f9-6cc0-4e2d-9767-60ddc00a5157','1f88c4f0-5efe-42ca-a72d-22be5bcf7ca4','330e1be0-1131-43f4-8974-0fc8c1462015','4def4b0e-e270-43ea-beaf-d7a75d8c9544','65215935-2097-4186-9a4e-b68321ccc589','6656dc0f-9f34-4fe5-9f54-89873b69d4ba','72db5ee6-7329-492e-b650-8f0a4a334be1','72efe8a2-746a-4e7d-9444-7e00736e4a0c','a737bfab-5346-408d-bf0a-50cd7bf46959','c2fbdc69-2368-43e5-bb79-da69d5eb2a2c','c90b4b27-ce7d-4c00-9e17-91654c516e5a','e1e14ed0-47ad-4b01-ac69-b3ac2ee1946a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.29')
+  where id::text in ('098b4e28-b4e0-400b-9254-0a6b435bdbd2','1f7c27fa-75f4-410c-9f26-1a79e40a0329','29c9a06a-1f4f-46bc-b715-af7b4956426d','448120d2-0680-4870-a3fa-c7a4199071cc','499428b0-e310-454e-9598-972650d3820d','7fc519be-65f5-4992-b9d3-386f4f681fc4','851d421c-959f-4552-bd4c-291276367c79','998c41ba-3a50-46ef-b414-45da02e68e8b','9f58d7c6-df46-4877-8067-572f67b42c0a','a07fd975-40d3-4f78-baed-79aed6f6394d','a7cce010-c5f1-46a1-9fa1-d880a29d31ae','d6009f9d-5e60-4792-bcfd-bbb388d9cc8a','f84e722c-5ce1-4c91-8858-6b5612c06130');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.213')
+  where id::text in ('09960302-fd9b-467d-9a28-1ae0a41d1295','1e1f207c-4c1a-4978-a980-34fcdf985c28','24bdf6e3-fd9d-4c38-81e5-5ca47b7480a2','284bf0e6-f7e1-4255-919a-0e5bc66faa36','2a260f92-f69e-4b39-a1f4-519ecd45f50f','8a6da429-6399-4961-b779-85df39df1ea1','d1500037-1d74-4a4c-a947-eb1954a67bb8','ec7c403a-5418-40f9-ad30-c41a9cb6769c','f99a0148-1db3-4306-bdbe-273c887f05d8','ff854f87-ed61-4c98-912e-427ef42a9c71');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.587')
+  where id::text in ('09a8b22d-2ab8-4d50-9ab5-17e0bdc0b816','1119cf8d-2c97-4221-8f47-247e8a91af7c','61c26104-35ee-48fd-8ac3-3f7ebae10e13','d4702201-7567-41bb-a99c-636e96e937ee');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.279')
+  where id::text in ('09b53741-0529-474a-a608-337fea0f0663');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.252')
+  where id::text in ('09b62942-baf5-4fe1-85a3-6af0a544fcfd','25a9a87c-fc7a-4b8d-9b59-e8dc67b1d897','28847e59-f1d6-4730-ac3e-6462af910baf','3ea5d191-cc93-49db-9820-66826df7cf40','487fa066-99e0-4ddc-b7e7-3fb363b31cc9','51862b56-a270-45b4-80d1-a7b927268e97','6d5dcf48-f4ea-4b2d-b4cc-ed5905a3e3a8','7618c08a-5987-477e-a89b-b7a8417bf997','a424a26b-6ab9-4680-8a5a-ff351354950c','a84ea7bc-9c67-4f0a-b1b6-2adbd8432b2d','cd534a82-657c-407f-bc50-890a1ddb1718','f5cfccde-62de-43d6-b4cc-50780b2ce7be','fd0c74e4-8f57-4d18-8da5-41df979c55c2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.17')
+  where id::text in ('09b7e153-aed6-4c76-9ae7-c1260bffa84a','0e979d72-79ce-4d04-ad64-c261da3224da','17841330-51d5-41d3-bfc5-179beab0252c','22d17e3f-2c93-4840-8421-0b1aa5bcf969','524ae200-0197-4bb3-bda3-eee6050d9234','5d95e294-60bd-406a-a01c-333a272862c0','62d810e0-f11c-4ead-ab94-9baba5556234','78bc784b-99b0-436e-b9bb-9408aa3f338c','8775fee5-e74a-42ad-bc1a-ecdea9b254ad','c2e53f9b-44c8-493e-9690-302d4bcddcc8','c4a4a111-cb62-4219-bb39-f5b39a3de024','d8bca0c2-e128-46c5-bdf5-e64f0783c0d9','d8bf1b9f-4ed6-41e0-bb06-91b4d59a4382','dc2e39fd-5a39-4ac8-a472-44e362566003','fa99d6d4-e840-48a8-9371-c39904b5264c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.66')
+  where id::text in ('09b7e24f-19e2-4c3a-8fa6-b9f4d753168d','51e558ad-8ac9-43f8-9dd6-4c6509159c69','5be9d498-3ee6-4669-a24c-747061a617cd','8ded8965-4c5d-40f0-a353-9d54c06dee8a','bf369506-2780-48ad-8d4c-f4a6f497cffb','d4e51197-760d-4527-97ca-0abc9ed41bed');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.67')
+  where id::text in ('09b9dca6-4f91-4075-84ca-5a656f86211a','4fb32e37-70a8-4b67-b0aa-347a594cadcf','60d0b3bd-2312-4b03-82cc-41f5fa2dc911','832c30ad-df99-4826-9158-70e96e8747d0','e6738527-e7ed-4bf3-904f-9374fb9fcfdb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.329')
+  where id::text in ('09bebe05-ed9b-4dc5-a600-587369ea7e33','0a0b0086-fcc2-4d0b-ab9f-f9b93ace2087','3287dd25-91b6-4b27-9bb0-457dd227fea6','5595153c-f4ca-42e3-b20c-0130520d3354','9857fb34-4d0a-4e5e-a3ee-839a4e8c9a2a','a5f1d22a-ea83-467f-9af4-de53104b061e','b223cd5e-d3df-49a3-a785-edbe7697df35','bf17d511-1762-42dd-94e9-5b5d68e92ff3','d74cd5b1-3444-4755-92de-05c54f78a835');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.255')
+  where id::text in ('09c1b392-0501-4146-98e4-56364784e5fd','14917c99-cce7-400b-b68f-843bbdbd99f4','247dd1f0-892b-4598-8060-b4d73285c7d3','391a22a6-e6bd-4b5e-b307-939fe09b39f6','4705125a-9de4-476c-92b1-f3399040bc88','476583a1-8105-42ed-bb97-0b9ed969d184','5c195e0e-63af-4d90-94d8-ffcb4f4acfa4','64407e9a-2134-417a-8f02-7847a73e9714','93fb887b-7c7c-4d88-ac14-3d90e9101d8a','bce51dd5-a8fb-4e13-baf1-a12de888e7cb','bda16b47-1963-4c8f-a88e-9b2304c56610','ca0be7e4-50d1-438c-be56-e93584fca208','cfdc8cf7-d6ba-488d-8da0-f2bff0838286','da7f041c-f284-44fc-a2f6-3e371a235b81','df8a5827-6766-4469-8951-509ea16830f4','e57866cd-8388-4073-bd7d-2d430046cd0b','ede638c5-71f9-4852-b662-71aa4636b376');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.474')
+  where id::text in ('09c42b61-1218-4fb6-be96-31d5eb77e529');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.156')
+  where id::text in ('09cd0020-dacb-4fce-a95a-340594f3d82a','13c60cd0-feb6-4458-ac40-18551d35e8cc','14d5bf54-87bd-48cf-9ee0-3640d3679e7f','2ba7922b-fba1-4724-8544-515fa2eaabbd','3b22af59-2260-4eb0-a35d-2dde4c50c23d','50bfe408-e6e7-4b19-9bd9-8283507dfdbf','64937cb9-8ec9-4072-b1e1-2623eca7c0b1','6ab46ef0-2a6b-4246-b5ec-21a53cfac142','796cbcf8-4f0c-4b71-9e7d-fdb3884f9391','84c29ba3-526d-42d6-9b68-38dbcbed62a5','dd27bd97-425a-46cc-b96b-f1b9bc6951f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.59')
+  where id::text in ('09ce1a93-6436-4228-af54-27d26b751722','0f50a561-589e-4fd1-963c-5c29947d65df','1952192b-54ac-474b-86b9-c3287f760cec','28a87b6b-0417-49c1-b6fb-9b7bbe4fe092','362cff13-6df4-4aef-9ab6-570096ecb947','733e2667-a4d4-43b8-863b-e44ddce34b47');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.538')
+  where id::text in ('09d143c3-7cd8-42b8-a613-ccf1235a9aec','3a31a2bb-24d4-4026-b161-c92d36cb5ae1','79b3ebb5-aeed-4a34-9113-d9c895a3e963','801cddb0-8973-433d-bea7-4fd24eca7f41','9ff740a2-0413-4b63-89b2-a5aad53bbdba','a8cd2467-facc-4773-afab-ceba2a729fac','ba8a0ed1-d605-4bdc-84ba-8a97e0b31166');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.91')
+  where id::text in ('09d48e96-6819-4ec7-8149-dbcfec4970bb','121d512a-567f-4fe0-bcdc-a94eaec102c4','36d87c63-e43f-4d41-bb64-48898d75acbb','ef0281fb-b759-4c79-93c1-3e93a745541a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.86')
+  where id::text in ('09d9c667-bbc5-4de5-b092-36e4052cdd35','1503ec37-ab59-4598-9ff6-7e76aeeaee9f','7d0b2097-df30-450f-8ad1-b055630175aa','9554c1d0-a4d9-4025-8b02-dddb81feedbf','9b1917db-2f59-451c-ba55-7fba14a48c52','c3a433dd-ea26-4ddb-a357-889aa09eac42','dd64f550-e488-4526-aeae-d760cc339b3d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.257')
+  where id::text in ('09e34acb-58bf-4093-8de6-c506dbba2e83','1a87cd1b-f854-4a5b-944b-3c03fdd6e504','37edef48-3a1a-4712-a1c3-9c1452d6e423','4ab8a0ea-90bc-4a4b-806e-a9b7beaa5fcd','74994d84-5b0f-4a93-99a7-dfd2c77cd22f','7d4ce3d0-c625-4191-bb83-8ba5004e5fa2','8267e71d-462e-4b18-8b6e-0870e76f9212','864ed4c3-463c-4fdd-9b5d-4be1e4ed2f9b','88a80d77-dd2a-4834-bdf9-f174814802e5','88f0cf7e-6f2e-41b3-859c-cbddfc40da30','a111e08e-ca90-4409-bbcf-37a924a95433','ae8aab99-0399-4162-95d1-5da10f3985a3','bbff811e-0e03-49d5-889c-551e13f7c39f','c2359d9b-8b2d-49a8-acb6-e0d018a2354f','e092265a-1003-4282-b49b-16c0e0eea4a4','e341f8ca-5b8c-4239-962e-b9bb77c5fd01','e4d00524-8b25-4c1c-b9ef-9bcacf858fb5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.368')
+  where id::text in ('09ef693e-85db-4619-8d08-6ce9cdf34db6','0ef0bbf1-29fe-41d5-a1d3-be13c4cd4780','396d5ea7-bf8c-4012-b91a-0b7f91f5eea8','470ea20f-00db-40af-959b-92486b7cf95d','b83cd8f5-ef23-4389-a165-b041051a02f3','d20c0cfe-246f-4a5f-931d-85d656bb5c43','ddc4211a-6cb4-4da3-bc44-22c8b82732cd','f91b5e48-4df3-4d64-a819-92eaa11d4cb3','fe679895-045e-4b12-a74c-1daeac8ec4d4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.82')
+  where id::text in ('09f2a2e5-861c-4d9b-b099-0cc1554d7599','21057fb7-c332-43e6-9c19-20066cc8f6c0','6df6c8a1-f45f-427c-8d39-4d86bfc0f1f6','70224cb0-efa8-4fab-ab27-19d68f8ae273','771147c1-554f-4ee3-a97b-90efa362d2de','78f75c10-c2ac-4ad1-8cbb-0fc594ec9240','798c44e2-47c3-4718-b63c-556fa0a79329','c87ed8f1-325f-44cb-bc64-12844ae4312e','f13534c2-a457-44a9-a5e9-3d0e7ad6996c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.267')
+  where id::text in ('09f5905e-1832-4b7e-ae9b-902a3cce3f62','32350183-c389-45b9-9c79-290e71f2421f','65c12b11-33ae-448e-9193-86effba0a3ca','78a911ca-eee2-432a-a7c8-8994098226b7','977c5ba0-ff27-4b35-830b-429a464c76e1','b22c2e19-63d2-4d2f-9fc0-795370652567','b4a97727-1a28-49a7-b9cc-68ab284ca337','d067c734-38c6-4799-9626-584c3c678108','d825c4cd-9b1c-4c3e-8616-25b96d4d033e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.175')
+  where id::text in ('0a05d1cc-0206-44c9-8450-61e8359e2a61','1ac54b3d-80b2-47fe-a806-e21d447f6bca','1c4fc77d-2f71-485f-859a-725481dbd981','4eaffb80-3a2e-406c-bcf2-751838fe6df9','a3373c26-cf2a-42e3-81b2-cf677fb33ef7','aa8a5b3e-8b92-4a47-a3b2-07b25b6457ec','bd11414d-b3a1-44c6-9545-b68c707bc555','c5a02745-d198-4e4c-abbe-cda153b56150','df3be742-870f-4487-aebc-5b2f52a1ddba','ec39e43a-3b18-4569-8c0c-020e2994b53a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.98')
+  where id::text in ('0a09fc63-8562-4a3d-a06b-898fc7ba6330','26176b14-42b9-4608-9882-1651ffb79865','4bf4e206-f0b5-49bb-b425-875f68ea8078','60cbfe3c-8638-427e-95e5-607547bb1259','7745c6bb-e264-4921-a1a9-6141bf2b4ac3','8b637b53-5992-4631-af71-183abbc9d5e9','b5663431-8280-42ef-a873-268e2bdda1f0','bb5a64f2-c812-483a-a0cb-580e6a44b7a4','c83464cf-25c6-45fa-b12f-dd3600458d80','c9fd0e06-c481-4d2d-a039-6fdc7ec49b3a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.332')
+  where id::text in ('0a169621-2af7-4f3b-94e7-43f7cc3077d4','0f0b5117-10fb-4c5c-92fc-5ad0ac197588','1b8696bf-98f6-4b1b-93a1-d243b9fc2b3e','2d7874ec-59d4-4e98-ad66-0f5410fd4b31','2e1909b7-0736-41c3-94b9-5a8d996e76fd','48cee577-9426-47fe-bb44-eb98cf6e6a54','554d750b-f0db-42a0-9ac9-01ee08d92853','575cf461-8a43-4dfa-8f74-7567b7100357','6572f801-fb49-4700-bf92-87f8d756350c','6bdd4641-e3f3-4ddd-a8fd-a3707ecaea4a','6c49be61-2c70-4bae-bb91-09c0db73670f','6f137543-48e4-45c5-93df-bc4529c803e0','81675c8e-a212-4e63-9c1f-8ef54541f927','8a07289d-0a07-4aa6-b228-e6af2a465c38','8cc0e4e7-0ba5-4e0a-95e5-42b5953a867b','8d1f9b4c-cbf1-4e85-9e9e-1d531d2be823','97fff679-6c80-430f-8e21-52496e6ad874','9db5c131-879a-4ff3-93c7-90d3b5685c38','aa76a5f5-ba0a-47c3-b3c7-24dbc9e64cb4','bb5c5fc4-8d0b-49cd-8d73-b4fb5b877700','beed3705-758c-437a-8d4d-75f0735e4eff','c044741e-e14c-4ec4-8081-e6e49091c3b8','db3d47d9-7136-4dbb-9c8b-723d374b20fb','dc2d1b25-f872-4e3d-9fd1-2474eab2bdc5','e2a3cb35-e8b7-46ac-bf1e-e5ef0236cd15','e3010dbf-60e7-44c5-8978-de0544daf3e5','e98c402f-48c6-457f-9345-162bdf551830','f062452b-baf6-4f75-b126-b8d555528a11','f4f18b84-51c4-4cb5-acc2-b060b74fdb85','f829b1b0-a35e-4722-8a8f-d6ab28f18928','fc112915-8a4f-4a8b-86d4-b599cdf3bb25');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.253')
+  where id::text in ('0a1a4a89-a83d-461f-9702-5525568f2663','0cf62b6c-dc8b-4ab2-b39c-f0482674f3a6','2f30f8be-21e8-492d-a83c-6379f3c831fb','66b1be2b-67e8-4548-aab6-0bfdbb2b4549','6d4cbaeb-ef78-4298-902c-72dc40fe34fe','982e17be-16af-4983-bd12-7b3de2b6204b','b2afafbd-e4ce-4e88-9e85-4f0ff2566877','c3a11deb-5be2-4541-b839-e8a819295579','c4d0618f-06e7-4d91-aed6-0a59b535304f','c63b6746-ffd9-4db0-be5d-fa24868ccca6','c7f65b7d-b7c9-4bc1-92b4-c6bcd244676c','c883542e-96d4-4bd0-ad03-915828977fc8','e3c75c85-3e8d-4755-9c25-432c0b21b6f1','e71fc828-45a2-4da7-954f-434cdbe4e562','ec1ceac8-bccd-47d8-9551-b26cace2bdcc','ee23f470-d665-4b72-8c98-d92ff1c12e8d','fc8eab15-ad29-42ba-8279-d4c1f8e7e67b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.117')
+  where id::text in ('0a1b848b-741a-46f3-83a9-d5f605c4be2a','1c8713da-e6c2-4ad9-84a7-9b81f05ce73b','23ef4485-807b-4770-a7b3-36dbfabd54e3','55227567-1712-4f56-a418-fda6ce9fabed','659be559-a4fa-40a6-9687-98a7e7c74fac','6d743f5e-ae4a-4c63-8208-cd3f86ea744f','87295f79-c89d-4fa3-9610-26f227d77e64','e33d743e-6fdd-4d0c-9331-f40ef8de7041','ecdb6aed-0d8f-4070-a36b-e92bed674d33','fd854436-947e-41a7-a796-61cc27826bcc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.42')
+  where id::text in ('0a204f1a-a838-4621-9567-27c258b9393f','176d74f7-72c3-41d1-bf95-cb09a154fd8e','2b6cfaa2-c9cf-41a1-8aba-fc1525eb64ad','3a4f0500-f65d-46bf-807b-cc71d48cd041','4aefe6ad-31f9-446b-a74c-410aec89488b','74f3cd87-bd39-41cf-b019-a49d214b52cb','7d02d330-9c0b-4cd7-ab15-2d2d044c5267','7fca4b90-2f45-4acb-8487-827394391762','9a75ad06-8088-4432-ab26-0b295d87455d','a7ead276-af95-417c-9b5a-dfdb5130f658','b40e31b0-be2d-4469-b950-0d8c19204339','c03f3c02-41ed-4020-b9ce-dbf76f0cde14','f0fe0ac9-6b1e-4a7c-be6c-3256b862e45a','f50f920f-cfe4-4379-9704-d02311820f34');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.66')
+  where id::text in ('0a21e54a-f35c-4b08-a683-c0eaac055e03','8f05e512-ada6-4e20-a162-8dde45c8cbdd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.209')
+  where id::text in ('0a28eb11-9f7d-4dda-9361-76185fb54647','1b7e8b6d-8981-46b5-a53d-ef4c968b4d7b','34ac618f-7a4d-4ca1-b0d3-ed6c4afb5928','3d74eb8b-b720-4f72-82b8-df11a0493ddc','59dcf062-ab64-4c18-ba41-a6cbc9122ce7','9be97110-866a-400c-99ee-a1be3e3707ec','a0cff43a-4b6f-4b86-903f-9bd05231f7da');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.51')
+  where id::text in ('0a2a5314-1cf7-4aab-8e33-d06be1aa2cb7','25b00f66-e50a-45d4-8b94-283eed42a969','287b68aa-14e5-44d2-b2b3-c790c79f75f7','289abccc-ada3-4aad-925a-b294381145c1','2abce631-bbe0-4e6f-9d1d-af48277d61ff','45b27468-7ea4-4555-8ead-1daa2b544926','4e76f405-fa1d-4425-a8b4-eb1936603bce','4ed56006-c356-43f7-a9bf-ddcf6cf91b46','6b2fd38e-d837-4531-8c4b-8a69cc42ed30','7616b072-969a-4205-a229-61b2daf5b97e','8b52db2b-a35b-434f-9000-fc49ddcc98ae','914e69c9-0263-47d7-985f-b23d7ef2fa07','a5107f55-233b-4bf8-bf9e-e953f33a2b20','b0d98bcf-a6e4-445e-9103-eee4de373a3d','e57b0e34-a64c-4a55-92f1-96161dea77e4','f34bf351-92d1-45ba-ba48-c529544345da','f4c1f36a-30da-4b58-93dc-b6305017f2be');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.7')
+  where id::text in ('0a2d7ba9-c4e7-47b9-909e-8abc0d53cf19','1076ce8c-9f92-4475-9104-323464e41654','4c8af5cd-814c-4ad5-83a8-39b85e0ba623','7a71b4a5-7349-4af7-a572-a343a65707cc','904a8fdb-627c-4b6b-9d2b-5fe8ca4fe083','b8d6544d-6ccb-4cc0-9094-041e9f2f69bd','d9c3f1b7-506f-418b-b5da-9c2b5cc26e4f','f25356f9-b310-4786-b7c4-380ad3443841');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.196')
+  where id::text in ('0a312ae4-ac66-4eb2-be5d-3b134ca4759b','2d351346-11fc-43f6-bf2c-6eae7660b347','4c03928a-1c84-4868-8bcd-f050c0d7dbc9','5209f699-31bc-41a2-9c5f-ec22d973b9d7','59d66400-f16c-41dc-a18f-c4edfbc238c2','bd4de21a-64a6-4733-a05a-5d9a65918532');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.256')
+  where id::text in ('0a31816f-f7d5-4229-8b21-d8163d993870','1cede6b7-5e86-4e27-b096-372dfa921f8a','2ceb3054-d330-4587-8951-762f96db507b','3c05543e-46cc-43d3-9c46-1a1c33006090','435fd5d6-afa0-498e-9528-345950731a3c','5b219916-f2f3-40ac-b630-a73a789347c0','64cce44e-8b9b-430f-900b-1f5ba0157b49','7f1ebe8f-c7f0-4e19-a94b-7dedcf300d48','a2362629-42df-42b7-a4aa-a7fdb462b030','a6fb2259-f646-4bb5-bfae-5d6a7b7f11f2','aa3f0038-178b-46f6-b7e4-4c2a3c29e3f0','ae1ea470-e93a-477d-bd07-206877a37dee','c6667d6a-6544-40e9-b06d-6e4980d85664','d8ca94b4-0af2-4f51-a01d-0eeea34ec888','e7818081-f58b-4595-ad01-1b78a6076844','ee2fd4ac-2f7a-47c4-85fb-7ee20ad6bc9a','ef6dbfa8-5c3e-46a8-9aff-8dd1e0134c4e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.227')
+  where id::text in ('0a421643-3b79-44ac-bafb-0f0706bfc5be','1359d603-1ff7-496f-b594-f1bebc595b52','20014615-6765-4913-b1ba-e36f6e58132b','544a12f3-63ad-4be4-8d03-7f877f0eacc5','8ca76cb5-f86c-4df8-aee2-a57858d06c95','ca2ebfa3-772a-4273-9579-8fa144a1d13c','cc9b6217-5a1d-4162-b0d3-d055143045d3','d490314e-6bd4-4a03-89bb-ca48791badea','e1aa5837-a781-40b2-b7c5-d65046b0a6e3','eec4e47e-949f-4d77-8522-d9c7b8338299','f05d698a-c56d-4876-800b-b62670d3c120');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.128')
+  where id::text in ('0a4401c7-cc32-43c0-a640-94beda2607b4','6d90cea1-962d-4588-b6f7-a6fcd8ec60a2','8a646275-512e-4e14-b6ca-5841c8828534','96531132-c2a1-4a64-93d0-a57a2a0bd6f3','f19842aa-6787-4ea3-97ca-fff18fcf7b7b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.512')
+  where id::text in ('0a48f699-50ec-4c34-acb4-e9889fcf4376','1a460fba-33da-417f-9bcf-a4039a02065d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.235')
+  where id::text in ('0a4b1e2f-2606-4452-8188-d7ce39134efa','10a9d3fa-a5d3-4844-950a-c202242075fe','1e816366-f56c-44ef-a27a-9c4819df5c27','33f2bc6a-1b20-4fef-a6e7-413fdfd31f06','655777b1-819a-4d4b-a2cd-ffb3002ea57d','7268ac47-ee4c-45ae-b86c-2f6880718430','99204ead-cb3f-4efe-96f3-65ea8af7ae62','d27e1eef-3d13-42b0-9c2c-d053cd77dee8','dd83b4d5-d5af-4e07-9559-21eb1c0d378f','f94f2f22-6f81-4d4a-bcb8-f15661e0c507');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.185')
+  where id::text in ('0a5a6b56-a3ad-482c-a8d1-a59039032f79','b3111368-795e-4917-82f8-9468152726eb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.225')
+  where id::text in ('0a5df370-3925-43a6-ac02-4d6d0fb074ae','0b817ca5-2475-4afa-b464-277d8ebc745f','159824fd-4461-46f2-bcd2-695e942f34db','8ea75c09-db5c-4e55-aadd-a8c932323e47','8ed1e0db-1d6c-4c88-82c3-db31080f8f19','9aaf818b-312f-4755-b3ed-2fe335e0fc05','c813bf8c-6cf0-4287-8ff5-336222970946','d72469d6-60e3-4690-8575-c237c2da7656','dee2878f-c9a6-40fb-86e8-22b0e65b13a9','e6d021c1-3be7-42e8-b937-35c02e62375e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.77')
+  where id::text in ('0a65b27b-8396-4293-b0f5-b4afd01f8392','660b4112-cd4e-4b48-87ba-f8029695a85d','74138e69-7935-4b85-86fb-29d8c767fa65','75b4356d-7e35-4c48-bb63-b3b622cc235f','88353502-dd23-420d-a95b-3f354ee02758','8c5091cd-2cdb-46f0-bdd6-fde3f07e7421','e7962cdb-0e63-4cec-b664-74d729c52a93');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.91')
+  where id::text in ('0a757f97-aca0-48bd-8d47-2c8551e1abdf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.225')
+  where id::text in ('0a818a8e-4ca9-43d9-84bb-1567efd51f2c','da741f36-0fc9-484f-8834-417f7392aba1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.106')
+  where id::text in ('0a85afac-a0d0-4b33-a482-3777672c05be','2761b05b-1c3c-4bc9-a4db-c62fff336eb4','5f2f2eed-7d7d-4730-b006-d399ea9d0e85','6fe19d69-de40-48ed-aa87-2c73f824a960','caecceb8-af51-4ca1-a9cd-5e412fc44344','ce98ba83-f00f-4783-8ac6-d2cbba7c7d3c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.244')
+  where id::text in ('0a907ac1-4421-43b5-a067-75707727eb18','28b6150b-760b-4a86-bff8-2fb4341f0dad','3b8828e7-47fa-46ef-a3ee-82c23affe8a7','643b75a5-33f8-4bb9-94cf-35feb3148a34','ac7a5f4f-42bf-4481-bbba-2ab7aab4fd89','b5ab5909-b5e1-4370-aab9-7d0b2e90f72b','b7e1d99b-e7be-4b68-8245-7044d5d04e38','df74ae51-596e-4111-848a-a21bfb73f063','e1ec1004-8de9-4d32-a5ec-1fb2e2c730d4','fe903293-241a-42c2-8df8-4102feb585a9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.249')
+  where id::text in ('0a90d570-f852-4819-a243-069f41198b54','a83cfc7f-85df-4975-8d3f-f108b7d8139e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.5')
+  where id::text in ('0aa58559-d142-4b21-9cbc-4e48b6aa0f74','8c9d9a83-81f1-4c20-ba66-06ef290883f1','9947c1ce-88f7-401a-9410-476dd72f4cc7','a0dcf459-b1b8-433d-96c7-98a14a49cde4','b447394b-f6c7-4156-b490-e56462b7968d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.24')
+  where id::text in ('0aa76d1a-45bd-4585-85cd-80cbbf121326','54b23263-cf4a-48fb-820a-bc7f0e610218','6226d8e7-9dcb-4bae-8bd1-862e8d10254b','77b0561d-2e00-4af2-b1e8-70511f966641','83eb2329-c3a6-4dfd-9d21-13cd4b40fdeb','9e2fc9ef-1508-4f3a-ab8a-8cdb4249d90d','b1d97c31-387e-4348-916e-cbc56444c202','b8745580-79a5-40ef-9049-7ea544a312ea','f2ff93fe-c3c0-4d6e-8afd-d7eeaf0d30cb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.53')
+  where id::text in ('0aad7a6a-7b4d-46a1-87e2-0a3e540e3d86','5810871d-7eed-438e-976d-a257c919b308','66357675-6fa7-4e00-b6c2-f9b9a7f7ceaa','8264ac74-8c6b-4692-b32d-1ed548dcff49','a2ca21b9-b5f9-4bba-a9ce-fcf087312c9e','e2734664-3f2b-451b-8eb5-28b812bb8913','e5300927-398b-42bb-bcbf-47822c90812a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.57')
+  where id::text in ('0ab17152-ae84-43d9-b411-75b7323a8962','13c0edc7-52e3-4b15-ba49-57c8684f58ca','1bd7697a-88f4-4c1e-8ac2-48ff8994a9c9','400692b0-7163-4060-bf35-dba164c5010f','4664a04e-9a6f-440a-a2ff-efd11dc66019','5579bfd3-86f8-4ce4-9ea8-57b1585bb191','5957085f-09f4-4741-8198-17a26401f345','5a81705f-d7d2-49dd-ae6b-40ed0c1faaba','71c1d3f6-3077-4bfd-a3df-2735616a8575','7287cd72-f3ec-48ff-9f54-0cfce29a5d7b','732ce623-8daf-4a04-8e4d-877d83866786','73ea74f2-6395-4a8b-8b74-bc71fe90b068','7bfd1d17-95dc-44d7-b63b-8095e8e4189e','81a6b0ca-d0b7-46ad-87b6-5187818b5462','840907c8-0326-41b4-978b-a47a0b7d0300','adf0d425-46e8-41de-ad9c-86a4b0e431e7','e5e08a71-0731-46e2-b346-234c1451122a','f44a66e2-d6f7-4a18-bef7-66452b93765e','fe7bc572-3903-40d5-b25d-ae1145b60dd9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.297')
+  where id::text in ('0ab19465-8136-4e5e-ad42-0cea1e9ec267','201c733a-f719-458e-abe2-92eaf177f59e','2d62d1cd-702a-4bd6-b44b-9cc6c0a87134','2eaba913-ef50-4479-b0f8-e337ad136c19','30e9dec7-2b15-4c43-b8f3-18637cd22055','38533f12-1e30-4dda-be10-19260265d393','3b4817fc-e779-44ef-ae85-d08d59f6cef7','4681a84f-82b7-4d4d-b03c-716bbec0841e','4f7f7cae-3af3-429e-b960-9e65ab3da0b3','5025ec2d-4d1c-467c-8e25-f577eff41ded','50dc6ac1-fd15-4680-b612-a5b784d07d13','68c50c81-85eb-4473-acc8-90e7271c4afc','7c69353d-1537-45ea-bbf6-a57cdac56af0','a453220d-001a-4489-91e3-309827b7cb72','b133a015-bbf4-4b0a-abaa-45dc83081a74','b15c46cf-be39-484c-b3df-a76ff30e7387','ba91c68b-ec88-47e6-85bf-5f1042991fea','cc7e7496-147e-429a-a578-738ba812d7a1','e6603299-7a80-4d35-93c9-dd4536d44dbf','f3122030-9c61-480e-b728-a7f2d9f80b16','fecd1693-fcb9-4f24-af64-3c3fbdc53dc3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.348')
+  where id::text in ('0ab38f04-df56-4db2-8d90-3ddb292c335c','1e8da37c-cc43-41e2-b589-dc39ed7076f0','42ae1a36-9715-48a6-8ba8-87387c0a0452','47eeedc8-a4c0-433f-87a8-a8b596d4da59','6f1c02ac-3331-4237-84ee-c709fa0981b6','71e110bc-de09-4792-a33e-9d0c36dad0ab','95753386-dc75-4b6f-a4db-bc3bc06d5da5','9e369584-55e1-442b-ad9a-59515dc32285','c5da9f19-9af5-40c0-a39e-f66e498f81df','d060c15d-c350-408d-aeb2-d384c86bffc0','ed08afb6-fd56-4be7-acb8-d19243c4e59b','f8dcedf4-c5e0-4a6e-b3ee-3bf11ff993b1','fadd139a-ee47-4306-acb1-d67941beaf86');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.208')
+  where id::text in ('0ab59bb4-7da9-46c5-af2b-ca623be4b58f','20d64d65-078b-4a13-a357-b8924790b18e','42a666ac-f657-4bc2-9e6e-8dd3759cd5e3','7e477cfa-4723-4d31-a623-90ded5811827','a64ff7eb-eb29-4f37-a4e2-57f3d2fbd847','d53394b7-affc-4e4f-af1f-6b5c3b849af8','fb668d18-b8d1-44f8-befb-28ceccffb5ba');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='23.2')
+  where id::text in ('0ab9b0d6-bef6-4d91-b941-3f15113f452f','262729fd-6b9b-407d-9da6-7c86b7b52985','3481f015-866a-4cbf-a991-94114631bd9a','3644b2ba-85cd-42b7-bb3b-b3040b8e6c13','3e462520-12d1-4928-b62d-17146a10e40e','5c995c7c-14b5-4203-8bee-2621c4ec11d3','65c00a21-dece-4b88-83a1-645740b28200','68df04b5-d807-4250-82cf-9ce7b42f6411','7805f86c-96d2-4842-b792-e09b89e11d45','afb7464f-48ca-4514-bd0b-78faecd6d4d7','b53ebc62-cb96-406b-b593-bab8b28a4028','c0012323-29e5-468e-b5bb-e23cc46b5dc4','c2dc5201-ff4d-4ab1-b7ec-a80168aab62f','ccdc03de-250a-4ec4-b5fc-109c49cf9ed4','d30de5ea-1731-4d0c-8d36-2b4de6b43b43','d6d51399-f34c-4820-a910-0f4f1dff4827','da031778-43b5-40cb-b748-da4d001049c0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.105')
+  where id::text in ('0abe8e02-7e81-4ebe-81f0-4e9188117e63','4227b936-8ed9-49e7-95d6-d512a6510f4c','7427af6b-9683-4fd1-ae76-c499c2f47be8','7b38cf2f-bf7d-4376-a057-d16e5667f16f','a936a3e8-6241-42ea-a64e-c8ab61981b19','dfe81956-908d-4df4-b5e5-e0671f667a08','ebabbea8-dae1-44cf-aed5-5035d2c7cf88');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.335')
+  where id::text in ('0ac85903-f138-4c81-9f08-64f27a09ad04','0ddd34a3-75a8-453f-a390-49fcc6ca573d','117f14bf-d3af-487c-a7d2-a047b1184ad5','20780721-d4bc-4961-8900-7ed7e8531167','23872e05-0386-4241-9f77-3ee2445f2536','33663a7e-97d9-4642-9c74-ed90cd7915b3','3431edaa-af7c-457c-96a5-b60ba5bbb494','355f5a34-478c-4e65-8a3e-5e782c2cd4f4','39d7be7b-e2a2-4f63-8300-06d424eaadb7','3dc39616-099c-49e5-9c84-befe6fec0e09','476f20c4-0e8c-4f0f-ad16-2a8442b2c056','55aafb92-b1b8-4c02-8042-1bf0db694755','62d5c2a2-a01f-4bf0-a03f-b7666be42513','6713f7f4-22bc-4eca-b83d-f502a8c208d6','7587d2a7-c7fd-4ec7-a193-efd6430409e8','8061f797-1f8b-4ef6-b574-32bf0910570b','811a3496-c2e3-41ca-99f7-6cb2aef1e8a7','904916f2-741d-4a57-9eea-f0d341902349','9172ac20-b516-4c87-acf5-2d984723f26b','9502d8a9-632a-4e7b-a84e-64a1e52e9367','9ac0d869-0f84-4a55-86b6-cd304f0c818f','aaa15362-6c9f-4002-8d3b-4fe58c522b49','ac0f577a-b59f-432b-835f-68eab85e0434','c29abe07-e78b-4198-9db9-886dae837863','c3faa122-c74c-4bc3-8276-70682f680629','c4752fb0-e6d7-4903-a4b0-875a1d1e2a40','c6eafde2-cd82-4ce4-986b-5ac613f0f338','ca47e5ad-90f4-4152-be18-5e6cba5e3127','ca7557fc-926d-4ec8-9f85-9bf227802d16','cc036ac4-d980-414b-9154-86d2b4fc83cd','cce1f0be-7bfa-44d4-8338-d984bc13cf56','d0937a79-0629-4be8-9bb4-49e502c6dbe6','d4ad95fa-7680-42fa-84c2-31ece50cabcf','df2617ff-d8f2-460d-8b97-be0c193eb004','e014c03c-dfb2-4b6c-b247-df25aae3fcc9','e7a5fd57-0ee7-4618-9b79-a72b3d56ef04','ea2baaa8-2949-4579-bae2-e83f04d813bd','ec3eb559-2442-4e20-955c-0a20939cd04b','f60044b1-a783-4047-9ec9-9161735b101b','f9c5e2c0-050e-444d-a0f9-b4abbef62dd0','f9e3cb4c-27e3-4cec-af48-f8ef36c228fe');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.24')
+  where id::text in ('0ad83d8d-a57b-4225-a149-1898c66d50ff','0b33a32f-89a3-4249-845b-d0a6e64f7536','4eea3b98-eb86-4b84-a122-1bf07024e46b','548ca97e-b7f6-4f10-b89b-35a1332943b1','7207a4dd-03bc-418e-8a40-e8bc814927f0','83d2f1a1-2fe7-4df1-9e6d-1bd1608f5492','8a5e79a9-5ed1-4ea3-a0a5-2658a0481add','a7e212c3-1da2-416d-8906-17011fab2331','cf502843-3834-493a-8370-0ba58173ab10','f0d87dbd-7164-4277-a9e8-5af9af52676c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.141')
+  where id::text in ('0ada356c-36d8-4917-9250-9df611e43976','1e3922c8-fd01-4314-aade-1e4339b6cecb','249ec58d-9d2d-4f68-a8ea-3d6b835f94a6','301b9f5b-9ca4-406e-8fbe-a48233b83ae8','fe027128-19c8-4e5a-be15-0591f5021405');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.137')
+  where id::text in ('0ae8a76d-c3a8-45f2-97e7-264096998b28','52a9ef79-06b5-4d07-a6c3-77829b545435','5a8a50f0-c547-4843-8821-243b34bbf1b1','67993f33-9344-4d1e-8aa4-f7fe2401f6b3','baf86913-3b04-4b40-83de-04234ab1a8f7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.276')
+  where id::text in ('0aee39c2-f7cd-45f5-b297-cc4da7fedba7','1482f0c3-cad8-4e92-8e1c-79cd7930c68d','41ab5ae3-10d8-4a3e-b44c-ed1b4590fd73','5134beaf-48d6-40a0-8aaa-da79277bf653','6a691291-e869-4ecb-94c5-746894ae16a9','b7cf44cf-53bf-4ea5-a101-3f53aa6d63b1','fc8f054f-efef-4b4f-9d36-17caa9406abb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.361')
+  where id::text in ('0aef8494-6b99-4fd2-be3c-bde66117b237','3fcc9eb6-f434-4c6f-8ae1-e9c74795efda','760270b3-b192-4e3e-a5c6-9d896d601423','8c1ceedd-b05b-4e60-87f8-73520da8e4bb','ac6be055-b673-41f2-87ef-2843e6e54383');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.593')
+  where id::text in ('0af28041-0e53-46b2-a4b3-483c3c72b0bf','23689584-de3d-4b9c-9a36-0a14316cf390','5dd46ff9-4006-4bf2-876e-6817425f5fef','75f81ae5-c7ff-4482-a3de-83692e7d8a12','e3b4e7a9-86c8-43c6-b2e3-5e90cd1c16be');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.13')
+  where id::text in ('0af82b7a-0415-4b65-80e7-cca622f748a9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.377')
+  where id::text in ('0af9b456-1804-4921-a9c2-cbe6440bd460','152e0117-b23a-420b-9228-7b0816fd9ad9','312e34df-cd74-47c9-ae9f-0271e3b94253','330e5549-9a81-4ebf-800a-de59c74a176a','359017c4-638d-4bb3-bd4e-154bcc3e02aa','3d828ebd-e681-43c1-8512-6ebd59cd4c32','49ae0789-36a3-4f64-bf10-88d347b44aae','55c7e75b-7f4e-4c39-a979-712db7615487','671e233f-495a-40b1-9a0e-f5a2827e085b','69e16137-fa8a-46fc-83a2-8f9dd12e5d79','72173dd6-ad4b-4b89-bc2a-900d57f1cf55','78d92891-5077-4d88-abfc-90dff4f43307','84fa1465-6281-4f2b-be7b-b78878984e97','95bb5047-e1e0-47f4-a482-04724b38adbc','9f5c57ab-4649-4e8c-a82f-bf94d187f701','aafa4771-e6f0-4bfa-a9b6-b4586e5c8d02','ac9688c9-65c4-44aa-b2c7-d8073f79f14e','b10a653d-f778-4fb6-b3ac-5e6cfe4658de','cbe86f5b-dbc6-42ed-a4ba-a83a28159cc9','cc7c5d6f-ec97-4e5e-9295-6026bbb7b573','f2b43d3c-7d4f-4ead-a91f-2bb14dadb25c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.281')
+  where id::text in ('0b0b475f-cba4-4075-bb1e-a74e640ec15b','32894067-84a6-4fb9-981a-e752c1574f28','3b9cefd9-9df4-4a8e-ba1a-5f1455cceb03','470a678c-6256-488d-a6e7-cbf904b1989b','6ea00bb7-35d4-4b8f-b2e1-667148e83b2c','872dfb2e-3487-4f87-86c8-6db5ccfe4fc4','bf45b41d-4523-4cd4-857f-39e308e304fd','c1e7eb48-a314-4ab5-903d-f0853329cc8b','d14d3679-eb5c-4c2b-a46d-b64db952a8f1','de5a1bff-55a5-4126-aaf0-3e9f8d881ed8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.207')
+  where id::text in ('0b0d8b22-7629-49be-b42f-d167208faf37','6618f9c3-799e-40a7-83fa-7ed8cf1d9bd1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.344')
+  where id::text in ('0b104337-1403-4615-b413-752e14514747','1aa2ba5c-7a85-4713-bc61-befaea70a514','8eb7401d-c77a-460b-b2a9-410b63b78bf3','9e5146f9-cd75-44eb-b3bb-a8267b22eff4','b7c87da2-51b7-4995-9f27-c559fdd90e58','f3f69386-4d6d-42a3-92f0-fac592494e2b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.396')
+  where id::text in ('0b148b34-d353-40ae-91f2-ee53f63e319c','378e50d2-c6e9-4cd9-a114-5f8cdc74aa73','4733837c-5582-4dd9-9035-eba88d7cfc4d','5c69e8c9-9fee-44c0-ada5-a69bcd972d7b','77b8c833-ed9a-4c01-bfad-59133ae87008','7c7ca68a-9a44-4fe7-a960-3fba0607f99f','d794e599-de7d-45b4-bc09-65dd3a7a3983');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.333')
+  where id::text in ('0b15b92b-9a9d-4981-be2e-ed2bde77d769','1cf7f751-aa41-4cba-b6f5-83805a83c74a','2deed17d-2110-4ea2-bacd-0fd3d8bb4375','3a759c3a-1eee-4352-88e5-3f2b5c4dd7c8','617611f0-df43-4df6-b58c-3eebeec14660','8dfbe161-44c1-45a0-b3b7-5693c5af1fdc','aa47f4ea-a4a3-4915-991f-b24bbc8a5dfb','b46a3795-ca51-400a-ad55-2cf4f17bb2d8','b90b5d45-b4fe-40fb-8619-b2a98059e54e','e00ece3c-6eb6-410c-bade-8fa3d6ec6b9c','f6ea8e1c-7c2b-437e-b83c-3818f96b4cf8','f78e3f15-80e9-4265-8486-570e625c67e1','f95e7946-6264-433e-8a62-e69e73a32f6c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.158')
+  where id::text in ('0b1f0e90-7aea-49a7-a670-9ed94034b279','573f1a3b-faa3-4dde-a0af-dedbcc633daf','5bb9aa78-faf6-43cf-90cb-5fa1cb58a9fa','74301005-5271-4eea-a163-19f9b19037d9','a805cb00-3007-4797-afed-c32a8fc5cefc','c4e2892c-35e8-46fc-8831-26f4efddc960');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.209')
+  where id::text in ('0b2600b0-54ef-44c2-a2f2-7761d62478f8','0d7cf033-ae67-422f-ad23-397f7f4d7077','3501f458-906e-435b-94d2-b9832a2037fd','6312ac46-22a6-403a-97f2-f7eb29a638f8','a05c69c1-0848-43a1-8ebd-1e0a7004adfe','dbd03ea3-8d1d-4ce5-82f4-d4bbb03d63fa','e8e561b3-61bc-4983-9517-203de54d6dc5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.196')
+  where id::text in ('0b2cf10a-37ee-4bb2-b004-e97aa31cb428','1e6a64e8-5a7d-4a84-a03f-8fb46938deb9','58db2529-a4d4-4f0a-9e53-608f28722836','61939105-7800-44e6-b433-4f2248e1361f','79ea7327-de6e-4bdd-80ef-3da8bea46e0d','7e912545-9cb1-4237-9b88-860c8d6f4313','8a0c24b6-6e46-4b79-afb7-605c8004f0c2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.19')
+  where id::text in ('0b2ece48-0d06-4ed5-b271-961e2b5b66e1','15c48242-859f-4906-a47a-bd3876d7bdf0','50e73d0c-a714-4699-8a64-02c7beaefe8f','51b64c97-04c5-4b45-9c3e-cd7a11372dfb','58fe97df-35ff-4e3e-8b84-dfcd63981763','749c4ac1-7ee1-4d59-9e9b-86f9fa70e62c','9138330a-5a57-4ce6-86b3-e933205114a7','ae9d5c2a-5e3d-4282-9440-e6e2fd104f0d','b38fcfdf-d90f-4c54-9827-b45285c23932','c40a8e17-35de-4fdd-97cf-dd63b2ad210a','d4826692-c2f3-4253-a3bb-72a2dbd57eef','dcf4e22e-5128-45eb-8139-91774d261596','e7987c18-237b-4c4b-98a8-1ed7cde7dedc','f7e85d6b-ba0e-4842-aaad-b3ac4a395259','fdbf60b9-c1da-464b-84ce-83ea5bf6911a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.293')
+  where id::text in ('0b2ee3f0-733d-4872-b60a-e5b558a8f06b','2a571f2d-41cf-4fb3-80d9-140a02c73db4','4b8ca11e-e909-47d4-b57b-033301cc29bf','4d23dd01-0162-4f02-81f8-ed00e948c352','4ee58bb2-aa11-44d7-898a-1d251bae85ca','5c18afba-b330-48bd-bce7-cef8334b86ff','5c4c91d7-b9fb-4a14-a6fa-3e401f764469','67b8ac9c-0ea1-4ade-b916-59e0688d6687','6ee24fe8-0057-45e2-9c74-cddfe0845d7d','af9fcd38-cd05-4234-8b1b-c2e7b4ef1495');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='21.2')
+  where id::text in ('0b32f502-a7a1-4372-86f8-924ec4abea69','fce359dd-7091-4f52-a22e-d756dfc2702a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.432')
+  where id::text in ('0b483509-5f54-428e-9ef7-8e3a3205263e','2394181a-5317-42e5-90a9-a86e63c7d317','2f240bb5-85b7-4641-8c2c-4dc5d470e8a4','387be44d-a016-4a62-b562-42f863a71d9c','4c226fc7-bf52-41c9-b760-2665c39c8935','6e0371b4-38b8-45fb-af91-46903ad48ea8','ddd3452b-6bd6-4f25-ab25-0e06afad5463');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.5')
+  where id::text in ('0b52658a-cb46-43b6-9acf-de7de54f75e1','bb26f301-c1ab-4ad9-a854-0568180ba365','e69acd57-3a98-4781-90d9-bc6e492e4168','ed27734a-dc20-43b3-804a-55f928cfb5c9','ef4f57a0-016b-441a-8ee3-ed2f517d6dad');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.27')
+  where id::text in ('0b716994-3288-4fcd-8e79-6d2dc865d977');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.471')
+  where id::text in ('0b73144a-9b4d-4349-984a-fa5aeaba89f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.25')
+  where id::text in ('0b821d58-ae86-41fc-8b58-0e469a75e5ce','3280c2ea-3b3a-40e2-9f05-9489767220e1','5ec8179e-6db2-4b31-993d-059cdca3bf5c','77107488-6ae5-405e-9d96-86426c66475c','793b1859-b7ad-49f5-83ec-fe22cce465ff','7e8bdd8e-2381-4ecd-8244-43e0865d30bf','c7526e6d-5c27-44c3-80d9-a021bce005a9','e4fd0593-3163-41e2-925b-0d6ace6b86c0','f2be249e-a0f1-4687-ad7c-c01e44a63520','fe31ea35-8cfa-4774-9e48-3e1d8b25c75f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.4')
+  where id::text in ('0b9001b1-b67c-472f-ba3e-82bda5617d06','1c5a68d5-72a1-4a74-94bc-5d212f08d75f','2188525c-ddb7-40b2-8892-2aeb83e6c56a','29a0e4eb-e5ce-4f0d-9eda-129796fd2915','2f6f8299-7a1b-4292-ac54-63e0a514a215','36a850e5-1b26-4d3b-81b4-81b08d0582c5','37ff1366-0ff4-43d9-868b-1ccb8a8af602','3975b165-a639-4f81-a91d-5367c9b4e5cb','3a6ce6f2-b996-45df-9a98-651908966c58','3e35c9f4-71e6-4099-a075-499ba3cc9324','411dcaa7-c868-4635-a7ac-bdce701b0d7e','4988f5ca-6290-410e-a9db-371146730790','4e449a25-8553-473f-84db-a944f8b61566','59b4a284-7a50-4d71-90dc-d48c6710e38b','5b25f467-63b9-44a6-9a80-356811f14d8d','5f468043-e04a-43c9-a060-19b0019b30c4','60476b58-c96b-4afa-b234-69123594cd73','66903a21-6ca3-46b8-9558-6be3fd56c926','68d0021e-be5e-422c-b8b1-1e1f100517dd','70ef9b86-3735-4f8f-a2ba-a13cb885e39f','768a395e-667a-4eb9-80d2-bb448edcee9c','82843e05-8a61-4a01-9107-71e0c0bf9812','ac921648-789b-44e8-bfed-57d350877cfa','afeff413-0f55-492e-8590-b2e23752b15a','d1a26118-f9be-410c-b7af-45b5f6a14e16','d741aec2-b833-4eca-b02d-0e7beea95744','ecff21b9-0f5b-4d76-af74-cf6bd94857f1','f3b89c26-8746-407d-9a35-48574566993a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.492')
+  where id::text in ('0b96c7c8-006a-42f9-8b67-7641727d34d7','c37238ea-adbb-4b82-b266-25133b30bade');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.83')
+  where id::text in ('0b992995-a524-43f7-bf4d-18cdc182fd8d','3401246c-7c7f-478c-9a50-626f6de386b8','5d15794f-3cc3-4efb-819c-688d6d3e4d87','64a67856-dbcd-4fe0-8a80-1a30c2923118','68ce4d21-53f3-44af-8d34-5e9f45a0b06f','9b9ea84c-f776-4aa3-9f36-76f9bcd5f0bf','ec362372-5839-454c-bab4-be8710c45f81');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.248')
+  where id::text in ('0b9dc3cd-07a8-439b-a3ef-cde45eee7936','1fb146c1-9fe9-4b7f-b339-3cc0b3db568e','5f025242-d0cd-45e4-b813-d0ea5e872070','5f425769-8c7d-4971-865f-f6de6639cd61','6cc6a906-72fe-48a6-af3f-a2a064f09972','6de39f07-7181-4e8a-85d3-588ce92833f6','70ee97b7-b1a4-4ca9-b75a-42bbf9fa71ec','827052f5-81f1-4b87-b7fc-5b6cbaa97e26','8525a269-5463-4ac3-a49c-dfdbf837646d','96da9f36-63fc-4569-81aa-bb5da42a616a','a0879e17-12ae-490d-9c25-b9d235a9f460','bc733fa8-4b1d-4c29-b415-b81c269fb799','be50133e-6410-4e18-a347-bd25e5537de9','cb89863a-92d4-44de-8132-8ed393bdf854','d4141471-5296-4a16-bb1a-207572379932','f01f334e-b8fc-45b5-a1d4-0ce32b3d3b2d','f522db1c-9a0c-4442-a607-31a1d78a76be');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.164')
+  where id::text in ('0baa75d2-aaef-4c74-b200-d362c3c204ff','3182ba11-29b2-4f1f-9853-d4fbaf83279a','67c012d0-206a-4234-af83-c80a6b42ae2d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.78')
+  where id::text in ('0bae9fb4-9b31-42b0-a679-4ff1eeba97bc','ea0b686e-5332-4ed9-aa27-eccd0e3fc2c0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.406')
+  where id::text in ('0bb4f62d-7ab2-4416-836d-12a81edd4f06','168fdd0f-7c88-4a92-84f8-24d717704ff9','3636cae2-6d40-4cd8-82c2-0cd61420152a','3662c308-eb81-4694-8058-9170fdaf7919','52265b64-b4f9-443f-bd54-0d5e94ac9a2b','55d52531-cf18-4076-9290-4431ce3aefa5','64eae841-fab5-4664-9ba8-187767ef2d96','7463e187-6db8-45bd-ae67-d0838d6c6d15','858c78c4-2e0f-495a-a0fb-8c4065b6d0db','8ed930b4-8c4b-4aea-870b-d106a8ee9510','96ad154c-fe3c-45bf-8eae-789876e3dfe1','a38a6601-165d-450d-88f1-54f1c83c2299','a70c8c52-595a-477b-8ccf-6a788ea95f0f','a9f8aa38-80ef-4879-abf5-47959099fe05','c9c4666b-8d76-42dd-8a4a-919c34469b9e','cce69eb9-5bf3-468e-942c-3dbc99778b69','cdc7a009-9201-4b57-b678-999494ec0a27','cfbaa67b-72da-4664-b6bd-806f16cf9366','dc23844d-6fb3-4765-b289-79502976b572','dd9f6058-a06f-4a62-9c1f-60842d5351a2','e66b553d-fa64-4b20-a6a2-20fe602d0523');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.402')
+  where id::text in ('0bba95e4-92f6-4395-ba10-b829d64778b0','135ed63a-b474-4213-8cfe-dcf34d924b5c','1fab347b-f644-42a5-89b3-3720a46b26ba','2f0fa25e-5b67-42be-b8bf-5622b15c9042','3f870804-2bd1-40bd-aee0-8d80f20db3a3','6064e2e0-e796-4e77-9c56-3e73508cb7e5','6b320fea-8503-4a0d-a766-b0d1ba954a8d','83208c92-1d72-4cfa-9513-9b0db5872153','c7db750e-9557-41f1-a345-f179eb27994e','d8671a8f-8c33-4256-aa60-ee6df76e4e0b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.316')
+  where id::text in ('0bbb0774-2c70-4583-ad4a-1033aaca9458','231ae242-cb7e-4856-b2cd-80fd95f24b2e','3ab030e6-6a32-4202-85c3-7bb9891970b7','6da75ae2-3180-42b8-a838-68e7242a4d6e','79d1fe5d-913c-4a5c-9e11-c00ac4cfa62a','b089bfbe-15d6-4bec-bac1-c93d0d8478b3','ba36403f-ae4b-42bd-90db-f8ad92ea5897','e88f04e3-86fb-40f4-8335-a3f6cb7c4ca6','f85567fb-66b2-4d08-ba60-496a4752d539','f96a9d84-0aee-458c-947d-4d2afa68098f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.349')
+  where id::text in ('0bcb287d-26a1-4f57-93f1-ba56825ff9b2','1bae948b-8c7b-408d-8608-a8e24aa06686','31de6168-63bc-45f4-b4c6-27469fb8b9ac','6bc412a6-98b5-4041-b8ba-61dc15f0ef10','9fdde1a5-a2bb-44f0-b76a-a7ef9e24a214','aa38730e-013c-4fb8-9299-fa8b970cfbc3','b89a196b-ad16-4dbf-9be3-e53b289bec6e','df29dbfa-8c07-4a51-9647-afa027f586b8','ecd4412e-6b84-435d-8f83-8a8777bd4424','fc577aa0-cb5d-493e-b6e0-2de9d231957b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.87')
+  where id::text in ('0bd2c58a-eee2-4b7b-a63a-d31e0541b1a4','4233ddd1-52c0-4699-9b5e-98b98450ad58','8baff14c-66a0-40d9-9706-fcbaeab1bf44');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.205')
+  where id::text in ('0bd3628e-29c2-4ef1-980f-7704949d6b74','20614c5a-b20c-423b-86e0-329ce52494a6','5885dfaf-5b08-4927-8f13-005bd0a2742d','e11346d1-36a4-4ac8-9fe3-832acc64acb2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='27.1')
+  where id::text in ('0be404e1-20cf-4a4d-9f6c-fe957505bf86','3da5081f-c796-4357-a648-1e2b0ed8ef58','4ba7715b-0a82-44a9-9245-7c8fa0d1429f','5a3cad89-5c3d-46a2-b676-4f8a7c5e78cc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.148')
+  where id::text in ('0be59de1-827a-4e3e-b5d5-5a08a68dae35','1419cebd-b2e6-43f6-a93a-143a5e06fe72','1b72b89d-b508-4115-b53d-b71d2a1c540d','21791859-a135-43d8-a493-8cea47d57a4d','680a7124-0e19-4a59-bf0d-a28c45766336','8c11a950-104b-4c40-b4dc-d7379db4ebab','c246759d-6855-4158-8538-8d0c4b0b9a7c','e4454dcb-2f0e-4419-af76-3a3fd4ce9a8d','ed2f4b79-d59a-4a8c-9fee-56ef91fde0d6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.256')
+  where id::text in ('0bfc5691-0f2d-4a3e-8610-a324bf0b288e','2d628707-5534-449c-ae8c-2a867cba4a8a','4dd9d458-28d0-4ccd-99f5-9664b8cb573a','72f93816-7dbf-4ab6-837f-6752bbd3198e','7cde0d05-a086-453b-bc29-f20e76bfdc8f','b65dae21-d5f0-4b74-bf83-14cfe094e5bb','d8b7c195-267a-4b8c-9e8e-0c752187d377','ee76b0c7-9511-499d-a946-2452c4eb88d5','f72c1c78-e2a2-4fe5-b59e-b68983d146f3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.372')
+  where id::text in ('0c0e88b6-c3a4-43d2-a4b6-52b2d90a07ce','27496485-da02-4f67-b367-0edb937fc295','2a28a3a1-a224-4d1d-accc-098685c54712','8a974af9-e04c-44a8-92bd-9ca2e4b20d81','e390116a-d0f1-4093-8419-553800ce07e6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.338')
+  where id::text in ('0c17f61c-864f-4a4e-9bd5-9b05f610ecf5','2a61bc03-8012-4006-9c75-c7e46a0b9b45','656a46e0-b99e-442e-80da-bde0ba543835','73f09d84-c482-4e2a-80d1-6bc719666893','88b6c860-1dfd-4eb5-a56a-6ac39c158eff');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.91')
+  where id::text in ('0c199821-d25a-4097-a6d6-8258ab5d1064','c3539c9e-1bfe-4470-be76-0d4a5f6b158f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.4')
+  where id::text in ('0c1c4f89-fb91-4c78-92d3-759354a37fd5','4efdfada-81e8-4974-90c5-f9bc309922a9','8bb9aa1e-2d06-4dff-b6c1-426dc8973290','90db23fb-9e19-452e-a698-15a3e47f1f82');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.482')
+  where id::text in ('0c1dc415-736a-444e-b8cc-5c127610a8f7','a82f6bf4-4115-4e08-a113-5891a0563134');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.23')
+  where id::text in ('0c221140-f48b-42aa-849c-4a3901d52cc0','493acd26-d4ff-40ab-b1bb-ada621456ff7','4c4c53c6-80e6-4f7d-872f-e5f692463d67','51582dec-5df1-4058-abd1-dca5ee061044','6fde5130-df45-42f4-8dd7-4ac507895804','aec27d5d-bddf-410a-88c0-3fe19a1b4f32','d255cfae-d1a7-428c-8d60-2a881c675c66');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.166')
+  where id::text in ('0c232241-aa12-46e6-8457-729de92ddc9b','91b968ab-cc44-463a-9b4d-c3d3eae69c08','c41c7e53-290f-4359-a244-b2b8a844c53a','d4a6bed0-b585-4368-b73d-3be1ef1da371','e44d135f-063c-42f5-811f-28603ba2a241');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.33')
+  where id::text in ('0c237fa0-de22-4b75-9218-27f7c435a064','248d1464-cc45-4fd8-a993-305741bc53ec','28077bc4-c251-48d2-9321-32420580bbaf','41d11a22-f623-427d-873c-c1c7d4285cbf','4fba9e6d-bf1a-4876-91d8-711d27d110e9','618c99a6-602f-413a-bff7-a44b63cb1642','67710bde-00fe-45ed-8b21-04fcb5099e66','786c8281-b787-423e-8eba-d8750d7ee2e3','85576e67-3eb4-458b-89ef-43a1f73f253d','b731897d-1158-4768-9ef9-ee6bbea4fe2c','ca8d0bca-bf44-4fb7-aa14-b71c43555b86','dd55c1f2-5824-488a-b590-8ad6edb9dd09','efd0f8c4-6a54-491a-89dc-f273b7626b75');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.375')
+  where id::text in ('0c2a60a8-b567-4f28-8901-cd1f14b2ceff','15ae5d1f-53ce-41fb-9270-02e46812ca4d','1cf510a8-19bb-47b2-a8b1-96c6878edfed','2615bd2e-744e-4db8-8518-6480e9827ede','2624626b-c2a7-430c-a41c-3e4a02f2090a','2ca9d155-f22d-469b-b1e5-e5218951b480','2dc9674a-612e-4d24-b084-34bb224ac233','38a57e62-a66a-40ed-af9b-99bb31bc8964','47822bdb-f5ce-4b44-88a6-24cbbbc69ee3','57a525f1-5945-497e-8b3c-8e7b821b6d61','7c359a75-e47e-44c6-b93c-02287054d60c','82acc69e-5f22-4d90-872d-db87c00a1e54','87f6f77c-3689-40e2-a4bb-045a43889965','89c05351-de52-4c37-a78f-e3437cddea56','a888dafb-5581-49c6-8e72-8a8fffba0a53','b96f55b9-70d3-44cb-8457-ca31ffc457ee','cc835afe-dec9-4b20-82cc-24e3edfdb563','e07cb4f9-c9c2-4225-a45c-ff8cac2c682c','e4363c47-638e-47b3-9f84-eae767e41fcf','ea8f9e03-ac82-4044-bd55-dd68d4dff347');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.74')
+  where id::text in ('0c2c5df8-59ed-4ddf-a9e2-e23e5c8ed09a','6645c36f-a528-4203-ad64-de0a05909c07','9c86efa1-41e7-4988-bc54-61f3ff30c169');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.539')
+  where id::text in ('0c2e6273-2f46-4494-9981-b18966c7f931','39562c30-6f61-4ae1-a538-923823360407','4543c4a0-63ff-4a44-a2bc-f6fa159a39b1','654eb20d-8474-4727-8cbc-c9229c3c5ca1','6e767ac2-23b5-468d-b9c6-af533eabdaee','77d9bcc9-cb6b-43b9-b626-6e29a58804f2','cdefc19a-c6a5-4f6d-aeb7-f8eab62a7f3f','d8cfcfc2-568d-40df-aaa4-1cd79b48a36b','f1d1583f-02ee-41f4-bd9d-ee7c7566ee1e','f4f810ea-3d77-40c4-87af-90fd368a3ce1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='13.4')
+  where id::text in ('0c2f541e-deaa-45b4-bfcf-2d3c1cceef16','3ef63890-3566-4ea8-99f7-d383a4c34927','598583b3-6098-4d65-bd39-39a9a40014e0','d680e6a9-612e-4b0f-8752-c8c7228038e7','ffe23140-e4d1-43d5-a496-ec7c2ed2e6f9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.326')
+  where id::text in ('0c325f96-64cd-4cd0-8107-d50e887360b5','1e7fe871-67b9-4a82-bd17-e7e976bbf65a','3397e7f3-3cbe-4c07-a76c-03864ec15c28','33f7151d-9f60-4cbc-8457-1fe01e26c056','39340902-fcc7-4e2a-955d-4a624aa67483','5769c2ed-1ce9-4b7a-9aee-1782cafd06a6','6548c2c1-2c29-4caf-b29a-923901719f2b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.198')
+  where id::text in ('0c37983d-463d-45df-add3-e6e636b3da09','c6d03221-c451-4529-9480-e9c4dd3e4349');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.307')
+  where id::text in ('0c37db91-11ed-46a0-b960-9472b77a98f3','25277610-edc9-473c-a613-b71401fc6cba','38e8e752-a65a-43ca-a34a-d196b2b5643d','3a6fc79d-527c-42bc-b8b1-dfef06f3d727','4c575e08-81bb-44bf-9ad9-c406d4156594','6114de7f-9a04-47a9-97cb-8fb6358932a0','786f3428-365d-4d2a-807d-b889d30a3269','9613fcee-10b5-4461-828f-a62985957bc9','ae138be6-05bb-4d87-9dde-a9161590782e','c8f42adf-e9fb-40de-98f3-20b0205a9afa','cdb34b37-ad3b-4ad6-a9bb-e1fe5f7cd32b','ce5f27b3-0c80-4af6-8656-9187239b392b','d119c751-9f84-4fc3-9822-b160a35992fe','df7a7ddf-6a05-4707-9cb6-d99bb19b5dcf','f1404190-7d65-41c1-ad6a-3b52c02de65b','f59ba546-7459-45b0-8924-70bd4bc5869f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.156')
+  where id::text in ('0c3868a3-bb8c-4a5b-91a2-a3e042c2909e','289e6894-c3b6-40b7-a56d-0f20cd988f6d','a42e6b97-27d1-45cf-8749-bf5f8feb7992','b10ad52b-ff7d-46bc-a89f-54500382986b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.274')
+  where id::text in ('0c3bc5e0-b274-437c-927e-fb832205502a','108dbc6c-c24b-443c-89cc-bad2230461c8','233c1aa6-5ef9-416c-8965-2c2efaabb50c','24949e37-aef4-4351-8e88-29446681eee7','37362790-cf0e-4270-8172-c527519288de','375e8c8c-df20-45e9-86a0-e01fe238b299','3cd016bb-0af9-42b2-88f6-234a165763a1','7f832d55-556c-4f9a-87f9-07cc59906bfd','980d311b-6512-492f-be48-c8e30df600ee','9de31a62-b58e-4b92-be1d-d1175251515c','a4b6d5e3-a20d-480d-95c4-30ce0ea64c02','aac09c02-4275-4ef2-aa0e-0516ee49d664','b3084f64-5e53-4090-947f-1a57a4dc9cf9','cba034ae-fed5-470a-aadb-d0ca6e383e8f','cc9c874c-4fce-4897-9e8c-37a9edb1b79a','d01251fb-f938-426f-a870-9489206e6ec6','e5056f86-901c-41af-bdca-579fc3e06012','e61ecfeb-76a5-4bc1-a504-846282a4dd10','f204f779-192e-4666-ba8c-f513cce8ab7f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.277')
+  where id::text in ('0c3ef048-9110-493f-9daa-4afd6929d298','25b6f4da-cc48-4cbc-a54b-a365ab9df756','31eb9c99-42ec-4175-abde-c85904b9197a','eec41442-cd3c-4878-a16e-344b7484925e','f1fe563a-4dfe-4d9c-841e-2270c64637fb','f6643a83-2b51-42b0-8e19-d4281c3eb94e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.313')
+  where id::text in ('0c45aa4f-98b7-4fdb-8049-e7c3ae8b1c18','2c5da3c0-0c4d-4023-b02e-ca1ad2676d7d','348553cc-d9f4-4f43-a686-47fba3bff0fc','41c5b3af-a9fc-454f-ba2a-7d38b76e2608','53fba952-fef9-417e-a7c5-3a905630338b','65c6ef0d-35ea-446b-8713-28890b1247bd','686a657d-5292-4c7a-941c-f1541accc2d5','a25cd763-38c7-494c-a454-0a753a58a7b3','b4617c76-0176-4ea9-9793-d14bef483604','f2ca3680-0027-45a2-a3cc-c29e42e78d9a','f4584be8-348b-4b70-8909-5335ee9dd660','fef97565-f5b2-4cca-a98a-3a780ce1ba5d','ff10365c-a6b1-4de3-911e-b161c0c9cb08');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.362')
+  where id::text in ('0c476b27-b210-4483-ab88-c6fedcee51f2','2333f2b7-968d-4fb1-9923-7468d18df69d','2ccead10-f8e1-47c6-8dbd-ac38262d4856','44a9d28f-e800-4186-974c-5a50e7e3ebd4','f953065e-1e0a-47ae-b839-b36ae155c233');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.244')
+  where id::text in ('0c519f10-b2e3-4426-bac4-a69ce7c41c61','236d8403-e8f8-4a61-997e-c5fab15344ab','544f94f5-16fb-4d88-aa9b-cb930ec75a97','71f0f3e6-d36f-4eaa-8f23-023afd4557c7','d88df020-5584-446e-b319-4352b382d1d9','ee65fdef-9269-4cc8-9658-6c00e3059b71');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.83')
+  where id::text in ('0c5cc576-260d-4179-8e28-c7f935dfb873','4969d21d-11e1-40a4-b844-18bea5d6c20b','860a6e65-f128-45bb-aac0-b554d8580739','a2a8c9a8-6108-4a23-b528-7bdbbb39fb7d','ce0ac800-8a7b-4d7a-ba42-04fc6930d053');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.445')
+  where id::text in ('0c5d7db0-2ab5-4983-ba4c-a79b22fc442e','64360e9d-6e97-4fed-95b2-1a50698ff52d','dffe493d-a2f7-4f43-91d4-ac0d925078bd','e324a44b-0f84-4718-919d-15fc48e1054b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.351')
+  where id::text in ('0c600f7b-5512-4df6-9a65-8c32c7274dca','7b84aa34-464b-4df6-8920-7c96bc3a64f0','d8e7e077-5453-4915-aeba-03c55b3075ed','dd86c406-af29-4a41-bc63-905f85570a3e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.38')
+  where id::text in ('0c6059d5-dfda-4adb-a31f-ebde0d17bfba');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.12')
+  where id::text in ('0c60ce4d-b07c-4002-a3c3-f445ba59b9b6','75253ae1-eb4f-4817-8ed5-4b2605185ab9','bc1360d6-2f01-4e64-a24d-75dc7e1dfcea');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.52')
+  where id::text in ('0c618cfe-0066-4948-8a82-ad3d516bb4b2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.12')
+  where id::text in ('0c66be8e-73cc-46ee-af45-e8a2f4bba570','0f4fe25c-e1bf-482c-9da9-8b42bd89df23','28c5fe08-b1f0-4fca-91b8-9d6221506e5e','46a44a5a-0d16-4e6c-b4c7-d1496dfd39de','8b8de260-b43d-40bb-9836-d3d712b30915','91869fe1-fbd4-4806-842c-262b16158fdc','c194c02a-1cc2-4783-8fd9-862de4392247','cbfa27c1-7ba2-427b-83aa-5e1e24081e04','d7b1a2b0-695f-4959-b476-5ebb43765fc6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.356')
+  where id::text in ('0c77c079-ae29-429e-9d7a-799ed4fa660b','784aee4e-25aa-4f8b-ac69-0dbf6784f2e3','7bcc2463-7a77-48c3-a530-d3e9e06650cf','8ad20643-9a9e-4910-a937-aa4c2d75dd47','ca39558f-c5f0-4d51-97a8-e3f7034ee321','cd8e1833-ff1e-4a89-902e-77f5784344a9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.3')
+  where id::text in ('0c782670-c0c6-49dd-aac5-2e5a7572ec4c','1b037b8d-5377-42fc-8168-43497b246680','2f6ff7ee-e5a7-428a-aac5-7a915f32eb21','6d222f7e-d080-4e6f-a307-0be7df23318a','79ff06db-45f9-4714-a7ee-f2ef93cb3cf2','9c21bd7f-9b2a-498d-8065-60b93823fc44','d24bd9a0-86ee-437a-bff0-4708e1729901','e43f8c6d-bdc5-49f7-a15e-1d8d7da8f385','e47a456a-85e7-4571-a47e-7ed86c4a9079','e6b87f06-5acb-4f49-a45a-6464c917c879');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.101')
+  where id::text in ('0c7f55b1-c484-43de-99e0-564b8e568095','1c5b09e3-904e-4ec0-a076-68afaeb5fd5f','4ee97c2a-760d-46aa-b498-8fdf4b51fec6','5163a322-858d-4713-9cb2-570f6b5e42ed','cda3cb59-cf5a-4e9b-a63f-ca23d32b33a8','df48ee93-bc36-47fd-960b-ec80a3e4d8a0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.113')
+  where id::text in ('0c93c4f5-a179-4aa4-a94a-82c36b693569','be192787-8436-47ba-9535-14e15a9b4915','fb9eac7f-a14a-4132-9150-5548d593e252');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='22.11')
+  where id::text in ('0cb632b1-70c4-4f25-a9a9-902f1e933c4d','60baa2da-7f38-441f-a896-f50a4ae07af0','6ad70f9e-82f1-4fa5-a1da-ac647c96fc80','70d18b93-58df-4a77-bf06-36f5dfd4d156','80b1168c-2a15-41cd-818f-6f393ca1778d','8e67c2c3-dc2f-4fe5-a9be-71e76a35f335','91d565cf-7e6d-4733-9daa-69bbc8b58d15','9473dea7-be9f-4e3b-969e-b8b6b7074d0c','aa6499ba-d0bb-4ed8-9a40-6091f0da66fa','c1aa353c-b7c5-4033-9b9c-d92df37348bd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.29')
+  where id::text in ('0cbef128-c142-4761-9de8-37fd0bdea118');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.223')
+  where id::text in ('0cc1179c-c6f4-446e-9acc-8124d47928ec','39ddbe46-dce1-440d-9804-79d43b6b1ff8','5084deac-66c1-47bb-8818-2469bb47fb90','6bb22142-1724-4f65-b817-2e4bce2c2108','7abfdc53-8095-4c44-9971-4931b7a65c69','86aa1314-a89c-42e5-ba94-d577d521b41c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.352')
+  where id::text in ('0ccc16a7-4287-48a7-8017-8fe5e51359d3','1210a80d-5493-4c96-8d97-49e51202304a','13eb86d4-1fa0-4139-bd60-b7df23b161ba','1630c8a7-c5d5-40cc-94b4-fc99049e7f36','1d52f37e-b427-40a5-b01e-811f80713cbd','28f8951e-d2ab-4cf3-9463-fa0d0a12b9b0','3395042d-c191-4970-a751-daaeb5528432','41a79aff-5cc2-4d29-a6a3-1f0fd11a867e','58e405e1-6f19-4749-bcf1-bb1a57b026af','6a31dd19-6275-4bd8-8b8f-cac6af125f33','8c6a99e9-18b0-43dd-9239-1b44eeacc4f4','a70ba6ad-73ce-4f73-87f1-c5dd56e4abb6','b18ba658-e1e4-4621-b4c9-c93ff6a695cd','d49d0dfb-0349-4b6e-aa9c-227593a6f2c9','e42dd640-4b8b-4b88-b738-87f9116ca701','fa75fcbf-ac51-442a-b4f0-280b7499cc64','fbb31368-5bb7-45a7-8de6-08f022f79669');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.289')
+  where id::text in ('0ccdb474-dda3-40fb-ba45-17e7b81969b8','782853ce-9e2b-4685-a6a0-a9c1ebf31d16','b9390498-eb47-4cf9-ba7c-e7e75db9b7b6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.38')
+  where id::text in ('0cd7940c-d481-4de3-9155-15a7bba86154','1081142a-8af4-46c3-aff7-fec95360527f','256099fb-3603-4e22-b600-6be8f2892384','70b99d64-f13f-4c7d-b3af-e9f2f9999ad6','853314bc-d69b-450a-8f4d-b7f8180c75ef','a1219a6b-03da-4248-96d1-8e8af5b1c036','b3f6734c-6574-4c69-bfa6-8beb382dfd11','b6ec04ce-4a00-4121-ac17-607f5e4726f6','bff1121b-1f3b-48e4-b8b0-fa2820964aef','dc7687a8-f12b-4c9a-a761-595dc5c219cb','f1e4fc12-c588-4cab-b1b5-c7df79b4c362','f2949303-387d-44e8-84ae-a28daa5e1138');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.5')
+  where id::text in ('0cda773d-e67c-4f4a-ab03-2baaba82c59e','3985700f-143f-4b8b-8128-53c9ea717979','4d4d00c9-9717-4af0-ba60-2757f8315e6a','6ecac048-f9e3-40ed-a46b-a1f090ec2b0c','952916e8-1a8a-4664-ab34-ab845c6daea8','d887c313-39f2-456e-a343-e8026501d247','eab69cee-a89a-4207-a692-895fd2bf124c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.9')
+  where id::text in ('0ce44269-f189-4f11-8b45-859104f96c7b','9120bf9d-28f9-492c-ba68-42cdadb998de');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='22.8')
+  where id::text in ('0ce78017-0165-4a3b-aacc-fdc03a0cadb3','3285797d-6fa2-49d5-936a-fa32a4dd1e20','33640a9d-5fae-47a2-b910-ec5ead775d8e','5caf16d9-c672-495c-b606-ceb69e108709','5e7ee6c7-eec3-4db5-acb6-b94f625679a8','63c084e7-bd14-4747-8390-451c2a99f18a','64418ac6-ca06-4233-b098-978b3d53076a','6a7544de-7231-407b-923b-5eca87a0e1fa','6e6087e6-b733-40b2-9f44-c3b54ded8dcc','ff7c00f2-07a3-4ae2-82be-0d264b3a2bcf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.368')
+  where id::text in ('0cecff75-2bac-4a99-a682-a611574ff274','1d8becd8-e61b-4339-9834-a54a23c97991','3d769605-87e9-4217-882e-52e82ae9490b','5af63b84-c5f3-48a8-99d5-a65c465d8b9d','a861bc86-7c4b-4db3-9434-7719cad54e4f','b38c082f-5a2f-4f66-8639-8fd80cd468f5','eb709f1e-0c6e-40ff-8079-aa850f507414');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.115')
+  where id::text in ('0cf00c76-e9ff-43c5-bf9f-f76f3c4d31fe','16b8fa3c-5093-4b8b-819b-ffeb3629ee4a','313aedd1-2ec7-4b3d-afc8-99818240b637','35a45cf6-927e-4305-9b70-4d5d21c79134','47a0e5c2-f1a4-4cfb-a94d-6927a86740ab','804cdf0f-6829-4dc2-941a-fa76fb7ab9ec','9b3bbe96-944a-4366-becb-2b818d4db5ff','d1aa4374-4f93-4ebc-acca-4cb17ad1f063','fba22987-2a10-4868-a287-74bdfb9f8baa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.58')
+  where id::text in ('0cf1129c-ad6f-4a6e-b891-eea64c34d68c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.194')
+  where id::text in ('0d06c6aa-9485-499b-b02a-630e7f51d6bc','1755073c-e2ea-4614-a04f-299d13be5884','6ec54561-fb6d-4b93-b7a5-e7dbf932ddc7','e4ea14f9-0b98-4009-97dc-b877bbe40470');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.332')
+  where id::text in ('0d09c965-2cef-413a-b0da-55571b4b4503','19f53edf-8727-4ddb-85e7-7199ed19acea','3190e754-d45d-42ab-b776-5268ed428f20','5720d567-89d9-4fa9-9271-8b035f2988a1','c7a013a0-a895-4f58-a9f6-74c306a3288f','d314eb7d-2f7d-4577-8085-eaa7a72e1503','eba36a65-6ddc-4c69-b449-5e27425bdfd0','f3ee123e-84f7-4f29-ab22-52a38783360e','f9f2619b-e54d-4397-9d6d-09a419753d63','ffe29997-f2ff-47e8-a936-8cfc119c5e9d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.22')
+  where id::text in ('0d0df08d-8342-4df5-8767-1254a090432c','29be08d8-c3ca-467c-8a36-00a89c285afa','7e9733e3-11b9-479f-9fca-a76476bff045','96eabdf1-ebfe-4841-98c3-fb52cb3065ee','d902afd5-9bf7-46b8-9617-cd8b2c9d95b5','f2e3412f-be03-4b14-8f17-ff3ef3b28339','f645c236-267d-49df-9fdd-824f56074179','f6591f3d-82b3-4228-9015-ccebde070c71');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.76')
+  where id::text in ('0d119445-97eb-475c-986a-408af37369ed','1f7468f3-abac-4636-8c5c-859559bc8b18','3a49caed-5e81-4687-884e-55f0731425cf','d64c1e20-30ff-4fa8-986b-ae392ba8770e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.23')
+  where id::text in ('0d158f7a-12f2-45fe-9805-0ed05ea45912','0e66581d-b3d6-4a2b-9c57-a542fd6f010e','2070c7bc-5dfd-4029-a0d3-4b10a5196844','2244d0cb-3f8c-43d1-8138-36faf586a677','35926264-0153-4a5d-a30d-baec8fc6fa01','49adc2bf-dd68-4106-bb36-8b6dd17c4680','4c75633b-9eb6-481b-831a-0c6fdd03b8af','523c618a-fe43-4edf-beb4-6742abb0cb0c','56e974b9-2f16-4145-8ca6-9317c5df1328','89b974ac-4ab6-4e9f-b746-6f75631e1329','bb2448a2-e751-4c79-be47-932a1dc01fd0','c64d9458-89fd-42f6-96ab-51e973092784','c721bfd1-96a9-4b90-ba2d-5b09b61ddae2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.206')
+  where id::text in ('0d1b54b5-7ac4-4f77-be8a-68678f13d0af','11cc2489-d13c-4a59-8c6e-843591cbe7b5','2794c5aa-b42d-4546-8285-722bfcf821ca','2e976fb6-dc3d-41e1-954b-b16f5e0c5c09','3b0171d7-0664-4ce3-a1db-3873ec61d059','4a42379a-3898-411c-97c4-e2c1f80a03fd','5eb36e64-9591-433c-9196-6142693e3312','62a0a954-f597-4769-9c37-9254b185073b','8de6a61c-43ee-4630-8d5e-21bf48e604e0','a157bf9d-ad76-43f1-8e4e-3ca95ef0cc6f','a4266f33-29ea-46a5-b48c-90fc33d2bbf4','db90d072-79a0-4f49-b127-8bd9cbc43799','f88b1d55-b1a7-4fe9-8e44-1cadbdc08b1e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.104')
+  where id::text in ('0d24dbcc-44a7-47b1-b3de-2bcd0a9dd2b3','576fe485-56e0-40e2-8596-458baaafea9f','9cb84827-61df-4e15-85bf-0bba423bd156','9ee9e4f5-23fe-461d-baa1-ae85c5f2715f','b1ece16b-5066-466c-8989-41a1120bf9f0','e52870ea-fd01-4fb8-9cea-7ff6bc794c37','f54b917e-d1a2-49f6-b643-e202f1c92ddb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.551')
+  where id::text in ('0d39aafb-aefc-4335-aeb8-09c73dea9b77','4d816d9c-f55f-4288-9372-4402b328f196','6fb35335-dfcc-40e0-952e-a247c70a8710','86b3d0c7-3ea2-4047-ab96-6fc8e5dc75dd','a637d8ed-175e-4a33-97fa-d39c706e4eb5','d925efc1-d390-4b15-b87a-ab5a798ac2dc','daa7a5ab-1790-4ff2-bdb7-da424b2e300c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.307')
+  where id::text in ('0d3a2577-a35e-46b3-93e7-014b38a7ca9c','1d313482-9343-40b1-b914-4eb842773c3d','410c40d6-81d8-4258-a60e-ce60a6476d69','68cc2787-c285-49ed-ba03-1032ba6da4e1','b1eb87f7-e94b-4407-8e31-903e931ea4bb','df64b48b-5a3c-4112-ba67-91fc29d84d62','e64e0f5c-9107-4dec-8b1c-324af058b8b5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.8')
+  where id::text in ('0d3ac392-ebca-46fe-8e74-2f37416b5fc6','15dce4fc-8c97-49b6-b258-5f4fc8ddbb8a','4206bb9b-aeb5-49f6-ab53-11e039a4032d','54b0a232-76c2-4458-998c-1a69e19b59c9','55cabd88-96b1-4bfd-8c56-62a8709fc527','6d915ceb-b39b-4641-809a-5afba93b79bf','a85e6add-88ee-414e-b62a-31c7bb69e04a','b3903ae8-1b93-498a-9b5e-594d7775edeb','e9c29886-f953-4d1f-8f83-82cea447c05b','eaffe6da-1761-4b07-814b-afa64390c9d9','feded8b2-9b9f-47c3-8d20-a87dbcf93011');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.79')
+  where id::text in ('0d3b567f-6f4a-4cd4-90f4-4f506ddc98b8','5cfa45da-a216-487f-8d74-3e29bc587d76','d738e56b-5b3f-4908-ae3a-b556015949e6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.549')
+  where id::text in ('0d3db390-774f-4e56-b36c-ff3d38a4aa4a','251842a3-5dad-486c-87ab-0d3171ecd128','2c702a8d-fc34-48be-b71d-1bb1bf5f1ed7','456faf08-dfbe-412f-b409-27a5a72495a2','63e63861-aa55-46bc-8ce2-0b67e3efa44d','6d2d1b15-3df6-4287-8b19-8c22e7012c87','7b5c18f5-8071-4086-a891-7ede7a65f594','a605ebe3-faac-4d93-a770-b581b1677976','c47c9233-98fb-4345-9069-6ad5b52f9c21','c76735ae-14a8-4af4-beb6-d847e969c5fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.209')
+  where id::text in ('0d3fa773-45ce-4fde-9485-370d9d743239','0e567d3b-4c99-458f-922f-e5930b445f34','2bbbca18-4762-49a2-8040-aae7e92a83d1','35c03f61-f326-4251-98e0-ea3485cd6b5c','3a5631a6-44d8-4fe1-967a-71aaed0fdbb3','40e220cc-a476-4e99-ad61-1631acd0bd11','432bf317-f6b0-461f-a4b1-87c2452ad781','66c97de9-0a7d-4cae-a96f-8daaa636698e','84d8bb0a-2854-48dd-8e27-6ea30772b260','91f7cbce-864b-4545-8673-b92336291b28','a399bee1-6e3e-44fd-8bf2-50e8a3409506','a4731d34-9dad-4f35-8d9f-1330f620967b','cd5d10cf-ffe7-4c86-9e2d-9f83894cee90');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.201')
+  where id::text in ('0d4025ed-7b76-4964-a6cd-5acbccc2844b','1640ad37-f9f3-4288-a8b1-e29385b22fc1','233dd2b0-1f33-4103-8297-6a1a49223821','36c64389-f174-4065-8acd-9d05d75e107f','3f590427-5476-47e7-8fd4-22ce5a6b8a4c','45b2a989-5771-4913-9cd5-c8a824ece899','47265d5b-75a2-4428-bcdd-060ca5094ef6','5ae7f5bd-4e78-4be5-a9c2-7c8cd21091e6','6def3a6a-9ed3-4aa7-8e94-d8a2c9dbc613','888d771b-ba33-46a6-b988-fc3be41db234','922d28ac-f43a-4f50-ac0b-0d2143258707','9bba33f8-8d14-44a6-bfe3-5a28c020a8b2','b15f7ec5-3a6f-48c9-abe7-9d6e0008a4c2','be6d712c-b250-4b25-b51c-8b468666c6e2','e2130970-abee-4675-89d1-1b539fb2e140','e5718541-c137-4679-9e8c-5292c3f346fe','e8c0be69-f70a-44f0-9f62-05c5763eae90');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.7')
+  where id::text in ('0d58704c-5920-4620-b177-188cf285682e','0eb29292-203a-42e3-a17a-78e5059dd769','15d7f04e-9c29-45ac-980f-697858536fee','18d1dfd7-b247-4f15-818e-9b422ebb73c9','2491829d-856f-409f-957a-b04f149dc283','3003bbf2-f776-4495-af69-733af9d4642d','30f7ea94-850b-4a5c-85da-3afa7622c35d','35719578-fd04-44fb-97aa-5625472bf9ef','6002b16e-bd8c-4733-8230-9e8f22f45502','62248834-5ae4-4ee4-8666-f6b3d40808aa','64869143-6327-42a1-9d67-4bab35c6246e','65f403b9-ef3a-4a98-a62a-6255ef51f4a0','75101aad-4356-4c0b-bb8b-f7d6e70fd371','7c3bf09e-6299-40b7-adb1-852fa15be741','87d6f038-eb7b-4ab5-82e3-5d807cec3c60','88f9e52c-5c45-4c0c-a427-b3498c0ac120','c4f081a6-79e8-4363-9526-d603ac27c226','d1714264-4f14-4209-acf6-2674de8e6393','d422f681-1a7b-4c2b-807e-078467c3a695','d92f60f2-8029-44e7-8057-932d6daae98e','d9c7cab4-646f-44e4-82cb-e78ab87af546','e6b217c9-f003-4b10-a0d6-15fec2540db5','ea5e10f4-16c2-4e0d-92e2-55f47dc1b7d2','ee5659fc-e6e6-4b3a-98f4-e2aa81dfa19d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.16')
+  where id::text in ('0d730250-d8e5-4203-9e4b-5dff647c5168','325d0ebe-940c-47e4-8388-a8ff9ff6a1f3','ee1e0694-e72d-4de2-8a21-c8b70eaa87a1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.222')
+  where id::text in ('0d74aa73-33df-4dce-98d5-424c53ec48c1','d66d7074-66a7-443b-886d-dfa85f0983c9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.22')
+  where id::text in ('0d7a4558-121e-40ac-bdad-f84b74c98572','0daf8bdb-fe11-4757-ae88-e9c4d360d30a','1db0dc84-9168-4177-bfc9-98dbf1132902','49b5bf1f-8652-480d-a729-f54d37df52b8','5b2549f8-3cb9-47ba-abcd-b48e3a0f68f7','6e80b3c4-fd36-4bba-aa83-0e7128a0a205','8482a5bf-6d53-43bc-b610-699f70e5bbca','9ebec209-092e-4152-8257-7dacca42ac6c','a3154e24-ebc3-4186-b6e2-00ebf3a43d74','b2e7d2c8-539d-4507-bad9-b24c7d698884','d801bf3a-14c4-42b1-a1f0-8c826deacde2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.31')
+  where id::text in ('0d7b3f3b-5d50-4188-9651-f1f5c28824f9','1cc38a59-f61a-4645-9dd2-b4a2447865e4','21d2a21d-f21e-4345-b45d-973bfd1554a8','28b4f6ce-3556-4069-ad1e-ba841d62f18a','3fe77cc9-9176-42da-a131-e58f36f0385d','57f07fd0-919f-49df-89ba-35f184503ed0','5fe18217-c2b1-4236-8e70-7d9e5970dce0','63c4a56f-b742-4dc9-aaf2-9dd55371e81a','70261060-fa41-47a2-bae8-cc2076ec5f8e','73e2539c-18a4-4018-9103-a5bfa7a3822e','766391d4-45bc-45c4-821b-4cecc984e285','b7c5b4b1-1fd2-4767-ba0b-03b96d3ae787','bb2d2a3d-64d1-4437-8995-b429f0ec54dd','bfa512b2-603f-4fbd-9140-f6e630839f46','c7023289-3652-462f-ab28-d7b4c5f49a24','cc9f2409-339c-4bd6-82df-fdabe69e8ac0','fc34f4b8-70f9-4b28-a34f-1b5cc49e055f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.363')
+  where id::text in ('0d84a049-c03f-4c76-a3e7-31805ae0de2d','0fe1b26a-afef-472e-b2bf-1309e750a1ce','2f3512e8-b3b3-4b4e-8154-bc5fe16f689d','2fbd6a83-a250-4123-8b4b-d695fa0afcd4','4bfbee89-f3a1-4c3c-a9e1-623550d28569','6a4c98f2-64a0-45c4-b722-904ee1a255f3','984c6c17-c052-40ee-8cf9-e64a3fc53152','c7e830f6-8303-43be-80f0-a626c07a9d9f','cd1d37e7-02bc-425a-a3b8-59e88536beea','d0f5f485-ab50-47d6-8dca-fe6acf4e7f05','e13c3a6b-941c-4958-938c-344cc888a083','eb7c9d1c-70f5-4ae1-8b1b-3c5f82745d65','f658a05f-20bb-4c35-8efa-7f756f17ff8a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.158')
+  where id::text in ('0d8640e2-2051-4469-9f26-3bff5bdbf84d','7a264550-370d-48eb-bae7-ff6d41a28421');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.341')
+  where id::text in ('0d87434b-036a-4146-8eb6-1c1d19ef5c69','394ffa11-67d2-4c3d-8880-e8822081f905','a9319128-c41c-4ead-9b05-be66521a5c59','dddb904c-dae3-4161-a08e-d889b93498a9','de63e74c-36e8-4003-8112-448430354cb6','ea568893-3581-4873-aefb-104e1131c448');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.4')
+  where id::text in ('0d89aeda-b5a7-49aa-b55c-08d909db8e1f','10f0c17c-3b25-44e7-aa28-b2455ef93956','13009254-0448-417c-ba53-e9814a252f34','4d839a4b-5a07-4fcd-9c86-1436c8039f5b','691d05e9-6bf6-4678-bb74-b35d8d932a65','6ad325d6-d0fe-4d4f-ae56-43e1e1c7d8b0','72afca77-ec4f-457d-98cd-e59829a4d9c1','92611eaa-cc3d-40eb-9913-ed912d2b034e','e08744b1-3504-42a0-95e7-a6466adc682f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.395')
+  where id::text in ('0d8c4b33-b5fd-4e55-aea6-38c289365406','7ded3039-9b36-45ef-90a8-1f25811fdd4d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.53')
+  where id::text in ('0d8d932b-a307-4631-a8fc-2ca2e4a7d5b5','1f28c320-157a-4614-8b56-2cc633d2af13','3c66715b-250a-4466-b5ce-2e74930760ba','74048289-136b-42f0-8268-63c714d04648','afa8fd42-c787-46df-945c-40ad31c3972c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='11.7')
+  where id::text in ('0d8fb8a0-6976-458f-b0cb-36a55fd3d770','c161b678-ded7-42a4-8f88-27ccd6123ccc','c26355ce-ddc0-4cb0-9db6-298bba2df039','df33c51f-4723-4ef5-8619-bc29e7dc731e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.19')
+  where id::text in ('0da940e3-6552-4d4e-9822-b10b23a16465','39d0ea81-86dd-42bc-ba5d-c6a951fcd0b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.366')
+  where id::text in ('0da9f250-cc6e-489b-9795-6000ffd8ab0f','1f0bb7b2-ec9e-4112-9601-e89a703805cb','b3d361e0-4348-4989-9038-a86d16b1ff8e','e017960a-ccad-4c42-823a-5e91051fbb9a','fb8fdb4a-ec9c-400e-ac63-71ee2bf8c088');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.48')
+  where id::text in ('0dadcfe6-6150-475a-a364-67d6cb00a94a','1809804d-a27f-4ab5-8ae3-1cd8972c8435','1a21e492-29e8-47b0-8fbe-5d0d28ec8426','2803d0fd-cc38-4467-8a45-0c95964f9e7d','2e5c4d1a-5550-4ef6-9363-5afd64743bd1','3c871ee0-1cbb-47ba-bf64-165943162705','59fb8132-a6be-4d03-ba83-2cf4ec8d2c45','5a18c494-d8a0-4278-acb0-933babd57485','63b5d371-f369-4ec3-9e6c-100ec9ff24dd','7918d671-f1fa-4168-9b5a-9c5432546e7f','7f62750f-dc92-4831-8432-2ca0e4c3009e','a5780b0f-a927-4c6a-bb55-5cb99192b744','b1f89f93-3261-4e60-9505-d93fa60d125a','b68791f9-205f-45b8-8661-62b6af39fb42','cd432e48-12c9-460d-8510-8b30b732a98c','d720813b-b3be-4557-a63b-ebf2aea1a653','ddea7b74-fddd-42d3-a738-06ab5562185b','e1028a25-5674-4860-b2a4-048e6ec47922','faca84ed-543d-4b96-8bd5-f52a8811779d','fb9cc9b2-b1bc-4902-ba96-dd697a530b0d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.298')
+  where id::text in ('0db9cd89-e7ea-403d-94bb-f015a5c3ee13','10159387-82f5-48c0-aa51-01770208a3d7','407dc5e6-119c-40b1-bd08-063c22012add','50e67c73-7849-41e0-8742-128a4a5bcf83','63e4bf52-df98-42d0-a6db-9919b8663563','6cc8e76f-9316-40b3-81a5-d954794c3567','9a303838-4cd1-4e47-8a11-d38123be1375','a060219a-952c-454f-93d4-23ccf91fc507','a43d8a21-f3ac-4752-b3a7-2be5214c09ab','baf462e5-2000-4bc7-ac8c-37fb5864a8ac','c2433a6b-a241-45da-9963-8c137297c905','ce0373e8-c216-4927-8000-a3f2668d0d73','ea46fe2f-f87b-495c-bcb9-2d5253ee12b1','ef87abb7-4f61-409f-8ee6-b873fc29ee27','efb2eb02-afc8-40a4-a192-067e32fdc34f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.284')
+  where id::text in ('0dbc6911-d073-4484-bd18-2cbc0e727e15','488771d0-6b8a-438e-beda-7a29e913b96d','9223b0bb-f599-4c7c-afcc-3c4c39946bd4','9320532e-77de-4c2a-83b3-5e09876b6297','cf214298-1d79-4e0a-b152-1ccc5137cfce','d023b9a9-8b3c-4545-85f6-e86fd92f98c6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.251')
+  where id::text in ('0dc76353-6826-40ee-b417-5918aab47f12','0f7eb0ff-51d3-405b-b32e-40bd33a9a3bf','137c6e36-2f7e-4de9-9239-1c7cdee06855','394a7590-12f5-4460-900f-76d4292d80f7','3981bb1e-e846-4ee1-84e8-93d943eac68d','40ff6e86-a7cf-459b-bd82-fcfdc5027a62','421d7db3-521d-469f-8835-278e45ae7045','65a37adb-4a84-466b-b891-263af44b324b','67f4a68b-e1ec-463f-96e6-ecf6b22a3549','7218aeed-9d92-4949-8fa6-00d0003f5a94','77b94257-4224-4dfc-89e9-6d9eafdb2cac','a70f153b-7689-43aa-96f4-4b7e50736ca9','b7fcdf4d-ff65-4ca3-8f5b-0c748849ffb7','bd073bcc-00ea-47cb-81a3-a2927c0d5640','d0012404-2aad-46ea-9521-d3c162124905','d8100c1c-6242-40c7-a8a9-af1a5532e5c9','d88f4e06-75b8-4045-a49e-0f1d3c2b591c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.228')
+  where id::text in ('0dce8e5a-b169-4d52-9f9b-c2bafe838753','3664b482-9d4d-4d8f-b9c0-59f9bae07e69','3b48902d-f0a4-400b-bb3c-f1233ca6d2b3','649f6d88-1f8a-4b7e-b8c9-6ba1e2244b93','6c66a2c7-d8dd-415d-9e41-0f41842a2ef1','bc72581a-2c23-4a72-9ff6-203df85e4817','c79b2585-13fd-46a0-905b-52c74d23b46b','cab286a9-e128-4c48-88f8-fc8d97178f05','e211d91c-dab3-448a-a1f7-ae227ba6a068','f5252f03-c947-49d5-bb28-3b3e49a5404a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.322')
+  where id::text in ('0ddab34b-2acb-4eb2-9e0a-88c4a44f2d52','61fced0d-46ec-4a64-a176-61c758e569ea','707f70b0-bf28-45e8-81e2-7123340c3dec','965f2b7c-192d-40e8-88ac-4c41adde1e98','ca829d96-03c1-499d-a388-66a1b024c5f9','d13fb734-0ab8-4a58-b50b-1d3100d286b9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.46')
+  where id::text in ('0df69416-dafb-4152-ba1e-e4de399b10d4','105fc47a-cd7a-4b7e-a916-45747bf89f7f','1680b55d-9e9e-4261-a565-d967071c77e2','1d5e94c4-8007-4091-8d6d-02f369733b6a','4aa160b0-5a6d-4177-8540-d1c0a8b87e71','579440f8-2fe6-4666-bdb0-bb527fbee96c','743083ad-0938-4943-956d-a0555b4d8a99','8d94b266-fbc8-49d7-be1c-a84e5513d44b','a77fe6f1-9a89-4a17-9269-ac55c14ff6c0','b8d4d094-1ca9-452f-9c89-0936d1152ced','c07ee1a2-dfd2-483f-8b4d-85f63b517778','c936f73b-0376-4ea8-9f19-7b04df32e826','dd4b82f5-b79d-4fb3-829f-50db55481b30','ea12c048-5004-4982-8eb2-5be79b02588c','fc9be9aa-e0a8-44da-99cd-b541c2cdf12c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.241')
+  where id::text in ('0df77409-e1a9-458e-85ce-77dacae14584','0e3ddfb5-d9fd-477a-80ee-889e510cfa6a','0ee0ea47-bef9-45db-9308-472a1ceab7a0','2173159b-970a-40c9-a5c1-8553ab67262f','3214c466-f166-45bd-9e20-642543438c4f','3f09d657-c5f3-4fa9-8dd1-9d61bd929fac','49f638e8-7e76-4e85-8b24-0f3c0c42fcf5','5f1e27de-2456-4ddb-8fbb-f57d82daf17a','6cdc64d8-0b79-483b-a457-cfef30dc860c','754b7d0c-7ead-4768-97eb-64e3e649f2c4','76039774-fadb-4b48-9498-7b7d1c847b8c','7b74bd99-2cb7-4dca-aea2-f7611668653f','a28fd049-9a13-4bed-889f-801e007f6997','a9d3a3a0-a715-4ef3-90fe-5d87ea19687f','c642f347-6f1a-4784-8a35-051f6d88908c','cb8a70b5-e258-4925-ac15-00f484ff5f34','d8854739-185b-4e52-ba70-d9e3308619ba','de136324-3569-4422-9598-576f18a0e45e','ef3fe2c0-9d1a-417c-a893-ad992cf15e83','f4733a4b-aa3d-4b28-b630-6c0943d8e29a','f6798287-f2ba-4f4e-9c26-2e8e5796b0d8','fe6e9499-6d05-4035-a67f-748a19a4a3df');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.428')
+  where id::text in ('0df95f3f-f16b-4ce6-a4ef-66e9c9514274','2d0ef59f-3613-4d31-9753-9de6963c9fcb','5c9d9d6b-8fb8-4702-8469-b8b39c65a189','8d351c81-2b5b-4bdc-9c75-242b66f23b95','ab3bc1c7-17ac-49a4-bd69-0a94c46132d8','e605ca4e-d7ee-4711-9c35-c28cfbe78eb4','ee155437-3f46-43f4-b18a-4d60d9fa14a5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.38')
+  where id::text in ('0e078174-26db-4a03-ab52-a0bc2ea2d8c8','18c3df53-21a1-46c6-9316-6ab3df1ee665','6ea480ad-dad6-481b-813c-5f753c4e1b5f','750e16b1-1e57-4e80-83c5-0af83e97bac4','8ab63cff-9245-4a56-a2dd-9be47838592b','959f603c-1bae-4aea-858d-74077c4a37d9','d3617016-fd2c-43f2-9ffe-0bd9181d80bf','e2e3d713-0f9f-4c57-9e59-0db846abf778','e5d377fe-e5d1-4597-a5b0-e1a985f29ad2','f46d200f-9bd5-4378-8abf-9e2d26121c7e','f6618d1c-e0aa-4f6e-8bab-2a6c8fc5276e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.16')
+  where id::text in ('0e0b90f0-cd55-4e94-add1-778d8026687e','1a380848-2fc6-47b0-a348-f83cb88bd561','4008120b-ee84-4f81-ac73-b2e9fd6d5092','5be8cd3f-bdd2-4707-bb71-10c4d3f8f5af','5eaf8ac0-6b28-40ff-9ae9-201b6a9b0a63','7c07c5d7-1200-49a4-bde8-94e2ff4f93c0','8c520612-3567-4e95-b5dd-7795eee89fe6','9b8aaeb6-dba7-4181-8917-503271f0fd52','a88210d2-f6fb-4373-94eb-09befbee79f2','b6c6f8c4-8721-47f8-add1-ffdbdf4e5d69','bcb9ccf0-278a-4070-ae48-c737be1d172d','bcc57b5e-6920-481d-8cf1-4b3520633eae','c42791af-fc6b-4210-80d3-f6ae53dc53cd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.15')
+  where id::text in ('0e1358dc-ba22-4693-aafe-4a16ff9d5ce4','1e70bf29-f90a-4d0b-8fd3-d1d1d8eb83df','5f7217ef-e4b4-4879-9d6d-faaf334ec0a0','7da0e605-7e28-49dd-ab92-eaf942b43625','86b59523-397d-41ea-a6db-9dc3969596e7','c6cc1f02-a58c-407f-b54b-1d0e45f3db63','ef4c788b-7a96-495b-b425-a266b78e696e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='21.8')
+  where id::text in ('0e16c313-2bd7-4e6a-a4e8-ecb7176bc4a9','afdf68a5-ebd0-479b-bee4-8d5ec36e8b78');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.219')
+  where id::text in ('0e184465-f407-4269-9f6b-bb29023d9580','1171f8d9-6ae9-40c5-b395-987251d5e3ac','2189537d-5d8d-403f-beef-2171bc08688d','2533b322-41ab-4b39-9db7-6bb4eea8ccb4','2604fa39-67bb-40bd-ba2f-58f64b6788e4','3956b27d-596b-46c5-8746-128209866f13','3dc88d27-a21c-4d65-abcc-8cbfb25f9c38','42699650-4047-4110-8066-f4d7d2db23a5','49979f6b-8765-41ab-81e1-fb75d291ab96','54e45e2d-9c58-41ae-bc37-4b293c219432','5f7fd56e-e1ab-4cc3-a5dd-99ba5265f2fc','5f858da5-b5ba-4293-bb62-302d467a56f1','6124d8ec-f226-4d79-9a23-8e6cc26a5e37','635cc08f-209d-4826-b512-e6893efe571b','65577b23-ff7f-4731-9ce8-2003300a7700','72abdb66-c438-4906-bd36-40f4ea616dd1','74f68521-f9f9-4897-b240-7f70a6a1be92','9649aeb9-c0d9-48b8-848b-ff11c6d560e5','97b0a13c-98dc-4042-85e4-7d1d0ea23643','9a1e1878-b0bb-4733-a8cb-672260e141f8','a30bd6c1-cc65-4352-acff-0fb4ff658956','aedb0694-63a4-4675-9b50-67eb00674e2d','af3dad16-df00-4cc7-b4a2-6fa94810c5cb','b8668a4a-3832-4174-bfd7-954aaa5500a9','c512bfd0-4f52-4cb9-9cdd-c957c3f7a5f6','f12a97bf-d2ac-4569-a56b-40c3e90ce1dc','f85e0ebf-fc07-4bf6-9cf5-a602f894bce1','fc765433-40c9-4b7e-91cc-a7ea66c65ac7','ff8bb39d-01b1-412c-acac-a1f4fdd1736e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.646')
+  where id::text in ('0e1c857e-3f86-4a34-975c-bda8d479302d','136de60f-1026-4f48-b0b4-1392160fdbaa','73825769-e187-47ce-9820-1217c4de55bd','c93e72ea-4227-426b-930b-37d241d71c27','f58ca12a-3e22-4bb2-9cdf-080b3203e19d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='43.18')
+  where id::text in ('0e227efd-bd39-4cd5-96a7-92f41aa3d48b','b59f31f1-b09c-4e61-b01c-24ffc5738f42');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.66')
+  where id::text in ('0e279f0d-ec3a-4398-9399-70eb2f7c7294');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.62')
+  where id::text in ('0e2b0123-ac39-489c-a333-10f8a4321162','3c993c95-487b-450c-b500-0b84238cac99','7d7076d2-de90-469b-b4a3-346161cf1c88','b4212e5b-0e84-44e9-96e0-e6536ef7ea1c','f31af698-8947-49f9-8d92-675d13a5025c','f531c536-b2e7-483e-b1dc-78c11366afd4','f937ed08-3e15-47a9-b317-9ec80d6ebb7d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.247')
+  where id::text in ('0e38bf9c-7a2e-4b04-9416-f613b6e3fef6','6c84fc23-820b-4488-a121-7eaf7e5fad10','995d167f-17b9-481d-93bd-213580c180ca','be86f2dc-2a6a-4856-acf3-00582f457d24','c7fc41f0-b595-490b-a1f5-8d5d60536a07','f7c6b91f-14d3-4602-ad36-21cd04180060','fef0da81-c6bf-449b-8ec5-5d67641e4142');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.144')
+  where id::text in ('0e3920ea-1e32-4d7b-9138-ab46c7429b84','1e1d5bc6-3900-42cf-bb0d-847d1deb9836','21275b12-27e1-4de3-ad26-f0003e36d19c','69b965ee-9e1f-4d67-a1af-4a5db5df9a8c','90b00221-92e7-4750-8ea1-efbebe3b56c4','a3e9fffc-c855-4364-a84d-3cb4371f91ce','a47865bb-000a-4222-a4e0-52394e2bf481','a8359928-0e55-455b-b84c-39413e959cff','acd13102-a064-4bf5-9171-fbe073faca72','ad90cdee-8fc4-4e11-9bc1-115c5255cf8f','cf6fadc7-5af5-4b70-a51a-0c516fe31841','d093de4a-bda3-4a97-8875-8ba7cae263b8','db42655b-3970-4371-9f6b-ea2bf42f394d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.304')
+  where id::text in ('0e54fae6-dd3b-4799-87a0-2a5bff54f90d','15082ace-9f5d-4c3a-95d5-dda433c024e4','2e63c37f-e5e8-4ef8-8d2a-792578b487d4','3606f338-2a2f-4955-a45d-7d7cb50b80ac','53afd2c8-fdec-4c81-908f-3d0ffe3e19ca','7592ea77-5b95-4ee9-8966-402b938e6388','782aa730-904f-4dcc-8943-c49646fc3b9a','7c7dbbb3-8941-4ca9-95e4-500f54fdc33c','7f72efb3-ee28-4fbb-b51c-14ebbe388958','825b30b8-617a-4d66-ab03-6ea012cd86da','8e08c89e-0915-40cb-9758-8f047f98820b','b32a24a5-81a2-417a-bded-df57f462dfc3','ecded563-a382-4a46-85ba-087efe23f8ff');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.34')
+  where id::text in ('0e67ed1e-84a6-42ba-a941-8d4c0db818ca','6dedd6c1-b8c4-45e9-9bc0-6a05d1e09ebf','77bb3a75-ed45-4a25-b923-47418a7b1f01','8e6fccfc-32ed-44e6-b655-a696e799c124','c75df96f-8535-409d-a461-1b3cdefbd211');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.567')
+  where id::text in ('0e6867a0-b06b-48dd-abda-082705ed51e9','10cd0705-48c5-4f7d-a3f3-41004cbb82ed');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.62')
+  where id::text in ('0e69cbe2-e334-47a1-9552-398900c04a67','1243dc8f-b145-45ad-a729-d68ae6c38623','2be88ac9-0170-420e-bd15-c7d3cfab0e26','37bbf10c-4f82-4601-a932-d6c2686d01ad','44ebbb8f-382d-4a15-817d-6a2eef3ba57a','5ed77702-913c-4b88-96c6-e29041c743d7','6799795c-265b-4188-84d6-2a343e351530','9b440f5e-dfe4-4d4f-bc4e-1957a0f2c1f7','a382efc5-a080-40d4-8e0e-09e95e9b465b','a3b9bb75-e80d-48f0-9703-381112c6ecb6','ab6df9d3-80ff-4b02-801c-04eb0836cef4','b73aa10a-e7bd-4313-9880-3ffd45a0d699','ba3c41ba-e2bf-434d-b694-08111e56e8a6','d3d95fa8-540d-468d-a74c-e4605592ac67','df1d5d48-070c-47e8-8e76-198ffedb73f9','e4c9c8c4-21ae-424d-ac3c-53fae77c7faa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.11')
+  where id::text in ('0e69d6fd-6ae3-423a-976a-eb04cb22e5d2','7a5f3bba-d289-490d-b056-85c2ae96b399','832f8231-1b37-4b3f-bdd1-b956ae3326af','86a1d9d4-1635-4f94-8ae1-81b9d8891035','ce3e871f-b0e1-4d19-a266-33fb058019b5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.44')
+  where id::text in ('0e6ac256-74fd-4025-a87a-f473a7701d13','446894ab-47be-431e-bad6-5a11496d8a24','4fc40a62-32da-4d9f-be80-a147b547d2ae','72908b7a-9a22-47b3-8873-c1f9900ddac6','9094d5e0-6663-462f-95c4-14a84bbe8b66','ed8ee52e-7341-40e5-aaa8-b950a4dd8a18');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.43')
+  where id::text in ('0e76e9ba-c201-40ce-8993-3c685f3c7545','8300a10a-d274-4e5f-a985-c61129b83478','9ce598c2-4ca2-4e8d-9465-c9d698dcf262','b732609d-ca33-4bed-bc0f-f7429923c9ea','bb350ffa-37e9-4414-9384-cb30ada08829','bb9156c4-86a5-40ef-918f-ccae05a65b76','c2ff657a-51df-43b7-958e-3b76012805f1','f9652974-252e-46eb-af7c-8b669bce4be1','fc8e6492-e1ea-4195-b162-fe551e5bee19');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.245')
+  where id::text in ('0e875bc3-f86f-42b8-b73c-d9e7556447c6','1aa7ddc5-b088-4629-82ad-f18211f26f04','45a8c20d-2a43-443d-9bf5-456e3b2fe463','58b48aec-23d6-4640-97a2-5eeb0ca44bfb','7f27d597-bd83-4742-a047-0fa06ab69011','8cc06860-0292-4486-a83a-0705b0551934','93133d72-a977-4883-9bb6-c1d2da851ef7','9a69f57b-9ee8-4e2a-ab0e-6c0e3c76d884','c34db229-f452-43e7-857a-a57694f53c7b','c91ed6c7-e382-4466-a165-703ebbf87fb5','d9ec4402-076f-42c6-873e-222bf6809dce');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.26')
+  where id::text in ('0e8bec3c-e7d5-42ac-bf36-33bfc12e7670','34e1740b-0ac7-48e8-8252-431d981e5513','426100c7-db9a-4b17-b099-ddf347390465','65826ca4-9e75-4fb6-bc58-fba8e0e814f7','68c89ef3-5da3-459b-85de-b882aa3e8950','99d27ec3-8b72-40ef-9bc8-e9fb102108dc','9f695bf3-d79e-4aa9-a580-0381e6c0f26a','b55c261f-ed79-4023-815b-4935e0f7a2f9','d9b7aa75-865a-436a-9a7e-c820d8e02392');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.72')
+  where id::text in ('0e8fb1ea-0d91-4b52-b767-c853d9f935eb','2a4b6f4e-0257-44c2-987e-8f1fe2497d05','7895dc9b-0cda-4492-b658-17d93d374d98');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.46')
+  where id::text in ('0e905e34-5891-400a-a6fa-b1e66c4211fe','16bb603d-c69a-45dd-a986-74fc2fc8fd8a','2724a968-ec3b-43d6-8337-14889100db03','3804afa1-8470-4fbb-9224-dfb351107704','9e4f2525-096d-486e-8f6e-42b5c49398cd','ce23e825-dd0f-48bc-a035-9249ab4cfe43','de290f93-59df-4cca-8154-38a2c5a6be59');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.127')
+  where id::text in ('0e92573b-e76d-4d72-8180-873dd7e4ef27','13951b13-6df5-4801-839f-263faab813b8','184773f6-fa48-4952-b9b7-cb39abe58a86','3ea4df39-fb89-47e6-9b1c-6cb5cd0fc06f','8b28a199-2b66-495b-876b-e54294513439','a0455824-f316-4c1d-a35f-716931921a7d','a1ecacd9-b2e0-4e7b-86a7-344e5a9369a8','ae0e33ea-b19d-46af-8501-34ce9c14f786','ea35eae1-3df1-4da0-be94-1c4b552b7fa0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.223')
+  where id::text in ('0e95a156-b621-41c6-abd3-f9f527164901','deea323d-18a3-4e74-ab65-6af04b7d63dd','eea6b526-4b5a-4f8d-86a5-4a768c307d81');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.105')
+  where id::text in ('0e9658fe-65c3-4427-8f02-aa08184b1eb9','321396e5-24a0-42a9-9799-343a48d31e19','3c7fe8ce-24ac-4029-9d4e-6df0e5170478','e35e8a4d-7c40-408b-ad71-c9406bb5aa7b','fe8b504e-8cd2-4aab-ae9a-7a77d0b7e8b6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.279')
+  where id::text in ('0e9c398a-cda8-4e5e-a9c3-ba91c5cb5164','1487e492-22f7-4713-966f-e07877ef5203','3bd49a45-cbb9-4656-b266-8d59c8f1ac03','767aeaae-933c-4f79-a5b6-f1d3d6579171','86350e31-9fae-41a2-9564-4a24f30e4c4d','b97046f2-6ca1-44d2-bf63-4573d136ee14','cf215fe7-2ddd-4ba0-ae64-4f3c490f4d02','f94c2270-cccf-4a64-8d8a-0d904760f8ba');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.72')
+  where id::text in ('0eb3c0be-1c93-4902-ac7a-e2f930d935aa','16261214-ec22-45ea-9b98-44344f88f7ee','26bd1b91-9ffd-4236-be59-454100820afb','4ee550ae-5a71-4d13-90a4-8473922b2639','84179d13-2426-4a69-bb52-f476c481c3c6','9633dbde-4f99-495a-a0ac-de22f97800db');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.497')
+  where id::text in ('0ebc7b67-5102-4df0-8749-71a87a250db9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.17')
+  where id::text in ('0ec5b77e-19fb-4139-bf61-e99eda3bb6f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.645')
+  where id::text in ('0ec97ade-34e1-4bb6-849d-2cf83c21dab8','4bbbfaef-10a6-40ee-8dcb-f2c8a061f69d','58f213fb-303b-4a92-a688-1f0efbfff055','a3eabd9b-a2af-4810-8b6a-0e0dc0bbb1af','ae3c615c-ddb6-4411-94d8-5cfe026d8a08');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.328')
+  where id::text in ('0ece1fea-77e3-40d7-b839-a1e5a15b6dde','2e8c545c-0395-4199-a728-fdbec8fcafcc','32467eb1-0309-4fc9-a716-3a84bf2a75c7','4061c926-2f03-4176-97fc-3cc7de9fd32c','4298a72b-546b-48e8-a39f-ea69f871dc62','55d9fde2-26fb-4b57-9038-deea9a624665','607f6000-793d-4791-a7dd-6e688c7b442e','6bbfb6f6-bea7-44aa-abb9-6895385d4c33','99250a35-5b3c-4044-9588-865b1150fbe3','a21202d0-5fbd-4b5c-8254-f07d52ff2648','c0287a31-36ac-4566-8c7d-6222ea7090f4','d76d5fa5-3f32-4d9d-b721-48555bb85810','e72dee27-a023-4119-9bda-e6477ca52170');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.89')
+  where id::text in ('0ed0df0a-5ac2-430e-8407-b224f1bfbfdf','97a9efc4-11e3-4da2-8734-e1f895e6bb94','fceac3d4-106c-4331-9452-bcf40aabd976');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.43')
+  where id::text in ('0ed5c3b7-f5ee-4944-a136-c5cf78dab311','14b4ac17-bef6-403d-9e8e-43d52c0248fa','177b87aa-f5cf-422b-b08e-2f6f4286dd76','3019c46f-dfbd-499e-ac07-df0ea7e394f8','32b94891-7a55-485d-95d8-f095dfba4313','35edb623-7d09-4e9c-9ca2-fb2f892beb92','3840b5ac-8135-4572-bd96-55c8a9b40146','3ff99b11-89bd-4e9b-a1e8-a077ed4c0af7','448c8753-cf03-4b8c-87aa-f711f3d26b30','4ab50d2b-2f25-421e-a19f-41e3effd84c9','5b308b5e-7362-4d88-ad26-f75d96fc8856','9f39bb59-dced-42a4-ae7c-523596ba9d30','bbc650ac-6ab4-46a3-8fcd-87898b5cd35a','c92f4df0-8ac9-4bdd-88c1-566b323814bb','d9b281be-dda0-4308-bcc0-4627badecf7f','ddafcc13-f16f-45b7-bf67-830b5c458eaa','def2019e-1ed6-4e95-bde7-995898b31df9','e0c1b236-30d2-4923-acf1-360f02470e9f','e0f72472-ebd7-4ba5-9a7a-f2a03f7824f9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.483')
+  where id::text in ('0edae7e9-438f-4bc2-8d64-73c66403e91d','c2523b9d-e3b0-4c09-b237-f5f39e788da5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.7')
+  where id::text in ('0ee4bfa3-7dd6-4ec1-a048-c46af15d3670');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.132')
+  where id::text in ('0ee63337-c753-4d74-8096-9579fbfaf0bf','22b23df9-3059-4e16-9239-65431d627c1f','2502ed56-9cec-4064-af00-cf3599a2f8b3','29b6c08b-42bf-4673-982c-19c6a7271c3e','44f36e65-a480-4c0e-8f32-112ce2a32faa','48759a3e-3188-431a-b0db-6a39795137f1','bdcecb7b-f46b-44ac-a10b-90172867016d','cd647fc7-fd85-4053-b55f-79874de33143','de0cc5a7-92a4-434d-a051-036f255abb5e','eac23fdb-6e31-4a55-b1c3-12164ca3ebab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.184')
+  where id::text in ('0ef38832-1759-440f-8f9f-8da4eec455c2','305d72ea-6da8-4dde-a59e-4d9e2ed0edfe','33f9b0a2-02fd-4052-a8a9-b2ac39163396','6fdf5c44-649b-4892-8f88-3d9d2c9c1c55','d34074d6-ae02-4bfe-9279-bebdfe145300','e94956f4-f2bd-4ddd-b3ad-8a159f7ba462');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.27')
+  where id::text in ('0ef849ae-fb68-4d1f-8544-0a641ac13083','2722b05e-b31f-4f4b-a4d3-f509187385ea','5b39279c-33c2-40a7-8776-73a235347858','6b40fbf8-9164-4d74-b5f6-caa6e4d8e784','6c46ae46-1779-4adf-ae73-2957aed1aee5','89e2d4ec-a870-4267-939f-649aa66096b0','92935471-9029-409a-979c-e5479125997f','a0761f1f-178b-460d-8230-d3401450807e','db720f0e-4ab1-40d9-b533-f68569aa4d66','e46f25d0-efe5-4f7f-94d7-cd42f3f68b1c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='22.2')
+  where id::text in ('0efd01dc-920f-455d-ae29-bece394df44f','1b47d471-538e-4952-b9da-bb08e97dbb24','324f5a65-337c-45b6-a56c-9915446a97f3','3d93042e-7aec-4cc3-8507-d701ad60ec88','4dab8eff-1442-40a9-99d1-e2623a93c083','748b2cbb-3f1b-40fb-afe4-7b7cd58ac6b3','771d4064-4a06-4ffe-9279-d556603adc3e','79e541d3-1083-4390-a273-f2a11e63218b','8168ce0d-1c66-48ed-b4c7-c4d6275be6ac','9576485e-50db-448c-aade-9ebd6c64cad0','a00baab1-a82e-4953-8b7c-386e09270aa9','eed99197-b4eb-4b98-8937-e14854b73f14','fe78f4e6-e085-4e98-9491-52ce6041ae73');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.267')
+  where id::text in ('0f02ea8c-af54-43a0-88f2-a1a8ca5ad989','444800dd-c052-4ad1-acc3-f1b93cb1ceb2','44b4c86a-96ab-4dcc-afb9-9ed305fc8463','48da172b-8382-461e-b787-1a5036310b0e','4e0ccdbb-9eca-488b-822e-5798d7090697','62643630-555f-41b4-b2d0-868ca1f65c62','8c23e4da-fcbe-4e14-b6c2-e57f3f31601d','9cb05afa-ad02-4480-af45-b81a7620dbad','f3b2e403-e077-43f1-8078-8b4750581923');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.54')
+  where id::text in ('0f06c115-57eb-413c-8453-35cb291d294f','2211ebbd-0a3b-4bf6-b21f-3a427f679dc0','284d6383-1001-4ebc-b346-56b47551a99a','2f138202-ffec-4824-90c4-a20af915dc67','49efb28e-35e0-46b2-9f9d-821b30b1200e','4d362593-334b-455a-b67d-b1c9e9ab0bfe','4fcf2a69-8c96-4280-a584-c697d6ca803b','51e79bf1-12c0-4789-acb7-120d0caf19c2','5634171e-2c00-4089-9513-73b3b06a826f','5d8a3900-e100-4ac2-a6ef-22af797c9c60','614a2a68-e808-430a-8077-663c1590b9eb','64f5af79-2854-42de-82f5-0657f6c8726f','67ee559b-819d-437e-bdf5-859c06a63a8d','68c58def-ba3e-4003-81f6-715e3fec028b','691482b5-5734-4218-a98d-51ab81afef4e','6be2423f-031c-4812-af61-f06413d66761','82c1dd85-fe66-42f0-baa6-0e35558be6bd','8678ae4e-4fe8-4990-8298-58c563f2df47','9b7a7d7d-1df8-40b8-b066-f53ee853d390','a5290c4c-42ae-410a-b16a-a2bbce4ada40','a65aea7d-0e1a-4cb1-a804-d4b61bcd2277','aadc8522-51d2-4e86-90d8-e2a523c96d42','bb319fa1-95aa-49eb-aaea-0a4a13129d6b','c0f68e61-be65-4282-a52d-d372c2b1454d','ce70340c-77bf-4154-a380-86bd48d021c1','dfc380a3-d987-4818-bbe6-c2c4461c24c9','e7a835eb-fe9d-4e0b-ac73-8e7a748a084a','e906d3df-d558-4d4b-8dd7-f4e0755e5a3b','eb1cf5ec-c31e-4870-b2c2-304a3e884fdf','ee49abb7-2867-4e72-9f52-733e077e7d17','f10bc252-d3ba-49cf-818c-6a23382ac910','f7b83f5b-e830-4baa-869f-a76f1040b51a','fefc5b31-1821-4036-a5bf-7e678e8422ec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.385')
+  where id::text in ('0f0bf42a-0c87-40b8-91e1-e266c907e0dc','76267e35-71c1-4cfb-ad5c-3bb020f8601a','d067ecc6-b715-4d23-bca3-3c6c5c5a35de');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.8')
+  where id::text in ('0f0f81d9-203a-421f-b6ca-2d4e5ae1e9e5','141737c0-ca32-4fcf-afa1-b08c35bdded5','28e21aea-e7dd-40b1-93ae-35dff1117655','2a283447-cfd4-4f67-86c0-bde6233ab6ff','3187c658-736e-4324-aa38-a2a15245e7cc','3a8346c6-aa5d-4f82-869c-e4a401ef3f8f','4d26cd1c-2406-473b-ace6-10f1b476fa6d','6edb3e16-4f89-4659-abe7-7b373f803af9','79c3e70b-6f47-4d58-964d-0da0c5b2e776','7e99bf02-02ae-42c6-b209-16c474eb0416','af4221bc-1a5f-4126-8621-3b05f2fe27aa','b8ac7a60-cb3a-4c7e-9202-1091a0afe506','c8e02a0a-4771-474a-98cc-fc7b21e6ce05','d6d21a49-eb57-4060-a947-a4ace5fb0b2b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.139')
+  where id::text in ('0f160d56-9217-4fac-80a9-e4eb7517d714','25993a10-4443-4118-a7f6-44ed90f63626','54be2221-088f-4430-8910-a1c752c755c4','64af2067-6a67-4556-9713-6851d0232654','6f90473a-3cb4-4390-8bd1-4d1038c56f17');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.399')
+  where id::text in ('0f1cd2a9-f178-4b1e-a168-f6b7d393f7ca','10f5abf3-504c-47ea-997e-c9da1c148227','58565199-8bcb-460d-930a-3befb6e84b1e','ac7eb073-4179-46d2-8396-dc23d96bf5a6','b5a0e4ef-0bb7-45a8-a8a2-72265ccacb08','b9a1f0ad-2124-49ca-9fb4-82377b003c00','baf0fb2e-9fd5-488c-baa0-6aca494484d8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.96')
+  where id::text in ('0f28701f-3803-4412-81a6-fd7ded65de65','1486eb0c-fbd3-43eb-b685-e30fd4b81f9f','20d67be9-88de-4eb3-bc4c-e58e2789096b','7c303934-50f7-4338-9d14-3c9083030af2','a06102f8-70bc-4c8b-84fb-8787dbff58bd','cd328bc5-475a-4dfc-9644-e69d3591dc87');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.313')
+  where id::text in ('0f363de2-bb17-4cf2-b5c0-cf5e218e61dc','153f38e2-c439-46f9-91af-9296f974e50c','2edc7f84-4a25-4830-9c29-e5e6fa54fd5e','42c5730e-c709-4368-970f-805efe7cd4b7','96491f60-6f11-4a3e-b796-2f9e98eadfa4','c64521fc-4e4b-4d08-a5d4-122486b3dd96');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.187')
+  where id::text in ('0f371dff-7a45-492d-af2b-d950acf97b7b','c0cbd472-cd14-4b7f-a47b-446011a60e9d','e13dfa52-afc2-470d-9437-00bb85270877','e463caaf-370e-47a6-a5e9-dd48bd40f05b','e5f5c10f-4162-4b0a-9792-c18253082762');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.228')
+  where id::text in ('0f431b36-9011-41cf-b5db-670edfb3673d','8a53ff8b-6a49-40ab-a492-d1d08d3c4df3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.23')
+  where id::text in ('0f43f356-213b-4686-933d-355a2fe5305a','2cc6cfa4-66df-42eb-b3cd-0c8686f76f6e','40710847-ceac-41d7-a694-34ddacba5f4c','431ae025-a4ff-4b96-8003-f1ddfa953efd','53b8639e-a98c-461b-b3a7-dfffe57b4f54','591520a9-b571-4be0-84e4-a6f1543c3fd6','89226ddd-4bac-4658-ba73-3fd1420b0339','92a1c304-ca7a-4f1f-8773-7fc2e6a46fa7','c0bcbfa5-eedd-41b2-ada2-cf7d89721533','c5f02e97-874a-41fd-b5af-0c3e34fa1ab5','c857d3b5-5891-4a57-ae62-6d3bf2952a39','e4a6a489-ea25-4a78-b7cc-22e6d4303da4','e5becdc9-1cd1-4040-b108-2f4cc0b3fb96','ee9eee01-4b1f-4b07-b4d0-49493956939d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.232')
+  where id::text in ('0f4b2c47-9195-40f0-861f-c15409e02df2','1959dc88-e6bb-41f6-b6a6-006fb62cebf4','39c52158-5d45-4036-8433-e89694db1f8e','3bfdfbf2-11af-4dcf-9292-7fccbc2dd12a','4f783923-878b-45c0-acc3-04b817d88e97','53268f7d-f14a-4fa2-9dc0-1b362c2916ba','66f3f9f6-389d-4b61-a3b3-a6041ba26aa3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.43')
+  where id::text in ('0f5c88bd-5a62-4d9d-b5ae-8aabad9c5006','190ed485-5af0-4dce-81ad-6d32b4355157','3f957e83-e9c9-48f2-9abf-6b7bfda56881','5a195c8c-e84e-41b3-ba6b-edbaec6029cb','6fa1e21d-ce3d-4e68-8607-282567d25b6e','7ad0ccbf-340e-4f8e-ad7a-4de71eb95ef5','87df3cdc-a560-4aba-99ec-59a956160efe','9da5dfa6-16ba-4ed1-9510-4e9a0a7161c8','a5a0126c-3080-471b-b90a-c52a51945908','bd8da892-b96d-4155-9d51-297f486f330f','be298b3c-7960-4423-b7b0-82155f95ec6b','c4a693c0-b666-4aec-b6df-7f10281327b3','eecf3062-9b7a-4207-8ad5-af905407964a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.232')
+  where id::text in ('0f5ea443-8062-4a96-94e3-5a37ce08f77a','64ccc412-73f2-487d-adfc-b13fd1f19d3e','dbb63162-4da7-4527-b37e-1395eab08e23','dee496ff-925c-41df-8f83-e30c5a2390ba','e39e0c96-8544-471f-b50c-cf1b58c53ab5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.363')
+  where id::text in ('0f5f88ad-65a0-4e10-afe6-348293aca085','76a891e1-5b94-4b13-97ed-db067b5cba4f','a8392220-4852-4997-b0d3-7bad63cb1051','c4b72c62-87f1-405b-a55d-069ca63384de');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.585')
+  where id::text in ('0f67721b-91e6-491d-ae24-35a4787833c0','acbf606f-5c65-45a3-ab11-f4338e374d24');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.143')
+  where id::text in ('0f6ce334-766b-4731-8435-bd41010a5493','227f3268-7bed-4b13-8daa-d2fb32419b1b','335c1e73-f865-4934-81bd-94c68d04b8d6','3ac02a0f-d0c9-4f81-a2d0-c58883da56ed','4959c1eb-f609-4fe8-8782-0dacd1094831','4d19575c-82d1-4f99-b7a7-5823000e4732','6a39e1d0-b6cb-4cb3-8c3c-6a5f2dea6c3f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.189')
+  where id::text in ('0f7315f0-022a-4061-9664-ab5d4c6d7d44','47656825-a621-44d2-92cc-59384a2df6f5','53c67f07-20c7-4c46-a958-d61ffb53b619','5c4f82e3-86c1-414a-9586-3bbcb907762e','95fb269d-4670-45a0-b978-34b87243138e','9bd57f48-28f8-4ed6-9723-3e883fe6074a','aae2b075-7ba5-443e-b9c6-6929e55b1658','f9dd6caa-6a54-4082-b8ef-ef7a4ce230a3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.168')
+  where id::text in ('0f7b7b1c-a0e2-42e3-bbba-9da5a00b5e28','c79efb2e-e38c-49ce-8b4b-9318b1152c05','dc23de64-52af-409c-8f92-cf7800020e92','ec4ffdca-b56a-4b8a-b6c8-a6ee47620f80');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.212')
+  where id::text in ('0f7cca48-fd95-425a-a0b0-4329497db9b2','10b08f6b-bb39-4f36-837e-fb72edf286ac','1d62048d-aa6c-4a46-ad23-810cc7702d3f','1dc0304e-0caa-46fe-a7d3-e38eb1f6a388','9e87a210-e36c-44b3-b665-f432f9a47799','f9d232d6-6c17-4e8b-9c61-be77163984eb','fdc157ac-8db2-4885-96c7-eaa47a68cdcb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.195')
+  where id::text in ('0f7f4a57-0e2b-49cf-990c-9510caf5fdc4','11b6ccd6-05d4-4e49-9263-50b680c423f0','1afc9814-3206-402b-bafa-d4c3ffabe922','2b39c1ee-e5f6-4b9b-a7c4-ddf2a9a0b2db','2f294741-34d1-46a7-8ef4-3108b488c1ed','2f7bc0e0-8ece-4eb9-a9f0-08abad2650fc','34913c14-d4c2-48a9-89ab-c39a0b235bb6','45b8ea8a-5542-4350-8bad-2bdd0d94912f','506b3e91-72cd-4697-9ff9-0905a3cf8821','5985b69e-b3d6-4aa6-958d-a0b7ef969e2b','6c08db19-8f09-4197-9724-3750886e2f3a','88aa2b60-5ad4-4eb5-94bc-a52dd7595357','911fc00e-381e-4bcb-8c13-54a182ceb78a','9b30a153-e0e3-471f-847b-dfab2723ad13','a275a1f6-e3a2-44d2-8b31-cc2c4f02f9d8','d8058220-059b-406d-a3f8-caf083f42e2f','d85ca774-561a-4c91-bff4-3f0d19586813','e09832b6-7913-4d86-a31d-dfb0ffb5e446','e259157c-3ce3-42ab-b7bd-6ba1bed53bc0','eb0f6fb1-f541-4754-8f3b-c327db83af9c','f90127bc-7285-4c34-9dff-e1eac2aea6b0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.293')
+  where id::text in ('0f848c8e-e46a-46ed-b054-d8d2652d0871','13386320-170c-4f56-9f26-69baa8e273a9','3ab9cdf4-4d0d-41d5-8cec-382585846b66','442b73ed-30ab-4419-ab22-344171f20749','4b262278-a7db-4ae0-ab7f-2d1fd1add0e6','4b2ae6bf-64fb-41e7-a418-5391a4aa1a1b','585065a4-190a-471b-b4eb-89b1d8c80c14','5ff9c590-428e-4ec8-b9bd-d1f9423bf9cb','795cf7bb-fb0b-4b46-8bdf-f197dad2a32a','9170de48-e033-45b7-930d-0ef186f8b829','f45e9d2a-720c-4e4c-aa29-989112f28e72');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.139')
+  where id::text in ('0f8e898c-70e5-4d38-8a4d-3a8fb50204ba','20332a4e-1f51-4251-9eee-3076b5a6f60a','2dd7e8b5-a72a-472e-8c6d-7c22cec8b715','3b646097-5850-4664-8cc5-35c59edf15ab','4540a1b5-ec21-4008-9069-12cdcbeaa482','45505a75-f968-4358-8da1-b1bd886cacff','8106f0b5-5c53-4a0a-9ca9-6a8a80fde1af','a49e6c81-f93b-45e7-851f-80d247b067b0','a9fff53d-7c94-4787-a59b-49370be09338','afceed00-9542-441d-9905-f1ce6920e353','c36f14d2-18cf-444b-b64c-f3524415e6bd','c3b2b8ad-50dc-4648-8c9e-a8cdd2127103','eda42a9b-7bce-43b5-8a66-49b83539839e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.373')
+  where id::text in ('0f937df8-82c8-4980-90ba-74a9c8da399d','178beb54-ed98-420d-b173-cc6ce8d95786','1b007e84-aeaf-4ebe-80c2-d7fb99f0d45c','29eacd0b-d165-437b-a5bf-85e9c36fb416','3b98dfee-9a32-43d7-8c0b-2f6173697e6e','68352883-2a37-43c9-a3ce-9867b6b7004b','71830b12-9593-452d-84ac-b2c4ee0d92ee','aec662d1-7012-4bcc-9894-825ac9ba0cf0','b51a0ee5-7601-4f16-a184-45ad6cc71bfd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.175')
+  where id::text in ('0f94646c-2fc1-4d3c-855b-f2d8c7c12cde','a9de6da9-563b-4b39-b5b2-e73b6eff6802');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.607')
+  where id::text in ('0f9f00b8-77e5-4a39-9220-29f6fe8bfadc','8d1e7600-51ad-40c7-8a66-fdbb49d3cba9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.27')
+  where id::text in ('0fa35844-f6e3-4afa-9c1e-110911305550','3c716497-b7ba-47e8-af04-1372adca677e','55d27c76-48a1-4d67-a484-35ec5822f9ae','5617f473-dc97-4927-ba77-5dc04f651550','5f57b61c-80ad-4212-836b-d308d5eacae0','68437e9f-bff4-4926-9700-87a175ceb2a2','79f31c48-8927-4612-82da-ea0a2f6bce79','7f7ae78f-cc63-4033-bf25-804a9ae61a29','a3272966-88cd-4601-9162-86eee33c0b29','c7e6fc0d-8964-4c06-9f71-bd0d905751b7','c81f1b5e-3d26-42dc-9da4-f929b96c7ee2','ebe1699b-9615-451f-82fe-1b21bec54d6e','f3114875-4f10-4379-8a9b-8a02a5f62703','ff663746-36dd-4656-a4c2-7210167654c2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.135')
+  where id::text in ('0fab9c93-6388-4c2e-a6b9-85b00b398633','6dd66d61-1105-43dc-ad10-8be6a5da65fe','76100377-ff27-4c34-be9e-d87b87308e24','86d297eb-e10e-4d1a-a8ef-8c1d1738cd10');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.65')
+  where id::text in ('0fb23d63-5fa5-4fd7-ab59-fa2e84a1e9ce','8ec7d0e1-6bcb-4910-942e-97dea4259c98','a0f9fcce-65dd-4e1e-9528-b8ad79395ac3','ae845716-6395-420b-8566-e32f75ad5f8c','b2a9d8d9-cb76-49c5-88d0-0c60d5f74560','bb25d5c9-ba76-49de-abc3-68a3ab752623','f7f2bb17-2d47-4c4e-a922-779019275821');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.216')
+  where id::text in ('0fb41338-591a-4397-920f-eb6d5b4e5609','14eb51b2-6755-4c22-844c-031b2dba3d6c','1ffe5786-65ce-40a4-b7ae-14cfa3e1bdc4','2b92a6be-5096-4432-8eb8-e79bc960a7d9','47d5d8ee-e9b4-4fad-a74d-0a4f7b3deb05','750cc8b0-2db3-4309-bed7-7a7633d173e8','7602a6b0-5fe5-490a-91cb-86c0e8d0b8e7','b38699ca-ed76-472e-acf1-69387e498a63','bf67789d-1e65-43dc-a458-f83f19f41b3e','d3f39b40-a76d-4791-8656-026308e6b579','da9939e0-a415-4f3c-9ecd-cf2f8eaee62b','f922c734-9063-4625-b78e-0d5fa2153d9f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.372')
+  where id::text in ('0fb4a0a1-cc55-4b6b-87e1-b8eb3893ba46','26c8a601-c6d1-4734-a7cc-b2bcd6436bd7','2920795f-9650-4290-af30-17d58f182ce2','78174d3e-762b-4658-8866-b1c23e64b669','a0530cca-ddaf-4bbb-9c81-a981cb3a3758');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.441')
+  where id::text in ('0fb69438-75c0-49d6-85c9-ca16ddcb5644','7698bd8c-535d-4b92-b8a6-24b14dbb0fb2','983df912-fe0b-4526-96b0-cdda73785e4c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.52')
+  where id::text in ('0fba5808-cfaa-4537-b00a-c9e7c7a0def5','4ea028e2-0572-46a9-8339-9bdd89e4d1b8','b3b0e201-0d56-4858-87e7-be1bba2fdda0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.343')
+  where id::text in ('0fca9f76-c5e5-4d41-aefc-a4fcd0f669a0','3e3470a3-fb58-4a5b-b0a7-1eb8b7cf6112','58b43eba-1b8b-41fe-a155-27c53d8937af','9263aaa7-d7c6-46a3-8001-2150bb1aa2dc','a6121722-97e5-4a6f-bacc-47e858ddd5c5','b239de1c-0349-4682-af9f-a836bb88ed83');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.91')
+  where id::text in ('0fcc580c-0fef-412f-9c2b-c172bd1ba2f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.34')
+  where id::text in ('0fcfd8d8-97d5-41a2-9e39-7e57ece207ec','218d742c-fa23-49ea-802c-18109de99b55','284ad986-53fc-4ea8-9d49-c388988ec7d9','714c9cb1-c504-4490-96df-5cb9c0ea5f98','77c8de6a-77c3-4c96-998d-0d4b31692e70','81e7d302-6c64-4779-a1a4-5960488c323d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.138')
+  where id::text in ('0fed4497-ca09-4c95-a2ef-f2c02fbbcacc','3610b168-abde-4114-bdd8-357171886bc4','4d6c2169-a5f8-4a38-a1e9-c7b0f56eeeb9','568b6588-f3ed-462a-84f0-d627ab39fb9d','793fff77-6cdb-44df-9326-8bf62172d7c1','b89fae9f-47e1-447f-972c-b61e46ba2c17','d9a01245-53c0-4335-84b0-7bf0e4df84ae','e84dbec2-5793-4ab0-bbe7-48bae4c1eefa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.252')
+  where id::text in ('0ff99902-31e6-4942-9be6-2caf8e3c2158','1842f1ab-1650-4765-9cb7-8505e47cf658','1858f514-4960-4127-acbd-8d0de557e288','21085fdf-cb85-4c49-b915-2557be5ea153','3c355573-09ee-4f3c-9afc-a928c1aabf29','406388d5-533c-4500-9695-af002e6f341b','530a698f-8889-4248-94ec-31717ad0c81f','578bebad-e3d5-42ab-88f1-563d73ce9606','7e4326ce-74b1-4bf9-8061-56239186849b','8702ec1a-059b-420c-a537-89e0a8b3261e','a8367651-447a-4337-9962-3f1aeb84581f','af553791-660f-4b7b-9817-f4d8100caa9d','d1aa1d7e-2f86-42f7-8209-5d4651fe1cc7','e22d704d-1625-4741-8a26-f6e4ed8c9865','e69b5495-0273-4167-8a92-276ac1ab48f4','ebe257ea-72b5-43e1-a471-4c260ad2ffa3','f85589ed-5097-435d-8bab-1d4e8d77a4d1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.182')
+  where id::text in ('0ffe380a-c6dd-4784-8db8-c74d75642933','1300badd-ed4b-4b89-a8f1-0d104255a3a6','208ff0a4-1e0b-45f8-bb5a-cdd243784e4f','36bc3ecc-004b-4f79-955b-34755779fb6b','60ba78ee-0170-4f8d-8ce8-ce35dae73714','6ce6f256-2cbc-4387-aa23-4535fb5c9edf','8c2a6e0d-0ec7-487f-8e73-54cc8c631f8f','9541518d-d5fe-44be-8fbc-020325a2ae8c','986a391f-f03f-49b6-9351-44662aa8d3e2','9a84f146-57ee-43c4-b06c-69caf2e6ed6a','af8e49cc-f2d4-4e63-8957-ffbbdf19f982','d416c0c3-1649-4884-88d3-6c57459d3ae6','e374fe8b-ba0e-4953-a8ac-9bbdaea04ff3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.193')
+  where id::text in ('1007114f-0bd6-45ce-a668-0c6a98a4d0d7','12337cb7-62a7-4519-b2cf-e43add416935','129ca0f7-5b53-49a3-bed4-aafc52b21314','1d3d866c-1389-4e6a-9f14-80b006051603','3bad3af3-4a38-43ec-8074-d841b717f75e','474a37ad-2210-4269-8c50-1228658ee5ce','6023d7de-244d-46a9-acaa-d33f20d93f46','61f0b445-687d-4142-ad08-4c7686fe6126','80be412f-f2f5-465c-8232-372f4f8c9434','8ed9b466-b62e-4f11-8ab0-45635da9bd98','ac6f7027-9a49-417a-a650-cb4cd0c2e47e','b6a01ae2-b96b-4dd6-83d1-77e651566e65','cefd3fd2-e81b-4258-a3cb-a986156c033f','dee657c8-a343-474c-b3e0-bc291e80245a','e351b359-0d48-466d-86ae-0f081d6d7086','e8710821-d3dc-402c-9b69-747820b062cc','fb247d72-7efe-4909-b1be-bc30379d7146');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.33')
+  where id::text in ('100bc76a-b133-4ad1-83ea-08f4a69ca7d0','1d51d85b-feda-414a-8f5b-bbab0e073731','1e856342-0057-47ee-8be5-84d48491c7af','43a40030-46b2-4270-823a-3777e115f297','52aa4f8d-2fe9-4f03-aa17-8ca99ef00eb7','5bdf5f05-cdcf-4a0e-bd46-9490c9e94938','63b4c696-78ad-4443-aac7-3b73b181ee1c','658b947a-9933-4ad5-9a29-f4af9a42ff29','6d171365-ff40-43fb-bf81-1b3deb63499c','72a0bd69-325a-47d9-8acb-9c86096f9eee','7a324506-0918-4896-9b63-264728ba8a39','896fd1c8-5b12-4ac1-82cd-25b39ecfa400','8b5e4072-13f5-4d21-b6c2-63afffa57e7d','986b9a72-a81f-45bb-9d5b-b0b19aa1dc0a','a8a411d4-054f-4286-b021-f6747f8ef863','a8bb0a1e-92bf-4324-88b4-750e6b0017aa','ae9c493c-a275-405b-be7c-649ef4cb9b66','bbd58ae8-7f67-48c4-9e56-f8de380496a8','bc6a7ad7-a0fd-4cab-b0ce-aba949de029a','bf242f51-23a4-44a6-8e47-a7a4bddf7508','d216a8b5-595a-445b-bef5-231d45c9fa46','dde1ef78-42c0-4570-9671-15763cfc055a','ebf646f6-cda6-4928-905b-92b421e2b819');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.174')
+  where id::text in ('1018ddee-b02e-45eb-80f1-dd4655124985','22836570-714b-4bdd-9207-d4a5859e18ac');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.347')
+  where id::text in ('101b5b39-bd9c-4e59-9ed8-6b52b5a19b3f','482b2f29-d35d-4a6e-8ac2-31c961fb976a','6127bcc6-de0a-4afb-bba2-a2bfcdd37ee3','9a82bc9a-8f30-4d58-890b-3eca43207b03');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.351')
+  where id::text in ('101e65a5-be81-43e8-a52c-27911b3548d6','190b852e-53e4-4c5f-913b-6bfede9f0da0','1ce7b8cf-5f5b-4629-8917-f9c2823e85d1','2a7f2427-6354-4b78-aba2-835a9f27c7bd','318ca455-95f7-43f6-968a-eb095a9568d6','57cdcf8f-763c-43d2-a4e6-fd2c7f482410','6badffad-6e9c-4abd-bf84-d54b905851e2','7dd9cc5b-d26b-42e3-8775-acd336fdfd67','86c3b853-def4-4c01-8a15-073238a8c0f1','a41b2acb-e165-464e-b44e-af3ffb031ff9','ad72dfa7-d4c7-4c32-876b-71674ae456b1','b625e877-3730-4b1c-9151-380941fac959','dcd2d4e4-c465-4520-b501-5ad33f73645c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.317')
+  where id::text in ('10203470-5f54-428a-b385-da61f9cf82aa','231fb0a7-899d-4aa1-b65c-11f669c7a61f','28e4f6ff-d722-4b23-95bb-a3347a9a508d','3fe5c2ea-9b8e-40e1-b1eb-b9e1e4324869','48bd8ab5-35b1-43cb-b477-f1ec4bccd9a5','51699540-d925-4bdf-9ddf-fb874236621a','5fb2ef3a-827d-4fd9-bf51-a5dc7f272d34','68a56003-982f-4803-965b-edb954487cf6','6fd03b6d-3fb5-41a5-91ae-c49ce3964276','730dc3d5-d3c9-4d77-bb22-e090e21378c9','89a7516a-4a0e-46e9-a25e-81441164730e','a30306a5-5520-40c3-8aa3-2933dc6a3afd','bdf70e3f-638b-4caa-a912-6325727d9a0b','dd4dba7e-132f-4d9f-ad26-dab8b585d0f7','ed426c2d-710c-4d0b-98e1-a1cd3a9e9fec','fca67c03-1d77-4863-9f9c-c626971549c6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.318')
+  where id::text in ('1036ef88-512d-494f-91d1-2f04cec772c0','11ba44f1-3c58-40f4-99b9-3d91b23c3a94','26679892-89bf-4b9a-89d3-a0aaf3eceb0c','33c2359a-7a22-43bf-9406-b3d84b2c3b99','46fed654-59e9-4346-bcbd-6e9fe9bdc645','57a4daf4-ba96-4b3f-9aa5-7b04f9d45179','80008a27-4978-4036-ab6a-6b7a6c39352e','8cf579ca-fb4a-48cb-882b-7117741f9e17','96334024-3e84-47a1-9c5d-c08e15952f4e','d56af23e-5d95-4772-9712-ed73e103b640','dac09327-9226-49e6-8add-4f71527a8dd5','fa351e4b-c1b0-44cc-9d78-ec60dfa49514','fb117462-f3a0-450a-8764-c94daf1e4be4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.35')
+  where id::text in ('103ac7b4-8cd3-43da-8616-1a69c9ba2c23','197066f1-3fed-44ea-84d4-099cfa40fb02','488f6efa-286f-45b2-b76f-e99660ccfe61','5937a643-7886-4736-983a-830085c228b4','630cdb94-9404-43a8-b708-b49eb3b923e0','68a0b5d1-d821-4d6c-ba0b-586ac45ddf72','7203dce7-537b-461c-8750-ae7c324dc4df','8997c72e-fe01-4efa-97b0-b85b79c76f0f','ab9e8596-c572-4a4f-8761-22325903eefb','b35d51c6-b0bb-4e0e-9899-cce63499a3d3','b8833c30-0331-4d85-afd2-4d5d88184e7d','d2444c91-18c7-480b-a37b-274e15029449','dafac8e7-7df3-432d-b4b6-83419f1040d7','ebfb9a7a-f59c-4a8a-9153-9ec6eac92d8e','f8b671e4-b9a4-483c-85f9-7acb997e32da','fcb8fb3c-5430-4bd6-9bbb-4d348224647a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.169')
+  where id::text in ('104183ae-7a92-40f2-abbc-99861a90c0e1','313ff9dd-bb4e-4fd0-a306-635e67072522','b7651388-f5b5-472a-a088-68ddceb84d30');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.67')
+  where id::text in ('10540038-d77c-414b-97ee-f801b2b3f231','5861bc06-3a25-49e7-9c31-83b734f5939e','7ff12e1a-43e8-4c9f-b53f-784e31f668e9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.119')
+  where id::text in ('10550caa-57e2-4f6e-b561-7571fefb2d3c','194953b0-bbdf-43c0-b4d7-7af7b761a3a7','1e9b2603-61ee-4f31-9f9c-857606715cf0','30491c30-a11e-4f71-964d-07b49cdf37d2','6332e7b7-f95a-40e0-a751-0e08d979131b','6caf0dad-a849-440f-9ea9-d7c5e125a6a4','7d294349-5a72-420c-9114-e32a54e0a07b','8d24afca-df23-4391-adea-ffbdd31f0308','a7817bd6-c253-44d1-aebb-f041332fff68','a7cd029b-12dc-4bbc-b175-fe83ea76a9ec','b31e7c2d-d160-47e8-93db-821e6578bf61','e98122dc-6f2d-40c4-9de0-c47ff6888ad8','f0e9e10b-23dd-45c1-b7d5-41bbf69e558e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.58')
+  where id::text in ('1057da5e-5b5b-48ab-8ab9-3ecc15e0499b','66c345e5-5537-487e-9295-4cb29966f942','7b578be8-abbf-4cfe-9386-cb4a60c504ac','a907a081-33b7-4b1e-b313-6e386d49c6c7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.303')
+  where id::text in ('105bde53-1506-4ae3-979a-84ee16fa8bb6','5b801af7-8c3e-4288-9c15-119cc8daa016','904b740f-e77f-45bf-a891-96f1998ad344','b5945a70-46e5-443c-8847-933152874bdf','c52a3ca5-72a4-462f-82b7-3452fc0d00b5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.88')
+  where id::text in ('10662872-1390-43fd-aefd-ac2a4f3f33eb','11a32704-db78-43d0-8769-1e7b5297b8ea','22617769-899f-4f6c-9310-5c9e1b8bb339','394e4af5-1eb3-418b-aa2e-150b276f9002','3cc91c3a-455c-42ef-915c-1a34730d4073','475bac2e-3e57-4c40-98c0-9e33cac8c57c','5ecdd573-be6e-4db0-9156-d6de05f2d5e7','7f568bc3-c792-40d9-bba5-2a168cc632c4','856e49f1-714e-4fa9-88e2-700c4ebc91b2','90fff5e5-08cc-4dc6-9682-11d3bb4db4f9','a6a42d55-1231-4272-b97f-fec8a6baa0b6','be868719-649f-4ba3-8e1f-a62d0b4e8db5','fb89a485-277f-4ea0-9879-ec19480638f0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.522')
+  where id::text in ('1066fe3a-6a66-4c92-88ac-dd3fd59718b0','5393e575-0f27-4d00-9de7-88f48e3c7d8a','543ef3af-fbc0-43ac-9100-0b0cde5946fe','60aa7e97-865d-4d8c-8987-99a63370280b','c2c56600-2395-4128-8cc4-bcee0c3fbf98','d6a25c84-86dd-43d6-9056-c3431903d2b6','ddfd4913-af81-45a8-8d87-cdab67810a2a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.402')
+  where id::text in ('10696a76-bf4a-48c7-b2d7-528a671a40a9','65f5a8bf-f322-4e34-8637-54ca52d28578','821f5080-9d4e-41d8-85f9-291c8cd55854');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.531')
+  where id::text in ('106d654f-a24c-4586-81f3-7b605662cc07','e65d9dbc-f033-4083-9aa8-7047bc7c24a4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.268')
+  where id::text in ('1071c0d1-c5ad-452c-be3a-bd25a31af694','197134f8-ac21-492f-a1f5-a279f7c0a48b','590b51be-5beb-4b01-9c25-00876545c474','bce70200-4d19-4e1d-bacf-e86e2a57de37','cf4727bb-668f-470c-8373-74aef089c03e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.114')
+  where id::text in ('10772a93-0f73-4dba-9f9d-3527c98867bb','35c238eb-2951-4dcf-8505-98ce6c411f80','d7b33755-89b0-4a8f-b3ce-b697e7d206b2','e59bac09-1dd6-4e1e-b31f-d3d59cf6554b','f95e9525-db6a-48ab-a397-5b58b42ad40b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.314')
+  where id::text in ('10883081-eb33-43eb-adef-7a561ffedc68','2a0dff7f-3ab6-428f-80f6-59d87945beba','36b0b53b-70ff-4890-a13c-2c6064068771','721cba6c-07d3-4124-866d-eada89061e71','c9f345ce-1eaf-41c9-862e-1a90d5d43b76','ea3377e9-d283-4df6-ba6d-e7eaffdf2f93');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.335')
+  where id::text in ('109d2c18-91cc-41de-ac6a-9db9e6f396b5','10decfe6-4d03-4d52-8205-8c2d65c750de','1e8140b9-05a5-40a5-84c1-7ec4e25f9bee','271c4c20-11c2-473c-b974-84adc47c490b','3049fc89-4526-4c91-ace5-e54c5d990b49','4c03b824-5ffa-4a80-88fc-a9f3384e614a','6254efcf-bda1-4dfc-a12b-eecdfc521671','7e1316d1-922d-4eb7-8451-50af480ef11b','9cd8e86c-5d78-4c9d-9815-f09806bb4732','afe08d8b-661b-421b-bdfa-f8d42404592d','bd796355-304f-423e-b2db-68dc9ae5c3dc','c193946b-5f9b-4b54-b2cf-5795bdd829c2','cc408f8c-df85-4af0-bfde-9017196744c5','d08f72e7-ae9c-464a-bc1a-a09b575e672a','d332a049-b087-4131-a38e-8da63e8f2452','d4b6d208-b307-42cc-a6a8-04b727e5a49c','d732152f-f085-4d34-bd53-530190083e0e','f0893fbd-3eab-421a-8c5a-14a209b7c192','f1d53e06-1917-4026-bcb3-41fc1f7289fe','fa36cbf8-a1e5-4792-b759-a111826b2f1b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.202')
+  where id::text in ('10a7aee9-466f-4138-b3ca-6d4df957664e','4a50cdcf-3043-4d1d-ba51-098bb9098672','68e4ae21-788e-4f63-9dfe-ab92f210d21b','83ae7dea-e4a9-4749-8d1b-2c3e76e9268d','b0641083-6c0e-4f88-935a-f7976db3a562','b584b71f-e51f-4013-887a-ef753629bcef','c365cd95-ac63-4d18-ab49-de51501b9c93','d570dfb1-943e-4131-b4c3-86c3c456ec9d','d5f7b9ae-5e72-4bee-aaf2-229b45436d5f','e2879dad-2c1d-4dd0-b4ac-1defdfb6df57');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.151')
+  where id::text in ('10af4c82-5cd3-4c23-9575-7aa1f326a54d','4bab4e95-665b-4f27-93aa-cdc89704b1e7','7e3800de-9911-4587-a368-0d810188815e','8d39a0bb-55a1-49aa-8215-8f6c833f0850','edc71ec9-fa0d-416e-84fd-9ca0fcc1d700');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.113')
+  where id::text in ('10b0e787-0113-44c6-bd28-1c512ebbe964','9361df54-e0bb-42cb-9a9f-d24eefe57050');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.415')
+  where id::text in ('10b1cadf-e1e7-406a-bf2a-fddfc021021e','30d18032-f420-441b-b6f1-a6fdd1d5a50a','7e4f4abe-bd83-46b2-8992-d3186cf2fd31','9502d494-8409-4b80-903c-4edb09dce6db','a4f7364b-8bb6-4037-9ace-3ed1d228d8a7','b8778739-da7f-4cce-9cc1-4c0deac06bd9','b9d37346-2d83-4b46-8c02-c9545a9c6f2c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.185')
+  where id::text in ('10b7a9cf-bd47-4db9-977f-06a29724d7e7','1ead6c1f-b75e-40a2-a1e7-3fbe356ebc1f','feda7bec-3515-4348-913d-6520be64d4fe');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.27')
+  where id::text in ('10b9a592-36cb-4836-8386-9b450cce0fb5','3170420b-862c-430b-aafe-fcee3966f0cc','7684e0d4-a277-40ff-8132-a49907c8f241','8507f5a0-661a-4913-8ad4-4d2987a4e15f','8b96575b-fa60-4195-a047-f1a9829f221f','a7d6cabb-5fc9-4a55-b1f1-bd295d0248d5','b2459778-fc8b-4d24-8519-1bc5bf4afb35','bf42d732-4478-4b39-a524-4b15e2a03e59','d13864db-fec5-4a7f-8605-6228a8dab36c','e8af93df-7a1f-41c2-8ecf-638b1c8c8d00');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='21.4')
+  where id::text in ('10ba8711-a8a1-4cae-b675-b6d5857413fe','f988d654-bfba-4fcf-ae62-6b9d1dc937f5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.352')
+  where id::text in ('10bac99f-ac33-4b7e-9287-e1810a1b3ed0','1c6e7237-5373-4076-a1a2-89df9fbe2087','37f5a821-8ab6-4a88-b0a0-8837fd495f06','5167cf48-0ad6-493b-9177-ee8185e9818c','51fb1189-9b14-42d1-b98a-e68a7289fcee','5501d1d4-842c-4d3c-94be-c4b53a62db3f','69be54a0-8bb8-48e3-bc94-22cc20704d24','6f4042e5-2e87-454e-bb8c-6c384460d4e4','773db748-b4e2-439e-9410-33669d47398e','850f0097-1834-4779-b4df-d2e700fd21ee','8861f38d-718d-4f29-9258-c44150dec8fa','a0861b6f-eccf-43e2-9674-da2c289e82f9','cc098426-eb72-44ad-ba82-4dbf7f5ad4f4','e22bf5e2-0a24-4199-b4ab-48c4981e6546','f5b6340d-beb4-4e38-a866-51933f275d7a','fc38657e-4915-43ec-b93b-4299cc62ad98');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.247')
+  where id::text in ('10bcd623-d928-4aae-856c-b504c5ea9d67','4866d2bf-03f2-4b87-a21d-503c33768ffb','4fda6c8c-bb61-4638-8481-06d7af965e71','6c182bbc-76d0-4186-b6de-bd0416c64f9c','80f5d7e9-aee6-49ac-8ad1-45c5f06e250d','894862a4-f270-4939-bf4c-9db54172ba9c','8e73bac7-9ee6-4c3a-8215-9f0c0a915763','e8ebd6c6-ce23-418b-81f4-cb8ef27ae08f','e99802ef-5614-4238-b944-07ad5f2f0a98','f1333bfd-1652-4db5-ad04-ab0da6ab4401','f9a8d515-9b81-4f9b-bf54-a3776d580ceb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.261')
+  where id::text in ('10c95823-749f-43c6-a529-67a51caa9160','13d4edfe-ff87-45b0-b8d9-9733acb95ac5','364579c5-bddd-4dbd-90f3-9210d4325dd6','6a56405c-1321-4b99-a340-36ca1a6b6732','7402a12a-6f2c-4614-9a81-18cee78e23d1','8ea4045f-df2b-4ad8-9d3f-b80ccba6c205','a69be97e-70bc-4312-8386-2d2b85084e3a','b0fd8eab-4a72-4d4f-990c-3bb86c11268c','c4c2425d-9915-4bac-87a8-44608e597a76');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.1')
+  where id::text in ('10dcc449-693b-421a-988c-bdd10c922e84','30dc347c-23aa-4459-93ab-a7f0662a561b','69b86ed0-6184-491a-ac31-40c9503bee57','b93efac7-8073-471b-85e5-2868ffd0d173','dae75863-cae7-4b15-8b10-a8dca576c070');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.322')
+  where id::text in ('10f104a8-3184-4ad8-a7c6-58affd3012b5','5e529527-ddcf-447a-878c-9a9f2db459d2','6b62616d-2747-40c2-b171-d05bd452d1ab','6dec4c39-f789-49d6-930e-fc0baf79a42d','c3e1e04b-4870-49c8-a439-ff065361f58b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.16')
+  where id::text in ('10fdcc0c-d695-40c5-8e27-6f6b256055e2','81d1d1a4-6035-4b57-b87d-27b0d5045853');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.46')
+  where id::text in ('11027d3f-fd78-4777-9882-50d616473e2a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.117')
+  where id::text in ('11037c09-56e5-4665-a84e-f1ad2d12a95a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.14')
+  where id::text in ('1111ae18-5dea-4f5c-88b2-df167bf28107','25738589-a23c-4989-99e5-56d49973f1ce','49f81324-f9ad-460e-a7f2-32c05843113d','6b38fd58-5654-48eb-83dc-40525b16b541','734d78d5-169d-4cb3-b194-0ff9a30a2d1e','7599534e-7fc6-4eed-8a7d-6288748312e4','c22fa789-e577-4bd1-8e5a-092a946572cd','e33c59db-6a34-4fab-9316-a1687988ccbc','e6fbbe05-dee0-4a86-a669-40bbfd84fe2c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.89')
+  where id::text in ('111d2124-3d97-4251-951f-29b5a91d6196','632402e8-b37a-45a9-9c3e-15e0300e6de2','b148c854-0141-4c8b-b117-d7a113705faf','fb938a4c-6b87-421a-9e86-96a782ce965e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.56')
+  where id::text in ('112156c8-23be-4bde-b0fa-9c6f78c4587c','20bf3e17-0e80-480b-a7ee-45a4fb9cc65f','2cd6ac48-1667-4c7f-83e6-3dcff6e81945','37d618d3-4e05-48d8-beb0-c0930b2fa813','3f1f11f2-3a40-4548-8851-8e0b30267081','42c58fcf-d4d0-48b4-83d9-0e2fac8cc20c','4dd8ba28-e5e6-44c4-b54f-9615e59a8865','5f13572e-a0b4-466d-ba66-63b6f210a445','64e91580-0bd3-4791-a2d7-d644c48bdaef','6c4b9c6f-0d15-4d75-b41c-ec5405166202','6dddb8bb-bf49-49ff-92f9-a073fcd52417','75c7a815-36c3-4482-bd92-9de8b4aa3643','999b5b90-e204-4d25-876e-aecb234787c3','a5cee03b-5d6d-4a9c-90d4-648ec4309723','a6c90211-3929-46b4-a449-10a1a6cd0af6','ac0cf2a6-3b4e-4609-9a8f-9a3ede11d543','b00f76ff-48aa-4f45-a3c5-816279329bcf','b041afd5-b801-4ffa-a302-82113b9e09cb','caf26269-41f9-4bbe-b9ec-e659ad5582f1','dd5f499a-95b5-4e4a-9550-f96fc6e82c2e','de01cc77-400d-4d76-ab23-e4058d324cbc','df5c8a12-cc31-4cfc-9eaf-733c1a749fef','e359c782-bbd6-43d5-9393-19f374220a48','eef17635-f121-4191-8ab9-db2ec925019d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='22.3')
+  where id::text in ('112191a0-9ef8-42cc-b4cb-eb269e3cbf12','19edc079-2b14-486e-8b89-58ebe989708d','1a7a403b-95aa-4edd-8dcb-ee74649a4507','235c3c95-85fc-4422-a363-a24e75fec0bc','26a55dcd-6412-4bae-90a6-9e10e096059a','2956481d-2f1f-41a0-b7b6-d2be0de855eb','2ba1dccb-2e40-4110-b1f8-cdcdc0cf74b5','6e3ffc8d-b032-4e46-b8b2-af2cd39c997f','98784709-529b-4675-af9e-6c5a7929b6ae','9d039008-354f-41e0-8cad-9514ffc1afe7','a19f402d-7634-44e6-adb3-e63c99047126','db90d5ca-2ffe-4cd1-8fb1-717c111222ef');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.1')
+  where id::text in ('1122ee7d-bda3-4b7f-a6f8-2407796a7abb','12ea1099-30cd-4232-8b18-b5ff0ac9e528','30f75441-b935-4367-973a-d4f8c3978548','4032199d-5cd9-47e4-9d8f-08058d6a7697','4c33f458-2d2c-490a-9010-efc095b32c94','4d621585-7f6c-42a9-9228-902a6d924bc7','55801f00-5a6a-4191-8efd-d8331b1ddfdc','7c76b941-8243-481a-8a7c-02c0316f173e','8765f65e-d588-4e5e-b943-5f388105320b','8917aa21-418c-4abd-9d1c-2f48ce6eb595','894aca00-319e-4ad9-b56d-be1b1c65a40d','a2bba4d2-de2c-4f25-ad0b-61bf08faf372','a8e4a2d1-8a8f-4479-aa0f-036ee4758f2f','ad5ed989-8cf8-42d1-b675-a1a6689fb57f','adc546da-17c7-4972-81ad-aa38919ef3a4','cb33c5d9-5d8b-48ed-beaf-cdfa7eb7d6eb','cc2bbcbc-105d-451e-926d-b06c493c748d','e22d1a04-15c5-4f1e-b63c-3963fb7c6025','ec791434-e36c-4709-9e99-06001dfeb9ee','fc0cabd3-71ab-4f0e-804d-abfc63332799','ff26392b-5ce9-4a56-8763-bd85db8dfc81','ff8776e6-288c-4486-adf5-0bc6d37cac95');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.37')
+  where id::text in ('112ff6f4-9bdc-4c54-aed3-8cbea07901ed','1619a1bf-5e48-4f44-a65a-471bee2e00b4','4b0f91c4-698c-4eb7-9909-7aacc7e061b0','6af32b46-27b2-42bd-aa49-9b8ebd42c88e','96330bd6-c67f-4559-93cb-8d6672af627a','9b388ca3-d4c8-4910-9e97-ac39bb77281c','a773d19b-99a6-4933-bfc3-e036258a9e1b','ae4e7557-4c91-4a25-a366-eae6ce42f606','c69691c9-baa6-452f-aafe-832346adac8c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.513')
+  where id::text in ('113e20c0-6056-45a9-aaab-0d988a294498','f45d3971-cd07-4c0b-9595-428b174814da');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.2')
+  where id::text in ('113eb84a-1793-4ae7-b66d-959b434355cc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.472')
+  where id::text in ('1149a245-aff8-455d-a626-b75ed91bd0d4','808930af-3acf-4edf-b566-6a500756fc36','b8908208-152d-4a39-b953-2044d9b8b3b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.405')
+  where id::text in ('114be706-90c5-416f-b3ac-cc2a95597a8d','1290b3ce-af2a-413d-adc1-0bdac3381b47','12e617f7-1587-47a2-a809-bb8b81e47662','1f29d581-9217-4c06-ac44-c1244526caa8','5090590d-027e-4e4a-bcdc-f38c80f7cf73','8a5f304d-b174-432b-b554-9cec901a33e0','8a706d1d-9fcd-4e64-952b-9cd2346905e7','8b0fa7a8-90b1-4d93-9885-bfd57e6da09b','9325fccc-8af0-4555-b41b-cbfeb3412643','a02aa116-79b8-4dde-b6d2-f80d4f7feb11');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.157')
+  where id::text in ('11507bad-5202-49a0-bbb3-ed9370b6fc49','19f8d0a9-02d9-46a6-95fb-68dc58dd7bfe','2ad0febb-6bfb-44ec-8e25-fd1b948354bf','45043aac-dfb5-444e-8c27-077bc99729e8','db66e6fc-5b3b-43a7-8254-70048e9c46a1','dd9864de-72de-45f3-b42f-a9b878de5d72');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.125')
+  where id::text in ('1151605c-f5bb-4198-9de4-351d21758119','54cecf6c-5009-493a-a268-cd7210a59648','602d12db-1f0c-45ad-b04a-fe5ecf969d54','9f0f26d8-398b-4bbf-a66f-85b1589ea2eb','bc0ee93e-2da4-4fe2-8e46-1c5153fb6cd6','f5adfdf9-2d36-4a63-9302-d0ecfbdc6f6f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.168')
+  where id::text in ('1152d2ea-3dc7-4f51-b389-02cb381e9bda','1aea1e8f-ee82-41ce-87dd-ea819130e4d1','2959dd0d-b729-47b0-baf8-feda0c8ee9a5','4132437c-1c19-4acc-a79d-d0e98d1f5d42','631268d5-9d0a-4608-959c-128115cb0420','a68b8974-af44-462d-b85d-3fce008b56ac','ad331892-6591-44d0-8ebb-af3feb8a743a','b1ca2d60-ffe6-4cc0-9ec3-69d904756826','bd2d1a66-4422-4305-8c1a-c0ec469d067b','bdbcdc80-c677-4bdb-9228-a609493556aa','cf4f9c8d-98cc-4780-8e28-14f253ded6bd','de61bd49-31d1-4013-af33-fd7f7d692969','ee3ccde7-c697-4623-8a03-c2f6404222a1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.222')
+  where id::text in ('115fd2a9-270e-4a78-8fd2-01c1e7f612bf','b99f3fbe-bb15-4631-9d8d-01159b216586','c92ea97a-2968-42f4-900f-8db1557b6441');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.399')
+  where id::text in ('1169eaf4-e088-43f0-9372-28fd2286157d','16aa3b7f-c4db-4356-95bc-24943ddb097f','1e0c63e6-33c3-4f6d-a7ce-533077f8dd88','2578d38c-af88-4680-a862-3ca8212b5671','2787b205-09f6-4175-9166-dc0d5cd20d6e','3cb9dc30-01b2-4f90-94d9-27014e3ef115','41d52ed2-b157-44a9-b4ba-d3ced7f946a2','4c80874b-cf76-4942-977d-55511d84f685','52b0df0e-e343-43ac-8116-63b35098af27','5658ab60-bad6-4ac9-8f4a-f1af2eb1bf8f','5ec4f70f-5428-4859-a982-cb051da53a0c','901e7800-e77c-4d8e-9638-a0aa6e86c419','a48bfcc7-da3b-40f7-b894-5b31fa222c6d','a814030c-b346-4ac0-8ac2-8d5d833752e9','b2a73e24-cb8d-44ea-936d-9916eaea1b6b','b49591d2-0833-4fce-a77a-b70bf33412de','baaee08e-0139-4cd6-b932-6b8c2a57ac34','bd5cb613-eba3-4480-9a28-217ec94bcd51','c1606dfd-01a0-4b57-8e6f-fed38fdf834f','ca13bdb3-d3ae-472a-a2ef-a7fdff1baa6c','e0ada3b5-d076-4031-a810-35c9c940831c','e36c147d-73a8-4c0e-baf0-7dcad622bce1','e64387d3-f369-45af-84fd-9eb66fc32dff','e7313c51-fba1-4092-84a0-855e1a077408','e9be6268-a904-487c-afce-1cdcb42eba10','f79957ab-9b3a-4d24-9f9b-5c0265f743d5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.36')
+  where id::text in ('1175da4d-094b-423c-ba02-1f77452a8082','311cca9c-499a-40b5-aebe-2a7454fe8680','37ca065d-a9f6-4fa0-926c-51be08fce724','39f21abb-ee18-45c4-8121-4a14a5718ff9','447f0fcf-aa2c-429d-ab45-83a738e56b78','51b21096-bb74-4e43-8c23-268d91009515','7984ab0a-c3ce-4195-8231-44bdab569a34','8231e6aa-fdaa-43b8-a088-8982107c8a5c','94fab24f-0adc-45fd-a150-01445c6c9665','98c31d83-c76b-4f1f-a0b2-9d1ca5580463','98d752a4-2403-4e6b-a7a0-9250706361b4','a91db582-1b8c-4c95-8924-1825054d6ffc','bc07da8e-75a1-437e-9320-911336a2abc4','df1e8686-c104-4ff7-93f7-b32915dea80f','e3b59ab0-a1d8-4d99-8ca2-a07cedf2a171','ef072595-3bd7-4850-859a-3caea121a6d2','f0792ab9-cb1e-45ac-8fae-a3901216f67d','f605a271-8e89-45a1-8fba-75404266b4cd','fd91cba1-ff07-4041-bfdb-3d234e5c529e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.48')
+  where id::text in ('1177c039-e96e-436e-94ca-7f98af7c5365','255f6b02-a673-4abe-bd63-1c9ecdfb5238','b2c31f6d-f1cf-4dd4-a301-8bd70d1276e7','c4844f19-cd7d-421a-93b9-cbc18060dce5','caa15d5f-930a-44c5-870f-6fb846dbb8dd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.214')
+  where id::text in ('11790a7a-1f5f-4ede-9d72-2e4bf4e36f17','8403f024-0a06-455b-bb60-69ae28b7e831','bcc2ae94-c0f1-4968-84e1-f75b18cd9155');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.357')
+  where id::text in ('1183a9bf-747a-4d75-9e48-397452c9083c','bef54822-6cc8-4d66-a8da-80a94f25652a','ce5b0933-2790-4006-a97b-bfb1aafd15b6','eff9e0ec-741c-4333-a68c-b2f20376e505');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.322')
+  where id::text in ('118797aa-5567-4ae3-a9dd-c9f159e9a361','29a9067d-e7a8-4e94-87cd-b1f0665c5e62','3335f5e5-f3de-4484-9607-2a5855174351','650fa518-edb1-487d-b773-73df5282fbf8','72462e89-18ba-4352-a486-5dc74f02799a','77ea2f8f-3ace-4036-b4fa-2e752826e1c1','90304a85-be0f-43f8-a9a6-b84604c1d72e','b28cffbf-291b-4273-b982-0c66d58ee908','c9b94c86-9e15-464f-9638-17ce49caa9a8','f2d24f9d-d000-4f26-8b8b-4034c41c966b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.202')
+  where id::text in ('118a65b3-4bdf-44ad-bc6f-4352e787635d','2c36abb0-58d8-4038-b3f8-a8e75ece349b','7487c329-1cef-42aa-9bb2-6c34111b4a8e','7de50277-bcf6-4abe-b01a-1305e24db62e','c9b44cb0-c4a2-4191-acb4-9b0fbf7ac59a','df650211-c1d0-417e-aa70-50fb666997c2','f717c3f3-371f-4194-82df-c13b2fde6df0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.274')
+  where id::text in ('1190699a-ba64-4af1-9261-8957a5c860ae','1e110539-89d4-40be-8439-a7058de1a883','33d341a5-0eb2-4eae-8e6e-79ae22bca994','33ff62ab-220e-40d5-a932-c8e10ef677f1','344b6502-3282-43e5-a96c-78345f57b2a9','436bed8c-20f9-4d3c-9e39-f2792e0580f8','819cb558-f652-46bf-aaae-f315d15f3a5d','9374e781-c363-4a78-89ad-afab66ab60b1','99ea0879-43d6-4eb4-9b8c-73787a033a36','e985b555-fe0d-4634-a91a-14a077edf6e9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.49')
+  where id::text in ('11979f16-60c8-4b85-9258-58eeb4de7f09','11dcce3e-e310-48f3-a87a-94e39300cbec','7d674e18-f003-4c1e-8860-e34d07b5554f','805d2f24-97ce-4887-9b7d-1d869dcc9824','8791b293-4557-4865-bf22-8c284b8e5ab9','87e8557f-55e8-4221-973e-3fd87ddf4e65','95d22279-ba64-4ca6-986f-2e03721f75e4','9b5117bb-8910-4cdd-b497-93c0b87ec513','fa9f7d35-a0c6-46bf-9ddc-bab29e39408e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.332')
+  where id::text in ('119ab51c-85e1-41d2-a8f2-9384f5b74e5b','144bb614-71ec-45de-a4d9-180ee4e0aed8','38b7eac6-dfc1-4a3b-a0ef-7c1c9feace5e','5b440ba6-a8c4-45cd-a6b5-a212acca207f','b408d58d-fb5a-4c74-9b00-df49542e74b4','b6603468-87de-4a35-a8ed-1fbd983c6e2b','ba9e55ca-15dc-4d46-a58e-bf9db540fd44','cf5eff17-fce4-492b-a0a1-a5567906379f','eddf066c-e413-44e6-894a-1f0326798323','fc3c23e8-10fb-4b19-b2e2-017513c42c81');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.274')
+  where id::text in ('11a61b22-dee1-4545-b888-cc4cf705f453','9082bff7-488e-406f-90a5-49a680fd5ace','9516a569-486f-41b7-b085-8439af6e5a1b','ea76acb2-6f63-46e8-a285-f4dc0ecb7641','f760af2a-dc34-45ea-bc89-f4a62c987cd9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.21')
+  where id::text in ('11b4c507-db8a-45f7-a3b5-0458bc97df08','25b21d72-f109-4bda-9d51-5f5ceb0d3e1e','d9981753-f452-4006-9dbf-974d21f1b99f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.295')
+  where id::text in ('11b7f86f-d147-4b4c-aab0-57a34bce1d55','258aac66-cbdb-4449-8365-03ae6b34b407','2c2e610d-8c9a-4cd8-9ef0-89e8ab4f638b','2fc2bdc6-6210-42b9-94d5-e051104ff90f','40bed6a6-c8c2-4a24-a88d-8c527389e92c','41f93c6e-840d-46a4-ad5e-a64d4692a131','480de230-1c61-4c7d-897f-a4160876f4f2','4edfcc8d-debd-4d0e-b6f5-b4ea3188f924','6b5cb034-599d-4f3f-980e-3abcb714e540','87a05b9b-5f68-425b-896a-5da53bc7acd4','8968e8a2-df89-4974-87ad-c028f4be4d89','a45f09da-b43d-4a92-9714-89c77fec52b7','a643008d-10ff-4a2d-a01a-4e535e5c89ce','b85c5bbd-6e86-4a91-a6b0-4ebb94db2e74','bb27f57e-b6ec-453d-b117-8c1b1fcf2b73','bd355998-274c-4af7-a1f6-4dfdf5c2e4c8','bf6c11fb-782c-49c5-a416-82b29b7a6ce9','e97f37d7-a5dc-4702-9193-964385d9910c','f1df984c-ea7d-41c8-a4ff-02eded6aa58a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.176')
+  where id::text in ('11c0dd7e-6209-4203-85b2-6be5b38c2b1a','48375d5e-3fb6-42e2-9114-e90086ea08d5','6dafceb3-cb6e-4d1d-bb28-96d3f0af3c4c','7f33b2ca-11ba-4f7f-9b54-8914889762c4','9fc38d49-9e2d-4032-a2bd-74a16e283f95','a8d1b111-e8f8-4a41-898b-4ecfafffd38c','f8970e02-4d71-489c-a2db-4066f3f5074c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.182')
+  where id::text in ('11c3c511-be49-4861-a959-d808b2ccbb5d','1dda834f-31d5-45bb-b09c-c0206278abcc','33bfcc09-e878-4ca9-a0ff-42674c7b0b47','57095570-f6bb-4fc8-9d50-c9045ba0589a','f09dbd70-c7ad-46e9-93c8-03a31f980c9e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.136')
+  where id::text in ('11c87c70-abbd-458b-818a-64ed779b807b','1e63f753-2556-4295-84a3-0df2ca749fdc','32685065-f5fa-41a0-a9c5-be3eed5c829c','a267bb71-c290-4900-bede-fedb548ab15b','b2aaf50e-f2b3-46ad-bce8-c687a0154d08','c945fdcf-cd1e-47ed-a33e-74d473c8bc08','d904bea3-3bfc-44f6-91aa-337a4f28aade','ebcc7704-c6b9-4fb3-8c77-c17b6a4cea24','f05e482d-f689-456c-ae3b-d99ec4ff39fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.15')
+  where id::text in ('11c96e71-ac09-4552-8c22-e80559390629','2d8a35ce-7b55-4d26-993d-3f0a28db42fa','334eecc7-cd7d-4ce4-aba4-3ef23e837602','510895cd-d10d-4234-87c9-6aed351d2885','98e73dbc-8290-4850-9d68-0a6c8b3769bc','b57c4ca9-b806-45c6-afb7-928d5204896e','f29299c8-0c4e-4a8d-8284-333870ed683d','f663a1bd-c131-4954-b33b-5faf1486ef22');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.8')
+  where id::text in ('11cbd133-43fa-4b4a-86aa-9134713716cf','38fd9d24-a14a-41d1-8ad6-6c8fdf61c5e4','59114e96-b8b3-4258-9d51-e44ef6ddc553','640d2f21-7be5-4e83-aa9d-d5d7b52b9616','7f2a95b6-2755-4525-bc11-b77808a581fe','ae656c39-c842-4512-8c18-19d168a4e3e4','d59c4d83-5460-4544-bfcd-69f05440cfc1','fb6da096-20e3-4e35-b281-31171bdad192');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.17')
+  where id::text in ('11d2816e-72d4-4198-af8d-e38b9f98890f','16d1a679-cec8-4881-acbc-fb3f46d64985','181f7fc8-ee1a-437a-b20a-a1bf32abb4e7','1b2c68f0-5b15-4ae0-96b1-16a2ed5fd1a6','a9fb1461-5433-429d-9ae6-a8d9639af1a5','aa1f4747-c67a-43f3-ba32-d410eb402593','ca64a12b-f8fd-440b-8a98-6575c4417c24','dba1ae0e-5c8d-4b4c-ba6c-c20865cd61a8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.436')
+  where id::text in ('11de6949-e9ca-4beb-896a-1aeae030a691','1d6651a0-6082-427a-9880-5ba9d4eadf1d','6ad0674a-12f0-4514-bfde-e4f0ff840c9f','796966d5-ed2a-4aac-8eef-0d075f8c9f79','a4898a1d-4676-40e5-9dac-d68dc00aa7fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.306')
+  where id::text in ('11e3be31-3ad2-46bd-9f46-661372b8c4d3','34fb5d7a-8489-4f40-acf3-8b74497a57cc','5ccc2e20-2c04-49c1-9d6e-99045a0757a3','5eec0e99-542a-42bf-9fb8-210434248fef','8c4371bf-2bc3-4f1a-a70a-de42bb629256','92af825c-8568-450a-9993-d963298e18de','a36f1486-11ca-445b-8b1b-ebe8683eaeb4','b965ac38-0bd7-46d9-956c-74ac2d97c788','b9f43088-7213-4a53-a8e4-a4199f62ff3f','eec65363-c574-4aee-9e72-6fae81ccd572','f5731e26-b020-4980-9b1a-a60827009013');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.97')
+  where id::text in ('11e40dbf-0156-4f35-bed1-9d3d61462198','37c125c9-9f22-4a04-98ac-309a14dd687a','4d763bea-78d5-437d-9061-a4a681e153ab','673bb8d7-9bad-466c-9abd-08e4c6ec49f7','bdd573e9-2783-4286-aa33-b49c6cce7583','d69c49d2-7dbe-4c18-86b7-9891cb4b5560');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.95')
+  where id::text in ('11e9c8f4-f349-4e80-a85a-e613dbba5a80','3b789036-9a56-4a01-ad6f-de73cdaac782','451b615d-33ea-4645-b701-0e652dac74ab','5018a407-fd73-4215-95af-ae23a4a04b68','56d266ea-cdd4-4920-b241-a59dbf534e6b','829e7c65-32af-4cc7-9422-444426fbc6ff','b29d3ef5-0719-4c6b-ad12-d383a9f2da6c','e0e71f80-cf3d-43ba-a36c-90c4b328f513','f10989ef-323c-40ff-a7ae-10bc6a5f9edd','f2193446-737c-4b41-b8d6-f0ab7f820b74','f723406e-f093-4ba5-a495-5c70a495cf23','fd09018a-37e5-4d80-bbb9-acb53b069183');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.126')
+  where id::text in ('11ede1df-fc5e-400c-8fde-aef4cef12bce','37ed753a-ea7e-4fda-8936-d91de4727e24','40f42cbd-db06-4fc7-8aeb-7181a1febd2f','4700b21b-1b92-4da6-ac1d-ea338c59ae59','5318fadd-43b5-4a69-a7d2-e0ecd0b6d23b','5f76c525-e8eb-4024-8708-cababc606164','5fea2b0c-0d17-48c5-acc0-0e2bac2a77d4','772887de-ef7a-4da6-876e-92e9cbb3659e','a04aea3f-8ea0-43d3-8cfb-f08c471e50ee','b4c954fd-bd65-4c55-b246-cfd051239b64','b9c708b7-951e-4c50-b098-b134409566eb','d94b1899-5094-4450-8f69-82eed92403f6','ef02898f-1903-411f-a851-683d77787c6e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.1')
+  where id::text in ('11eebbc8-287c-41fb-9e60-0977ffc11004','2e5199b3-bb78-4c23-b884-5bb671c3223f','50a9faa0-ec12-4f06-a8c7-97bb9e36a606','e2515226-6dd0-43c1-89de-462234fe9c4d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.651')
+  where id::text in ('11fe3725-4506-4a1c-a885-d9dcbf44f882','4ed07a8a-6cb4-48b0-aa24-c27a1a677144','7ec1f91a-c0d1-4933-a6e6-f386d08a8742','c51cb6f0-1fc5-4fe0-bc75-7cb9aa2ff8e6','e8bf7a68-f192-4439-bf1b-06c635bdbe8f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.28')
+  where id::text in ('120058a9-ccec-4af2-92e8-eb3b76e42263','3c534283-8214-4fa8-8e2e-205eb1314223','44428f1e-4443-4e9f-91f0-1cea895785a7','8a590228-f5e3-4317-9c1b-911a2b223469','927c90d4-099c-421d-8b95-5721ca4673af','974cc283-b041-4fa4-8647-63c79bd72527','a2c630db-b928-45ff-9034-4e98b7802f0f','b043ef95-c0c2-4678-98bf-a0b07e74e972','bf708d7e-db87-40a7-b9e8-eab19ce66fa4','d6860d38-e60f-4b37-af80-2ae4c2fe196a','dec88b92-bebe-4d40-828d-3c050e5f7ca2','e7e70fe4-de87-4a18-a0d4-01d810506c84','eb1d27fc-e915-46b8-b5c6-0dc5ee7b6f50','f28da7c3-f932-48bd-a8bf-e27aff0aecbb','fc96596c-0ccd-46ec-a95d-4895ff3d704d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.84')
+  where id::text in ('1203f4ee-ca07-4e14-8b03-ea28b3b1c95b','2ed0fceb-d5c6-4a7f-8245-e0e3f87087aa','be429ccd-bb2d-468d-b5f9-3fd6b2281cdf','ea777b5f-45c3-422d-a8d0-a5f86912f7bd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.338')
+  where id::text in ('1205f093-caee-4ebe-9b9f-2ebf2e46ee66','569ca673-3147-4e9f-9a40-10bbbd249c36','58c6cf56-55d8-4788-9c19-dbc72084fd03','c649194d-268f-4f5d-bb5e-c31ce712e301');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.37')
+  where id::text in ('120d7314-136f-4a4c-8874-a08d36c6d9f3','1f8dc370-7d18-4fe7-9db4-0061ac2e0509','312cd015-1731-44af-a5ab-30c23ae3b126','416a714d-b767-48c2-a694-d5583d2f4235','41b7f6b2-cfe1-4d78-84fd-5136779581e1','44df5a1d-6eca-492f-aaba-071a5a2d2cab','45278e15-60a9-440c-8767-b894a27b778a','52aed618-b0d0-4fbf-b013-f1a203339b58','856002fd-9d28-4f77-bfbf-0da3fa62999f','8bad6933-e116-4e81-8447-24a5899844a4','bc4e1ab7-6c25-4574-b973-bcbe464949b8','c71e8288-8162-4106-b9b5-f61ad17a692b','dbf3262c-0532-4073-b07b-b0fad881c3c2','e3a8d178-67a5-4a36-ae9d-003d14d160a9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.348')
+  where id::text in ('121206ef-b921-4622-bef3-9e046e46675f','1f1d94aa-5b7b-4c57-be05-90201320abba','308ad04a-6e42-4d4d-8c9f-7f8d4e604699','425fabc1-cff1-4244-9026-da180c874055','5178c5a1-8056-495e-8ed0-00ce92bb9106');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.553')
+  where id::text in ('1218b835-cb1f-47ed-bbcd-bb8f1e2aa7a7','3463cfc0-5ada-4d14-ac42-c7d072893819','364992eb-d51e-401f-8e11-ab47896a1ac3','3ac2859f-6420-4615-8520-071c6f2232c5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.12')
+  where id::text in ('121ab3f3-77f4-4c3f-8d2e-a224c7fb8aa8','4ec41d7d-81c2-4a52-a39e-e9a3cd2e5c7d','57cd2111-b599-4a09-ab84-5d5910560c5b','659d5ceb-2d0f-4822-bfff-83bc554134d7','68bcbac3-9ff5-4cf5-95b1-f23f7bde2716','857e638b-739b-44ed-961b-9dcc21b55de2','8b807ec3-424f-49cb-aac2-3f7ab455d141','8ce9f620-26c0-435b-83d4-3f7950e83bf6','97735004-0a53-444b-92e2-54aa83b4041b','97dca36f-8afd-4a99-b3c1-518a194f134f','a3915c69-74d1-4ac4-8299-afdf69da14a2','afbc29d0-957a-49a8-9e61-eb47f1ad3347','b120abc5-7a3e-4f61-9583-1e7d1b6ef2f7','b1b80ca7-34e4-47cf-ae27-62ada827c036','b4de815e-37ec-40ec-a0a6-f64f06f2bddd','b974e03e-28b4-423f-b2c6-e24d514d63a1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.28')
+  where id::text in ('121fe776-bcac-4997-9ea5-0c9014cd9e31','1367a4fd-677f-4b5b-bbf3-c62977d28ce3','42fb6d90-8173-4f0a-83fa-aca2bc616bb9','4f4e1f83-f640-4d25-bae5-527080ab6f73','589d2a54-bbb3-4682-8790-a9700311c0ee','5af842ac-fc73-4f3d-a4c2-44691147cded','801d7ae6-a66e-4554-b40d-3aafd3cb7213','9d1b8204-0c6a-4b9a-a7e0-69c7fbd94154','ac0d4ce6-35de-4ca0-a26b-3488c99943e1','bb2fae31-4c61-4266-b119-c9ebe12ffd66','c2fe0399-a973-4745-a857-2a172e975611','e0ef83ee-144a-4ffc-bd93-0cdefca7bd74','ef36a6e2-c3a2-4a4e-8288-89410d6c5763');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.314')
+  where id::text in ('1225e73f-be47-43a7-bd5e-a1f61789fd8f','15c63fb9-b03c-4e22-b6a1-761b1094cbd8','4ad08e2c-b84b-46c9-9efe-6407dcbd3ac0','4b53298e-2bdf-4775-af1d-4cbc400f06a6','57b6a445-ebf7-4113-9d53-46b800c76219','7188a034-415c-4a16-8ad8-035e9fc6040f','91f1e73f-ef01-4d01-9fdd-d77724e46c74','baec560c-5be0-43ab-b21e-dddf755803e1','bfd09e6b-5e7f-43d5-a023-628de64c82ed','d7f1ef72-32f6-4891-8a58-dba929cf7dd7','e4620c0a-0fb2-4322-a54c-6945f3e773c1','e7a219ed-7e75-4dee-adbb-2956df02a316','f384d8b7-2396-43ab-b7c3-1174017a4356');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.12')
+  where id::text in ('1232b5d4-7f29-44d7-9ed4-8055b2d4377d','6b3583b8-96b8-4c5c-a040-aa11cc9bc915','865ec202-284f-4ae3-b9f2-b1b337c528c8','a1f30cad-2329-40a6-82d1-b5325904fd5f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.234')
+  where id::text in ('1240c1f6-49e8-437e-960c-e8ef0db50ff1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.6')
+  where id::text in ('124191af-a2c6-437a-8a3e-bb7402a06f61');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.125')
+  where id::text in ('1245479d-f159-4fbc-92a1-ffeb00f2519a','1d695784-7877-44e4-93b7-a224a513bfbe','2972a95f-14f7-44cd-902f-da6d89fb38c3','35b97ba7-e6e6-4a0e-8d1c-1857960ef7a0','3c20c9d7-0fe4-45b8-a469-2728254f6af4','571058b3-3769-4c60-a3ad-0d459e810bd3','8f038c17-7718-4e6e-80a6-8358fd69f0bb','c710bd17-2fa6-4052-a12c-00cee8f9ddd0','cf4643ff-1a96-49c4-b5a8-224d2aba30fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.138')
+  where id::text in ('12651561-c521-46f8-a04b-ffae196a54cd','47388369-27ca-4e02-a08c-df3527f5dabb','5554c341-140a-4e21-a234-9e8b4c77a9e8','6ad0f55e-5aa7-4012-808f-8db03e8993e4','7f7cfe80-86ec-44e4-bcf9-c951bdb7d8e8','90a77eb4-9124-492d-abd2-66cde30f02f5','958a0a0d-ccb4-4d87-b4d4-00057f415b48','acb14957-9ce3-4f0c-828d-959bcd471370','c2d0daad-54f7-40e9-ad04-c66cca905664');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.169')
+  where id::text in ('127c9e79-1120-4c12-854f-be39d36e09ca','347ddbdf-a067-49d3-a502-66e5d5a1f81a','3c3435b3-74cc-4333-b472-f2e786a3189c','3de81d98-78bc-4434-b8b2-6539b44a886a','423d5a0f-b03f-4867-9f87-90eab4d28394','5386285e-e5fb-45b9-8c95-d26cbf8a208c','5f3a1f3e-f6c3-49a8-9b3c-59e686ad64ab','66d6df66-6598-462b-9b2b-014f29f611b8','6f8dd386-a469-4ead-888c-024a2a3d8354','773de64a-b4a0-436e-933f-b1eb4eb05637','87e59a38-7619-4c4f-ad0d-ef752c0465d0','8b133202-1fb2-4193-9dad-3aee7a5f9b0a','d2f707bd-c711-4b2a-96f1-4bfbf8cf7d7f','d51f0d70-3f41-4479-bce3-1a1fcebacb05','ee9ee6b9-c949-4abc-8366-a1ff743a3347','f2c0f3c8-abe0-4393-9563-d06e3f49328f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.17')
+  where id::text in ('1280ab5d-1d88-4a22-ab3f-4a683ffc4e60','3648ac25-4847-4669-bb6f-c29e541a568d','4ac0584b-b3ea-45ee-ac6b-edffb3dae481','99613a28-29d6-41d2-b47d-41f46d0e3919','d2c3cbe1-4d98-4613-848f-359f175687b4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.96')
+  where id::text in ('1282036d-d5fe-427f-9b3d-af534e58c9e0','94af9a7a-fb3f-4b94-bb7d-7630c9ca38a6','cb94777e-5747-4784-8c82-6c51b6091fa3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.1')
+  where id::text in ('1285b43a-0f3a-4b80-a029-a05d5520e96f','1fa8c8bc-461f-4c7c-a353-37fc080ed16a','824bc1d7-bc36-43f5-9f4e-c6cb3a523f68','86b4f038-e4c2-45c1-9853-1ee5b9cf19f5','9a6ab28e-917d-4841-aae2-e73125debbb3','9b777d74-c50d-4533-9aca-e91f1bd5f5cd','a2364584-73eb-44d2-871f-43e0e9dea2c4','b75ec0cb-433a-48bc-b246-b9a9153f4671','c5f91df9-2c8b-4b2d-8159-47dc452d80cc','d9a0c469-47b6-4396-ba85-ef8e9b0fcb9b','f2648ef5-2f67-4946-8e60-3697a49aa280','f53c28fe-e21f-4ddf-8e54-7000d61e5582','f5c70c64-9abd-46e2-a7d5-469b8aaaac9a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.26')
+  where id::text in ('128a4487-c767-4be8-96b9-47a2167b1601');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.176')
+  where id::text in ('128ece4e-7578-4c49-b48e-b322fb28accd','211318ae-7ec6-4a64-ab1f-3772ad0c9542','2eb33a91-2f1d-4ced-b74c-03cf6df0092e','9f827ad8-f701-404a-97e6-a5d3ff43ae64','b2d720cb-cbea-4003-9199-0af73822b025','b716205e-5cf8-435b-9293-f9a9678097b6','d2c60f5f-f230-482e-84d0-527f7ccbff9b','e4a218ed-423f-4a82-96ca-1ebcfe867896','ea8c5ee2-f968-48be-a739-40f659ac78c6','ec970cad-5aa4-4d4e-99cd-8a01df515506');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.162')
+  where id::text in ('12969ccb-a9fa-4d3f-88a1-1c3c6df0894a','c84d606b-dd39-4330-9749-6bbc12599e32');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.32')
+  where id::text in ('129ef5bd-c698-4de7-8a77-001cd56bea7e','364453b4-2009-47bb-af95-b7254745a5f2','8b3b1d63-7c2f-4d74-9daa-2d275f247986','b40a406d-b676-4c36-9b77-a33512c19294','e5c5fd78-0c5f-4864-8b4a-e2068f1b8a03');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.265')
+  where id::text in ('12a59330-4a31-4d2e-b167-040dbcae769b','23347496-a232-4911-a06c-3aaef7b7cd12','590e6759-4821-46d7-8c81-d0a36016b7cf','5b366370-6c6d-449e-9d8c-49703a3a8a24','6603b02c-0c0c-4fd8-aa23-032ef475beaa','74862724-d430-4c1e-b4d5-78ea31246ef2','e1abe055-f2e3-42a2-8106-53e742ffe84a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.264')
+  where id::text in ('12bf111f-7e48-4cf7-a26b-ffc44d335b98','12f3aa2b-97b9-4d06-abef-b0fb8a623451','24609412-58bb-4df3-abb6-f28975f5e6f3','3473762f-b0d5-4736-9a05-536739218b06','36bcd0f3-709f-4312-b8e5-69679b613701','41d74951-bad4-4b26-949e-54a9bba199ba','42b66545-508c-428a-9492-4480cb56fa08','487ac105-39a9-47ff-8832-f02229e4df72','75c1f954-0d56-4324-9235-833a0e86560a','a3d38a24-4951-4044-8529-63fbdef6d35c','a63e2e8a-a2cb-410d-9765-194375ad13d8','b608e463-e345-40a9-8e47-26118d37e7ca','c57a74b0-2c9e-42e7-a239-462416a1e2bb','ca9c1f93-0830-43ae-a112-5da4831afc24','e06e9b05-cc0f-415e-b3a8-22d3f0a9aed2','e931e334-1719-495c-b86b-2057d9b4b27f','e9fc769d-48b4-458d-ba15-f2b8c4108b46');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.178')
+  where id::text in ('12c06aa4-cb31-4b95-a63f-0c55d1dc66ea','3d5f999c-eea1-4651-9ac0-5106d53b105a','4b824da0-f151-40e7-b583-52867792f532','5dca4b25-7b73-4ebc-b6c9-4059991bdf1b','6d6923e4-ee1b-40a7-a441-1fdaa659697c','798ee84d-feb9-4edc-a8ea-038a9f65d5e8','7e8ebd5f-2710-4bc7-8fb1-80d91f53579d','9ee7910c-9dde-45dc-9087-6f5e3b97c9ff','aac4e241-a012-4e71-9105-37df5c1438b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.45')
+  where id::text in ('12d7b07b-d310-49ee-80fe-51417da9a47f','247939ae-d886-424c-9157-73aee6fb08c0','2d2287d0-dedf-487d-b0c8-3f4c6e3a4020','31b9890b-3b43-4198-8106-152378046359','350661aa-8753-4205-8d98-b9898a8a7dc5','6d70466d-566c-4415-aeb4-abf6ab537a70','8f0180bf-e65c-409e-a11c-839fd3d9a8bb','a565d34c-39ea-4397-8f5e-5b4d19be7e92','b6dc770f-4877-4693-ab91-32fc1582f9ed','b7463407-d673-4aaf-a21b-329a99b15770','cb3d3dde-31ac-4fb0-91a6-f826709bc638','d6d7a2c5-46e7-4119-87c2-048576a2571f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.204')
+  where id::text in ('12ed95a6-b654-4e33-80c4-ef6b940c0b97','132e855e-5dbd-496e-9ac8-4f8c1583a1c7','21064d4f-32cc-463f-848e-ed07658402ad','5302ba57-537f-4a4a-aa61-d2b41601c981','562b2543-7be0-4b9d-947e-ff830e2da391','57b12f24-cf87-4b4a-9ece-8a5221bd907d','78610564-028f-4261-b69a-f4a3556c45e4','b4a2886c-e03e-4b66-9b96-c28e963d38b0','fc107724-0b89-46bf-83b3-d6e9a8bd4ce5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='13.8')
+  where id::text in ('12eda93f-2596-4ae8-91d3-dffade3541f5','1bd499c9-72c8-46d4-b668-dd65e50b4a1c','273e21ef-e90c-4e35-9f85-df8695e1781e','49550069-d073-4a4b-91aa-f2f033b33b56','4d725fe5-7d07-4f60-996a-ae0d09e1b6e4','78b4deb8-2df6-4b90-a775-74b0110eac69','7e3c4c24-7736-43a4-90d6-981f8aa1d5d8','d37f09ae-5d6e-46ba-9589-3cba3c5d2111','f6867ebf-49dd-44f4-8593-d8a8f2f57e72');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.431')
+  where id::text in ('12ef2634-f943-4120-9c4c-575b639f85ef','31198cbd-8f99-4b66-bd20-3686b56ac2f0','5d7d37c6-9c14-4172-8311-3760d348f216');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.251')
+  where id::text in ('130b5ac3-4594-41a2-9cbe-3f840c9d9e27','1877084a-1ab5-4fdf-9126-1406058992b9','31816fae-5c73-463c-b8b7-7ae36d3befb0','3cbb7798-acec-4d1c-9bfe-ca789c0d7a0f','546b9122-a19e-4f67-88b7-01f711a77f5f','5dfcb0a1-66e0-4f90-a9d2-bcc8c38ad7e0','6d4310d8-5360-470d-b4e4-ddf30cc9ac35','722d4257-9d7d-45a3-ba9c-47264b396af4','7f293b1e-e12b-412a-a2f4-f2b21916f263','a35a0a95-df12-4a2a-bbf0-f8783ff115f2','ef5b703a-acc7-4b03-af7d-d3649a42889a','fd21ae16-2f75-40d2-aa24-f86174a4bcaf','fde0c5e8-96ba-4e9e-a4f6-adafab3d4032');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.569')
+  where id::text in ('1311a490-b52c-4e37-a0f7-c7e06d4a7221','d76ca07c-aaf6-4177-8c9a-0b99915ac7f3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.281')
+  where id::text in ('13195dee-8476-4a4c-8e20-671c6afe1cf1','17cebb2e-7b91-449e-a870-f8ba1c778623','1a950e38-7b9b-43b0-a64b-b87b942d5ff0','3f3cde97-8bbe-46de-ac4e-fac15173a630','48cee2b7-3953-4e91-8b19-61683c02fa10','4ec9c0bd-39a7-4260-ac2f-0f8934f454d4','616c0341-2e95-462a-87e0-013191557f5e','8d54ebc6-5a8c-439b-85a5-c662cedb91ca','945a4c84-a359-44cb-be8b-e3e1f762ff69','c20d437f-02ad-40d3-8f69-c5bc24e28cd1','d95fa2d8-e90c-4440-859d-f53ef14ace36','e2f93b85-fe53-401e-992f-ded3f6fca4ba','ed5dddc5-9a2b-4e08-8e56-8d5c6eefbe9e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.13')
+  where id::text in ('13230fb3-7e68-4e57-879a-1b3097f37d5d','242daee9-0955-45fd-bd81-614bf1a54112','258004b1-c31d-4f3a-a02d-f8f8254bcdb0','2ff0ab57-348d-4e2d-b36d-71aa7a0f9857','402fd02e-27d5-4f16-afc3-6c84b3630bef','419377a6-17d2-43e0-8122-23cc1b87a184','5cc4df37-4675-4c70-b950-3047ff7aed88','64cc5cbd-3b48-4223-bd82-2831e11673cd','94d05ad8-fc9b-478b-861e-94c2203cdb97','a50680a8-f187-459a-a281-163504893393','ab55fc04-3f57-49e2-b192-a6c6f403480d','e6fe89c2-ef3b-4cba-ac13-e11f05273935','e7e1e522-1650-4834-ad89-83fbf643e059','fc0e1379-de1e-4620-90f7-8659d20cfe65');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.154')
+  where id::text in ('13303554-b42c-4b7b-bb73-df80048b5d19','8a608aee-8ebc-4fb6-b4e9-3e2e0029edfd','ca952cd8-9b2c-4bd4-8d8c-f330593e267e','ea8cb64e-2d0a-4959-b002-f5fec47e8156');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.183')
+  where id::text in ('133ec519-cd6c-423b-9275-c875de08fac8','5c98b371-3fcc-48a2-b9bc-1935c99cb103','6b1dbba2-756f-4f48-99a9-7e0a7ca62ba5','ce4694d7-bac7-4214-a238-e3658a5dfc3b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.41')
+  where id::text in ('134412ca-118f-45ba-ac81-bf9df87a0792','1d613a5f-2615-49de-95db-ce6240cd7aa3','8782b23b-56bb-4014-b36f-4b6fc4869c3f','99ce22f1-f770-40c0-9c02-4d0ab6c30ed4','b0e0463d-efe7-4e32-9241-455fbc702842','c2b04ee4-839b-4d74-9298-f5fa951ea117','c42cce5d-48ed-4eb3-8e14-8c0a0397db39','ca453f8e-6140-42ec-8652-d9c953b05221','de6587b9-a429-4553-b385-1347164c1243','e9dd8429-62db-41ab-9f2d-6c2d67f5b2fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.632')
+  where id::text in ('1345944f-6cdc-4ae8-b3a3-63eac84805e7','1726b722-939d-4015-b8cf-fb44bcfcad4a','4083bb0e-85fb-4014-aba1-fd825746a05b','a6a1eacc-620c-41e0-95ad-e669bb57f52a','e6e29c36-1f35-47cc-aafe-3d2e0b256d19');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.554')
+  where id::text in ('1349ddb0-a4cc-4a78-bc61-ace2d4c8bd5a','a9a5a13e-cdcd-414d-8bee-07fbed05e2a6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.404')
+  where id::text in ('1349e75c-dd57-4973-811e-c2635bee5ab7','1ad30529-6f9c-4083-b6a6-e0485a7f75c3','2b3aafe7-bc7c-4c1e-88f6-051575fbb396','336ff4db-6f81-4432-b69c-cfc20e40d10b','99643f8b-1e64-4eb8-84b3-776da5ce5414','bbd94156-19a3-463b-b644-e71949d4fcda','c4a6de4e-e683-4a8c-8980-c4ce4f78b3f7','c76947ef-349c-4527-87f6-d1893c2066b8','dc8191d1-3434-4ecc-aefd-e662fc1113e8','dd1a7c8b-9d94-4cf0-9b10-f5dd23a9a50e','ea1f9723-938a-432c-b604-552efbc359f5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.586')
+  where id::text in ('134c85cb-828f-4810-a8b7-6dd85a1eabab','f803e8d6-8b4f-43a0-84f0-000e1c9c8e62');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.6')
+  where id::text in ('1352fc45-563c-4dfd-86e5-c21bb5e73551','3a7c33a4-eba9-4fd8-9b23-470ac1779231','6e9166f4-aff8-4d87-a87b-0d9ea014045f','80c3dd51-bdc1-409b-b3a1-9118ba025532','9c9617f8-ecb7-498e-aed6-6fbd02892f20','d5090fd4-2b65-4e99-bdef-e686bbca02e2','ea2c42b5-0763-46e2-941f-cd5fab4364fe','ff1e86f1-5425-4c54-b114-8fcc81a5f32d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.17')
+  where id::text in ('13579845-0eee-4c5e-a909-9ae2a7653b79','24987633-9760-4586-a5ab-4e60ff09e8e2','293baccd-ebc5-4ce6-af24-cc98ef36d9e0','65c2b072-8767-42c7-bd58-0557b07f9fbe','8cac1efb-3e0a-428d-9591-6fe030241948','95a564ea-9cee-4712-8169-fe6048686287','b3c3a8e1-6f9d-46d4-bb40-f64d5b704e77','e4538153-3263-4f53-b2ad-66133ef0f799','e971a056-eddf-4b25-8838-16516d300649');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.405')
+  where id::text in ('136b8826-def2-4259-a064-7231d6c74dae','23aea2f4-9993-4231-ad1e-2929084f8691','305068bc-25de-483e-ae9f-b507a40757ed','81f95fa6-5ada-4e52-83f6-fb08101faf00','cb796ab1-6b40-4a7d-8551-a74cfbfcc54c','d2843f72-1e8f-4f73-b8a7-b4d4376dc01e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.231')
+  where id::text in ('136da6e9-d0a5-4842-8c49-2f1ee636e307','2630fcd4-6483-4f25-b1d0-07cd75754677','5774f9a9-f709-420d-bc76-9970ad429957','66478703-9a70-4c8d-9d4e-5cdb8a072fca','665b6710-a2dd-4af5-be46-7eab37deb499','68fc43e8-0d58-452f-9d10-4e72159726fb','83878cf9-66b8-4ba2-a644-859b14022f5b','8b7d2be9-c658-4bd7-b5fe-e1b3d59b0f29','8bc9d7c9-3af9-4e33-85b2-24165d0d1159','a7b2e57c-bf2c-42c8-b43c-bf3058e25516','dc9b67c2-2e88-46cd-ab46-f909ca8b30a6','edfb383e-07b5-4a53-b546-ac0f3d8352c9','f28392c4-fc1a-447c-a4d1-50af4f4df463');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.161')
+  where id::text in ('1378fb2f-4cf7-426d-9d0f-5155bbee697d','c3cc6b45-65c6-4b1d-9b75-c525a9075d27','ec01617d-b822-4750-a62d-038cc0c1977a','ecdcfc60-8207-4a72-9e17-3c2e8702e1dd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.519')
+  where id::text in ('137b1fbe-ccf4-43e3-93dd-be307e74730e','317146e3-b3d1-4c29-aca5-4b60c6ce5340','5d7604f4-6f7b-409f-8510-048059343c69','623f8d85-280c-43a0-9260-1c1ff4bc3273','65b67fb3-84e2-495d-81e8-6354d57dbddc','8f9fccdd-55bd-4234-a48c-1ee34220b32f','a5cc37a9-11bf-434f-b322-913e9d4fc963','bcb4511c-e59f-47be-b860-4ebf60a44a2f','d1e05dd1-cb94-437a-b43f-e704790634bf','fd8a3b93-b422-462b-a602-7f7fb88d3204');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.213')
+  where id::text in ('138361df-8805-4a70-a5af-c7afd8b489ba','58cd065d-4af1-4b11-b44a-abb8b788bbb7','6a5f1dbe-b7a3-4343-8d8d-35f8f8d5f39a','769344c9-3bfe-40db-be90-450491ad7e7a','87a95961-55df-46e2-b51e-cf0835a42ddc','954af0e9-e608-4dba-9831-15f787a61892','97bdfb11-678c-4a0b-bc3f-0751317666e6','9a50305c-37d9-4b5f-a421-64ebfb923566','9c1c7639-aac3-4181-ae1b-6db4d61b2bd5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.654')
+  where id::text in ('1385bc6d-dbeb-4484-9fc0-3bc48ca4037b','1e65cf0f-97ee-43c3-b5f1-bc9fb0dc9736','91de7055-aefc-43e3-aea2-cbd25b1d0bbb','aa747b36-2d73-4e1c-8230-cbcbe5ee805d','b75c941b-2ab2-48dc-a316-b4edb3190afc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.3')
+  where id::text in ('13892d31-2016-4902-b08f-f85dd40d98e4','1bdcc2e4-1ebf-47a4-b81e-1282e2a2a9c5','2646313e-2760-4194-a0b0-3c415dacba12','38026e66-8fa3-482c-818c-b932eb1c662f','3804bd35-ad81-49ab-af7a-cd584782720d','449699db-e827-4807-881b-270201204986','459ad132-ba71-4cb6-86a9-94770bf9414f','638dd921-21c5-41a3-bc86-dccb4588ecee','a5ab58ae-dc1f-40c8-8ef5-9cd3a5d8c534','d484ad7f-98e8-4d83-8799-f7ce42918b49','fcbdf9bc-be78-4e51-931b-35194e9cfca2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.281')
+  where id::text in ('138e3d86-122e-4277-9793-71e34c10911e','220c179d-1844-48f9-b183-797500236ad9','221983b8-73ec-4bb0-883b-adee41c905dd','2c2c0627-5bd6-48c9-9696-c5b335c19756','39ae23a9-16b3-4a2d-b4d7-5fe3d5bb665b','47e0a68f-cdf6-4abd-8cf7-6d88b02c80ba','48fb0789-4dd4-4116-ab46-3226316a54c6','6e5a4d82-524c-4746-a51d-5005474777b6','7fc6a927-073e-4cea-903a-9ab39a8d94c0','82d8f044-2c60-495e-9088-25046436a30b','8a7bcae9-0caa-4713-a71e-80c18b761222','95ec9aa5-b9db-41fd-b3b3-c1e0ace01875','cb27db53-1321-4ff6-aabe-b8ba84acced4','f2f95060-2afc-496e-975a-e2df0ba5bfe1','fd7dfddf-09cc-46bd-849c-918871b14c2a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.66')
+  where id::text in ('139bef72-5dbf-4e68-87a7-982996c6495c','1b5a78dd-b39c-4ee8-9c81-3e8e489be4fe','2046b47f-cb7b-4844-a694-44ac7f7eaf58','3839e789-bc20-4756-a1a6-f546aae5e0d2','384e5818-d5e6-4071-8377-f42340e859f0','3f1a9751-907b-4ecb-8e7b-1eac02521dc5','481329a0-5a4b-4df1-ad2e-81d4be2da6e7','524fd5ff-5b1d-49f9-b2f5-4103b72cd70d','5b2ec3d9-8e0c-4052-b2d9-5594e7863c09','6cdcca53-c622-4005-a5ea-5ea11a139761','898a9dae-80b5-454b-90f1-e2b7d8541380','94fc86d9-aa03-407d-aaaf-fe98eb5f78df','b0b4981d-98eb-4fb2-862d-36da07fa310c','b741f936-50b2-42fd-b93f-c384ed2d0474','be05084e-accb-403c-a94b-aa3ea0963350','c510871c-5640-4460-a6ef-1cdd67fe1d4d','cf7e7f90-845e-4de4-a199-7fda18ea6753','dc4a1c84-e84e-449d-93b3-f4df8a0a07af','de189f4d-d2c8-4103-97af-b45b72c69938','f97edda8-8f6a-40c4-b754-db5e857bf73a','fb195fbd-d156-4694-be2a-bc5c51d112b1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.27')
+  where id::text in ('139cf91e-f162-4e1a-8dbe-b01233d8543e','19b3e8a2-154c-4152-a931-d5fc84fff27d','65575711-fe32-4010-b7fb-0991b47e77e0','72e7df7b-957a-4a9a-a1f8-d7f992ddeb47','9b50dcf5-60a5-4afc-9302-e200c5d13fce','a1f2a5c2-4366-4f5d-8224-31b2ce3849fe','ae38fecf-1f70-4773-b039-69c2e730d7ae','b06015be-e384-475d-a4a4-5cc18a9b965c','b0c86653-f734-43c6-8777-92ffe587fa50','be954bb3-5121-459f-93bf-5f0845de2d1e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.33')
+  where id::text in ('13a0f109-a27b-4ea6-a040-cacf6d7da327','2913adfa-337f-48c5-901f-9de5268c7354','37c22b68-cb88-42c8-83f6-48494113850a','999b429d-cdae-4404-a980-7eafebba95a1','bfa06736-6e7d-4d1d-8e99-879e6ebadb96','c6c03907-3827-4145-ad73-eb1ee154f3de','d701e548-ac2d-4d9c-8cb3-82beb7da9c34','e568fbf7-d949-4340-b557-add0f00581fe','ee619c04-ccda-4b4f-b848-5ad248d65964');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.124')
+  where id::text in ('13ab6877-05e2-4b26-a068-7489196ecb43','1e19bae3-6702-4cfa-949a-3700ab2ae708','287bfea2-caec-4e3d-9fad-1c714bbf9fde','40994e8e-2d60-4f5f-8470-af95ef6949d3','7d2722af-6055-4c8a-a228-63c56159dde5','98c91a61-247e-4ae0-aa0f-603528b0b219','cd1bbc00-2d5a-4174-9251-d82ed9b022ca','d61e69e0-aea3-407f-9ddc-1f2264cf97e3','ee06aebd-1390-477c-b77d-77ac2d334a61');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.394')
+  where id::text in ('13baa577-215e-47a3-ae55-ff78c926e9e2','146bedd8-d497-4b7f-aa2f-38c77321082b','39692942-c69a-49e5-a3fa-a7baaa95df96','3cf8322d-9792-42b0-9896-c43ccd0b88c4','c108124a-04d3-4d96-a73b-1a1056df637e','e0afd852-0fd4-42cb-a10e-0ae1ca3d02bc','e9eb04c9-e55c-4e86-a720-c91e8b7f3f5c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.36')
+  where id::text in ('13bee44c-feaa-4a65-9c90-05ea1846c592','1fd77dde-802a-4564-9d6f-39ea2f9703b4','1fe46483-bc3f-4983-8f89-9c0817c10547','25ee039a-b9ca-468f-bc06-43c5d9fba1dc','53b6c905-a33a-45f1-b081-7297338d55bf','60cb5781-65a5-4762-9565-8676e7f6d3ea','6f5e0371-cb6b-4957-b741-198b17585878','7109538e-d837-4087-8572-64ecb6d1c8d0','71dc3c52-a5a1-4d93-b7e8-4736e47583ca','76573592-e26b-43f6-99f3-fb9b27e4a7f2','8bd4115d-70cf-4151-aa93-0e2b9466b24b','8eef6c14-cf2c-46d8-9f8a-99a5df33ba8e','915a377d-88cf-4943-b662-415e25c398b9','950a5fe0-930e-4852-a8c8-c7bf4fee1c76','ef10f388-dbcf-4ac5-a148-bd74d193f314','f04cc67a-80e6-49ff-a748-564c1ac3993d','f8347cfe-0445-4b7e-9a72-bb36b0040c69','fd71ceff-7db1-4541-a1df-b1ee9142cde8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.12')
+  where id::text in ('13c67fb9-e529-4eae-8f99-00a9ede7e45b','250a9078-1d3e-48e5-b17f-c0847251b15f','4d680e21-254f-4ba6-8b06-a64db9c2fced','af6b6dea-d8b3-4208-bafa-225cbae433cd','c76f058a-dbfd-41bb-a5c5-e2f3544a74a5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.319')
+  where id::text in ('13dd6246-1dbe-44a5-84e0-176efcba3efa','180161c5-7acb-49f0-9965-2c77ccc95ade','63edc62e-a0c3-4ca8-a2ff-05182d1e9f77','930aa935-71fc-41f4-827c-19cbeb9c0b18','9c8c24c4-6220-45e1-8fc1-38277554aaf3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.69')
+  where id::text in ('13eb8871-69ac-4de6-be56-011724fd8031','b8ad05ae-bae8-4236-bb21-33613615a666','ce4a63cb-3967-4527-9aa1-4d8cc7b6cbf4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.13')
+  where id::text in ('13fb5a0d-d948-446a-b7c2-00094b78fe16','1743800f-a65c-44b8-b2d4-f695d8b871aa','182451a8-b6fc-4863-8600-1b503cca4995','327c3ccb-77f9-4e8e-8b58-e4f36b56ec7d','6faac0a2-9ff9-445a-99c3-b91a8fe6c4cd','79b2ca04-416e-4e25-85d2-f2ddbed1ea77','7e387ad5-8dbd-47df-a197-b1f4b65c349d','89ce9873-a7b2-4b11-95e4-e87737ce9756','951bc0c2-cbc3-4545-99f0-4ef737d4b65d','cd73411d-3848-4fa3-b44b-cebdc7d10660');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.53')
+  where id::text in ('1409b22e-06ab-405d-b951-27e097414d25','17d022df-cfc2-4d81-9ea2-de2083329d2e','293f95c4-f493-40eb-8821-7bc58f6cbe27','2cc69d46-85a6-4721-b3cb-195a36d4891a','41853e33-333c-4f3b-9734-d0d2d534e703','423fffe2-5926-4323-aa10-3bdec0d10a3b','4b0e3b59-d156-476f-a160-48866b336dc1','6a3a2e5b-8d3f-4555-be57-a1e654b46499','7873ae1e-3a12-4575-b1ce-2c52bb3f01d2','9d63ea25-e125-4e0c-98b7-0d7e59a5d978','bbb283df-6033-43ff-96f7-d2d8239550aa','c49ba9c3-f4e9-41c8-93ac-f14b128b37a3','d2ab5c4b-e5d2-4e2f-a5c9-58778af3cbfb','e1d261d6-e907-420a-b0eb-0e4199cb5686','e1ecc5b8-fd1f-410f-987a-ba9fae1e8916','f7d7ba31-cad2-4e17-8b09-2cfce2b3b8a1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.618')
+  where id::text in ('1409de2f-1cec-4966-84dd-b2f02338b400','808f0d72-110d-42ba-8d99-bbc324cc3456','aa8e2933-a8ab-4b53-b12b-c54a6cfdd1b1','f748830a-20b8-46c6-a4d2-5300195d450b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.138')
+  where id::text in ('1415d8be-98c4-4710-9517-7e791a19df5c','152f4cec-fcaa-4bc3-913d-18c2d25b1eb8','1bd5d998-f055-485f-b569-53e09525d223','a9b9a78e-d07b-4e87-8e9a-2d299d91964e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.349')
+  where id::text in ('14160157-768c-43df-adc8-0d9fb3561a59','33a43b3c-8462-4076-91d1-eb905be78f2e','4397a602-23b1-4a25-91a0-6bea92846d48','6a96c058-306c-42e9-bde4-c2e6c93c505f','9957df56-e1a4-4dfc-a0b3-c3c8ac4b77cf','ab5f3263-ffe5-4149-9476-a248cff30594','e7dd74f6-4a91-4cc4-a36f-a84540e94aeb','eb783703-44be-4826-982e-e6b0a4cf94da','ebc919dd-6c04-408d-871a-a41e01321cd9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.274')
+  where id::text in ('141f5b86-eb19-4277-ad69-1a5a52337148','5732d9db-020c-47ce-a9fa-d69132c04f2f','9e4486a6-4178-40ad-9de1-af805709e150','b1152471-0b37-4663-be73-36ee974a98bb','be6bdf14-6dbe-4129-bfd7-9e05fc35ff1f','e1d8b87d-b772-4b30-b1a0-8915b5178fc5','f8af0ca8-a256-4200-90bb-5d017f878267');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.369')
+  where id::text in ('14206ad2-c729-48e4-9df2-233a84421f6b','b179a05a-62df-4e8c-be89-35deb189cd63');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.33')
+  where id::text in ('1426e2c9-3320-49e1-8c28-ca2d8fe4729b','71235f26-b324-4382-ada5-a2919e5712ca','8dd7fa40-eae6-4fe8-98a9-4ac1263fb4ad');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.41')
+  where id::text in ('142dceaa-edca-4939-9737-4e1b947b2fbf','17a1d0a7-c4a7-4f9b-aa85-9c57cd056622','1e99440a-b4d4-435a-a94d-476b28cf388a','2642db55-6b97-4f00-ac25-6622d785b4cd','36b64336-c142-4dde-b1cd-65b8a3828210','4ff643ca-7138-406c-abda-79d0cc93397b','5459c84c-e0e8-443d-b05e-dc8d79f5c824','5ae2351f-0490-4fc8-9cfb-3348751ef83a','5b1cc3b2-e811-4f30-b4c5-2b3032005842','6a624174-b949-485a-a362-f8a10afbb94b','6cf1f455-7182-48e2-951a-fed0217a2049','7321264f-e291-4aab-8f46-9bfc16a913f6','79670abe-6f80-4e52-84c6-3a87dd7d0ea3','7e94aad2-6deb-4819-9131-da8cffe646a3','9f0b58c8-c88e-4787-ad6d-d890a58ff503','b71ae0f6-8e05-428c-8f6f-2d2d9fd71b3a','be3c5dfe-ce6c-4330-9825-20c532298e6f','e5a9ba49-2f5f-4079-9516-e15c7841f3e0','fad5ea37-28fc-4493-a5d5-cca722946d6a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.236')
+  where id::text in ('14320c50-a17a-415d-a3dd-19a219c494bd','204e3a03-4584-4377-9e1c-898f86ff5421','35a387d9-d41f-4305-a969-49e144bd2c2c','3988f35e-a0a6-417e-b420-ed8f4b230cd4','3f02cee8-ac28-4b6a-993b-bd0cd10bb933','4479f1a0-de3a-4796-a370-15ced443f63f','5630013c-6581-4949-a0b3-444182798932','5a573c41-585f-46b8-92d9-11c79a98ea26','5def4364-1560-4937-9fda-054e57b21103','6f741704-8bb4-4670-8ed8-56f33594b0e9','7715b7bd-a836-46cc-a7ab-3971dd5beccb','9c5fd78c-c72a-4699-84ee-626accc0e067','9fbed96f-07f2-417c-b4cf-76f13000e2b9','a9de5c79-6d54-4693-bca6-1222283f1e8e','c2ca5575-4cd9-4a4f-aa07-8bb9ca603145','fb693c3c-4339-48a6-b4ec-59bce4d03b06');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.73')
+  where id::text in ('143bc715-ca26-43f5-a7c9-c9319e88c317','1a1fd358-b054-4991-bc01-368ffcf47206','27828ab0-7cf9-42b1-9ec6-7a274c426202','28f23549-7e5e-4a34-9b63-a5eb3a141a77','3372e7a4-a4e5-405d-b20b-835d73c1d1b1','3a550b43-0488-45e2-b5cb-d01c7dd382d8','3d544c8c-5464-42a5-a182-7e8a4529eb23','4281d0a4-b413-486a-a1e7-958793002d89','5b982deb-2472-45d5-aedc-53ef9446d56e','669c8c20-e007-49b2-857e-1d0bc0e25636','7c396386-34d7-46b2-809c-4d62a763c363','8a6d05de-6219-490b-acc8-6791e098b32e','8fc4d094-01e6-4370-8b0b-face01857d19','9e79bfdc-c87f-4345-8e1b-7840854664d0','9ee5d4a2-edce-4a52-ae64-ac0e39ccad42','9fe94e17-627a-461a-b75f-b1875d157002','a04ca060-d4ce-4dbb-ba97-06d31c98c61c','a375f92d-48a9-4450-802a-07244010a054','bb475891-a078-4a08-8e6f-76b013624bd1','c7492fdd-8fe4-4515-9a68-12ae57b3d184','d7306c3f-2539-4473-897b-1739cb4f6564','d896391d-ab1d-4480-ae4c-6e512d8bc000','f01f0071-11e6-4bf9-8bc9-086da9ff0b4b','f5e165d7-1434-437f-99ca-90a662adfaaa','f904e083-edb0-4b38-8644-033c3114c45f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.298')
+  where id::text in ('14510846-28e2-4717-94fe-4a6ead49815b','1aead357-93f4-45ff-9ff0-58bf33619f65','1b1e5e33-8e52-4181-bd1b-6c4ad89e59a2','2e975fd4-605f-449a-95a5-9b3017b152ad','37b9fb48-abf9-4993-ad7d-63c6ac9a6f50','3b62f28f-cc2a-48b1-937c-ef1efeb46588','498241e3-677c-480a-87f1-260fd4410eb9','4a76d766-1aa2-48a2-96b5-cd59e007ead0','4b7b499b-6c78-4218-bba0-67c6b2ae6e3a','656ceeb6-7dba-4791-996e-5ab92f6140e7','93b78f40-f558-4563-b82d-1c5101d5314f','95543503-f016-4288-853d-ca8e8ad5cde2','9a359066-00d4-480b-aaa2-9deec213e744','9a77ee43-924e-49f7-9172-e5507401b616','9e9c2af7-d1ff-4ccd-a907-780030b2741e','b4532878-cb97-400e-8308-89bc58842b14','b7df1838-8b3f-4436-8dd1-38d3a96637ca','c49cd3fe-60d3-45e9-a7e8-16d174e3532e','c9da1cea-f78f-41b3-89cd-e31dbb3f32e2','ce97da6e-ea29-43d7-adbc-50b6774b4c76','ef4e63ca-d39a-4cec-b9de-5213571a8ba6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.264')
+  where id::text in ('14532071-cd2f-4297-b582-6932ee343f75','64cddb7c-59c4-43ec-97ae-8f36ea28a1e8','da61a86d-4a0e-4544-9209-faf0fc7b1d13','fe7ff6b3-6c4b-4507-9bb8-d9cac74b36fc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.84')
+  where id::text in ('1464d93b-4a2a-48c5-93da-c6d61adfdbaf','208098c5-9621-4a5e-83d9-3d561bc69eb3','42ff0c53-db2e-4cd9-8d3e-c9af5bda1c57','46015791-a845-4067-bd3d-1a7a19c87c29','6bdbfdcd-459c-4411-975d-e07574378716','6f78c7c6-96d2-4f21-90bc-b0a2a26f2ad3','bf26b283-8394-49bc-ac89-b6aff5ad78e1','ec913dc6-556c-4ba1-9a16-65549eda9655','ef49fe82-5d07-488d-882a-8c99bef57178','efbcff31-fbd7-44e6-a9c2-92263832823f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.33')
+  where id::text in ('1467f326-6d6e-4e36-b932-43365d4699bf','3cc6e016-ee89-4232-8328-6dba001391b5','6f678a7e-8035-4710-9779-057ffea47804','74d33efe-296b-48d5-b767-e4fe9da581f0','7963a663-6fad-4fb4-930d-4ce037667b18','b5dd9178-e88b-43e9-a9ba-4f7b1be9c724','beb13d54-91c7-4785-8cb6-618f248c69a3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.193')
+  where id::text in ('14765fae-59c0-4fe1-b442-aa4927a7f0ca','15e48f98-4a43-47a8-a526-9c9e36d1cd84','364b2819-280a-4cf2-93ba-15e51c438308','704c93bf-5ba1-4229-8486-6771e8c0908f','d2802acc-4145-4977-a60e-a07a8aaec5cd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.15')
+  where id::text in ('1476f471-eded-42ef-af7b-53ac3a2eeecd','18d1f94f-51f6-4545-873b-2d9491b507e7','254bc88c-e584-436c-88c2-9218597ede85','49c8f6e4-19ec-4762-a61c-3989ccbcd446','4cc1c15f-1b50-47bd-96f6-62fa86bb79ac','582893a5-2082-4ffd-9ce7-ab57a00c518d','7021c302-37ed-4891-95ab-b30c6836b274','76adbe92-e01e-4bad-acb3-650ceadde257','7bc164fe-6aa8-4bd9-8164-c4439b2e1875','8923118d-03de-4b07-8f0a-c6278dc5dab5','8cece75e-4751-4aab-8acf-4670b98c8e84','a4348016-2f27-448c-9444-3b477037fa34','ad72b89a-6fef-45f2-b521-1b1a5cefbd17','b1fd7697-0e25-4d08-85b4-09b670a9945d','c03f4370-bc97-43ad-958e-0dcb3994b330','d51d5aed-22e5-4664-9639-4eb8ed059cd5','d8e67a25-bd4d-4fbe-b2f8-fe01821c4cdd','dd60f00b-f565-4dc4-9e6b-6c827062845c','eb3126fc-470c-4fae-956f-09c5ed2b6145','eef317eb-adf9-470b-91e8-5d6aec7ce895');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.201')
+  where id::text in ('1479ea1b-e31e-4efa-a20b-d8f9e54c89e4','398fc2d0-a847-49eb-9e42-f14e3adba3ac','55cdc96a-bcbc-42b6-8427-4e0a1317d657','aa3f3b0d-7be4-46ea-b359-cb03350375b7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.89')
+  where id::text in ('147bf521-4c34-4265-85b3-04b4d549d081','2d7bc744-e84d-4b40-b5d5-4cb65f6e539f','5b49e8cd-456c-4511-9584-cd16dd20cd0c','6a58a774-19ec-4026-a24b-f499b4e39da1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.12')
+  where id::text in ('148d0321-f126-4306-8755-adde38cb2b20','a08aacf6-d1e5-4531-922d-238696d54609','cda928a0-91d4-430b-8a9e-a42532f34733');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.366')
+  where id::text in ('149ad1d9-07b2-401d-9df4-04ba3267f91e','37b6ec77-9615-40a8-b713-4716e2e29f18','8e77c0bb-2656-4bff-860f-746cecd71bcf','98298156-0481-4249-86ed-4c29d1e4bf45','a07ea30a-9e9e-400f-bcd9-f783c2ae6d47','db7c6763-22bc-4cd7-a0bd-891e0a371f9c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.275')
+  where id::text in ('149ba889-ed54-4470-a2e3-316a71a390a4','7a0e6904-b033-4662-929f-16a3fcce4818','82f08bbb-40ef-4f06-8379-f6180f87e59f','cad7cb35-77ed-4356-ba52-5d3a876b0996','cfd206c5-45d5-42f6-94af-41e21b80c065');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.31')
+  where id::text in ('14aac034-321d-4494-aa33-e4b1b08d86c4','18bb7efd-b3cd-4a6c-8370-1c4d8ec7938e','1ce2b077-6509-4952-b378-8fbd1463ba7c','33cea3da-6e49-41b0-8bd3-d94a5de2e3e0','5c37ef5d-e864-4972-91c4-8a563c9884ea','71577c32-37b4-41ad-beb2-ba5b4bc7abf7','7e4fe504-e06f-4ad1-9e54-68a618f676b1','7f376dc4-1e13-4d1f-91b9-7f65fe8db7a6','7ffa73be-8e47-4e26-a8ad-9e08a971a7a2','8314e460-79a1-4798-b36a-bc7d2e350e9b','8e1c2fd8-2f21-4508-af55-1ffe080d222f','9b73c813-764e-4864-aa1c-5d891419c746','b475897d-f453-4445-b127-61b94c029b8d','c128f315-b5f7-4202-84fd-3cc77ed0ad96','e28d69fc-8bfc-458f-b449-46b00c02cb12','ec3a1cb8-41d7-4ee8-84f9-0a1cfe05a14b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.36')
+  where id::text in ('14ac1e5b-42e1-47a1-b074-073bf096a219','1b6863af-3583-4c34-8687-2267e5d05daa','1e3787cc-50cf-4728-9303-c66634031d31','39c0900d-1fa5-462f-a99b-ca785dc12c8d','473c8d5f-eff6-47c8-981a-c4d5fa0ffc56','48b589de-e207-4c6f-86bb-bca38c9777f3','7b0964b9-eb89-413b-811f-dd02902a7920','851f4305-e45d-4505-96b7-011be21416ab','a47e6278-3792-4df3-bf05-4f83e3252c27','b9bd0ad4-faf6-47a0-b895-1d96f6a89216','c75c22cf-047c-4a8b-8ec6-cba8bf736549','cf4444f4-4b6f-48f5-b598-4fe6c74fd8b3','d95378a6-71e0-4146-9a70-f9e6d6cf7859');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.25')
+  where id::text in ('14ac9086-3ecb-400b-a804-39cb7f967185','1d45e7f2-d255-4484-9662-10a9be3db505','2e311e6d-c9f1-4a8c-ae2b-f8f7571fd367','363f544b-a1e8-44f7-9dc2-3de1f0cf125e','4ca79854-95e1-4459-94cf-73ae3de300f2','82a75ab0-4226-4589-8d0b-19337e623650','8494db8f-d19a-4166-9206-6d847d7d0d02','f8179b41-5bf2-46df-a4e2-6a0e271c498d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.127')
+  where id::text in ('14aeb259-00f9-4e69-8c4c-e48f6fd8f5dd','1b28f25c-958a-47f8-8c84-8a21c80d06ac','59e3ed46-d0d5-4f5a-81e8-8a33bbb7e06b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.6')
+  where id::text in ('14b68314-5448-4828-be63-3d98154a47a8','17bccfd1-5eec-45f7-af40-fb795314e776','18cd72ff-f019-43ca-8e9e-ee5cd304e242','31b1a761-9bb3-43f7-89ab-3de193fa095a','567f05aa-5b78-4900-953f-eb470f57e3ff','601e1dbb-9ce0-4d06-8f81-6007bfaf9dfd','7579fff0-d4a1-4f75-8497-cac48423338f','783dd10a-2f43-4777-9658-09006439db5c','889f2e68-2084-48e6-ab97-e0e747ec2ab5','897d874d-7cc9-48d1-8e1e-a1ccb1540958','a5425341-8b9a-42f2-a471-dfb944dba1ab','c4d5c219-fda3-4ec4-b769-2b931a691856','d7f6aad4-68d1-40dc-bb45-b5b0bdc7667f','e08e3d63-9d06-4c4e-b6c1-baece3c8a5fb','e4c4393e-69d5-4039-a2be-0e6080c755de','f2f0860d-2953-4f9d-a515-330fcc885e1c','f5b61e6c-ddce-49df-8013-e2c1d7615a62');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.475')
+  where id::text in ('14c3e582-3379-4551-8f8c-6b82bdbad441');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.336')
+  where id::text in ('14cb1ccc-5879-44b1-b271-ac133afb82e8','91dc6631-5b91-44e2-97d5-2624b27bef97','b0178113-66f4-4f01-b1cc-4bf7baa93214','e1d4346d-6771-476e-8271-9ca6d7294711');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.77')
+  where id::text in ('14e19b2d-8183-4380-b442-76c235e1fefc','37693817-08df-4d99-95c8-0b065598ffee','8f169772-2efb-4d94-8e3f-a2c228ef4e0d','e65c827e-0614-434b-94ee-8352bd2830a5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.339')
+  where id::text in ('14e3b968-abad-4898-97fa-da923f2bdca6','3659fca8-98b2-404c-b81e-3149a2b39dc8','4d081d15-8a7e-4416-a436-1b3a072139a0','6f46fd6b-c6de-48f0-ab87-65e476fcf372','91dafbc5-9122-473e-b97c-06ce7776777e','93cae05c-2fdd-490f-9279-a6db29171174','9f0cf3d4-5f77-41da-970e-2e619dd2d345','a0d6efb8-ddbd-4bcd-997a-4bb57e631a4b','b0238c9b-29b8-46be-b7ff-f9a314a68eda','b46f585b-0fed-41a3-92d8-5f320a9f9041','cb9cbefd-a600-4c59-bf9b-add29708d102','fec78986-889f-407b-95c7-5c9f1ff52fd8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.197')
+  where id::text in ('14e8ffcf-de72-46c8-814f-626da2d7c36f','15699533-308b-4310-9b22-a99d4ae23e7b','3c04bfc7-9f62-4fa0-a342-992aaf4b9a7c','70a2e490-a8e6-4528-b4e2-0d033cb52e36','72e71815-6459-41a9-b128-977b7a139350','8ac824f5-995d-4c29-a867-1087c6b710e2','9cb152c4-10d3-4771-84e8-4d83b845d931','a8cd06dd-0255-4b83-a942-bad545d476b7','e255aa70-4066-439f-93e0-73b21f2e9c84','e96425ff-ed19-4b1f-bea6-ab00a02d79f8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.71')
+  where id::text in ('14f658f6-ab67-42e7-8cb9-b4c49fb9be55','21fb3e6f-1839-4fef-bf00-d4b138f40525');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.61')
+  where id::text in ('14fc6841-c0a9-4f06-9b9d-651ed2eb8316');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.78')
+  where id::text in ('15012a83-1bf3-496a-bd1d-459f42fc168a','66f5ef91-c7b1-4c17-9fd2-b16c385910b4','810c2d19-5047-4206-b365-a28a8da265f6','a0dce1e2-eee0-4516-9ec8-ebe4d08ee1f6','bbe1de17-d65c-422f-bb0b-afe907f0aea5','d3243b22-85e6-4584-b862-538a1911d45a','e13c884e-a59f-4641-bdcb-37520dfc7b5c','f2fd1fe4-4f14-4859-80e7-5fcf54f6bf09');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.337')
+  where id::text in ('15130359-ab9a-4596-a5d3-b92c4801901c','485f78ee-0a68-4edf-8fc2-362ab84abd23','4c209a39-fcc1-4623-b4db-57307440edb7','4eba9193-7e49-4944-94e2-15ca7ac6bbaf','59f35a71-f63a-4e4d-9dcb-f982976ee596','6662ce02-9003-46e5-ad87-8b2667d5f00a','6c2a581d-2249-4547-87ec-653dc561bd6d','a47e8eac-8f1d-4f03-97ca-200795523fb4','ae3fec0f-bd6c-47c3-a8ab-5eb717021886','d540b718-195e-4d41-aee9-5ba2986e7514','dcd6c15b-832a-4a51-a537-c221c6866f4b','ed557704-acd4-40dd-8f4a-a8f850d75874','fa2c1bda-418c-4fc3-819a-ccb6af8eeff7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.142')
+  where id::text in ('1521a2e6-ce90-4318-80af-f2e815a01ff5','2e9d9d8e-ee5d-4e34-bdd0-56686844380d','3566b006-34e5-4c81-a679-a68f233c9370','b2dc11a0-14cd-45fa-8df0-4100c64b5fbf','f0a185c9-c1a9-44df-939f-e0ffd9d1bb87');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.87')
+  where id::text in ('15396034-a4f1-4572-a0a1-f386970f425f','2e467322-83a5-4dfc-8e20-5ebdb5df2e96','994e339d-965a-4d6b-8bbb-7898a04ff696','ed215106-4d30-4e6a-9f7f-85fb900818c6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.501')
+  where id::text in ('153e3fb2-4490-4346-a8b1-e4911d727d65','16ea25d1-757a-4e25-85f8-e3fd4a21fd99','3f9675de-04fc-4270-9314-4795b1b8ade3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.178')
+  where id::text in ('154988d3-f68b-4db4-a6b0-adf5027a36f5','68c704cd-efd2-4c45-9e2d-d692aff2ee3f','a1f69f9d-1347-425f-9f98-f4e6faa5e2a2','be590156-4950-4df1-b012-29734ced0004');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.508')
+  where id::text in ('15531aa9-7a17-4ffc-a880-0648fb92d84b','37f45502-6963-4116-aa1b-ce47ba29e1a6','3e3df467-764f-46c4-b305-80b235e2a55e','87837681-cc95-4422-8a7a-b58675cf2b4d','b161a7fc-38fb-4280-b3da-6c51d1fb99fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.141')
+  where id::text in ('155c14c6-571e-4144-bd10-4c162afcbd52','8d7fa114-38fc-4940-9fdb-32fda9fdbe10','d48e4577-14a0-42f6-b9e2-23dde797254b','d5f2a954-c58a-4ad1-b516-78c6fffb8201');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.26')
+  where id::text in ('15680820-4771-4193-acc2-23191735aecb','6749f638-f88e-4d2e-b769-16a5421e00a6','72f78662-53e5-4538-930b-50e25bdd3edd','761e6865-8604-47cd-ab63-7818be8db33d','853af2ca-361f-4f8f-bcf2-d9a15afb5d65','9131d460-c854-4b78-aa9d-12ffff7a1ad8','a4651b24-e5ca-4951-8585-6d3c09f53e81','c6b85181-5058-4527-9c23-221a8427ec54','d756f55b-9ed4-42ab-a5a6-be282f6d8644','da83e099-26c8-40d3-8462-fbe5d4582e88','e7aaba5f-f0fa-4682-ab0e-9cd9fbcca409','fde57b57-2d05-4dc0-bba9-383a5ffa8748');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.11')
+  where id::text in ('156b8d1d-bcb9-4a65-bc98-37b1567ac835','1c0ebea2-ea38-4121-a036-e33c170b6a60','2f191a6d-f91c-455f-96a5-15f0f79a3653','3deea6aa-0c01-4b68-8c82-3507387a5177','49f5fb03-7199-489c-939d-9d37e85c12e0','5c32e618-9d63-4c92-96be-3974901a8d69','ec5015fa-a8d2-4214-9a5b-5792b9b48537','f88f560f-d065-456c-90b9-728a71740d02');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.429')
+  where id::text in ('156c0925-ac58-4fce-954b-7edee8973174','338fb593-d417-4807-8eaf-57509f1f9d30','4e6bbe43-9af3-4f57-a3d2-860341cad207','76cf182b-3939-4d8f-8e56-055fe8018529','87e5124e-feb2-4713-8f7c-f3fc4127837e','99b1cc6a-2ac9-4770-842a-3d4d0a97a7ef','a0563bd7-9bcf-4f81-90e8-0c5f790faaac','b64045a4-57df-486f-8129-0820586de511','d3a7ff0a-9db4-48b8-9ebb-dc4e2a5899cc','dfb0362f-d763-4c6d-972f-f8a79fa1827e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.361')
+  where id::text in ('1574b7c7-54c6-4f3a-b086-1ee734fccefa','15877ffc-b0f0-43b0-8433-e257504b6b7b','23aedc0b-2c1c-4dad-8497-ff795de549a7','2e77c21f-5b32-4963-863d-e0a63e4544d8','6caf936a-7b72-4ded-83df-20afad6cf7b4','744109b3-51d2-4d75-9bd1-bb428fc148e5','8533df43-d68c-440c-a5e2-39b4634df9cd','95cd365a-2066-4cda-94e2-787d9d71ef33','a040f5cd-4154-431d-a7de-d630f7ca8366','bc49f784-8836-4457-a968-381b0f381179','d6a339c4-5142-45ef-aa0d-749499fd242b','de39d8f3-1bba-4a34-b25d-91c8592de06e','fde950d7-bcf9-4f09-8105-4aad3d13d424');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.21')
+  where id::text in ('1576fe41-39aa-44cc-a1cd-ea102d852f36','1608bce2-f5bf-4085-8ea8-5e6ebc333de0','3aef3abb-1b9d-44f9-b03a-3695899e2516','3bc49511-3342-4d70-9113-c69fde7e96f8','425f3ee2-e60c-4dff-b9eb-0a8b168c58e6','4a9c3966-ad3d-43ed-aaa2-45a81b003709','58104fc7-e163-4a98-a655-812b5b09a71d','66b23e31-fb62-49a3-95b6-12fcf54f1870','6d4c2816-40d0-4565-a0b4-584cac934427','88cef39e-a6cb-4069-aa9d-d3ceb9fd5570','9e77443b-63f4-40a1-9710-d6688bd15d22','af18562e-e884-43c1-97bf-865149a43b94','be122d44-ac0e-44ae-a80d-0b174d8ed0a2','ef23c4c9-80b4-40e7-954f-4562c112fc94','efab646b-d4ef-4f2d-b7ec-97358cad9470','f3789e94-3850-4387-a156-f9dfc4b1cfd8','fa8e5fa9-d4be-4ac5-a0d1-d0f82ac3988a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.354')
+  where id::text in ('1585dd19-2876-42b4-955e-746026edbb2d','26cadc11-a4b5-4342-bd8e-e0809cc011bb','431caafa-aab9-4f38-8bfc-5e4cad6b9ac8','c9397bf6-afe1-402d-a582-7f4bfd4e7d8e','da96996a-ff6c-4c34-a0b4-869629bebf3c','de78cafd-c361-44b8-8a69-431c8c22b831');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.143')
+  where id::text in ('15867019-d552-4659-8152-0f09f0276347','7b710d53-09df-47a4-9eee-13986c6d4e5c','d89b1ec6-cd17-4838-989a-231759ad0c63');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.133')
+  where id::text in ('15876ec9-6a28-4a65-8a7b-4bd4d740f87e','40d02e61-c8a6-4d43-849f-1cfc725ef4dd','460eec4d-eb3b-4a00-9860-e61f120a35a9','59ebdedf-0ecc-4e5f-9ae4-3a729082d292','6170ffd1-d9f3-4b96-af34-7f0117978b07','680ceeb5-4562-4044-90c1-894e3e93cbfb','77541aa1-ebb7-4020-b4ae-e7003dab5b1b','7f604bd5-a4ee-421e-839d-ff716dc2204c','96775aae-1f23-4e81-8952-e5a87949bc4a','9c7e31a0-aee4-4ef3-9b66-dfa8856cb0a3','aedf21fa-90ee-4fcb-847d-957f114538f5','b04efa3d-8f48-4cde-9c35-06cb7ce558ce','b11dec0b-3830-42ac-813f-2097a8cbc6dd','b6832775-7b90-4466-bdd0-7046c0e83588','bf9a4aee-7254-4df4-bacf-fe44a8abc5d5','d84cedb0-afc7-401e-a4a2-efdf11143ce0','ed3f3265-618d-49b9-abe2-caca0eb77321');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.418')
+  where id::text in ('158c7c28-961e-451c-992f-9d6dc9e968ce','1ecbea98-8a10-4be9-9c3b-38859504d6c1','57bc35f3-dc58-47f2-98ae-ea3ba8a276e0','6a76d1c1-1729-41ff-bca7-de6548e1f04e','8729dd58-0d17-4363-a0c2-097aa1ed4d9d','9bb48140-17a6-448e-bf85-ea2d98068e9f','d60bd5f0-b108-44bf-a9a8-50e13378f30b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.88')
+  where id::text in ('15a8e38a-562a-49db-bf2f-fbdf255ce520','4a4e5db8-43c1-4f84-a85d-1e846f0820d2','a1a343bf-bd0f-4fbb-9b2d-7101c992bb00','b6b28dfc-fda7-46a8-9db6-d8c258ba5213','b9877986-fcfd-4c7c-bd63-078714539610','cc70259d-7730-4cd6-966e-6e5200d407c5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.22')
+  where id::text in ('15ab14da-7c66-43f2-be1d-95457bd5d58d','17bf7ffd-9ba7-451e-851e-faaba6dfad3c','2e91552a-c580-4322-8f3a-83e9098f4b42','3e0f89a8-6b02-4151-865d-a628d1033375','65fb7fe6-2758-46cd-a8a6-0b27deb142a0','67e103fa-972b-45ff-bf79-f5b0b305d4bf','785dca81-4d25-4241-acff-ee553ecbd8a8','f5583845-a9db-4151-9660-d5f6cda636eb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.354')
+  where id::text in ('15ba3262-12c9-4d5c-b023-36be2a909429','268e8d9d-54ca-43eb-a84d-926ccc0ac365','41a52599-2cbe-49ba-928c-07fc44c29e57','85bf7a65-449b-47a6-80aa-a31ff5f4e8b4','8c6ed3ea-6fd2-4c8b-bcd4-bf1da86fecad','9b4e5802-cb53-4ca5-ba4f-35c0c9f5a714','f3e7129a-9362-4892-b83f-010b9d4daf91');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.149')
+  where id::text in ('15c0c2e0-407a-4213-b2d1-1ff1f794eddc','170b1a0c-67f1-48bb-a889-131dac489bd1','185e6553-9dbd-4846-901c-38b3790288e3','d6333148-a525-464a-af34-4d7f8406646a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.34')
+  where id::text in ('15c58f61-5019-45a9-b764-8ae6c2bca3e0','16cbd8ab-65bf-4156-8045-eddc182a2fba','49fc56d4-8fbd-4526-9be5-75613954079d','609c525e-8517-4a96-9722-0f45d8ccb9a8','621954a1-d774-431e-b8fd-46f6a37cd79c','62774e08-f99f-4c21-93c6-d8b575ba0783','78624648-4276-4404-b943-0d51148ec955','7d6ebdb0-963e-49db-98f2-21dc2522306a','a747766b-86d4-4d26-8aa5-2eb931c3d31e','c5afb67d-1e76-4370-8bf4-6a1052eac9c8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.181')
+  where id::text in ('15d090a8-0201-4ae5-bf23-ce6aaabfd33b','2d26227d-67d4-4189-9335-72e0272ddbaa','92b607e1-43f9-44bc-b2a0-6a7cdb3ecdff','deadc1e6-48e0-484d-8910-c0a8b6a7469a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.375')
+  where id::text in ('15d2a46d-b4cd-4f89-b945-5d145a27def2','bf86bc85-0b9b-48c4-9f9e-5d7385ddda52');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.81')
+  where id::text in ('15d7b2fa-782b-46e6-b888-79154390edc1','1de5dc73-2b28-4983-ac78-4f3b8b816e2e','389f7f3a-3f2c-445c-8fa6-ff5cc177fc0e','5a6f364c-499d-428c-ab6b-94aa68370a46','7cb547b4-e9a4-40ce-8111-a75dc0ab5927','95a4d5cb-c6a7-4194-a0fd-1851a8f60864','ac420312-7787-4f02-bcf1-8639535baeda','f16f6cd9-318c-408e-a1ad-f7d276178675');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.216')
+  where id::text in ('15e035d6-54c8-421b-87bb-f426e5769706','622b1fb8-b52a-45b1-8cdb-6fa25442dad9','6730c212-1795-4050-951d-88fa35873d61','c286a844-6730-42c6-9843-bf4bdf2bc5fd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.6')
+  where id::text in ('15e5ae01-9fae-4d57-b382-83704becd611','27112343-3e6f-4a3d-80a0-30cc4ad57c09','517c5717-3dbf-42e2-9f84-f26988f52617','55bb0dea-1cad-490a-bf10-4c57617ded5f','67eb2a8d-f454-446b-ac3f-c0e5d99d7af4','8a5e6dff-5213-4fdb-89bb-c417d99aa214','b66d22dd-3ee4-4c17-ad7d-5ff3d15bfb2b','e610477b-bd61-4436-ae7a-14b08a02ff13');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.365')
+  where id::text in ('15e6eae7-117b-4a67-9e99-86b3b8beae3b','23517f74-d285-4099-b856-1da6000180c9','2b922bff-b768-4e7b-80a5-4219a34dd2d3','2ba2071b-ef36-4dfd-a511-a79affeb3480','51d08050-3e91-4744-8af9-7ea426d03fdc','63daf7d9-f795-4a31-9fb5-0a362ce9e406','b98de50c-a831-4358-b817-19f88fae7b00','bde43cf6-3245-43bc-b075-7af6318d88b3','d7f89a4f-3f91-4d89-8bf5-05173c071bec','d887824a-96d8-4e33-aba0-2dce6e919107');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.121')
+  where id::text in ('15f523da-1a31-4948-8577-45dbed82a722','18a60184-a87c-4663-ae8b-1d2c0a1a5284','61e2ec0f-a451-4bc8-8453-868851f78e9f','7fe35439-80ac-45f2-9f00-0f95be5deaac','ec2d1d54-06db-4b6b-8326-3a9a8f67d994');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.54')
+  where id::text in ('15fe0216-d2b9-4185-a8a3-0e7e7041c841','763497be-579d-4fcd-864e-54c2e53e2edb','7c697c5e-10d0-4d18-b785-141e803c621d','951ebd96-6766-4ec7-9a13-fbaacfa34137');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.387')
+  where id::text in ('16004b19-e99b-413c-8720-1804687b31a6','1d62afc1-d94e-4ff4-b209-c907e70a301f','41f6e83a-6a7c-4b60-a992-8b1478dfd640','7576a2b8-12b7-44ca-8c1b-a1f53f717a9d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.58')
+  where id::text in ('1605c232-405c-4234-9cfa-7e32de5a47e3','23555a79-85f8-4c32-996e-081162015ba9','2815aa2a-48b4-48ef-8fdf-cd7adeeb1a17','4bc561ec-6f4e-4ad5-9e7a-c93875695059','58db5aa9-ed5f-4a32-a6fa-378fa8895884','605094ea-e7ea-40bf-9fd3-9bcb71ce2750','8c842580-8c16-45c9-9f31-12436c635529','9b9a4896-4d0e-4ca4-af43-68666c672be7','a59cd562-4fa4-4525-bdae-6a3175e54b98','a7ee5b96-b392-4ece-945f-11d4434cf66b','c2d4a851-566f-4e6a-8840-04c0701d2ef4','c4445d90-a017-4e7f-b648-8a1f387bc51a','e4fd10ee-61df-41f0-a292-6e60ef60c58c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.305')
+  where id::text in ('16134714-8e66-42b7-8152-fbd43aa34cdd','2e79bf9a-5561-437d-91dc-96e50a537717','487f5f5d-a232-417e-8a32-a77e865cd4ee','64dbca01-dfed-41ad-8357-e101d8ad8fd4','7725a1d9-760b-4c99-a863-f5ec58d03e7b','a634b808-2e37-4414-bdb0-9d6dd4e86510','a7d4a50c-038d-49fd-a3cd-df42d597ce2d','ad970eff-a3f4-4e45-82be-4c5c41e6e63b','ba65dc83-d7ae-448e-a7db-e7c0aebed875','d0a0e39d-a343-40f2-9a76-8c313f7b7137','d2de5145-5f5f-44bd-97f1-29753c31406b','ef43c4d5-21b8-410a-8323-61742acb05d4','f7e65498-275d-4142-af71-b636eac1efa4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.35')
+  where id::text in ('1630adab-84e3-4e3d-8191-67f86d3669e9','66074a06-3a9e-4d29-bc2e-03ca21b1fe96','a530a5fc-4ac7-4619-9685-619118424c7e','acb983c7-ac0f-4cf7-a0b8-d381d700e2a7','ae7e6d28-51b8-49df-8028-03aaace2a7f0','af707377-222f-4e45-9fb8-7659c921b428','e9bbfbb7-344d-4e6d-a2d6-b0d442bcbc23');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.411')
+  where id::text in ('16357a40-6c3a-4096-9c8d-9d13c9692f9a','a0a18ff8-3211-4b63-b263-79585beaa9c6','a31f4a9c-3366-40e8-bd44-942a92ecf7e4','a93ddeec-8e56-47d9-836e-54b43893c1f5','c5b27b4d-f6f5-4686-ba35-44cee67641ef','d83012e4-6240-43af-a27b-eb217b7c00a4','fc5f697b-053d-439a-898b-eef53ab60f5a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.112')
+  where id::text in ('163b9bc4-0ecb-4f10-85e8-15cfed2696f3','a665a9a9-0420-49f3-9d64-7f15ac6d954d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.378')
+  where id::text in ('163bcf06-88c3-42ba-aba0-acacf8c0d58c','4b914f3c-e8a4-4933-82a2-b8b129488d13','6deeadde-b9ca-460f-a6d1-e9936f45840b','87dfd9ef-629f-4039-9855-c5fd2ff1fa81','92cf0b84-98fd-4b2b-a63e-bae383e9cda4','92d07fd3-e30f-488b-95b8-5b1c637ae5b8','a6798716-db18-46de-b7be-1070ecffc88d','d65619ba-1ac5-43e1-929a-c43b6cfc22ca','e4cd46d7-c9d3-42bc-808e-6049ef4fd3bb','edaf45fa-247c-49c8-85d4-33b985b06da5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.311')
+  where id::text in ('163e88a4-d9e5-4485-9af6-df71b7d83745','24e41f62-0ce8-47eb-bc15-58d343c8f5c8','56bc1138-7c07-4134-9954-d1889b98879e','c314722d-64ee-4cdd-ba23-cc954240b826','d02813e5-f747-4a7b-a83e-7522e90b9eef','ff4834c2-52ab-444b-a6b7-3d208e8aa997');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.325')
+  where id::text in ('163fe0c4-0638-4461-a082-c1411fe77f7f','1ccdc66c-f059-42a7-af3e-dac949d81fef','289d7fd0-c379-4798-b68c-1628c23167ff','2af16dfe-698b-48f6-b6d2-f13f3b15061a','313c8807-a1e6-41fa-a1d2-c093f3e0eb13','32399114-899e-4510-8c5d-4df5e8f1b51b','386c93e4-1571-4897-a89f-5c85a2950a11','3a2583c4-b842-4895-9279-ea2a2352fe6c','57e32c4a-8175-4e2c-a84a-a1e72b76ffd6','5eefff5a-fee9-4fd2-9ed1-57f01203ed34','7127ad2d-a5a9-491a-986d-34423b58070f','76b3b6a1-9a75-4c52-a528-2060a8043e6d','7b534c56-773d-4115-9ebd-fb4266cdc5ee','86d5d607-86ec-416a-9f54-0a108f09eea7','911fd8e2-8818-4399-b88e-598467b17ecc','ab65679f-847f-4385-a1e8-6810cc5373a3','b424c2a4-2248-41cb-8ef3-8ee54f1a7cdc','bbb18bac-5ec9-45ad-896a-7eebe910a000','bd30b788-6ecd-471f-85f4-78ee6bb24e0a','beb73c02-d3f1-4239-afc8-52518c1b1340','c51c694f-e1f1-4013-8f86-e0a64532a868','cbeb39af-8ed3-4d0a-91e0-75fc3e1fb12d','cc82e54d-bb42-4f3a-99d1-a85a71922496','d375d600-0567-4055-8c56-f1f2067a9c85','de039854-eac6-40e9-84bd-6e86f4fe70a2','e299e2c6-f3c9-41bc-ab0c-4e50130a21da');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.18')
+  where id::text in ('164ce331-f480-4622-bea3-aa612623333b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.147')
+  where id::text in ('1680d55a-9cd5-41b7-ae3e-f817b10345cb','426ee2df-945a-49d8-afe6-47615449b088');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.46')
+  where id::text in ('1680e43c-fe84-426e-ae84-c00229ca6705','25c8a81a-ac3f-4a49-8ee3-2dfa2908f0a2','8d021651-a19c-4d21-903c-1fcf7f5afd4d','904fd5be-25d1-4df2-84d1-573ce9e23190','acc5d3a6-7c01-4dd4-b390-09a3b6a136a1','b506c93e-be0f-4088-97c8-3986f2d228c8','fe36f9cf-33a3-4e65-815b-d12faeccd2b9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.302')
+  where id::text in ('16857823-d3d0-459c-90d4-4f008fff6d38','180f3726-d0dd-43a8-9b82-5983765d9458','cae7d07b-bfaa-47aa-a64d-db7c03409f68','d466a07c-0fb8-41f5-86a0-9ebc7f7dd1bd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.153')
+  where id::text in ('169f3c0e-d1a4-4365-b26e-2c1c1d52c926','921b8ce0-dacf-4cc5-a8a3-df3233f5c571');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.163')
+  where id::text in ('16a35ede-ff8c-4d15-a36c-32050eea397c','48c218fa-975b-4ffe-a223-e01cf7463fde','8afe4664-473a-4383-acd3-8f77a8fb854a','9950238c-7d9e-42a1-85a1-a11157745f32','cb1ab9f8-5d65-4be7-9ea4-01fdbb66ec12');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.328')
+  where id::text in ('16ac6d6c-170d-484b-8183-80cda4ee9ea2','257569a4-ee3e-4e84-8ee2-db82752673e8','3e1fddbb-0252-4a4f-a7c6-70c25ce40f1b','487fbee1-db37-408c-97a2-cfa2c58a3e94','4a96dd78-b897-49e6-9968-37d1a535f095','8952d198-dc54-4b0e-9c9e-0b30f754f2fe','a03b0264-b3e6-4ff1-a05b-f2917b5f06e8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.258')
+  where id::text in ('16b013ff-f9a3-4613-ae7a-d393a00c6564','3f03f00b-e10b-428c-98e9-aa201a6bf1e0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.115')
+  where id::text in ('16c31123-2985-4c76-981b-4a0db7fb2084','27d280bd-a882-45d2-ab2d-ffa73b5c4fb4','2be51e21-7ce4-4809-9c78-3f4488a54717','2eada85f-5433-4454-a07a-8d6f5001c665','5bd5d2b9-c8d6-449e-8001-161173f6f14b','65a73218-9e1a-4ab7-a990-3d283333a919','7a3a0245-8cdd-4f95-9aa5-9cc560b8cbbc','8968201c-28ff-459a-a2fb-1a1561baf02a','9ef02de8-154e-4d27-a4d6-9bee116104d4','a16e3f34-4852-474d-93de-6b7aa76e930f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.31')
+  where id::text in ('16c5baab-fd3d-4be1-9668-6bee53bda39a','45238106-3b0a-45f8-ab8b-308a7695317c','74138093-617e-40f9-9eb5-02906e3b9321','b0ea528c-5080-4f50-a9a5-27522c379ecc','b8343be7-c9cd-4a40-a3dc-dac32d881d6b','e129ec71-b2bf-4e6a-938a-0ae4ec37ce23','e893c658-674f-4e0d-a5cb-1ad093456934');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.192')
+  where id::text in ('16cb0618-e37a-4bd9-98b0-6f76971b9013','baf88fad-5fdc-40fa-befc-af0669133336');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.94')
+  where id::text in ('16cbde5f-3318-4b62-9a03-a344b165ae16','19fe3fbd-ed25-49c0-bf97-4e8ceba64bdc','1af43c20-d4d8-4b79-82d3-284d12977457','3ec2e9d8-ebd6-4f5d-a728-9823f350bc9f','42100ea3-bee5-4297-b725-7ecaa83c8d14','498f1a91-15cf-4945-9fd0-04d11fa847bc','58180461-a563-4faa-bdfd-5499f6c248dd','64a87e66-b20d-4b1c-aa68-ea764f0c7f60','67087e61-6926-44f4-927b-d6032a8be769','7343d556-e60a-40b4-a321-fe25154b5443','7408e45c-d79f-4961-8b7c-ca121505fb42','893bf1ed-f01c-4fb8-bceb-e1b2298780c4','8a1e4fac-8996-4b24-90fd-e4a0b4f76992','947383ee-7716-4b3e-939c-d02bb42f719e','aa4e71e7-622f-4374-bd21-427a491ff4dc','bdb66d92-186a-4a5f-b382-70b334275285','c81e474c-b863-4058-90bb-f15ead07ed20','c8da6255-7ba3-4c44-a578-4371eed9f017','ce4000e5-8851-48f2-aeb1-a76e09d4158a','f2c78a71-aa00-489b-abc2-f775f1d4569b','f791430b-4114-421d-9638-82039157f860');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.282')
+  where id::text in ('16d00e33-d938-4143-ac28-0c1489d289c3','248da0e4-f45d-4dbf-bbdf-2bc23055d37b','4fac1e9d-2bba-4af0-b63e-e913170782ee','7bc5070d-8296-4daf-bc48-bedb7a3c37df','ac34b559-ae71-4f1b-90b3-bf217b4c6aba','b2603f5c-a527-4ee7-b88f-a4db7828ba4d','eaa3e142-8670-4e86-bd0c-bde828fd3ed9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.24')
+  where id::text in ('16d41089-fb2f-40eb-a31d-361d3a4c5844','30ca7cef-daec-4bee-8de9-4ab287cdd5ea','3e0a6960-73ca-4052-8643-8e9029e4673f','431b2313-6413-417c-b99c-19f9d46be92f','5097ae56-6cca-4bfb-9a4d-b6e14d6bd47a','82088020-14dd-44a7-9b45-e8d72bf49627','9b822191-43fc-4602-89d5-677debdc315a','af435293-e20b-4a2f-b68e-a0cd3f86a29d','e666f0a6-981e-4102-972f-edefe489ffee','efcb92ae-1c95-417c-a7ef-69638144030e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.181')
+  where id::text in ('16d5be32-1ada-4c99-b711-c63e3caf644d','70408a9a-908c-4b44-9595-31367c5a70f8','e114c2b3-c187-49e6-a7e5-73aae0602981','fd9bea87-22e1-4089-af52-4307889371ba');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.104')
+  where id::text in ('16df1959-24c2-4909-bb1c-97dae06baf7c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.324')
+  where id::text in ('1706464e-7038-450c-8114-9370dd99873f','19bb380d-40d2-4854-9b04-2553536335e7','4f3cf1e0-b6e4-4416-b41d-f28017e76654','70c5d83c-7053-4684-ba24-2f5adee55df2','abcf981c-705c-433f-a047-146330a22316');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.623')
+  where id::text in ('171242ee-3fc4-4764-8ea5-b5223032d108','1e63a3e5-ed80-413d-9119-dd39dd6312af','2e65db46-2ddd-4972-ab76-2b3898483c5c','665f1830-883e-4b0c-bcda-b4578d5ccbbf','8f80e9df-ae1d-4af2-93d3-a2b0941b4161');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.242')
+  where id::text in ('17184234-7c9c-4cc0-93ca-637ed784c9e3','17e81179-f9e1-4e05-9613-75cc1b8b1a37','17fe3f04-1526-4933-ab3f-b493a23258e4','204a900c-5974-4b15-a632-d8e890473a09','29e8bf40-226f-4e67-8c18-5bd5107915ca','31ad95ec-90d0-4a39-8757-1dbb57569898','37fc2e33-adb7-453b-9614-f01a3ef76260','42c2be7a-c7af-4a62-9acc-de0e6908d5a6','4c364fd8-0ff2-45c8-8aef-249ab03ff93b','5b1934e5-d708-40b2-a7b2-0c728bcdb9e2','713fe2b0-da06-4abb-9539-a941cf503c4f','83dd75a4-1283-4e07-9c8a-d28f17d5c90c','93583afb-cec3-46b4-9409-04535edb0918','a4190733-8eb6-49bb-a263-527aa39e4ede','d2abb7c9-d150-482b-8fc1-c91fab9f26f5','e6886be5-9a01-47fa-b588-571870baca4f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.262')
+  where id::text in ('1722b813-f30c-4f54-8e42-efd3c29a9e57','4b446073-5301-4738-9762-f7595705e9d7','574fbc55-19c9-46b8-be0d-5c797bf4922a','68ac524a-60d8-4f9e-951b-5a907d960fe2','70a613fe-46e8-4270-abde-0562ba5fa130','8df8d598-f902-42b2-8597-6a2c0b8c6888','a01060dc-e0c1-48ad-9876-3ac3feb1f3f7','b93468a2-a569-454a-bfd7-f740357c7ba4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.308')
+  where id::text in ('1727bf46-0fc7-434b-b97e-3e5ea99b6a6c','188c1c9b-cbb3-4343-9df5-9f5831623d2c','5d8dc814-1e77-4c6c-b682-7b9d4f37a4c8','97d8786b-3f5b-4b18-a48b-aa89e0f2f105','a7861165-ff6e-48bb-86cc-57fe4973fefc','afa5e46f-c4a6-41d4-89f0-ea6f3c7664f5','c13697c2-6a82-4d4e-9646-8fb63874e5bd','ce3a797a-5584-46b1-a87f-ba48825e143e','d039162d-48ae-4a3e-b92c-313c9913187c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.161')
+  where id::text in ('17331f54-c025-4c6d-8775-b0c3b9a05d45','458a5961-f7d3-477a-9fba-1406db016611','5a676b70-f326-47df-bc93-3347b79af3ff','61799883-92a1-4b46-b9d1-a16e974b791a','d5bff54b-b0fd-4944-ae6b-346b1d2826c4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.4')
+  where id::text in ('173c4b6c-0536-4e1b-a2f0-4fcb524fd474','956cad4e-d877-4a5d-bf05-5d1176bda148');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.11')
+  where id::text in ('173d6b5d-4960-45c3-9583-9c1fb36b6eb0','1ab9ffe6-d714-4fba-a2ba-4d118a2bec05','2c554d68-657a-497c-9427-a59eb86ef7d0','5d6a5d48-7c15-47e5-bfb1-c4f3f7aebdb0','66fb676d-4048-4a76-bbfc-833805ccf9c7','91e21db8-e5a5-4d50-b3c1-8d4ebcdeb269','cf887b8d-bec8-4d95-8ec2-9ff497203498','dae6d203-0a6c-4b37-9447-9bd385c646e7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.17')
+  where id::text in ('1745f07a-e392-4f9b-b555-79a5cc6105bb','4fb90225-4246-4bac-837e-6d45f1e09aa7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.35')
+  where id::text in ('17487ff8-3618-4084-9d77-0f19c04147da','61462aee-c5fe-4347-9b28-c0275de120be');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.393')
+  where id::text in ('176698bd-756b-4b30-83ad-fd584692d7f6','e1525242-3eea-4e76-8251-d0f2faee7d85','f3024f9a-bbbb-4cfe-96ae-24a8af192fb6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.639')
+  where id::text in ('17790684-2a23-4b4f-ae56-8c799da42614','1cf6bfaa-d7dd-4ce2-b2e6-fe0e5e08775b','2abc030a-93f1-40ed-af62-ec5c77e20334','74f25001-1663-4ddb-a35d-bdde3359b0fc','923ddd91-1d8b-4bbb-859e-5216033f269f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.146')
+  where id::text in ('177f1257-d2d1-43b5-9213-265fbd273e87','33ba9358-383b-476a-9a9c-b106979a9fe6','b893ca1b-2cc4-480b-b953-40a52490be80','d65482ce-c642-423e-8386-29a4be1fef00');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='21.1')
+  where id::text in ('1784938b-58d5-4187-8d2f-e1ddf6277c77','baaf67e5-d706-40a4-88da-0d0e134e2568');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.215')
+  where id::text in ('178b9e9f-1be3-4de1-98a7-64fa0307f7f0','1f06357b-fcf7-4475-a6ac-567335277a8f','5a63e04b-4659-4b94-9034-f19d4d2a758b','72564029-465f-4ab6-b8f4-16b408939c8d','95e9f24e-596c-45c1-968d-0a9839f5c64a','ab882f27-2c1c-4360-9c20-ae32359944d7','ac2d4f12-dd34-4987-9d9f-01b56aef57dd','bb077af7-71ed-48b9-ba68-887e19ad30aa','c6e22c2a-a00b-4f1f-b16f-02c79eb5c5b1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.6')
+  where id::text in ('1795f4ba-2765-4707-ae08-92e0f931b9d1','26802c37-ff9e-400b-a8f0-1549977a3170','35d205ec-3854-4558-8607-a18d6fc612c1','37ebc934-4255-4abd-b9da-bc30a16b2b31','5bec105b-c148-46d8-814d-6c5cb49299b9','63049b59-a130-4bb8-a3eb-9ab3d9f6b267','68b6ff0f-2c07-4988-8ab5-360d21469f55','6cd4c2d2-2340-4066-8ee5-94eeacf0c4d6','bae4a997-1ea6-4026-979e-68e688521ae0','c6619be2-875a-4bff-9902-6b994be1f4d7','e909b428-88ac-4db2-9518-2c4f4ba5accf','ee35dd6c-c1c5-4b1c-a41b-a2608a101de2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.68')
+  where id::text in ('17a1bddd-0b6b-4b03-aefa-6097b0749246','26241ae6-cbbe-4da4-8283-cef075ab46ce','3f1db32b-1cc2-4598-82c2-521038b6ff6a','a2b892f8-df0e-4d69-a513-c94cc057d00e','a741a4a4-30f3-4d84-96f1-9b47e4912866','b71b3039-dfec-43d8-93c5-87e9df7b554d','bc9efa18-641c-46e8-8893-ad078a71271e','c1c1eb30-377c-4ca9-983c-75fba3c44524','d6600b30-2091-403e-b46c-3fb912b615b3','d7ffd8e6-3ab0-4c1f-a582-d151f870a79e','e07cece6-32ff-4c66-aeba-326e5b7b1dc8','f38fa480-cd79-40db-9d6d-be38cc80aca0','fc9fd62e-eaab-4d12-a552-e4c93fd68185','ffe26e06-3c37-4cd9-818f-908ace3d8f20');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.242')
+  where id::text in ('17b0d6d1-69f3-4562-bef4-ff6862308187','473755e7-708d-4257-9848-afa42cf37dab','8eb13d07-3824-4e6a-a956-43c4aeeb0abe','9d2693ba-41e1-45d3-9f00-d8d9023fbbc7','b576f3a9-4b57-4546-8a63-b80312c916b2','d7d48df7-752b-4d17-b446-42e47d726881','eb1a7a86-046b-437d-b21f-0614a2738bda');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.52')
+  where id::text in ('17c19362-1147-4bc8-a7b8-d9fc9672f607','24a1a91b-f2b7-483c-8a5a-d136503eaee6','b7c5168a-8189-4ad0-a320-4452fbb41e3b','d6205fe2-708f-40c5-b8fb-e539f56f3106','ee201a16-1807-441a-88f3-93bf32026fdb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.234')
+  where id::text in ('17c27d5b-0dfc-46e0-ba94-f8f1dd61f7c4','50c8cb43-8101-46f4-8bab-247f867cd1ce','5b1d1f7c-f88d-49b2-b04f-7d29e56f9b41','8fca3356-b0ba-41eb-91b1-abefa76571e1','9a63b7b1-b6d9-4c0c-96bf-1edc84c548d3','e1da8c9d-7d79-4638-8754-6c5b18cdf92a','fa940442-34bf-4806-9a67-7731b2414dcd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.532')
+  where id::text in ('17c75c8c-6691-4502-9d97-25c62589d1a3','6abf467b-e971-4625-8e46-1c81ec14a381','82aa9a2e-a459-4c56-a84d-21200fe32967','cbef5c64-ad09-4ec4-a0a4-7a6809443ee8','ee2a1b4a-6d36-4ea6-94d9-1503fbfd2040');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.41')
+  where id::text in ('17ca1e62-519b-41b9-8198-957c4a73e5e7','1d7651f9-c785-4efa-a383-6cd2f34eb23f','471370d1-f29a-4b6b-baa3-9e018af81f64','64f1e8b4-a3ab-4dc4-82b2-6871e9be7a9b','78d3ee19-78b6-4cd9-ad9d-493126ce5212','7f532503-3128-4998-9dcd-18b6553b9110','84898e58-4932-45e4-b71f-4ec2a7732b20','90676ed8-e7dc-45fa-9f47-8fc8882a0ca1','b5db009a-8260-40da-8a9a-0c6ace15df30','c127ff16-2771-4dcf-afaf-2bcb37e4275e','df1d7ec7-dd99-4ee7-b447-21d97471394d','eecf7b9a-c0bd-4d51-9107-8268239469a1','f824e4a0-67c3-4df7-a539-85c14c7f54b5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.8')
+  where id::text in ('17ccc051-795f-409f-8c53-86adb92f2fbe','1f079330-6cb0-4c8d-9d85-3e45e180d111','590cfb8b-046a-4e9e-a088-f6ca07888c85','5fedf36a-8297-4e1f-a915-d86ecde9b3b4','69868409-971e-4f0a-919a-60c2a2edf55a','6ee7d41e-0ac3-4934-9fa9-fedd9641a80c','6fb6e79f-d125-4902-a8fa-d612e1030c5a','781fc8af-29c5-4617-8e48-9b36a10c0826','968a6e2f-8bc0-43be-b3e8-8c1c4ba20a5b','bed1137d-d9ac-4cc1-b364-3b12f2a86f09','c19a6441-8004-4e42-87db-a55671259999','cdea12be-2a79-41ef-820a-b8cabf644457','db61b1a7-5e7b-4d79-bd3f-0039fb5b8db3','f696e0db-68cd-4c13-bb40-1ac0022038f7','feb3673a-9288-4b6c-bc82-f8c1ec774ea3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='13.7')
+  where id::text in ('17d7cc43-3a48-4542-bca2-216fc7f9deef','33901060-e86d-45ae-b9e2-05f031af7a94','3bc7535c-fa58-4f29-9c72-c5d3e742cec5','3e22d07e-30c6-44a9-b271-4ea3ffd0f3be','5a5f57de-2827-4744-ae74-007a9310e865','90d81331-285b-4ff4-8229-9e25a53495ab','96fae0b0-5fa6-4d63-9d1e-9714507a84b6','a81fb85d-5e1e-4111-b985-085a43c0332c','d590ffbb-54fa-494c-ab9f-b00eb27687ea','ef3d81b2-206f-4282-93d7-be81cb03c4ea');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.81')
+  where id::text in ('17dc6f7f-9922-4f67-a642-83072d3b0017','6fe47c95-9e43-4c83-88d1-c1189b58dc31','71831962-b702-47cf-8f55-e7402af39bcc','723addde-80d0-469c-b252-5f504345df6f','968c8218-76b2-458d-b332-dcdd5b079295','b5d4eb0e-369d-4ee3-857f-abb3e27487e3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.192')
+  where id::text in ('17df15eb-1077-46ed-99c6-f001a48cff21','94749407-1a76-4496-b74f-81ace5796f47','f53b8bc3-982b-4d32-a49e-6d3edefca434');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.278')
+  where id::text in ('17e0b4a3-9fb3-49b6-adb3-90ab00b794c9','4e58b76e-8ee7-4987-8c1a-4ca491a52bea','82657cf3-0251-4a24-b5c6-57e23a5113e0','ca9705d6-6c8e-445a-b11d-64fab0028a67','d03b6f98-7cd1-4cca-b27a-778ae5d4e145');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.55')
+  where id::text in ('17e90456-da29-4410-a712-3bd01006790a','31c12c48-91f0-43b1-8405-b191c9c109b3','3d3bb273-39c9-492f-a21c-15b565236766','5614121c-4dc0-44d9-9927-49f303658c37','81c2af22-a623-4c2c-b20d-9f66dad3946e','95f9c108-eeeb-4457-bdbd-90966e9d2864','9e427d78-3bac-41ba-a326-fc72d46f947d','b5b26fed-200d-4ad9-bcd8-2acd008a607d','c5fd2236-9150-4820-8aef-7300f161d17a','dcdc6253-851f-40b2-9d0b-66adc193fdc8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.15')
+  where id::text in ('17ebd664-b4f1-4c1f-98a3-9cf2eb3c4615','2e94968e-7d0d-41a1-9a73-896beea3ac7d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.286')
+  where id::text in ('1801226d-2c57-4236-83cf-a71157eee354','237164f2-e71b-4358-ab51-45e1877e1e32','50f0c823-c51d-4274-a806-ab5659c0d643','ad28515d-680b-44a3-ba07-5363abd87e66','b711e082-1e84-4369-abc9-56a0fd40e93f','f3aab942-9d00-4bf7-be9b-90e113be55e7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.208')
+  where id::text in ('18094c28-9859-41ed-aaad-27702ba0daa1','1eabbaf2-9a69-437b-981d-fd9ea59acb65','20f8e5c1-9c81-41b4-bbff-37d6e1f4b8ce','4e974e51-612d-4d13-ab9e-e426a737cefb','53c57d37-7038-47c3-b1ed-e684d45736a9','77957905-e5b9-47bd-bd93-43ef7dc2ec4f','9606acc6-7c06-4789-b3d2-f7e78a41604c','b27da587-004c-4df3-9667-9a903b9b8fde','b4697b75-d9f8-41b9-acc2-016a9ee6239e','c807f535-4948-41b1-9443-4facba6bdbbe');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='11.4')
+  where id::text in ('1821c158-f8c8-497f-8871-194d26ee6dc3','1c745c4d-5204-44d5-b732-c1b446757a9d','3f4fff5c-935f-43b9-8c52-2e28d7536a42','bcaa55b5-abb1-47a9-bd27-44434240b8f8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.61')
+  where id::text in ('182e4b81-4468-4d48-a369-c1742b0a6ded','2fb6663d-297b-4fb0-995a-5f3f9be61304','47ebcdb0-3e8c-4a47-85a3-343c9a2075f3','4e1b5e0c-3a7b-4dc7-99a2-1b60388061e8','55b026eb-83b7-4022-864e-5ea48c03b6e3','82e5ebee-1317-4332-8239-854e51f26039','b0b29c90-41a4-4d64-af40-5d065e9ba5fb','d39f14ec-7c91-44d7-9da5-d13d5092d408','ee38028c-1975-4a86-ab9f-a93c943f0dcb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.249')
+  where id::text in ('18354eac-2713-4420-a820-04753af55721','1d4f395e-90c1-4699-ae7f-226895858a8b','1df56db2-a030-4ea7-87d2-0e03899c8f48','2387360d-3e8a-4f67-bbdc-3c7d73b282ba','36110883-01e4-4688-9d8a-30587a65eb87','4a9786ad-f1b0-4743-b3e9-bdc0039586fe','4cd422ff-d6a3-4017-8920-c6446be5af5a','5980493e-ef48-4a43-a675-75716147aeca','64d47318-d83a-4e2a-bcfa-40a7c076a864','6684cb7f-dd64-4244-92a4-cdc51b39cc8c','7469c450-d951-4a2e-bbeb-2b980917f07c','749abcd9-4da3-4ce8-8114-549ba18fd62e','806c9723-94a7-40e1-8bb5-d65d39470092','88a03943-36ba-498d-a825-9b2a0116ca3d','b92db263-4e49-4158-9f1a-af8b116e8237','c39050ce-b89a-4d75-89a2-5d980f6af1f9','d06d2514-6384-4c05-858f-45a137b4fba7','d97faa4e-5bd1-4374-b260-63a5d37891c1','f5f1966f-3afb-4e84-b481-91b20c0d2be4','f8083549-7e73-4184-b2bd-50b86155855a','f930f9e2-60c7-47f8-a5b7-f44ae0d99531');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.14')
+  where id::text in ('18435c7c-4b40-480b-a097-8c76b2964032','2cd25ea9-0921-4f76-9003-b4692658dd81','307d4b15-a449-43c7-9055-54428b73050a','9a42397c-f4b2-4575-b032-6312c5182872');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.192')
+  where id::text in ('18442030-9831-44c1-ad53-629f1bb2b3e3','31ae86e4-9293-4881-936e-1624ff150d97','33f218c3-8da2-4d74-8d62-5f6a5ec0ae4d','3464c12f-9823-40bb-993a-3b93aedf091e','461759d1-c243-48a0-855b-428e7822596d','4dafed14-c9e3-40e2-abc1-fd34763ee6d1','4e98e35d-7917-4641-ad6e-4c77add7d0ec','669f7303-82d5-4f2b-9a53-e29f2ad511d0','713a198d-8c2c-4646-86d8-289e028b0015','74850f1c-eada-4d61-9486-7f49c0bd2b10','790a4277-9147-49d1-8660-a8a832305ac9','959b4b3a-0114-4486-97c8-ca187889857b','f31aea5d-9b91-4b84-b70c-7e282f6f930f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.391')
+  where id::text in ('1848ed77-2650-41b1-af99-b7f25ae3a404','6a86b394-6102-40ce-ae59-a2416119ee78','decec909-24e5-4f99-90b9-5715a5dfdf0b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.78')
+  where id::text in ('184bf4ce-f981-4387-9219-72304da57db9','1e22dcd6-0182-4f34-9398-f54b49d5d370','243d9538-706e-4a7f-ad59-b56c42f771e4','256fddc6-8692-4d8b-8a74-48d83b06476c','32f886df-c325-4c9d-b33f-2f2b7ebba867','4af87f0f-0b11-4efb-b218-51fab65095ce','9032436c-e148-4860-8d0b-42753a8259cb','cb3edf6c-f314-4b2a-a51d-1417fb73690c','daef02c1-075e-4829-8763-5c9833a76313','e5505a48-4c8c-485c-a399-722bcd28c70f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.25')
+  where id::text in ('184e9f9a-0763-478f-b0f3-0491c627c402','1b54034a-d65e-40ec-a2af-1ecd485d7acc','7cb9b1aa-d381-468a-9e3c-69d80de7c027','c4e81ff1-5f27-4c4b-87e8-d529e6dfa847');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.322')
+  where id::text in ('18562648-2011-4b22-9959-538a6949f8c9','213f6579-9fe9-4a55-8895-6ba440c3af2b','2ad95824-85af-4c9d-bb07-897fce42a3e6','5c541995-da9e-46b8-9bf4-1c7e8b5dac35','a39eac21-e157-4b51-8bde-a746fe928c02','a521f8f6-9203-48f3-b6a6-cc4492cf7189','c0d357be-9d6c-4897-b232-c533f8561485');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.113')
+  where id::text in ('185b0463-fe1c-4a48-b4ba-93cad0b6baed','3de9705f-1fae-4a02-9073-046bcf1c7dc7','476557c1-3dec-4386-a41c-0e52d3c20f13','5fa2b51b-a393-4089-8856-f8cde54b8281','9c2e18e4-79ca-4777-aa3c-f5a40ee3a48e','b8dc867f-0c33-4290-987a-3a13c88015c3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.73')
+  where id::text in ('185cfdcf-0140-4850-8325-370a59899add','53515b51-8f32-4865-94e2-1a189598dc8d','6ec53096-8e5e-4ed7-a03f-3b5313de5e4e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.227')
+  where id::text in ('1860180b-dd1d-4267-81ff-0f5a328f357b','1d332435-46b9-4894-9d31-dcf5e9d5f27f','29cd89f3-cfaf-496a-a747-0627c5f38e72','44795d06-0522-4ae0-9718-34d2c2943978','6178bdec-cde4-46ec-9c77-3bf63b133629','71398c75-e8ed-49b2-bb54-a689cd6cffbb','793d693b-05bd-4d37-9973-82de050b9e9b','86dbfac1-28c6-497f-8871-91e9ae29cf49','99e15840-ee66-46ee-9b09-11147fa6a40e','9c7d6886-8d42-4656-ab13-9f440833f1b3','a35326db-9935-41db-880b-b8403f2a734c','abc114e0-503a-4131-a99c-813607835bba','b0a2b73c-823f-40ea-a202-9ddf482114aa','d501cc93-fa66-49c4-a2fb-318ed398f5cb','e230a8e6-5d45-41a3-91e2-fcfc53d2f2b4','f7263fb6-d06f-4ffa-a2df-b78a2a5e39fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.496')
+  where id::text in ('18628cf4-8b7d-4815-b1fa-3be4dbbb4869');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.128')
+  where id::text in ('1863910b-f8c7-4924-85f6-652d19e0dbff','a3429d72-0451-4d49-a7fc-f6e0d71b963e','aa5710ff-f2a0-48d0-9a5d-c8f56822ed68','ab435671-5b5d-44f4-994c-80eae41448fb','b4ea6740-b20b-4c6e-88f1-34caf7b5b961','e75a591f-94e2-4d0e-aadf-db763d1a5d5c','efa13e44-bef8-48b9-badb-6c18c0fa590a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.151')
+  where id::text in ('1872784b-f9d0-4a51-bf64-213cb92760d7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.205')
+  where id::text in ('18731b53-fe76-4dcd-b8d1-92c2de989571','24919258-b482-47a0-9fed-247be5d9055b','4e24215e-77bc-4381-b7b1-b8834861281f','65802669-ba60-4da9-85fb-e9e81d87a318','742d7070-9280-49de-a080-6e6b26e9f606','797affb2-f3af-403b-b99b-6244f196450c','7b69d39c-9065-4a06-ade4-74d062637eb1','9c1a43ff-b1d2-4871-9fdd-342134d4cf98','ab946680-0f0c-4484-8191-d40223d76b42','afec08a0-b166-4529-8947-29f7b3775ca6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.523')
+  where id::text in ('1873de7f-20c0-44ab-8eeb-fddf0591ac2d','756495a1-409b-4f81-8db2-06b2c9373cb8','7b30dac0-eca5-497f-a37e-9455d0f23e89','81384027-6d4f-4054-8284-4bb2ef7e6357','e0f65230-b21b-4550-b5d9-cf96319ccc65','e55e6e22-c232-4024-a0da-21f98b845378');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.397')
+  where id::text in ('1875f317-0d07-41ac-ae9c-68da87c29d0c','424f8bbf-1792-4591-bc8c-4b9b69e412e1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.86')
+  where id::text in ('1888826b-dfbe-4ee5-82a4-fe3ca86a28da','9f3c7165-8bb5-4135-ae2e-0fe42a96a509','d4338ab7-b45c-4e6e-a491-f74e37470512');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.219')
+  where id::text in ('18a52c16-0e6a-427a-a362-d125d75ea7e8','a6eee8b7-bba6-4374-a4a1-51805f8e50f0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.344')
+  where id::text in ('18a61011-b542-4553-872a-eb31a240b42d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.23')
+  where id::text in ('18ac4594-d75e-4041-a4dd-82f232375d96','32448c28-1c40-4303-9f8e-cf89bfea6c9b','5faaf297-81e6-41c3-8539-00f08a98195e','6ad10f6e-0e9f-427c-9d5c-801207673475','82a1561a-86a6-479e-862f-91cbe473d300','967db59d-e2b4-4db7-bc78-11652dc08b99','a7f934fc-9126-4f61-ba08-3e1582aafa52','b49128d4-2772-4e1c-82c6-5ce9d4746d40','cf4a240b-9e28-4832-9418-32e57b04f3fd','f3a1c7dc-7f88-4934-87e4-5eb5aba33642');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.22')
+  where id::text in ('18b2fabc-ca55-45e9-9503-86cd9c44f08a','1b57eb57-cb31-42c2-ad25-4d5a4b399c5a','1b71d5a8-1ad0-4da9-aa31-7909b2088365','45751ac2-3f8d-4cb7-9007-2f2c24b92b2f','6d11e765-fd72-40b0-9e26-e750b67e152a','72f05901-34dd-416e-9206-d0cf7a234630','81e52a87-f3e4-4389-8801-d4c68e7ae0a1','8bbbb9ab-f264-4568-9632-1c18449210ca','96b352e1-b352-4177-9def-8aea47de6258','a491ab97-f238-437a-85de-7cbda21329d9','c35d25a3-a86c-4784-a8d1-45b36bc08e82','c3e1bcb8-dd48-4f9f-ac44-8058e10e5783','eb4fca41-451f-41a9-8604-ee70c0ef7aff');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.304')
+  where id::text in ('18b51e57-d515-4b3e-ad23-a07080dcc35f','235301f7-3c4c-42f2-b1fb-8c3a40bd5616','468c8357-c032-4409-9851-7015213619fe','82ebedfe-7a05-423b-b20c-92f84d14d895','959a3a53-f660-47f9-ba5a-ab74a17320cb','d31135e4-1a57-40fb-96f8-7d83e15c284f','f61f8f32-218c-417b-8770-d3ff96a05937');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.396')
+  where id::text in ('18cf9daf-b53d-4026-ae66-05be022492c6','27e7eb3d-776a-4d7b-bddc-c2f26e429ea8','86c1edce-830a-436b-b08f-c2a1e63f05d1','8e5113e5-9068-4ce4-a727-8041f1661af1','e70e8617-be1a-493d-b462-bab76dca0d77');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.613')
+  where id::text in ('18d66610-e114-4222-8c4d-969f2d902386','57b0fdd9-b804-4c0f-b608-d5bf12f66d1a','95a2ee7f-ef9a-4f2a-9afa-7f8b4d22a738','a6843f20-2526-488e-9266-fe283e305e56','ebd6b66c-aea3-423a-950d-cd6034752819');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.583')
+  where id::text in ('18e143b7-af3f-436e-bf78-8190ba0a9c6e','814ff011-9e9f-445a-a974-09496c181318');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.232')
+  where id::text in ('18ef258f-2a69-461f-a3db-667987d71c08','4b1a94cf-33f9-4b8a-8ca2-b016d14984ff','d785463a-9975-43fb-860e-749fd20f389a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.317')
+  where id::text in ('18f7e296-03ff-4152-834c-268ba3851681','1a0e5507-0adc-4990-b62e-7edc89bbc108','1b550b77-769b-42cf-9c6f-252ade090438','2d68994b-4c5c-4af2-9293-df1ae49c2be8','d46118f5-ce9f-4480-8474-5924bc3849f0','d53b158a-c638-4346-b758-eefda59afaac','fd757565-ed60-4fbb-9ccc-160cab52f081');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='43.9')
+  where id::text in ('18fb956a-b809-48ce-a8b1-ee48ff5342d8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.28')
+  where id::text in ('18fdda7f-aec2-4262-b08e-435e1bd983d4','2d49dd1d-ade0-41b2-94bc-56253dfd9ca8','340a9e89-e60b-4a60-9a9b-e50c6fa10ed5','83752958-fa3c-4555-8a92-0b623946902f','a7edb9cc-809d-4408-bcfe-751ce732aa71','a817a757-ddeb-47bc-ad36-a728225ea013');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.122')
+  where id::text in ('19038fa8-e25b-425a-b410-688c0a41788b','ab248af5-a59e-4aff-9103-ec5c9cba58f9','de47bed8-4520-4d4b-b110-3bdedbdc3847','f98b8fd3-9d4a-4be0-bc13-ff70ba1ab7dd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.113')
+  where id::text in ('19068ebe-afce-469f-8c88-854af204f44e','38094c45-c0fb-4147-b462-3b65b72ffab2','4566fcbb-8f04-4de0-b439-2c4b5b30cbe7','567b21c7-d68a-41f1-9aeb-b6594457d215','5eebb56d-3d88-4d67-9f27-66104c4eaa6e','a2d8c4db-332a-402e-b12f-c9150997e35a','cbacfa28-4509-4b65-8078-27c0a6d541d4','d2cb298a-ab2b-4b76-969f-2e9485011396','fb84ded7-894e-4016-9ea5-d43a9928bc2d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.356')
+  where id::text in ('1907a21a-e2e9-494d-b39c-ab52c578d8dd','1c7be40b-3483-41fc-81e6-b55deeac8acd','264d8de2-3eb6-4b27-aba8-a0286cf00226','351cd7bc-b803-419c-8086-1e2ce4e5f7e1','3601003c-4a48-4646-a1f0-0a3e807b4e99','585f64d8-071b-4ec2-b2f7-79d9bdde820d','a81a04db-6bd7-4dd0-8961-c1dcb822a87a','b33530a3-a4ad-4a88-98b4-a81bd22adf79','dd01b3b4-7eaa-482a-bd15-69a30f1a518d','e371dee4-823f-459e-a459-e7945d2a61ab','e6e1cecf-3c72-454c-bb56-4c4693b53be1','ed16d6d0-234e-4b37-a7ba-6ffbc61cfb69');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.42')
+  where id::text in ('1910efd7-cb46-434b-91dd-6a7ffffbafd5','4c7a9c0d-49b5-4c61-a0db-8204b083871b','5741ff42-4377-4e25-bdee-cdb217d0ea12','84a805d1-adeb-4f01-a767-837bcf76056f','8753ddd2-8680-47fc-adf4-faae0d63066b','89b3a7ee-8b51-4861-bc27-bfec2f5fdc8f','8fb58845-0482-49d3-ba4e-e4d2e1cd58d1','9c20b8e1-4fe8-4815-8c23-e241c1327430','a2a541a0-821e-4b63-ab88-9a137c8d799f','b1e876be-40a5-4041-9fa8-ec527b3541e6','c0abc5d9-3897-479c-ad6c-6ab7b83f6c0c','d74df4ca-37a4-4835-aa78-733ea66c1700','e0dcb639-bca3-4f9b-9714-209aea200430');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.54')
+  where id::text in ('191974c9-7313-490a-af0a-cbabe246c1bc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.519')
+  where id::text in ('192fcdf9-bb0d-4de9-a0f2-17581f38149c','89525804-8851-404c-b8d3-84ac9eaec6db','d0f5e7f4-53a0-4cd6-8b95-d998ebdb5b2e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.6')
+  where id::text in ('193e169a-1101-47b4-9aed-2d2624867920','1b2975ad-2a47-4523-b055-0e526c64d75d','95fa7c18-395f-4215-9ca6-fdf5c8b07f42','9e736f36-8122-47f4-8f4a-ae6d1b0fcabb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.213')
+  where id::text in ('19404da1-dacc-43eb-bd6d-000f47d4931c','2c40de3b-3673-4006-827e-cc508ae4c3a1','4121de16-42b5-4736-8c1a-074617c6789f','56252d96-8a09-4c38-aea7-891a30cd5b36','5f1f1b84-9ddf-473b-9c4c-618888061d0a','6593df40-74e4-46f8-b5cf-ab6120434ab8','6dd1648f-f890-45b4-ab8a-3dfefe391b93','6dfd1ee8-4374-4e3a-b4d9-554aa51cebb5','92ca0f59-726f-46e7-bd61-c0b9a22a8d09','a16a8fe8-e3d7-4bb4-9022-6b9f614e20ef','a28620eb-7635-45b7-b192-636dfaa46aa8','a30d9f71-7a34-466f-aed0-c0657beb071e','ab7273c8-9b53-4926-8333-7e35141ecdfd','ad2dec76-fbe2-4afd-af3f-d52de86a6287','fb44d024-2f18-48ef-ae9b-50ef7948cfb4','ff97a4a0-0070-4a4d-ae79-182ccc3a900c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.331')
+  where id::text in ('1940f585-9c5a-4c3d-8172-9bf3d0b9e58f','1e03dc82-ef94-4018-8fae-b29310bd76d6','2becfe9f-5397-4045-9b4e-5c229130b96f','3a92a77d-c77c-48e5-9011-4f2800cf9970','485c520a-25b7-4660-b4ee-06a711f9f5d3','498db6bb-bbd4-42bf-8e04-bd762ab8d8c5','59384455-7181-4ae6-9f6b-5d862c1106cb','5a4c511c-4344-46a8-9493-234a36d51ceb','64045816-4f72-4ea4-beb5-fc8a87bfeaea','7228fdd3-933f-4fba-b428-ca6a9b2047ca','79c4f787-6307-4747-ab27-9e069f17d03e','83705a24-fff0-4145-b6c3-f05cbb95ae61','96c8947a-f105-4b0d-9fa9-7b4caa2ac586','9a33c1e4-3f0e-4e6f-8210-bd1646992df4','9f1a6b49-977f-48e6-a999-1ada4e882b05','a712131b-709b-4b6a-b33a-3f540ce5e679','aea8bb1f-aeea-4f85-b5e6-d80096f838c8','c01bcf79-a0e9-4526-a463-9aaa691aa8a7','ce9f7cbc-d02d-4fe3-8463-7f857c81f4cf','f923d39a-ac18-48c6-96cc-ce15baefe673','f9d0009d-b962-4f0f-b0c3-79cf84fe4a90');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.29')
+  where id::text in ('19468e05-1786-4aba-950e-d7efa9de6dcc','3ba45561-080e-4aa3-9125-47bf6457986b','63bd634c-376c-4ece-a30e-52d75d756588','872a5ff9-c2ae-4a9e-8f3d-3e45e5fd813f','89ec3ad8-3b55-45fe-aef5-8941f674cd97');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.174')
+  where id::text in ('194910af-73a5-4efc-8bb6-6cb39075d480','4dc2aea6-a3a4-4461-acfc-b52e2d17e15d','8d6a5b76-60d4-42ea-922e-1877ee795c3b','d3080da1-2ab2-4bc3-8663-da7dfca85fd9','eb3fb0f4-9ca8-4f7f-8cbe-f70a1fbb7d65');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='2.1')
+  where id::text in ('1966e2f5-c5f0-4249-9cd7-ede69f637af4','6b3a2f57-819c-4167-bb49-6ffc11c207c9','d615229f-121c-4149-a44e-6f8366e9eb40');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.147')
+  where id::text in ('196adcbd-fbc2-4a6b-9a27-27f87cd3f587','40e95c4a-3b4c-400f-b9d2-e79d7784cbc8','65fa0be9-4995-4447-a52b-00a3e63adb0a','6d0d309b-4834-45e0-b78c-9a8325d7d592','800a2d8d-9718-4de2-8546-dfd4ca52eb6e','a54ddb4b-fab7-4f75-a95e-ad06433e9c2e','f41fbf43-fd6a-477a-bdf4-2ea672ebf381');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.338')
+  where id::text in ('1978610f-fd24-4730-96a5-64d57b283b98','2718594d-95c5-4875-8db3-2f1142e57040','33ad2ad2-54a7-485e-b3e4-15b623ad210c','4a11cd84-7b78-4b23-b4e8-99491afffe72','4c2b7b81-446d-4540-a317-9fd289527375','79d581a0-af94-4994-8314-6b1e1f3c6935','87c7a103-3f39-4e60-a4fa-3e6d1d22c06a','8fac4959-4743-4853-8dd9-0a8833b1824c','ea443e80-65dc-47a6-9f47-3040891d8db9','fd1d1e0e-6695-487c-a5aa-f448273d54e8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.484')
+  where id::text in ('19839e19-6957-49c5-a16a-a7b25184c1f1','ee96a39d-ae78-42e9-a657-90f1c080c96c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.202')
+  where id::text in ('19a1cfff-c72c-48b3-9e88-d8d48fd5463a','24ab4205-cced-48eb-9ee0-bd71b27c5969','6c0e1617-6a78-41b4-812f-073dbaffa8b5','94423260-f620-40f2-a82c-c94cdec92b87','ab00158d-02d4-422c-8120-98fff58b3cf6','b4e7c349-ba83-4771-9e30-52c2b2ab0192','d4cb3e83-a54c-433d-ab33-7dfcfd8ba863','e009146f-c916-44e2-9c28-bdce9836b755','e2929d64-d238-4499-a768-8a0a5af59070','e6e92f20-72c4-49c7-be4a-8deee914625e','fbe7be98-292c-4c5f-ae0d-ed71d493ffa7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.42')
+  where id::text in ('19a282ef-f7a5-4c21-8c14-4c173c6c3b55','20cfbea2-9d8d-4412-8fb9-16a784d03f77','2606da16-2f48-4f7f-bbfb-54333b3441a9','375e931b-e0e7-4d46-a1be-e513e78fa1e9','ad1392f8-bcc8-41cf-b38b-d3f2b5219fab','d0f5ac4b-0e97-47dc-9bee-1db50d668d7c','fe142991-fda0-4c52-9e73-6e2c6fc3a632');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.325')
+  where id::text in ('19bda736-3b31-4da8-83ac-978fd48e3b62','4caaea55-14e1-4a00-879c-97c0dbd9a490','6fdbfa0e-c13f-4ae4-8eb1-5a535a1e7cf8','d23086df-d394-458d-bca7-b336867c8c4f','f1457c5d-4f7f-4f05-a1e8-2c6a6e73ab05');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.118')
+  where id::text in ('19d591b0-9b96-40e9-843c-1224f461cfa6','49208b5a-1d16-4c3f-9639-75b140757954','776f1ee2-d261-4f7d-a969-d11644e5f9c3','94fef8cd-6e39-4087-a58d-f5da802c5d68','cbd5da0e-add5-401c-af31-e0f3b0ad13d3','d95c3351-486a-46cb-b80c-019569f84183','d9e079c4-9d9e-4ce1-ba7e-622fce29f6d5','e5afc4d4-b34b-4305-93f1-b513f9d85733','effd4a15-6077-42f0-8a08-65611b7e6344');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.106')
+  where id::text in ('19e2c499-9d7b-4730-b821-37b67882fcf5','2cd5f1e0-65e9-4115-8f77-b083ca963d35','b3778bf2-1131-4b45-91b8-1660a6a53783','c69ac301-3d17-4d25-bf1a-3f44a453c63f','fd882ac6-a4f8-4c7d-8629-5b8110ab4b38');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.638')
+  where id::text in ('19e521ed-e8ff-421f-ac33-2386de7f0a46','244d9750-baac-4003-89b4-e4767d023144','30bfa501-0f8f-4485-9bb0-b7917ea60975','ba6c476a-c948-48f4-a419-4fe87de5d90f','f469b2fd-72ff-426d-968a-91921cc5d555');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.29')
+  where id::text in ('19f87836-4324-49d7-93a0-b85b61fb95e2','2099f6be-356a-44b0-8b62-2bab24827874','28b7e6cc-aa8d-4eb2-ae36-293a5b58a0aa','334de941-9fc1-4886-b82d-b72b5d88d30e','364808dd-8dfd-4ee7-bf4b-ada92080ea09','3b12dea3-2408-4d25-83c3-9a160448a3a5','4543d6b5-995b-452f-b72f-5c8305d6d43d','4578fff0-3224-4af7-8847-3842a0952841','5933ed3a-9973-49c1-af8c-a755dc7810d7','785240f8-02f5-4465-aa47-0d7ed54f01ec','9f81ffc7-af9c-4845-a9e9-dbe9390159b4','ad5ba97c-25ce-48f3-adde-d82a1181f676','bbfd0a18-23f5-401f-9c57-d1ad77f2ab1b','ec9a92ea-2389-4534-8f63-5b1697f14b22','fc81c206-e879-40ed-9d36-d7fe50570a6a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.204')
+  where id::text in ('19f94e33-3d9d-4c94-a705-41a19a88356d','30f67d16-178d-4968-b817-b0ac2bbcd849','45b7e19f-826d-4053-a253-ef9da695de56','93dba624-a6d4-44ef-80a5-8470b8171229','a6967795-9011-4d55-bf83-10bc26f8d25e','fd35ca65-51d2-430f-bc9f-437c75e0b3af');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='13.9')
+  where id::text in ('19fb60c1-21b1-4ca0-bed5-4840af275bc8','751abf5f-aa5d-4726-91b1-9adcd0bc31e4','76e96198-78f8-4dcc-900b-54267d573b97','79991425-6cca-4ed1-9832-9965b239580b','7e20f670-d786-4f2e-8c95-60c102baac6f','87ecc7ab-e097-4998-a4af-4338c6350038','93a119b3-4644-4f4d-b375-5daf20fbdc55','b6f5586a-0924-4eca-9491-eeef1ae2a892','d72c7838-7b3a-4507-9337-f591d35adae9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.301')
+  where id::text in ('1a094670-6962-4392-88c5-7c7d293f9a1f','4c91ef59-cae9-4c35-854c-c44ea9088591','64f4f42f-7aaa-4d30-85f7-e79e99f9adba','901b282a-0c2b-4a85-8426-7e13ac58fd7b','b2911837-d4b8-46ca-ac96-3e0be5dbc0a2','b346ecf8-112a-406a-b8ba-c53a42e7fb6a','b8d564e8-5bd5-44fa-b2dc-f82f57bfe728','c31899c6-e144-43e0-932d-3634e319428c','f078b04f-116c-4171-86f1-e730696b364f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.6')
+  where id::text in ('1a239621-078d-422a-a820-5eaf822dbe6e','27693e7a-de69-465d-acef-331ac2202d9b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.115')
+  where id::text in ('1a29f8f8-eca0-4e95-8723-6b871e05b8de','622f2be2-baed-4097-a48e-eb06b04b150a','7263cb65-e1ed-4d8f-bd42-7a02f35bfd17','75adf35f-736b-4262-add6-368769861bda');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.177')
+  where id::text in ('1a30bfe5-f964-4f60-8d00-9e221189a5d0','3407d4cf-5b8b-4765-b702-0c126658e55e','49d35789-f322-456d-bfb0-84da13f7a982','593074d1-e0c6-4af1-bee9-f768c3c88871','5e00326a-08ed-40a4-8a21-1d19465793ea','70ef3a51-cce8-4cd5-968a-ee5100d3014b','73c2a256-ce64-497e-bb15-97504824e89b','809d5c46-8d6d-49a9-999f-58171752e7da','829d36de-e17f-4679-8af2-ea678eb6880c','9d44216a-561f-4f4d-973c-27b870c70e2e','a4fa135b-8315-41da-bf71-ad9910ca05b8','ab444473-f7c7-48cc-8470-9af59c900b55','c248af3f-1896-4570-84dc-399e7517e7a1','ca6d254e-a84d-42d5-861a-21b2c1bb52ef','e2c47a63-cd04-40fb-a910-4eb0ac2d7bfc','f824ce37-9b43-4b7a-aae5-2f5afd7405ad');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.21')
+  where id::text in ('1a32e161-f9c4-4f86-b004-b15d562d7a3a','1c975597-eb9c-4b9f-aa86-401fedcb5754','4460db4a-03fa-4cfe-adfb-d129781a2d7a','7967d010-34fa-4531-9342-79f569291495','8fd326b4-a894-413f-9a48-d7dbcca12387','bf16bc7e-4550-4c4f-8315-28d6324849f6','dc2fc78a-c135-4675-96a3-939777144d7b','e42bd124-f9f3-4dbc-a746-5ccd3d43006f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.26')
+  where id::text in ('1a3b32c2-fd24-4c12-8254-f6bcd6000832','3d04a9a0-570c-46ee-90b4-4fdaf29b79ec','4d9aa718-0818-495a-a475-ded418fb45f3','6574922d-50c7-4a6e-ac6d-acc231a731e1','803c5d31-b476-4d69-8a7e-3ea83e2afb08','97332dad-794f-476a-9313-81dcaea5f694','e4cf9d2a-28df-4876-8eee-82122ea15548');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.74')
+  where id::text in ('1a4584b0-1778-45b5-bca6-ef28bd771811','4d7f6020-6fed-464e-997e-cf23bbe3a3c2','bcee50db-1890-47f1-ab07-846d74431038');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.412')
+  where id::text in ('1a4d2ca2-1727-4ab0-99e6-c1114194393f','6321bc7b-1e57-44ad-8918-a270e4afa918','b81c2f6e-9708-4704-90f1-624bd03370ea','c1cc74cb-0869-46ac-a099-1c0b9165abe4','d1197e21-194b-41fb-9083-ca7d605dcd3a','e7437b4b-3607-4049-8f97-4deba147a09c','e85409f8-f3ab-4ec6-86b3-9cb8dfce3712');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.259')
+  where id::text in ('1a5a4c81-59a5-45da-ba3d-c81554e98a58','3a973881-ee8e-4e9d-a14f-2fea832deae9','6155b6fb-0bef-4816-8b7f-0f1b56c2f339','9f42ab61-db2f-4928-a360-d756cac097ad','bd4ecd52-6d94-4855-812e-c8982e82be73','c8be8f2d-0fce-4087-9b89-066c4ea316ce','dd749617-eb5d-4f80-9284-490b3be6fb12');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.47')
+  where id::text in ('1a6c37fd-9262-4384-bb1d-828a36f03474','1aa82e66-c10a-47c1-9e26-204defc91eca','1c4281f8-f650-47e2-8ca7-2ee28c29bbd3','1c50acee-a3e9-417d-9917-8dbe60fda312','3e741399-4c46-452a-8e04-5f5581e312ef','51fa61d1-284c-462a-b25f-f09d73947c68','5e06f395-f09e-4e2c-8c9b-1b21f764ae5d','6326aff5-a1cc-4ec8-b143-bfb8bb9f25c7','6532c084-bc2f-40d8-b2b9-86f8e3b1eff7','67c510f6-18d7-43db-b65b-eb14d23d0909','681219f6-f341-44a1-9dc4-7194effaf817','7715041e-d120-43f2-9c24-b46dac603c30','77648690-83da-44e9-9296-82d7de7c04ce','7767c276-8875-4da5-98d8-0658e834c171','8809e17c-2c81-4f07-b9b3-bc57536a247b','94f543fa-6458-4736-9200-7ffde44a3667','b5df6d57-3105-4dcc-9f6e-86f5980b7a15','ca151488-d62c-4af9-bc43-d7c4c0e63584','d9c7207d-cefe-4292-af0f-1a31983cbfb1','dae78015-4558-403a-845c-fae4f9c7f9fd','dc5d267a-b9e6-46ae-984e-965541c9d011','e3fa74b7-fd20-4fb8-9b34-f76ada232f57','e8ae0185-4532-438f-8593-f5ff9b5eea7a','f2d463c8-bf7d-4e55-91d4-035274a29ede','f5da2e73-555b-4e1f-a71c-80d3b7da00e9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.312')
+  where id::text in ('1a6fbcef-a7ff-460b-9223-403605c10792','4a658fc4-1750-4985-8380-726ac6cfaf82','4b4b34cd-e20c-4727-b50e-b058ab8b631d','5d67924d-8005-41f7-96d4-eabecdb21660');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.12')
+  where id::text in ('1a70cd0c-2dc5-4c87-90ab-73c26651f515','422df571-cdbb-4610-8824-a28ad53a339c','8ee52bdb-81bc-4bf1-b573-74f2a9bd8099','9dc08d7c-80d4-49a0-9116-0cf0cf6aab48');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.292')
+  where id::text in ('1a758aa8-aaba-48a1-aaca-4a878e6bcd11','7bfd2cf7-228b-41db-a541-139288283c75','920821a8-b88d-45c2-b287-e812960ccb53','a3a9b540-a3ab-4c17-8680-0f0dc3753faa','dc907569-69eb-42ef-a513-d51bcde0625c','e8f376a8-b46b-41ab-8cc6-69efedf84f5f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.319')
+  where id::text in ('1a761778-e20a-4aaa-a69d-a93c57a6ac60','1d8dd069-ff8c-4f95-ac6c-a1325404c9af','3e6a8303-c8c3-4ff0-bd00-a42b226c9929','5fd51bfa-6b7f-44ce-b3b4-bd97b833def9','a421ee91-0b23-4176-9c7f-19374745865c','bdf1e211-b284-4b61-9ac0-f224d7678744','ed246e9e-ae40-4025-8d35-3c5840247627');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.357')
+  where id::text in ('1a790450-e825-483f-a994-3c8d40c1c213','1e850512-5ebd-43fa-84ad-18ac64cdefcb','38b30d8f-e086-48ca-ace4-6f1cba362c98','47594bf3-822e-4fe8-a178-d32c235b2ce7','5e185579-85ab-48b2-92df-78f12f847165','a5245b22-b430-4c58-b267-a41a6eb05ab9','a6f17eac-2734-48be-989a-8d8e9a9fd6fb','dc201eac-e1d2-43c1-a541-8ed01dfecb23','de965893-d7bd-4f66-84d8-ed2291546431');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.45')
+  where id::text in ('1a7ed17c-d05d-4582-8c31-0ea108b72818','1b3b240d-9a0b-418f-8937-60f0c051afed','5ab58db0-6693-4976-ae01-045dc1e978cf','6d188301-0b10-438d-a8c2-cc640b913498','892b4ee5-b7cc-4028-b04d-b47e6e6ae85c','8dd18d01-ab44-44c1-ad4b-99471b7a87fb','9b067aee-5298-4ba9-9430-081297ef6317','a6cc3066-45a5-4cfa-958c-bc8d5385028e','b5af1c5c-ae8e-497c-95f1-88adae06168e','bb0cb8d8-dc9b-4a1a-a206-d0d297321edc','c598e277-600a-4e9e-a3f8-11ac4dbfcf33','c7f4d160-8f3e-4f32-98d8-722f25dfb50b','cf085873-233d-400f-aa0e-f82ce1823e9f','d1ac7727-763b-406a-9c7b-79ef73d3c854','d37c822a-26cb-4a83-900d-d86fc8c6b677');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.507')
+  where id::text in ('1a805378-af02-4596-a1c8-8975f45c116e','9c2e7af6-0830-4461-956c-e45534521555','e168b3e5-6add-4c10-af19-871c4242a51c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.328')
+  where id::text in ('1a87c847-50ce-41f9-9b8a-0d0e6f1fbeb7','33b55371-bc72-47ce-952b-57744bbed65f','4208f097-6083-4d87-8b73-4b3aef568a65','4f5b4bc7-c11d-4bf1-ae43-6b0a32815080','51a50a09-8035-47f8-bab9-de08289a18b9','5e996bc2-efdd-4ae2-8e2a-c1f445e70e5b','6ee3509e-c7cf-4a70-8452-60590d50cfe9','878e45c2-80af-4ef5-b648-7741a2bde64c','8e24d94e-6906-442b-a158-704d57aa7e39','b1f0aed1-4b21-4af1-adbe-b123a63095c8','b88b07bd-e426-44d1-8018-7d33ac8ae09c','cb2f0754-8ff1-4f86-9792-d2f37730ec40','f5e2a996-ef24-42a7-a7a5-c564e9c944c3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.511')
+  where id::text in ('1aa5ee22-c4b0-4772-b19a-d61613c2ead2','af3bfe59-c95f-4c87-a178-e61f4463f4cc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.111')
+  where id::text in ('1ab86377-ae8c-41bd-bcc9-07a7b8f0349b','8fd1fd37-f50d-41c8-85ef-8877764a0c06','99079c35-4e41-4e8a-9c5f-8ce958b7d6d9','d14c1e2f-5a72-4a12-aeb3-cbcf8539b418');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.287')
+  where id::text in ('1abbfa99-7b47-4f96-888e-60924df13aa2','48096661-f1bd-4c69-941d-2737b2c8c48e','6139d202-b4ee-490d-b030-1f1d8ac4af2f','7044338c-28dc-4f78-80c9-5eaa3f7b5041','8dcfdde0-c0be-414b-9030-a5816dcd055e','c188247b-05d0-4bdc-9a81-6a736de32bae');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.53')
+  where id::text in ('1ac6ed6d-5569-484e-837d-b4764403b0a6','62a4cb41-a113-46bd-a84d-18525876f4e4','95002a74-8873-47f7-97a1-243186cc8d2c','a0c45739-87b0-4f23-967f-4e4aae90f850','b6969836-bfb7-4223-b423-92bef6a5e82d','fd367083-8e74-4fc8-97a9-801a6db71354');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.19')
+  where id::text in ('1ad2690d-3ca8-4bbe-a41c-79f018235e6e','1f82ba66-1bda-4ff6-9beb-45760719c2d4','3e830818-5c1b-42b9-9841-b6cce13adfa9','4822f85b-a30d-4fee-9e4d-b256aa843b21','a514baf3-4828-4ddc-b5a9-135bb5990836','e3976698-b76d-43c6-94aa-80edd9ca948d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.176')
+  where id::text in ('1adc347e-2d77-4216-861a-dd3d3e8fbb40','3ecd226f-aebf-4450-8866-e63eff16f8cd','54fd29fc-11ca-4b32-b9a5-3f85029677d8','c264e098-0bd9-4b41-9d98-437ab58bda5b','fa8df1ec-6aa8-4f21-ac9e-0e1283645e82');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.27')
+  where id::text in ('1add5023-af00-4041-9a7c-1a142307a124','581b228d-1f31-455a-ae9e-9b5f88c74ef2','e8e5b319-e4bf-4696-89da-96d632023e6d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.63')
+  where id::text in ('1af03964-4b2a-47b0-9c29-d85094c02bd9','422e1763-f414-4a1b-9227-0286747c0778','73ee8ef2-eef3-4ad4-be44-755da87adb37','c0670119-f247-471d-8203-f12ee40be1fe');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.34')
+  where id::text in ('1afc2f0b-ff4f-44c8-9799-bc3b1aa446d8','319332c5-ba78-4da5-b162-5cae60e0a4fb','5531d02a-6c27-43fe-825d-f9ab5d9f56f2','6abd885f-680f-4470-8394-768fdcb1e92c','b4c90007-87f3-4915-a62c-587f39897c87','e43e41b2-4949-43c6-b8f0-6c3bba7f8261','e63a5cb6-89c9-48fe-9fce-88a531365d46');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.179')
+  where id::text in ('1b0a8585-f2e8-4511-8e85-1addba9edd62','3d86e12a-7b0a-4870-8229-58b35d1ad3dc','4cf50c7e-a2c2-423b-a81a-5ddd4bb21320','758258de-4314-4b72-a0ac-1aa314ddb930','7bc4abb6-3b5b-4fa0-acfa-aa09230a8c7a','8ca19685-c733-4268-8bfb-20d7e5b420c3','947bf70f-3e52-40af-bf45-dcd831e1f8c5','9fc004b6-48ed-4759-8628-eec3ec2dd990','a3e8dbef-9f49-4212-a209-392feca44b27','a3eab3a2-d4a7-4469-894c-899043446075','afbe8ba3-4d05-40f8-9134-7d275d17d8fb','b889731a-3979-4470-9ff3-bb0717d942f3','bf11afae-0623-4663-a058-bf93fd72e4f3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.359')
+  where id::text in ('1b1a852e-3b46-44ea-b06c-58840532d613','2455fa3b-e0a6-471b-879c-5301d632b6c4','463726c9-88c4-4c3d-9f55-1c46f16ae936','7c97e6cb-8855-44a0-ba88-f605840c1c72','90184908-1230-4c30-a873-fb2d78d8c815','a8355304-2742-48a7-87f0-e3325e8e1a7a','c2ff7c35-98b7-4388-804d-aa7c951f36b7','f222a75e-fc5b-4c99-8c0f-611e78f307ca','f6ead72e-f6b5-432d-b6b2-b354aaa7f3c3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.137')
+  where id::text in ('1b236869-5eff-472d-ba98-6851863a6b20','5705b82d-2ff3-4167-b0ca-31885a61c55b','59aab983-b89c-4639-bf8b-ea66d098b336','6a965ecb-edec-4478-b217-a32abf879536','739ee0d4-244b-4164-b880-2780a1e895d1','751a9f61-78fc-4707-b07d-13e47f6bd717','85f0684f-0979-4aee-bf01-7ccc1edf9d85','a5083334-f10a-440a-a670-ecaf4657cca5','b3e40e01-06d7-48c1-a55b-0543e03de13c','c2a49ca9-10d0-414b-b73c-75f823237a3a','e22df4f4-dd04-4b9c-bfd0-1928cae057be','e55e6683-dbdb-47c3-994b-a443c6220f5e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.392')
+  where id::text in ('1b2613fc-baa7-4220-b4f4-10877cfd03f3','34990533-0266-4ee5-91dc-8de51897c780','6e75ac94-1a08-48fd-8d79-604b250fdd06','86c13fef-a256-4946-b1f8-07c5d6433389','c5f06415-de54-4a29-9e3b-e32cb2c2d57b','c8d5816d-ef88-4b3d-ad46-6ad68514a926');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.358')
+  where id::text in ('1b28d131-795e-4168-bc45-d9c23f5f31e2','1f9ff401-4330-4726-844d-529d94072ca4','552ae228-7aaf-49b0-844b-9b04e8016568','9dee0579-1531-46bb-b6fc-d46fca3765ef','b48add8c-5eb4-4e0f-afea-8f2ab1b984cc','e94a6ccb-f5e9-4494-b5eb-57dc48fe1c7a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.271')
+  where id::text in ('1b36ec6b-cae7-4c80-aeb1-76c245b6936a','53b2d499-ed21-4724-bcae-3bf0210125a8','aa3ea83c-e8f7-4805-bde6-0192d3b17b07','d93887e7-419f-44ed-b838-06d88f1fc81e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.97')
+  where id::text in ('1b465f77-ada4-4805-9723-d4c060de820c','1f0a836e-0e06-49ce-9922-ac92f74db5f5','664b2eda-f922-4dd5-bde8-c883f81a4cdb','b943b6eb-3669-4f3f-9d1e-31249fc74ab4','cff595c8-91bd-4e6d-9cb4-b1e2f74f3cf7','d04dc95f-f598-4e92-a094-2c939aecdede','e988e292-7b37-4b61-8bf6-3f2000e856bc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.362')
+  where id::text in ('1b4e1738-2e93-48d9-bf31-4b8f24483036','2d38d242-f821-4bc1-8a41-bc63a7efbea1','4b3d331a-a7be-4dbe-b601-045b74890c34','960780f3-953f-4bae-8b1b-b4fbf1a18e96','a6ea3e0d-cef5-4836-a447-1a65ee49cf7e','ae7c7515-e864-45fb-afde-2947b4bbfe7e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.34')
+  where id::text in ('1b6114d6-1ccd-442c-bd38-615a8f5b07ff','25745851-9807-4a0c-932d-e63ae60236a5','335a27ec-47a3-436a-9f54-40cd622011b3','3ae4ce4b-6b3d-444c-8acf-fe149997d6b0','42b7fb5f-ba7b-40e7-94ab-4198c3af85d1','4be84a28-556b-41d9-8e3f-58af606064cc','8a2ebc4e-a96b-4c1c-935e-7b5d813a209f','8df1a830-d292-4405-8bcb-4fcfdc5d895e','9efdfd15-3b52-4702-892b-eac9a069316e','b66b3a5f-5b9c-4177-b4fa-cecdbbd93bb4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.87')
+  where id::text in ('1b6542d5-9326-4339-9ce9-92fbc47f107a','2843c26d-5bd4-40b2-88fb-f35cea713888','508120a3-ec55-4c5e-9e7a-e2b230651f3a','82568d65-269f-4a72-b63d-6b6cbff1aa06','b25d92d0-86c3-48dd-a848-aaded9f4fe40');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.268')
+  where id::text in ('1b7aabf8-922f-48e3-9ca4-8e50cdabf9d6','277a945d-9655-4506-b5ca-ec31c53fc7c5','58ae8d19-0d54-4d9f-9b26-da7f24ab4211','796984e2-f8e2-4777-9c38-77629f15d1a7','dc8b2238-0d45-42fd-b61a-1b9826b49c6a','eba238b4-5ddc-4dcd-994a-7f8168b713a7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.577')
+  where id::text in ('1b7bb8bb-f1b7-43e4-b363-ed5c0d6d3b4e','481ddda6-cb36-41e7-942e-c6149efbf7ad');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.229')
+  where id::text in ('1b8a1f16-dbfe-4d9b-a96a-18c3bb46b9a8','1ba4d550-436c-4859-86e2-555bc4f5fb1e','1d00e29d-d8ff-4325-9905-c4d8c04a4aa4','1dc2a2d9-aff0-4989-9025-7ffd176fd59c','4a26be72-ea9a-482c-9e63-445d49ffcb24','554f4d7a-22e3-4547-8f63-657edbe49cd0','6f3afe17-8717-4a83-8a71-84397d2bc73d','9308e06e-4158-425f-9f5e-8ad1f9e74b16','9a79c214-f57f-496e-adc2-a51118f88f00','9c31af0a-17b8-418b-9a13-d16988b2bb6c','a908d52c-13da-4800-935b-b72a007c47e1','b9bf1bad-5a97-4bd1-9078-df6abda9557f','c33d974d-bd31-426c-bff3-82b28886f128','d63c0981-69d4-4e48-9f67-9dd0d5972825','e3c00b19-2df6-4998-a489-416de7bf08e5','ef6cdb5e-3e7b-426c-b3f4-5995efd6d2cb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.11')
+  where id::text in ('1b8df645-eb65-4134-98cd-c86aa01d8ab2','4c51ec97-35b4-4023-a2e4-ad33975a5c2d','6f57c504-10db-43d8-8a83-26eed9340048','9114c778-ae3f-4f85-8cea-a90a2c0d7e0a','dbbee6f5-b402-4d8d-a66e-4caa9a7fdfe5','f47b78da-e663-452c-8340-343e4cce530f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.146')
+  where id::text in ('1bb6629a-61f8-49c0-8062-d3cb3f611ffc','91fab1c9-95a2-4f4e-9bdb-802beb5300ab','a15834b1-044c-4548-8793-041df4465878','dc6ad6b7-b448-411a-9aef-c4c6229e81f3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.197')
+  where id::text in ('1bc93ec3-449a-47a2-b6e9-77882e99a6ad','5c601ea4-f5d1-4462-b428-a9a485de159f','829d7e87-84ef-4c96-9e98-3496165c1fe5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.312')
+  where id::text in ('1bc9e11c-ffb0-4630-9bd6-cfb2dda5758f','5fb7d48b-3820-48bd-9193-fc1716b3fa52','852a910b-07a1-41a0-bd4d-6d89bb695708','8a239572-fabf-454b-842e-5693f2d11f2c','b93a42c5-6a0b-4add-b03c-ebb5dc9236aa','f012c58e-d0be-436e-bc13-06315cba8c38');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.313')
+  where id::text in ('1bd5c0cb-80e3-4cce-9832-7c6e37a849cb','520c6c33-7131-4926-88b4-1bc1a02ceb55');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.384')
+  where id::text in ('1bdd9ea6-fd4b-4ddd-b525-67b5b839f78e','78c2c033-2487-49bb-9ab0-d620ee8349b6','8bc307f3-8233-4ca4-b4c8-44a33895911d','cddbcd7b-4540-4c53-8f34-04c08ca87b11','d1ba81e4-998b-4557-8d55-dc264b630f61','d73c6a4c-7371-49f1-a134-97c5ebe692aa','daf877e0-d071-4478-9149-d604e4b464d9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.254')
+  where id::text in ('1bde8a1e-431e-4771-bbed-fcfd7ee07a1d','1de1a2bf-3603-4ac6-8b34-ec76b1763f21','36085681-6055-43a2-92ee-0ea05a850839','41d2cc6c-e5a9-4296-a93e-c9fda9178f0d','4760c0d1-5d13-41fc-b254-562171e86166','579173ed-0942-4be3-a5d7-3cdb1678bbcb','61549a78-861f-48d3-a314-da554a9d3335','83b5fb11-cca3-485d-ba27-71bde02b53e3','86006b0a-38b5-4cf3-9baf-09c4d6ba22a8','a6434970-6a08-4be6-a58b-350dbcd0e782','b2cc4a6d-a357-4abd-9cd9-942ffb26b1e3','b95501a4-d25f-4838-85c4-3ffdcfba9141','babd2565-4d14-4362-8615-2701837ddc71','be5af890-8a11-4c80-8acc-94a6c76cbee6','ca9d1c95-a8ff-4754-947a-b2732ee3375f','cb41c157-6cf1-4f46-847e-bdb4a225e30e','d7a3182d-6e59-4c9b-b1e3-a1de55b19718','e306cd96-09c7-4bf4-bf03-e900c214d3ae','e50eb9f0-c625-4d8b-b9a3-007ed6b0ed52','e6711143-2e6e-421f-83a1-2e3e079f1535','ec51424f-2836-4d85-8b9d-cb8572a63ee9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.515')
+  where id::text in ('1becd0cd-ffa5-4194-a687-1f24b938030b','6558351c-da4c-488c-a9ef-7ab503ef3aee');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.25')
+  where id::text in ('1bf261e9-8f7f-4af0-8524-e7a600ccec52','38c3b1ac-5761-4fa0-aa73-2617eabe89ef','75267604-b38d-4cdc-ae8d-25c4567bddaa','8a6c2b8c-d338-4ed7-aea1-6a6a2cfd4e26','902c6197-d13d-4e43-937f-61be5f1d91c6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.76')
+  where id::text in ('1bf96cbc-3995-4d04-8ce7-b7f48a6aec8f','41f67682-e18c-4ad0-a906-d8ece4950a73','d44c8a25-1e19-4659-92f7-a0749ccf3453');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.138')
+  where id::text in ('1c196e10-e5a6-4b3d-adeb-e4b85664d905','332db72c-f26d-4721-a47c-0b72b07ed918','7f74e89e-b4b9-4c68-8d2a-6e2fcf51619b','85cc332b-8e65-474f-8645-8b262451ab79','8919cecd-f762-471c-bfdb-23902e6ed80e','d7d8b84b-82bf-47b2-ab82-83f18485e007');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.183')
+  where id::text in ('1c263553-8eac-467b-a6a2-7331a3010d3f','bf4d2ebe-d51f-443e-abc5-6b024b9ae4db');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.3')
+  where id::text in ('1c38cff5-f5e7-4da6-ab9b-9de365b4a164','2469a28d-4139-4211-8c71-bf96b0809cdb','6d385848-8bef-40a0-8dde-5272069715dd','6fefe573-adcf-49ee-b5e8-047f635d6d10','863116e0-181a-4aab-8f63-84dde1071c08','b7a4cb04-f53d-4551-b0cf-c917ce9e5e75','d0ef5d50-b778-403e-a7f8-7fc178dad0a7','d242c1bd-c194-4fed-8003-e63414b73073','f2741373-34cf-4efa-8826-cc168e8d9e92','fc8dd503-1c7d-4f65-bf2e-789a9d0b987d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.353')
+  where id::text in ('1c3ee50f-af86-45fb-ae7c-fb0cf78e5b38','4c6f44a2-0377-4bc6-88f7-1133e1f8196c','9b6bfa09-8d5c-4b78-acb3-32b8681984bc','b49ecbf9-1155-4200-a39f-d9938dd3c09c','d082210f-3680-4318-8777-d464c1071f10');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.474')
+  where id::text in ('1c3fd119-f7f7-4733-b82e-f5536084f82e','7392ed00-608d-46bc-a425-9eb599a8dd6f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.173')
+  where id::text in ('1c42bcd4-7dca-401b-940c-1b63b994300b','1dae5cff-8bf2-4eff-b93b-bc7914a648e9','3f3873ff-9f04-400e-a674-8ee176c475b1','434820e1-89a4-4c53-878d-174b1ddb3442','46e7a5f8-fa3f-495f-8e39-547b4d817d34');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.269')
+  where id::text in ('1c65681a-dfcb-429b-9f7f-b22de99630b9','474cd4bf-edda-4d2b-a267-aee090b93ebc','7e0d441b-5811-4b7f-b3aa-30eb37473012','af82988c-cf87-448d-84da-6d80b38bd7fb','d58cfd12-abd8-4178-aceb-583823d86d5c','fd208c8d-40a3-41de-8552-e77afa8fa57a','fe791e3a-e854-45df-a118-d87f1e99b962');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.226')
+  where id::text in ('1c7f1482-f133-41c5-b9fe-44ad9eecf552','321bc1ba-c2b3-42fb-93d2-351c37726a26','3a28899f-cc11-4b1e-8a28-7195b3420952','4a202c06-2816-4347-bcbd-161e0d3ff9dd','7ed8d520-6597-4ae5-bc08-d74e94eb24a7','89ea95fb-1807-4593-b40c-c66586bab80c','a978d6dd-a95c-41cf-8c9a-433ad769c553','aecf3895-7d48-45a4-91d4-cd64e45f0563','bc3d9619-29b9-431b-b559-ef79b462071e','e490cf52-4341-4161-ad10-5426c72c7617','e627e74e-e7b8-4dcd-9ca3-6cad0d7e2de9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.337')
+  where id::text in ('1c8cc261-43ca-4953-9b2d-30d8e2f92e67','2b1a1625-8812-49e2-9983-893f2037f567','8260d4f0-25b3-4e97-baf1-cc4c66de2a92','a8cf0d4e-015b-42cb-ae34-d138366195fc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.314')
+  where id::text in ('1c9ae113-52fa-4e5f-b993-6f7e25350cd3','30d5fcdf-7205-4262-931c-287e3a36c366','46dc1d91-6503-4422-a6e0-e0487adc114d','7ce5fddc-aadf-4c5f-934e-864f1ccc5c1a','7edee5a1-ee24-40c4-87f8-329f0b5e51c2','873c6e9a-4ef8-4fd7-853e-6f1ecb20721c','dda200b6-44f9-454f-963b-8a5913812204');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.99')
+  where id::text in ('1c9d0aac-7ee4-4729-abfe-11b5f39eae19');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.123')
+  where id::text in ('1ca3add2-17e1-4202-a3af-93c15e043747','82f69d66-7e72-4afb-896b-e7f65feb34ac','9dd65712-ba23-4027-958f-6e66c7298bc1','c84555e3-485a-4439-9d1b-08d7efbead9a','cabfc754-fe6c-4787-a65e-4e5a903b25b5','d00aead2-808d-40ab-a507-07db735a83e8','df1a0995-2ec2-4407-b05c-1d1f03d73719','e55615d2-1a0a-4b2f-81d9-2aa77134cbc1','ec9ed779-4b3c-4ee3-a8af-eeb3fbdabaad');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.189')
+  where id::text in ('1cacf2fc-43fc-445f-bbda-9609d075ce76','50fc599c-4b16-4778-9b95-366d091f4171','64e74096-1952-47e9-a2ff-a95fa895d896');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.1')
+  where id::text in ('1cbc1895-b470-4e8a-aa34-ea4b4bc22cb3','22c733f0-8e79-4b4f-923a-21186c5274db','2e080446-d190-494a-a3c5-212df1558bba','4f6642ee-8945-408e-9c5e-c46af80ad4bd','6f7921c3-0c4e-40b1-92f1-e0412e34d249','7f4dfc56-a5d2-4d38-99e1-5eabdac11727','82bd3168-b145-4beb-8c74-749b1afc58c0','8a5bc0bd-933b-477b-af7c-f15b48918de1','9200cac6-f747-473e-a54e-4ddb807df693','c9774892-633b-4096-b58b-366f5937bc18','e3aff471-cf40-4e87-8145-710809481444','f4d0a046-6971-485f-b9ae-f80cf9d277ca','faabcfe8-cc63-49f3-af2f-ea1c34c68323');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.421')
+  where id::text in ('1cc4ceac-7340-476a-b068-2a9272484862','25610abf-1ea3-485d-bc0f-ce907351851b','3758db5b-5dd9-4df5-8654-0ea7d58801da','98b2d132-6f0a-45f2-abaf-7b3bbc5e4008','a6c212c3-a0a9-41e8-8e4f-8ef938844e28','d6a62442-bd0f-4b03-bd4a-7f132a03fdb8','e4fe0f58-8eb0-4249-87ef-6e27f9e46307');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.64')
+  where id::text in ('1ccaf688-afa6-47ec-b0da-d9079fcd3dc9','25251005-2579-47fc-b124-bda35eafa4d6','46ab29bf-31eb-440a-a153-85a9e607af6e','61e0fffe-ede9-4100-bdad-d87c063d0b2a','904bb179-dcf4-491f-a84a-0c65dbbaa424','bbac94b2-269b-4647-9ce0-317319aaff2e','bf4270be-02f3-4cb0-97cb-50f1e842cc94','c807d374-d9b4-41b5-b897-72cb4cae57cc','f98c9206-b8fc-4416-97a8-1f35d2a99308');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.358')
+  where id::text in ('1cd2f998-a9f2-4473-8107-9381fc85d806','5289b016-a833-4c77-be3b-9608c9193524','d0619a8a-b47d-4293-9823-dac90f3cbb9a','de5ab93a-b763-493a-8f46-23f71e5ac585');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.115')
+  where id::text in ('1cdb41c3-296d-40a5-9262-4ada7366aefc','2b258656-597f-44cd-80a6-70dad0093f79','82db5dfd-282c-4a85-9d6a-80375b39c402');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.35')
+  where id::text in ('1ce1d228-e6a0-461a-aa5a-9e29ec1f8ed0','31412480-3a09-43ea-b046-d7f973582a2d','8d1ce172-4dbe-4000-a1eb-b1c572b22973','94bcd17c-4612-45fe-a133-f6239bf1388c','b17efb57-0232-4418-ac61-082493c9f085');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.327')
+  where id::text in ('1ce2cf42-5d03-48f4-bb18-55c946387a02','1eb95a54-1941-4217-930f-dfcff39027d6','4cc439a8-97b4-4deb-94e0-9358b1f09291','5fef261c-f53c-49be-b1bd-67fb6c605398','64260c43-0cec-4be7-8ae7-904567f95b21','9f26935d-0953-4eda-8d8f-bb2486ea7715','b12d7377-265a-4f52-90ba-20fcf5262fe6','efc35f05-38d7-4905-9d25-167705b0eda1','f4c49fce-5033-4043-9825-39ebd71e4fab','f95f871f-6b2c-4ee1-aaea-80011886ce31');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.15')
+  where id::text in ('1d0bdf21-53bf-4e58-bbfd-2a7103f9673f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.188')
+  where id::text in ('1d32ad6f-3b7b-465f-b2d4-1ae7601507b9','4aa86a9e-82f3-4ff5-b17c-afe0d20f620c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.397')
+  where id::text in ('1d3ed7fc-e5c3-4ab2-b2e0-c194c70390c5','28e806f8-0649-4d64-8d6f-e86148b43b09','55049168-f6a5-4b79-961c-280e67379c88','605c033d-0645-48aa-bfa2-cafddd0e75c0','a3df51df-dcac-4551-ac35-864d97bc9b1a','b477be4d-a810-4ef9-9492-b9feafd3b049','ec681ab6-adcf-46cc-a930-2fad83790f68');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='23.5')
+  where id::text in ('1d401c97-4d62-4170-b2b3-8b1685bea789','29f80829-61d5-45a0-bc61-bca04384162d','3d9cb1b3-2087-46de-966b-46fdb6b2f12a','457608bf-de22-4681-8606-5e97d1ec8124','50caa045-54d1-4c01-929d-43cdd11c413d','54eee6d7-fd0d-4cd7-ad6b-cc75d5e5f2a6','647b4362-34f2-4adc-ad48-c28f5e924e0a','71e8eda0-c103-48d2-b087-1865697a728d','7803c756-a46f-408f-830e-2df245b193a1','9d29dd8b-9089-4501-bab2-a880bffbb79e','b801b986-6fcc-4877-9062-09e66e9ad9bf','be21d147-f4f4-4f38-85de-6fd3c34855fb','e4020d68-333e-48b2-bf3b-30ff3bc2e2f9','e418949c-170b-4e19-b17e-b497f489b104','eab7b416-d18e-4e0d-a31c-fba8bfbbb96a','eef89c69-ba27-400e-8c4a-ed4a0901c240');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.393')
+  where id::text in ('1d48075d-3c96-4d57-ac69-390eae0d5b44','22905cf5-980a-43de-ba45-ce5cedcc9077','6646e78c-d612-4c86-8faf-56344bcc8ad7','85d2b469-db35-4fbb-b384-846b3a4a6136','9bf7db69-c672-4114-a6e6-a8feab85dea2','c4149c33-4c20-482e-b483-646d38c73895','e4355098-0419-4b95-842a-302ff7b4913f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.582')
+  where id::text in ('1d55b532-d110-4929-bdeb-9ef2bc5577c9','b9565d5b-3510-4a00-a011-d08cb7dd25e6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.272')
+  where id::text in ('1d602bfb-281e-499f-be35-b051e36b16c9','3dcfc503-352a-46b1-bfbd-4d1b9240ec88','73079574-de95-4060-a36e-106ec067e0f2','e57be9e6-521b-4305-bf64-8e84c6279ff2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.118')
+  where id::text in ('1d832dac-9639-4cf4-a62d-2a201211e943','4fdc6841-e927-47fa-9778-89933a3b5440','b3ae3a66-299f-4376-a720-59c67b434719','b8022d46-96de-46cd-9e9d-591bb5517893','c1fedf4d-2a8a-47e7-b14b-65cd3eb2ec4d','ce3984d3-1501-4848-bf6c-c026725be5df','dd20e18b-e434-429e-90b0-66ba8fa68d56','e0456634-9bb4-4c27-a93a-cac686c01805','ebf49f79-1f60-4b71-acb6-647da2ac4fc3','f33f85ab-bed6-46d4-a2c1-759f6e311bdc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.483')
+  where id::text in ('1d8ddb90-289f-475e-bdfd-eac655a762fa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.83')
+  where id::text in ('1d8e319c-e17f-4085-b2a6-b38152c3a545','440ac6fd-6cbc-4ee1-b3cf-277f37b78c33');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.152')
+  where id::text in ('1d90f4ab-b108-403a-9d1c-777aece58592','42ea9b99-1b17-4eb0-a499-5c3857149ffc','47757dc4-cf00-4356-9b4e-c3e3b07dc30e','680f85ae-144c-417c-9af8-578729c9ab63','90cab205-112a-4493-95fc-ce419b5f15be','b873de46-9df9-4bf9-a7ab-393904b3e3c6','dadbd870-b9e8-4e83-b163-a41845bc4ddc','fae68edc-d4e3-4e69-905a-e76c6387b527');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.268')
+  where id::text in ('1d990f14-ec23-4014-b3a1-435f1782d2f1','1ea1d80e-ac59-4591-a170-2b3fbc9b43d0','5e9d527f-3058-4e56-b075-fc9621fdb12e','89628a9b-1029-4714-a199-71e589b31769','b5607b01-59bc-4419-ac8b-93033485fea8','eb2a950e-eb04-44e0-9cc5-600626af400a','ecbd4af0-cd17-4c13-8ce0-c46ed7a831d8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.435')
+  where id::text in ('1d9cb17f-2081-4120-a12e-d4fc11751747','25053cc8-da6c-473e-afff-784071059ba7','5e0a0a76-f087-44da-8a7c-63ca726a6df1','6df5f42f-c6be-453c-885e-420c23ebd2be','7169e3b2-f6f7-4426-bf42-1ceaca94b0b9','8df4a1aa-61ce-4417-b247-c331ac252036','c6da1826-821b-4eca-9e4a-612193e87987');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.235')
+  where id::text in ('1d9ed871-4bd3-4401-99f8-4cc8c1a1a068','225c163d-26e7-4da9-b636-ff355ccdebc5','4267b8a1-d36b-4ee8-87ba-1064bfd297b2','636a3b17-6873-474d-9550-6e08e4780970','6ef26891-4925-4d58-b9a2-73c43c8766bb','7e95d76b-cb45-4699-8814-6a674cecafd2','92e8a48a-bf3e-4119-b32e-f2a6b846b31c','a21e2ff7-8bc4-479d-9cf6-b1ba08431cf9','a37261bd-8d80-42ff-8efa-ed4459fe7a92','a62216e5-fb20-408a-9b96-2f65f741bb24','b11f808b-874d-49e1-8bdd-a6b72784baa7','cacde257-c6a7-4b3a-9f76-019453fe032b','f2a0f7ef-ee33-4212-a418-9d87355598b6','f4400720-db2c-4547-a603-2980b4983661','fddb7ae0-1931-4d1a-a9a3-592a84f06b6f','fec9f958-ea51-4a2f-9d5b-90812b5f9bc5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.265')
+  where id::text in ('1da54857-f7a6-4cf0-9653-178f9b1d0a33','29b335ce-b1d9-40ae-a344-fe4d320e6abd','6db068d3-35f0-48bb-9742-7c99fc50cde6','c9e7c789-6afb-47bd-89fe-886a2a18a5a5','d50b164a-55bf-4be8-ac69-36ec2f7e667b','e5ae0968-c913-4637-9234-4c4b35026a27');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.11')
+  where id::text in ('1daba338-b040-4060-b2b6-e0f7b2ff4fd4','20616505-6663-4c74-9f96-2e36c1ee7419','6d3e4c62-37e1-4367-86fa-d4904ce5b580','a5635384-9f8d-45e2-a9e2-703965366381','bb9b0622-51db-456a-89d7-bfec9f15cab3','da9d757e-cd64-4298-b966-0ad4cf098ca7','e0c1d873-f837-4a1b-b0f8-67cc6e67a38c','f97cec4e-845b-4ad2-ab13-2db1d9ee7350');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.343')
+  where id::text in ('1daba806-bd19-48ec-837c-d1f35452e1fe','36fc6882-6ef4-43c6-9802-406792d259fd','454a5e10-d085-4761-8b5e-6abd0a93f966','48881947-6bda-45ae-acae-8c269328b2af','6423b3b4-6f2c-4e3d-be5d-6b7647daabf0','91b9995f-8724-4e30-9374-6d36979fde10','ac6cd957-8c9d-4ff2-815b-08336c286fe4','e20505f3-8e31-4027-8b84-b7f5d6d13b49','fc9894ea-5974-455d-9242-2e63664938dc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.155')
+  where id::text in ('1dacd732-fd53-4ad4-a9ed-57b33dadf58f','2d5a6480-4e7b-4339-89a1-89769935dc1f','42a7b60e-55b6-4389-8d75-a96159408490','6ab15d54-e1db-4b54-9478-21ea7dc51edf','6bb64438-5c0d-409e-af61-bd7db4e723a9','72dad0af-4d07-400d-9fb6-c3ba904d90b6','85cba2ed-2572-4067-95e2-d8961e1d378a','8c815dde-1046-405b-b413-266461a70f8e','bbbd86db-9c6a-4b7b-adac-dd3b07327957','c1311395-ff3e-4125-bccc-49b2fb1b74bb','dc61549a-6cf2-4b76-97a6-7f331b6e8e98','f1e0aa2f-d3ac-4535-bea7-b816d3b244e4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.171')
+  where id::text in ('1db6cd42-a5ad-4cca-b141-9afbbe2c8e56','37b4a825-0691-447e-b893-fcc1938bbf32');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.364')
+  where id::text in ('1dbbe52c-060e-4a41-9c4a-e4d60f8cbf94','5bb794e0-f67d-4ab4-aada-2fcc7c560517','93c4cf22-72ad-45b5-97da-a4686fdcffb5','d4914f91-8f54-49e1-b9cc-4576f77e9c34');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.226')
+  where id::text in ('1dc1a9bd-b2a9-44f1-bf70-ad430b46108b','bf7f6682-6864-4c8b-9ff1-fdb2f9e8bf4b','d620dcf6-e1ae-41c8-9e0c-a93f3eb114ab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.213')
+  where id::text in ('1dc76462-88bd-45c7-b23b-66badd78e506','e3732105-8d8a-4d94-aaef-38c290418326');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.26')
+  where id::text in ('1dcd9811-2306-42c9-a064-c4e9e0450021','3dc80034-bffc-414d-bf1c-1b7e7a7d5b4d','52e2b4e7-f0f1-44ae-8c09-08a18173bc43','6e259ce1-0cdb-4aba-a2d9-5df42966e216','c0eb79dc-012e-48d2-b0cc-61c42998488d','eb78e033-513c-4751-93e0-4261f0cb1c8e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.92')
+  where id::text in ('1dd2ed2c-ad8a-48c7-acd0-652a1380f6e3','33b00354-c8f3-4ae1-af70-773cbc81e8c2','7c7f61c8-516f-4e7d-a315-b2cce7675b4e','a931639b-eeab-4ded-9bf9-5d8e91b2b06b','c682266c-8351-40ac-8e73-2564fc397e26','fed02496-1fda-4bb0-a90e-5a9b23c9f887');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.367')
+  where id::text in ('1ddc39ff-21c9-4132-925a-62fff0e6829f','24552ca2-123c-4b2b-8f50-91c88040a592','346e761d-9eba-41df-a2ce-5056657d2709','50b81633-1fe4-46d7-9869-1437d7fc7a76','67a7b727-7f16-496a-b2c9-228895d89d6b','7836a908-0ef4-4d68-9fc0-e8306b2f2100','c91667b9-d770-4f2d-b4d7-7ebfaca2349d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.38')
+  where id::text in ('1de5c0bc-480a-492c-a907-f5b65c0050ef','20d0775f-2647-426a-b85f-415c3160aab7','249c6def-927f-401c-91f8-1f81a8b3226a','364e12ae-4238-4091-83af-1f4773543be3','3ec8c143-4109-4b02-9580-2a7b66f81486','54f8775a-a325-4b32-991b-7893c9f19855','6024b3f9-a7d3-4ae0-bc23-5d5e137b3e66','69c2f72d-31f1-4d26-82b6-a08ec3839ef5','79c9ccc2-a5c1-4543-9ffb-170b10d3342c','96810513-dd69-4ff2-9608-0ba0e25fcd4e','999e0325-76fc-4243-9ad0-5f28d410d5f4','a1c29e97-5c82-45c5-bc83-5913fb10a5c5','c2f827da-7729-42fb-937f-08de86c0e07d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.521')
+  where id::text in ('1df73822-f3ab-41be-ab51-5f962f8c67c9','aa0e8ffa-6ee7-4a61-b421-2306c5b9be9c','bba2bcff-0f16-4e3b-9754-90b6ea17a773');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.404')
+  where id::text in ('1e033078-f8a6-4dc2-9be7-6d596f5ea02a','2be7dfa9-9e52-4096-b607-f491df8a3cb0','3c48428c-cda9-4b1d-98a9-defcd005f2ed','5a983cb6-2767-4666-8232-dc03ff2bfd73','61573ee7-dcf0-48bf-860b-084735e60a67','782e3e25-203d-4fce-a8c4-31aa144b03b9','81932927-4732-40b7-bb91-e7c1a58c1073','b6bc669d-03ad-4bfb-a041-485cb965434c','c6b86074-cf35-46bc-a4a2-019271e0d4ef','fcfdc5e8-0a1c-4a2a-a61a-e2065d2efb1c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.258')
+  where id::text in ('1e17de1b-5be2-41b9-837e-278eac2730be','1ff59120-6c2d-4223-a4df-7940eed61643','3379c2dc-81c3-4990-83bc-a204e2058189','99895064-b76e-4fb5-9ad4-2e29082d194c','b682749c-9937-497d-860c-ff899f9a863f','bc3f8807-01f1-4d1a-88a7-ac122b6826c1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.351')
+  where id::text in ('1e247ee0-dccd-40d2-88b4-6543d1f2c456','2ab128ff-6256-42e2-8a18-83cbe13c9f53','2bcc9ebe-4e7f-4f3e-b555-37b92617504f','3d2c2c99-cb8b-4f92-9ae8-a2dd6181e753','424a186e-4dc0-4212-ac9f-2e6ce3503c6f','4ff17fb5-fadc-4ee2-b1e1-adf51bcebe7c','51758400-4ea6-4e92-a8b4-c6242447ba98','72413e4f-35f9-43d3-9a2a-0a3cc63a4b7c','7cdb469f-80fa-4e73-9223-5372056e2630','9a1a3794-65e0-47f7-928b-a62388607d8c','d8a40fa1-46dd-4167-9c7c-89ecc3345a99','e42e9438-5a0a-4547-aa41-b7107959d4fe','e9c53f6a-7548-40e6-b840-56b6077702b5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.276')
+  where id::text in ('1e2826c4-ebf3-4883-90a8-502133d1bed2','56d0eddb-3481-48eb-adbc-afd1b6c6155f','8228e91d-cad7-4aba-a8c0-fc20f155f7cb','82a21dfd-fb5f-40bc-8b74-7c3fc0aa2f7a','83d06679-46f4-4a66-858e-a7769dda4fab','c9fe4a90-ff0c-4f92-8067-01e70adc32a6','e3a7cd6d-c20b-4ffb-b138-bbb43051c78e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.141')
+  where id::text in ('1e30c081-edd8-4db1-a424-c3c728b8b4fb','3e4586a5-44d1-426f-9f83-cbda06168a82','3e680064-178c-4d95-ac06-4fd55c79c0f2','4d2d9cc0-0a39-4f88-bb98-65d0a6a1c140','6c6965a0-4836-4142-bd67-b00241ef2733','7773fbc5-5f30-4c37-8c7e-e31be76da8cf','afcc2b68-526f-4328-a327-2229e1297120','c8145e38-9d07-4319-9eb6-d65d92c8d5e8','cab801fc-a63a-4aaa-b5b1-6ff5b3273b12','ce9a26a2-2127-4929-9dbc-16401f574f2b','e3df8134-2656-4ac5-955c-faf941e368bb','f97fd16b-9076-4dac-839b-7715a9b53ec1','feddb1ef-fe21-4f52-9dc7-f7f4b7394c3a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.239')
+  where id::text in ('1e3eb86e-f304-41f7-9483-eac11518dacd','2474473c-3ad9-4488-9939-c91492c4f172','2ad42dec-eff2-4ac7-a028-35d0c0c933f1','72fe16f3-756b-43ae-9df2-3bf8506347ef','786c8cfc-576d-4d0b-b867-00afea4e6fd5','7ae2ec30-f510-4538-812b-f4b6a2553a9e','93bffae1-67a2-4020-ab81-5324e9eac2de','cc147b91-7a30-469f-9882-277ecf91f9c3','f4471ef8-c0d0-44b2-aa18-286072873b1a','fb550de5-9b86-4d1e-9b2e-030ab0c1cc51');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.55')
+  where id::text in ('1e49d730-f71b-45a0-b197-e6b5233321e3','6deed63e-6fd5-40ad-9e76-c7e9edb45c73');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.7')
+  where id::text in ('1e4d0b84-6d1d-4393-9d4e-5e178e355c5e','33421469-22e8-42ab-b507-6d46ecfb823a','569d4f2f-b745-4fb1-99a8-46ada6f9e28f','64294bcf-5be5-4561-8338-dd82f4e073ee','7530dd6b-413d-4fbc-91f2-e6b346f3967a','93a92c30-21bf-456b-9314-d9f12b2e6070','f3bcb7f6-de90-4e47-9d6a-25846171c1b6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.336')
+  where id::text in ('1e54c4a9-d305-4fea-969b-be19d6be55bf','39aecabe-7c05-4601-bab1-90a9f5fa935d','569a1ba1-21a1-4468-b3f1-17e6d9aac20c','5ae4c595-2f30-4016-be4a-e89b5a64efd6','5b17b174-45e8-4f63-8b9c-4f24a7ef961d','67cb083a-ab1d-4ca0-a94d-8a0758234d4b','95fe8880-04d0-4fac-ac91-0aef74802f7b','9627348d-7d31-450f-ab2f-cae23edb6be7','9dc1f7f6-e7aa-4d5b-8bb6-809c365b25dd','a1a12fd2-99f1-4e96-bdb2-4fd3f2f96df2','c659d975-8a63-418d-a83b-8e58d3bd2de5','ccfeab79-7e34-4a5f-a428-ce427e1ec98d','eaa3a593-27d0-4f56-98f1-5237708b9546');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.422')
+  where id::text in ('1e592aff-65fb-489f-838a-de19541d2e46','b0e4985b-83f7-4060-80ae-59b4ae3c6c62');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.515')
+  where id::text in ('1e5f3f28-277a-48ab-b298-12f1563a7c34','7cf0e998-8c96-4eea-b8da-f10dd82a7a3f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.57')
+  where id::text in ('1e631004-58e3-4f22-a1ad-5950d0a0852e','2b32d7c1-f93b-4ed0-95c7-4255ba25997f','2f13f527-4ae0-449f-bbaf-7ca52ec4c251','62b9f610-c392-4269-a765-494938459082','65bf5dc7-e7fa-4d18-9bce-82560d7e8131','8bbb5c53-4a69-41a3-a0a7-c2daf0db0e9f','9f7aaf51-76a8-4f2a-8652-031017a86271','b516e9f6-79d3-45ae-bf37-a87ce0fd5022','e20ff19d-f865-4153-abd8-f0f8c4d9cdac','f537b8f9-03df-4bf6-a8ba-49a9602227b0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.598')
+  where id::text in ('1e735daa-5c72-4c75-bf4d-415591327533','a839156a-2e02-4e5e-9a06-6a25b60218f7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.91')
+  where id::text in ('1e743392-137e-40f5-814c-4f9d94b99e19');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.42')
+  where id::text in ('1e824695-32fd-477c-b169-a0f75a89b745','291efbb9-b561-4934-9793-dcc783ea830c','4dd1dc69-c795-4bb4-bf35-427e1122ffc5','62f7f790-b820-487e-bd28-bfaf3920d33d','8a73ba43-dba3-466d-b0d0-beab54c5e4d1','9db3c4d6-89e1-4937-a97a-399ee9613714','bc6f4719-1377-4341-a90b-63023f9c9920','c598d228-a338-4be7-a9c4-002ec7609a80','cd8a384f-eae7-4a3d-bff9-4fbf1a59b4dd','cf29bc6c-98f3-4636-830c-c15569176177','fed0bf62-1b33-4fb1-9ad1-b24b8fd3e0f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.297')
+  where id::text in ('1e83475f-ef89-4489-8c6c-c2048bbc8355','2152f531-d76a-4741-b34a-a4dea599af5c','43cfd279-460b-4d18-a2a0-abc1f711d611','5086b9c6-319a-4a43-bccc-c5cdfa47b4d7','6487c69e-77c7-4d19-b754-c6b0d6caac1b','93a913c0-48db-4333-b3a1-0e219bfd3a13','b60a5880-f9e9-44eb-91f7-478c8f749d10','dcacdd0a-7712-4346-8f28-8de684fe5d89','dff4c9cd-5065-43f6-b198-9a78c28fbbd6','e607d513-9f5a-4020-b838-1f7973c4346b','e75c2cd2-a891-4968-992b-110076e2736f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.197')
+  where id::text in ('1e926427-efdc-4e51-a79e-557b60c04ab3','352e9988-5ddc-46fc-8473-86a0d8ddb8fa','42c4d758-3720-4d08-a953-3f63fa13a656','4576d254-1e03-4af8-a095-2e8642bcada4','65d0640d-256f-4178-9ff1-4ebffacb4788','6f0a316b-2863-45a5-b3a1-831de99b91b8','afe5b76a-f39f-4592-8ca6-129b8e3afe72');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.395')
+  where id::text in ('1e9a6152-4821-4bae-a72b-31450c97bfa9','4991f176-d1f2-4c8d-9e66-5d6d225c7714','6fdf3c02-5e44-4a56-be39-074c352e73bf','8873187a-2a13-4ddc-81bf-b6d9e55508c4','9791aef0-22d5-42ac-9f8c-935b64338939','f1b3a55d-1275-40e9-9dfc-e7aa964aa23b','fb22b153-722d-4ad1-9180-7faba0987de4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.11')
+  where id::text in ('1e9e94e6-0fa6-487c-b5b3-416380ded4e4','285afc74-a6ee-43f2-833b-626f2d20504c','2dbf0fbc-62a0-431e-a4bd-cb7977939241','63d8f973-f7d4-4a40-a191-d0f054f5f471','a6020176-482d-41fa-a9b5-81af31f00733','b14c8e6c-d924-4b64-a960-be19a7aae792','dd27df6b-12d0-4cdc-a008-08d24b98affb','edab3bde-c037-4d0f-8136-84b187169296','ee40abe0-4d1c-4d6a-86d1-57e749b4e1d5','eeac4563-2cac-4f91-a87e-5e4721691cb8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.359')
+  where id::text in ('1ea98892-cb44-4a04-a99e-d4e5ad302894','2e0a25c5-7670-4d5e-a922-950d3dac4b91','5c9c6128-4ada-438c-a882-cf017d2b72a4','6e8d3960-66ad-41ae-824c-88cf4bcfd1ad','710a22a2-c9cb-4c7a-bdaa-e751ed412f5d','bd8cd341-f9c9-4dfd-8ab0-775e6e7e8153','c885eae8-7c78-4d31-b94d-cc577cebb70f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.649')
+  where id::text in ('1eb0f7ec-04da-47f7-b066-629c8b60d75f','36457a4a-e0db-4344-8b3f-c21ff8ef44af','4531b765-8c63-45b0-9f04-7b0c8da926fa','6f39b256-52c0-4689-90bc-da4ed3432a36','d009b60c-c13e-4898-b4c0-03e4313f721b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.223')
+  where id::text in ('1ebfdef3-f95e-4768-ba82-b1f882ad28b1','6a15a5ea-97e7-4c8e-b59d-b932b26b458f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.126')
+  where id::text in ('1ec950e9-5b30-46cc-bbde-853dc6660d6b','1eda93d4-c551-469a-aaee-67cb0148c8e2','4aafcb2e-7643-4ee4-8d93-20fd6be54064','76361741-a644-4475-8296-5544af793307','7b7a8dd7-c6e8-4f3a-9fe8-aec05fa883ea','968e63b5-fd15-45e1-af99-6b620a16ce5d','be586315-818f-48cc-8af2-dd9a84749532','d73fec5b-e62e-4cea-9998-15dd1e741e94','e63726f4-e7d6-4496-9dec-c0d7835f484c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.446')
+  where id::text in ('1ee5078b-e728-4f64-82db-295e01da1cb8','9c7457ff-d0e0-4141-985c-500b81449b41','d3dd34e4-25ef-474a-8bcf-46c02f6acd6a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.568')
+  where id::text in ('1ee5fd2d-f3f3-4fa6-8eca-afd18a40cb59','265d8e0d-2736-47e6-8d05-b340dbff1a9d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.4')
+  where id::text in ('1eefc0ef-a443-4b6e-aa65-cf2addb81096','1f5e63fc-b841-4fc4-bd5b-bc09f5b49998','32432a02-5cb0-41f3-a351-e7e5c4dec037','38dea584-7e38-4671-a975-fbf044e49c95','3cc5bd58-7508-430a-a72f-63b07ad683a5','4ae07725-b4b8-43f4-8d5f-d66502499161','4de0e357-9557-4a47-afeb-b368cc89ffe0','4ec94874-c8da-4d30-b08a-c819b4183608','60475818-e75d-40c9-a26b-4a972ebffed6','665de42d-23dd-4ed7-8619-53f318fb518c','e1cb470f-d920-40d7-9fb9-17b483f23fff','f5302c35-feca-4804-9355-13ccc8657131');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.121')
+  where id::text in ('1f16bcd8-62c1-4e57-a855-b840978af0a4','234153fe-92e8-4175-af37-0ee6790786bb','c9ef597f-8be4-470d-bb98-96ec91d982b0','d038414a-56b5-4564-a4f6-8d190770820e','f86468c3-4083-4e60-bf67-8aae4a0d4d8f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.18')
+  where id::text in ('1f1d9ed3-42ba-488f-a11c-42dbfbf41e44','36d625ca-1afe-4194-a77f-f4294eb1168f','3801bd2e-3d93-45cf-8808-733ca6daee3b','45897b0d-1341-4aab-81d3-271b200b5e78','4964fdeb-bf5a-4f23-88ce-5d8c4e1c6e61','5bb091a3-5ded-4e38-82d5-697b60c518de','8c5fbd60-71dd-442b-8276-ca9bbca80f22','a1c008c9-833d-4c13-9bd9-ce0555eddd0b','a575675e-c3dc-47e7-8daa-c4bdc54b4cbe','cd65e8cd-f106-41ce-9025-2b7dd8d38702','cf479be7-fe22-44e4-ae46-724396ace3cb','e2982fdb-27b5-4bce-bfc1-f1ecde41076b','e405c4ac-c1c0-47f8-ab0e-cff455e9d1a7','e71a3e19-eb7c-47bd-9212-fc4fa8d3f652');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.374')
+  where id::text in ('1f242650-98d8-4702-9877-5656c6ee4ffd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.139')
+  where id::text in ('1f2cfb11-5e23-4b77-96e5-ffff2b2a0155','a75ab11c-c978-43b0-893d-2e3fdbfa1e40');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.199')
+  where id::text in ('1f2e8eb7-56ff-4341-bc24-e62546531230','57dce42f-4c7c-47a7-b797-b02d21603d66','602bf927-6083-4c1b-af4d-c86320ee0e69','92209f3a-2ed4-4c8c-8593-4998282d3954','959f96a6-3acf-45f7-beb4-342efa2e481d','aa81667f-e624-46ca-80ea-3318ba6f665a','cf802b3b-a7d8-4ed0-ada3-88c07b31a2a3','d104f2ad-8da3-44ca-874c-20846df0c882','d7d5847f-90b8-4811-8bbb-6d1888b85fb0','e5d593c8-aa70-41fb-a4d8-8c9da5f9c1c1','e74a38d0-487c-48e5-9161-4d52d5ac499b','f87b45ec-331b-47e5-8b8e-606b05090e10','fbd61d81-0676-4584-991f-f13e5700d083');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.5')
+  where id::text in ('1f37eee1-fb92-4c24-a4c5-ddc3e613ed8d','2af947b5-6d15-4263-93d5-16da9edd9350','512ac254-3179-4fcb-bc90-728e5befd2e9','97320a48-3c71-45fa-9370-651df2660b43','a05521dd-ec16-46c1-8030-68ed5f87a50b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.167')
+  where id::text in ('1f63e32a-57cc-4cf0-bc39-318d3fe018fe');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.36')
+  where id::text in ('1f644406-fe58-4ab2-b494-33bfae5bcb80','47e13b54-cdcc-416a-ae82-b772334570cf','519a2334-dd0e-4580-a033-29f94a8327b3','abbd788d-81cf-46d8-8887-1987cabe23be','ba755845-64bb-4ed6-b03b-6c70adcde573');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.473')
+  where id::text in ('1f665b98-117a-47d0-afbf-387dd576bf04');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.366')
+  where id::text in ('1f756149-006e-44ba-951e-5bf4b17979b3','466ae0f4-dbcb-4b8f-8ba5-eeeeebfafc90','bf38d0d2-bd3b-47d9-8130-4fbd5fbdfbf6','cdc1bb71-4d81-4d48-bd82-9cd73403317b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.3')
+  where id::text in ('1f8c190a-a315-485d-b6e3-1753e9fe1e1b','50ee9cce-f7ac-4700-82e3-491548350ad1','5fe66f04-7e59-4ea3-9b28-8806787f5411','bce1231c-17b9-4b7d-8e3c-d7392d2b8fe9','beb8e310-724e-4408-893b-dd61ef380be2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.525')
+  where id::text in ('1f913ea0-1deb-4279-a8d5-676cf924724e','6baef4d0-3a4c-43f9-8d53-d8cde5972c70','bf3f8c4b-9dae-4ea5-8b2f-c2090f46712a','cbff670b-145b-4dcc-b55b-d2679f69447b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.427')
+  where id::text in ('1f9a813b-049e-47eb-8b49-471fafb4679a','4f65ed1f-e27d-4ca5-9a33-84474732d89d','76ddd6ff-d571-436a-9017-effa2109fc96','a13267b0-f665-4071-9228-e33b86904496','a3dcea22-9189-4a8d-9dfa-3026cc338318','a6f19fda-25c6-459f-a3f3-796ee594cf71','f4151378-4a5e-42a8-b780-c14db8e3e2a4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.34')
+  where id::text in ('1f9e9092-c535-4225-98ba-c91a31b7ac2d','35ccd167-9743-4018-9a75-815e50032aa8','792d9240-dc2b-4d56-8a30-cc2d51385443','7d226d15-d920-4853-bac3-1d48f9615d02','921b5e39-c464-401d-a297-e15fb3aec044','b4e2fd05-84d6-4a62-9298-19037432099f','bcf78fbb-e773-470d-9a89-238fbbfeafca','c4946c01-22ea-420b-9ffb-a31b692bfe1e','f4a6c605-382f-4739-95c4-34e47edc8293','fe353ebc-e9ab-46f9-8ae7-de3ddcd31e45');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.237')
+  where id::text in ('1f9fbcd3-3e7a-46d3-b9fa-4d388165ed30','7401bc8b-3f94-433d-8387-6e798e0cb8f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.137')
+  where id::text in ('1fa65278-a591-4395-8e61-65f366de698a','877c0c05-32fa-481c-9797-355792d1270d','8a13cd60-d6f9-4524-8221-8567d8dcee10');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.378')
+  where id::text in ('1fbb8bc8-879f-4c1d-925b-8d207a8c1a83','21602055-b116-4da9-b550-0d28e1ed250c','ed486a4a-526e-4411-a140-bc0ee13e8a8b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.41')
+  where id::text in ('1fcb4ae2-4d44-4c41-8042-84890b0807fb','86100082-f22e-4f2c-a589-1ef682a380f2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.161')
+  where id::text in ('1fd360f4-63dd-4cde-9963-e638c18d0b39','40870180-35fa-461e-904b-a587dde733f9','442cecf3-e8a0-4fc1-82ca-d7f39fd2432e','510f3c6e-df41-4e8a-b6e4-359da9f2607b','646aad5e-9dac-47ae-ac4b-0f3847c247f9','649400ed-4ed4-44b8-944e-02cf6cf720bd','662d9d2d-7fc8-442a-b4f9-90fd3dc255a4','73588a1b-f0e4-4d50-a013-93dfa80a2175','97caabbf-78f4-4483-b467-2b58edecf931','ccc0c0bb-80d3-448a-bca7-82da5f726bf2','ce8c0a0a-0bf0-47d5-beac-2cd93e054e2b','ddcf5d5e-19d8-4dec-a7f8-0c55eea00765','e9cf08d9-fec3-4a73-8473-8be1ae6bf2c4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.545')
+  where id::text in ('1fee5701-2ee4-45f4-8334-c4799df991b5','e4778de8-8c2c-4d63-8f6a-67b59e5b4e40');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.497')
+  where id::text in ('1ff19fd4-5529-4c65-aaa7-b95e755de2b5','4bfde949-6abb-4db1-aba1-c87c581bf432','6db4ae3c-8cfa-4813-a4f8-9a3bc4c8403d','98ea5389-9d0c-4a16-abe6-5feec0a522d7','c756eea8-1b11-4783-b87d-f963e7d36a41','e153d022-2447-40c2-9e91-c66146328ca5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.517')
+  where id::text in ('20055989-1e44-46ee-a5fd-2c526ece5686','29532744-7430-48fc-a9f3-4b4fd9ee5c82','a9ccebd7-1080-4e6b-bea8-5cb89a101f21','aa9e1ea1-5069-440b-8415-693fe0ed404c','c13e4547-91ee-43e4-ae44-9abdb29f95f1','c376c7a6-37f3-4b06-8e26-32a290513c2a','dc6d5d5b-61b7-4ee4-9d38-643c2c4d8244');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.207')
+  where id::text in ('20082734-8019-4e3f-85e5-faa01dc2faa4','22a87e69-495b-4952-95f1-452e7948cbc4','3a8dd3ba-981f-4d15-a78d-19e258ff2b53','407e2174-330f-4a6c-965f-1c2a9e13e8a6','4aea4137-49c5-4281-8be5-ca06e689731f','6ae03d12-5d90-49dc-bc42-c1857ed39e25','7329133f-ca82-4086-a6c5-3696b6c47b1b','7b9c70d2-d13c-4065-bcd0-af69aa7b55c5','9bd67cf1-18a5-47fb-b345-176c9bdd28f3','a509a23b-6078-47d0-b872-c05d894c3b10','a9b87577-6d3c-4f67-9900-49c2b2946836','b331aba7-947c-4148-9527-1415e2f29d1f','b7811f6b-690b-4b54-b013-f081fab54e8a','c830f724-40b9-4369-8d32-2d9b6f5cb76f','df9fc30b-9eec-48c2-9545-5a7f21daa90a','eb886662-5eaf-400d-adf8-1e723b06bb26');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.306')
+  where id::text in ('2011f0fd-4565-47d8-a7b1-d90e6943a6cc','45b51751-76e3-40dc-9041-b217b2334ece','5c638411-2186-463b-bd0c-b3056781de1c','66568000-9d39-4a9a-975c-b1ce6015c21a','cab2dca5-bfe5-4a0a-989d-d79051b3f905');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.361')
+  where id::text in ('20239127-3bf1-4d0d-a5f5-28df75f83906','303dcf58-e4c4-4736-b51f-6173092791b4','65b8db71-708e-4540-8d5a-18a4cf5ff750','75429e58-46df-48e7-bdcc-a4e618da3ab1','76248aa6-b054-47ba-aac2-8fd575326593','9b8cd163-c1de-49b2-8920-a64feb62df43','f075734e-319d-45d9-a008-9edfdc7a0dfb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.123')
+  where id::text in ('2025addc-eed7-4dcc-b4eb-acecfc4319c0','52804c54-98f0-449d-ba73-138613850943');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.46')
+  where id::text in ('20326088-d32b-410c-87d8-5d3a7a4b26aa','25465c86-0658-4a9a-9e77-9e2aa654f0d8','71a04f8b-090e-43a4-8259-20cd982ca988','7eb80443-2ce2-4ffd-b91c-7388aaae1706','7f9195e7-3a6f-42a4-91b2-6c2f7dc4f505','8af31c93-55df-4371-8a21-9bc753f7dcf7','8f2119d5-7c44-402d-be0a-a4c54323f394','953aec26-6c42-42cc-8cf8-c1f8dacf2245','9f905296-3e07-48fc-a242-330c7ebe7aea','ab99372e-cceb-4612-9f02-3c65176a84c8','aec33b14-2620-4fdb-ab59-845cc66729b9','c70623b9-4009-4eb6-9602-1fa8bde25e26','c9d09d73-ac3a-4a56-862b-98f234723799');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='22.7')
+  where id::text in ('20343bbb-19b1-48a2-92bd-d8893fffea01','3c0b61b4-53a8-44a1-ab84-42c16638af3e','7eb7ee80-7449-4935-8376-a981fa359754','9c524388-0c76-4612-9ffb-1371dca663d9','a29448b4-2e7f-48a3-82d5-80f7d7114be6','f4fe4189-f09f-4b87-9bfc-0e42bfbfcf03','ffb6ed32-c261-4406-b083-d71166d5b587');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.16')
+  where id::text in ('2044d4b9-477f-42a9-8c77-09fc71b9c1f6','24e45aa3-1f9d-4588-b8b0-0e600f582850','603948c9-faa5-4e39-a70b-2f577e22f012','62ab1263-7f45-4315-be76-32207f47f68a','a8c956f8-c2de-450a-b6c3-6fb9bb29acea','cc280a37-6177-4aeb-849f-809d2180506c','ef4782ac-5b5e-46ad-ade2-8f8b0d4637a1','f6614d6e-ea77-4dc0-a82f-163946f469be');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.89')
+  where id::text in ('2049e463-8f75-49b3-aa73-594bc075b2db','2de94214-0b16-418e-af48-c5c979e82a08','397be06a-b98b-4f40-9054-4528af5068e2','3b126aef-2135-450d-b93a-7b9af39b0a8d','3bb785a3-ef8d-4725-b809-aa43ab8bedb6','3d196565-3cfd-44e8-a64f-bd20b78196e5','4e09f20d-2186-4df8-925b-c70a3b75f9da','4f37c02d-571a-4e8d-a3d8-97b11df48499','91c6282b-0bd3-4212-8688-68662c66db9f','9400fa82-3886-439c-a465-2391c826d586','95f3dfc2-a6ab-4aa0-84a2-b349ecb57efd','a13520fa-f7e1-4fb4-8bc6-d195ef3c4c77','a299b580-c48c-4aa6-aee1-b1d23c6cc3fe','aabf92ca-0494-4b7c-ac31-a25cfadfcfa7','b2d2ac99-0023-4962-92d8-1e54db4c4835','bcdede87-3a14-4eb6-87f7-5fff52a446da','c48eb2fc-d499-4e20-a4b7-033a4c49e562','c51c9a1d-333d-4977-8805-8a41d0dc11a6','c94100d3-9e26-4195-bf9d-ea2498dcce62','d80fc0e4-6fc5-47c8-8408-dd6f2cb8ba32','d96af5c3-21b1-4ee5-a88d-09b91974915e','ea1ef8a9-5761-4ab4-9c79-651431f7f72c','fa9219ae-91b6-47ee-a812-2f5edf0822fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.137')
+  where id::text in ('20667e21-0ae0-4346-bc01-5ef40631c1c3','2ac9f231-4e8a-4d3f-b8c8-6075c7d9662e','85635b27-94f0-4edb-955a-7a8799755980','ac32ee28-80c4-4c97-b0b2-3b86ce9ba15b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='11.9')
+  where id::text in ('206fc022-606c-421d-83c1-0c3cbc8d6074','336da7c9-5ced-4caf-946e-edf9c8641485','70a42076-333c-4244-a3a6-f0502d5fc04c','76ddf22d-7a53-487d-b4f7-448e43aea978','7fc96014-e121-4a75-955a-ee7b859fcfc8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.5')
+  where id::text in ('2087ab58-b328-4e53-825e-287dddd86da4','33ce28a8-fa54-409c-886b-394ca68097dc','514e5f88-e208-4283-a078-8b11b59865b7','6661507d-5c2c-41f2-9017-83215b828b8c','a67eee3a-a0b8-4f97-b603-217889c35c5e','b45f588c-7367-42aa-895a-13bf52c63dc5','cbee082b-a812-42b4-9c49-fa64259283ac','dfbf246f-54e6-42f6-8ebb-e70791deac92','f2b062c9-012f-47ab-90c1-9058f610088e','f63a319d-685c-41d6-aaea-3badb2645086','f73fcc80-2db6-4667-a154-b36063c43a7f','f983f18e-bf39-4d24-8a68-617abb05379f','f9d9f924-f3b8-45f5-88f7-3f59d734e363');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.299')
+  where id::text in ('2092aa72-f7f2-4b62-bb51-5afac4cfc4f8','2ed17c4e-309c-4f5f-a51b-d8c5088e5c8b','3e32e56a-db73-4faf-b845-2ae4dbc93fc7','452583c4-06ec-4529-9ac5-3110b73ebac1','46089660-5b0f-4b38-b819-cb8d4245a5c7','717b6a1c-114e-46eb-beab-135480502b57','887c3a18-fb31-45e3-a96d-979cf6a7451d','992802f9-4cce-4a15-a3a8-aa4342897a23','e5d4f9f6-0263-4788-87f6-3d2becc25360');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='11.5')
+  where id::text in ('209daa76-7abe-4130-ab8d-1e2faacb1b5b','5b16b65f-1078-4308-a345-f3b196d21bac','f0799bfb-e700-4f51-9f67-ceb89cc31e9a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.164')
+  where id::text in ('20a6fda8-dad7-46dd-88b7-36594e658180','3c352714-79ea-4ff2-a760-7551da757d7f','4cd2a350-5103-4796-8f47-11a6c80fe4d6','9165e940-c040-4398-a191-9a1d8672d672','94b70045-894a-483d-8014-f6e01f05b6ef','ecff150d-a906-4c9d-9fd0-a826dc6f6cab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.522')
+  where id::text in ('20a7f9b5-6497-4683-a997-2631c1a9865d','e5f95864-576f-4c62-8ab1-c757c3ace3f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.1')
+  where id::text in ('20a9020a-c9f5-46b3-b10d-6c137f243c76','3fa270bc-a61b-44ae-8f19-74c04eefc409','4471afb3-f07d-4972-9f99-1195a9688fc3','5cc47e50-dcde-4bc2-81f2-bc680258c322','5dd8a854-364a-435d-a4f7-721367f51253','6d680e7d-f027-4abe-a6ce-46fe7edb86fa','733d3d28-b95b-4015-9d62-b4e2b89c9fb2','8454ff5f-1eca-47b1-83e5-74180b8a4773','a133efbf-4130-4116-835c-3cc4fa713cab','ab9cb9fc-61d7-40c5-b75f-fd542ce180e5','cb5156f5-9ace-46e9-b641-01ed3a0aad71','d05fe791-2767-40e2-baa2-1fccba276c11');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.207')
+  where id::text in ('20ad6fda-7f17-4a79-9b39-a529dd7738f0','a441da4e-b451-46dd-bf76-9da56628aeea');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.372')
+  where id::text in ('20afc8de-e9be-46b7-8608-2ff8f53ef088','2529f15c-c964-4d26-9a5c-e147dbaaa6a8','b254af81-6383-488a-9fda-867a55e646a7','cafa2cb0-e6ee-454b-8275-2416bbd36dc4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.2')
+  where id::text in ('20b4fd7e-e39d-4bd8-b5df-cb0fa0c316fb','556ffdc6-a670-4854-9d50-cc41bf0c36df');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.145')
+  where id::text in ('20ba0aa7-1e92-4ac9-9fe6-1ac468565855','486208ae-6005-4f29-a562-367c9d0c24a4','f937c62d-ca0a-4035-9bf0-766c68911358');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.191')
+  where id::text in ('20c19375-eb71-4245-97a0-831818117c4d','d845805c-9108-4c40-a2cb-eb8d6895ad2d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.78')
+  where id::text in ('20d1f920-c3d8-4daf-8466-d63f6ee06363');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='13.5')
+  where id::text in ('20f093fc-cffc-4434-ae93-b49ab51b4c95','2aa7830b-7139-430e-8d2b-d1e78bfe93c3','33e3d440-7a67-4cf3-b515-8284fcba1cd2','745e9600-cefc-4669-8ddc-21000ec23fd6','90af6518-a63a-45fb-b2d9-c5eaba9d99ff','ba7923fa-60be-43d5-8eaa-6cc6450605cd','c4d8ca8f-61d0-4b68-b784-464aca7fd989','d80feb8f-59fc-412f-82e7-48af26ba70da','f7d9107a-4bc4-4ae6-821b-e0ea35e4a3c3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.259')
+  where id::text in ('20f5dc05-aded-45b4-a9e6-4e62b6090632','48d5232e-a98e-4513-8dfb-f022f9fe9a24','70f7f489-2114-475d-84bc-81eb0f9e4166','9555fc4f-2b72-45a1-8627-94c99f00fcb0','9fc2c19d-cd87-4fc2-978c-6c8a31903e99','b094e54d-3fb2-46bd-beaf-bccc56d7772b','b684d585-ea07-4ae3-8def-6c3855382f9c','e295b64c-7794-4c27-a54f-25da3043fbe5','ec457c68-ac79-4bf6-8f2f-e81edf05c4eb','fd4e712d-3b67-4a17-b89b-45bd68bcdc5d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.218')
+  where id::text in ('211290bb-c70b-4146-9ada-a385ad91212f','2262a896-b1cc-4bf6-994d-2dd821a70bfe','803d2df5-274b-4391-a7f3-13147f394caf','814a9035-8665-40d1-b8a2-fb1cbecdee17','a12303b6-05ed-4e01-82b2-4f6e3cd81e8d','b5fdcbef-7ef8-4c35-952b-edf1cc05aa82');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.611')
+  where id::text in ('211ca797-e918-4539-8e3d-4d85c7c97c5b','67c130eb-ee33-48c2-8e4b-288a74f3ceeb','7eea4922-cf95-4331-9873-4f49871d4e44','c140a27a-7369-499c-ac45-f670797a72a4','cb5709de-1efb-40c0-8075-382796f05805');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.55')
+  where id::text in ('212221da-cb56-4920-bb37-2be13391600a','60182d8d-13a9-4760-969e-747c268c5f01','76764783-6b5b-422c-ac5a-f516693ecec3','856ec27d-963a-432b-88d4-666ea46c4c78','be1a48cc-83ad-4115-969b-d9d25f59e2b3','c3a902e3-9545-4a68-9cb8-d4d2ea389e0d','dc752fa5-0094-4e18-9f43-f6cee96e3cba');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.256')
+  where id::text in ('212c151a-1b17-409d-a8e3-4fd6a983e4b7','5c8b14a8-ee91-4465-aca3-a503e1519b79','777ec935-8387-458c-9eac-2242eec3902d','871f27cb-e35e-4a10-95a4-4c5720cf4f62','91da84bc-7bd2-4931-b401-b1189466d1e4','959ca19d-0615-40c8-ac20-d3a1018fa62a','cc2f8883-d360-43ad-ad34-8ceffc998a6b','ddcd9fc5-5094-4e84-ba28-1e4066c76a85','f437383e-af0a-4965-9a38-a70a7685e417','fb8e0e84-239a-44d8-947f-2d1872b438a8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.56')
+  where id::text in ('213af6e4-b1ba-4a25-a449-06adfa71d1c1','22f534ad-ad72-41b8-9b09-98fa2a274cea','47589e92-5162-4715-97bd-800a0d62323f','6700be38-ae74-44e3-98cd-1157921b4903','7200d1a9-1879-4e57-a183-37a1f66517b5','7879deb3-9de6-4c9d-98a0-b4ce2d112c8f','7f712c7b-234b-42a5-a779-36c794848875','86d01c94-ce96-457b-bac7-48abaa3b07b0','8701352c-38e1-4dd2-8f43-e3d05d9f5c5c','8da6a8d1-39f1-45d8-b008-ec990d4024b5','a109cd9f-b996-4d7c-8574-e9d6a2616756','a47ce3a2-f394-4c19-8375-7726a724a5a0','a4bdb0ba-c3e9-4caa-a5ac-a04587026cf5','b2126306-3a1e-4e42-9670-e944e4da81f9','b6558716-3578-4569-9060-59f856797c33','c0309089-6268-46cf-837e-aa6f19b062e2','c78d7281-7245-45f4-bdc8-17af492ca78c','cfc7cf04-ac5b-4c03-b035-625f11f7d258','dad66900-cbae-44e0-936b-858a6bce1d7c','e719bc0e-87d8-49f8-942a-0a554af14cad','eaa0b09f-6e1f-4a68-aa78-5a8bb8324b08','ead86785-7f18-4593-b62f-7e8bf36d4bb3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.27')
+  where id::text in ('21421647-abf9-4ae4-827b-78b854b6a03b','289cabec-c71e-42e7-8c28-960f0fa3614e','3d1916eb-d147-4b9b-95a7-a9965edf503b','4de6fa90-beb8-43ee-8149-0f94c58b4d8f','5c072f51-b247-4e0b-9407-529039f98098','5d82563c-0f78-4ef9-b420-cd51413b7ce0','69e30d07-a3af-4b79-b37b-716f0eb6b3ae','72a073e6-8ffe-4707-bdfa-8327cbf33597','753f5f41-61a1-46f9-82f4-9c7804439375','824dcf11-7d0a-4a06-b8d1-b4801cd4cee5','8358b29a-3f91-47e4-9f72-3ff8ec173541','a80a36d6-a9db-441b-b63f-676248449f4a','aa8f5edc-706d-4056-9862-8a144daa4173','c1a74b7d-a820-4df0-9dbf-57138002db95','cf0847bf-7037-4e3b-80eb-d346561aba1e','dea1353c-9673-48de-ae03-a3215ac3ba1b','f59d83cf-7338-4018-b1a7-95984bfd25c8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.573')
+  where id::text in ('2148d561-8616-47d4-824d-f5ca750218c5','dafb3539-2fe9-4520-8e68-af307103a861');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.634')
+  where id::text in ('214fbf0c-3206-4b19-b02b-19d02876da35','4291ea97-cf9d-48de-bebd-c1f2a643f560','7b043c56-1e08-4e6d-9598-dbac61f26507','bd3f78ea-bb72-4fe9-a1ae-8f7eb0fdcbf3','c1dfb792-a3f3-4cfd-87d9-93f5275636bf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.196')
+  where id::text in ('2166d4bc-bf11-484c-aef6-ad5492264ed6','30d9587b-08c8-4702-90d2-1cd734e4ff35','575fc67c-1a31-4f33-9735-d2eb0a740b51');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.25')
+  where id::text in ('218a2c14-6736-423d-84c5-884c2ad3d8b3','4b2c0689-cecd-495e-89e1-58817bbe2935','60e4b021-7206-488f-bb0b-fcde7a0df730','a4298178-de60-4cad-b4d7-0c9925e00dcc','b864c68f-96b4-4cfe-8221-05623e80dde2','ec8a6881-21ca-423a-88b2-8f2adbfd74b1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.187')
+  where id::text in ('21949281-f577-4008-bec9-601c02f11aa0','af8e1f2e-95ee-460d-834d-7b5e10013cb3','dd8d0796-f3e6-4bd1-a1a2-7171fb29f29d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.168')
+  where id::text in ('219527ff-348f-4341-b395-98cd53f654d7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.414')
+  where id::text in ('21a2c905-c8ad-45d0-9887-58f0a822230e','6710ff94-913d-4b2f-bae8-2a13923e59ba','79a7ba8f-0b60-42c1-bba7-852bd4b18c16','b40cd0db-a1c9-4974-82e1-590d528f83ce','c6193c9b-c00a-45f2-bbff-cb2df697098c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.251')
+  where id::text in ('21a2fb44-35d3-463f-8714-d6f35352b3b0','5702e5a2-9ca9-47c9-9d79-b25acb5f61aa','9396a7b6-7a07-4d17-89e1-68dcb6527170','ae031111-64cb-4173-be94-d9b54d297ca6','b8d788d4-35ef-4da7-8383-52f43c471166','ce03ca00-a949-43aa-8f4b-f24019532f9d','e3f06cb5-e5b7-4b45-9d28-6b7a6a4055ab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.72')
+  where id::text in ('21ab884d-aa80-4884-a55b-8db3046c2e9e','eb2002fe-6033-4fcd-b8d5-bae1f2901ff6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.55')
+  where id::text in ('21ae47a4-71fc-4c7d-8bf5-12036f084269','3eb18cad-011c-4960-ba99-b75ff1c501b8','b5e3bc67-d7cc-41a8-a348-c4524337817e','baebe333-6a2b-4d80-ae6e-81cc497626f3','cb38af97-fabe-4542-8ea9-0a1fe94b61c3','d1f30ba5-5c85-4db9-917b-74dd2ffd6217','eb3f54da-da59-455a-a516-e1ce37609ad8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.229')
+  where id::text in ('21b220f7-a8a3-4ffe-beb1-b7595db32fed','308e6021-3130-4f49-82a3-cbb48071026b','5c3aa950-4ba8-425e-8c22-23e7cf490045','d7794985-b1dd-47c5-82c3-81adecece7d9','fca5a173-e758-4d17-89c8-68aa6eb75bf5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.143')
+  where id::text in ('21bb1c26-2641-4634-8b5b-867e04981514','5aad5e91-a8e6-4c26-a0da-4dc45cb16aff','a4b3a270-8e78-41a5-af49-2cf2364b2a8a','d0101f65-427e-4f7d-92cc-8eb4fea251b6','e3ef5879-ef93-40af-adaa-1b6c69143629');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.13')
+  where id::text in ('21c037b5-3429-4a08-b86b-8c03f3b4a170','36461080-e7eb-455c-8c94-8f54dff66b73','60cf0c02-f6a6-4760-8216-c2cfa0251e9d','a4f2567b-aa1d-4607-a865-a9b53499720e','af42c3b8-3f2d-48de-a92f-eb0925b0665d','e78a2641-8ee1-4559-a4c3-6d739fe05d79','ea7ac732-87ac-4421-bf46-fc1f04915d56');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.543')
+  where id::text in ('21d3fdd0-7534-4014-a4f6-6a1e6ff72647','3dcf9a57-6082-4f6f-82f3-5d9eb0eef1b2','4634e0da-9177-45d3-b4c1-ea11494c6f62','5b236dc6-7dcd-4bd6-a563-9509469561ba','62a98762-5594-4110-82dc-393dbb57e646','8b4c32a8-e043-41eb-8758-0ad25500b748','b135abd0-dc09-4312-a28c-574c975f3b0c','b57efe3b-8adf-4e1c-b59e-59747a76fbac','e7cd2d84-025a-44e3-ab5a-07648553711f','f9737d5c-cff8-4ab5-b3fe-a82a03a5fdf5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.626')
+  where id::text in ('21dc8c9c-9a37-4770-ac7b-023d97a7a171','7ea5c9b1-883c-4b50-aca1-e92da164dacd','d7ed7af9-a868-49c8-a640-27c7a50762f3','ecfd16ca-6071-4825-9ade-96077b380b5d','f8c13f68-2fdc-4574-99f6-f8acaf8d0bbf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.84')
+  where id::text in ('21e9f501-99a5-46b4-9354-878c41551284','2bd768a5-31fb-49e6-b8e4-5570e455f007','7060f8ab-126a-4b45-88ec-41cf4d7c69e6','b0465c5a-5200-4eb7-bb75-e6d3beede11d','b1d9cec3-6639-43f0-aa49-d5e0b241a0d7','b25d81b5-a842-4d7f-a1c7-000825cd3432','c61b49a2-6ada-4f56-84ce-5ff9f9ea1e98','d2ca36e2-6754-44c6-903f-aef3aa7adb87');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.221')
+  where id::text in ('21f1fa56-987b-4544-ab3f-98139ab68076','444e8b6b-db17-41fd-bf8a-4276beb8793f','48f7318c-4e4a-4b57-85d3-0534041aedca','58fab53c-2f20-4ff1-93ae-b5c24f19ecad','670a8eff-de62-4cf7-b6bd-0aa7c20df789','976f1d05-2d9a-4c83-8456-30f1b2026e0b','a1b78fd6-8fb6-4bde-81a6-6f5315127501','c107d8ff-a465-4813-a342-adf05d97ec1f','d7ccec60-adc2-436c-83ed-80783f0f385c','e1b51620-c663-4ba1-9063-b4e258ce87ab','fdbf9579-550a-4621-b16f-25c4cb0174cd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.291')
+  where id::text in ('21fc32c4-af39-413d-8864-5e906d7c87a0','513cbd9e-1c16-492a-a2d1-e40dca969516','590d91ea-bd1d-4efd-8403-50446d9958a0','b5bde819-6b94-49fd-8380-f8dc2af6d51a','bf9a3097-a3a1-43e4-a835-7be08a7543bd','e12de970-8b81-4cd1-a186-c5fb04629cd9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.353')
+  where id::text in ('22081d27-39de-49af-b055-13140a055237','429c7aeb-49ff-4253-9a14-7e816398afd2','49fccd20-582d-4631-95cb-27baa0d8a4dd','61dc248c-f30d-4c13-8c99-6d23acf5c3ac','7e548842-73fd-4141-a642-c4749df4c794','7eecd063-caa8-4b41-ad59-1e59e4986d71','849cfdd7-66d1-46e2-b351-5a4d5e66aa50','8ab24600-7c4f-4525-9ef9-9d2012fee3e4','cfe045bd-b00c-4bfd-86bc-f5ad1b1dd552','dbcf9715-0abb-49c9-bd44-0840886eabb2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.358')
+  where id::text in ('22246e17-e48b-4f55-8e82-ac366887d216','26afb905-cf0b-413f-b4eb-8f3f8e6a38f6','3f2e5f4b-fc3a-4b77-bf11-64586bc7ce95','504f5f88-88a8-4d9d-b886-44dcb08920d3','6352e63d-9866-4a6e-892f-8bc9778ffcd5','6806ad93-a6ec-4f86-b64a-611c966b00c5','ac118afe-ba33-4256-9a20-7016ad423028');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.488')
+  where id::text in ('2248ceb7-b4cd-476b-b490-dbc4fd63b7ce','37d0591d-7d42-4224-920d-6558ff4f2baf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.71')
+  where id::text in ('226b2bc2-41dd-4830-b735-9baee7a84d35','45a451f9-24ec-4ef9-a34b-1d1accc57819');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.417')
+  where id::text in ('227e9dc4-350a-4320-acde-0eebb20051b5','4477bef0-61ed-4e87-9168-6d45d191fb64','4fa1ae80-f389-45d0-a402-4de50a69a35d','c364ff04-c6ab-42e3-ae61-2e1d4d393317','cb8d85bd-76fe-4fa0-9c6e-411c23694857','e9b5ef4f-046f-4ba2-9f33-38a7ab4fb050','fb6700c4-e9be-436a-aef6-8cc23de6a606');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.74')
+  where id::text in ('22811c80-bfcd-4987-8700-070b3f20988c','b49a6bfc-9ccb-460c-96bb-27801df36159','d5a966b6-9dee-45cb-b0f5-53cc79fa42dd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.5')
+  where id::text in ('228d11ac-78b6-46e8-8e90-2eecbf460947','57fb6b1b-ffbc-45f3-b017-080c951664a5','65e016e5-ac8f-4d81-a892-e9b530b7d101','6b0f1766-88d2-439b-9dc4-cbee115e7131','f07dbfee-d227-460a-84f6-adb8e2fca94b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.131')
+  where id::text in ('22a5c4b5-f4a7-46a4-bc8f-79af09b55c40','92786ff7-e2d9-400b-8057-4ca884c1cded','f9cae158-5a6a-44fc-95eb-21d5fd450668');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.347')
+  where id::text in ('22a83dbe-73e7-4d48-9722-8f88cfa8e4b1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.283')
+  where id::text in ('22bf549d-3984-4193-a5f0-54d08dc0802f','3a37261f-0f1c-44e8-8bc3-09a2b2e36fe4','3ceac1d9-5a75-400e-8b77-678add24f25b','405a81c3-8a79-4f18-b06c-87bde7132da9','48d743a2-8c6a-4c7c-8b37-53be2a8396cb','4eda2c7b-6f2a-48d1-bc00-d776b87645f2','602c3e7b-9e51-4b3d-bee0-621b29c0d613','6ee6db33-f522-43ea-9d61-05b2b85c3272','860ce546-457b-417c-a07b-168834eba671','9a4560f3-2801-4b82-856f-5b6620ab7aaa','9d4cf1f0-2bc3-49a2-81bf-106eb9542889','9dad48a5-41cc-44d4-a8af-26123ef2c83f','9e7d82ea-6e9f-49a4-be12-eb9b4c375e67','c2f3fc4d-8268-475b-917e-2d947fd83cd1','d80ad26f-365e-49ec-a0f4-41f020ae2601','eb701dda-c5b1-492d-9581-95a3ed2dd5c1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.433')
+  where id::text in ('22ce2df9-ffc3-4f2c-9201-b2e60c07a1f5','3ed8eb10-0930-449e-916a-b4aca4b568db','65f337f5-a48c-42ce-a793-5de68edcbc47','e5fdc13f-6821-4c86-ae87-887a47ae9c68');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.36')
+  where id::text in ('22df0c4e-90a7-48c3-be19-cc10f3def4e2','2b2a4027-b20e-4ca8-a68a-e11844600df4','6052af45-37b9-481f-bc39-d7e4ba55b27f','7e240f6f-0921-475e-bee4-7b4f4945971a','974a9575-b0d8-4d35-9b45-08145c63dafa','da36ed86-cb7d-4673-b695-14f4de695542','e0cac28a-7789-4eb6-8cc1-f1d62eac5c9e','e8233859-17ae-4b7f-b158-c11564b4679d','f0233daf-dfb7-4019-9711-5b4432c36e78','f8633af3-fefb-4a7c-ac7d-2329e131f9ab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.476')
+  where id::text in ('22e82602-91a8-4f04-9179-79864468bb6e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.286')
+  where id::text in ('22ea796b-8316-4062-b211-cd7fc936e17d','bcced2dc-2c29-4a2f-860d-ca2b0b96dcbd','c3a17349-b760-4fa7-bd13-7b5ebd70337b','e6aa474f-0864-459e-8456-7afe7ccc86fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.112')
+  where id::text in ('22ec65ef-d5d0-45a3-9908-97a33c70ca77','3e600d39-a430-4d6e-9b53-e89b9d935d8c','45b491e2-5778-4a2b-9017-2e59f970ff24','621ef059-f17c-41d8-bbe6-32bf0f85b863','76617495-b9a8-459c-8df6-bc67686d62ee','ae5ffdb0-007a-4388-82ae-5a6844347910','cad453ef-54a1-4003-a657-20d394837bb6','ce7e89d6-c911-4b6c-8705-45852018a12e','d68aa71a-c1ff-47b2-b1c0-1d8e5e4d1012');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.86')
+  where id::text in ('22ee4534-9781-41b6-a683-891034d9e9c1','e447414c-c480-44b1-8856-dabe61dcae61');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.278')
+  where id::text in ('22f16b04-93be-45b3-895d-13781c420f64','43e2ba60-0518-4bd2-bc7e-a0af713d5a52','8c9a7d92-ae17-4061-9b86-a3515ac2ccdb','a7901b37-6cd7-4f0f-a9ea-41f09e65ec29','aaee3ddf-a34c-4cde-b51d-5a51c0d642cb','f19e5074-ff22-4e10-bed1-f26f3b651dd7','fa1ebf87-b820-495b-bf81-c099a2564b40');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.295')
+  where id::text in ('230fb69e-82c0-48b7-8618-ad36cef83772');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.4')
+  where id::text in ('2316f650-e99c-43c1-8b5c-bc5107cf4c66','3a943f4f-4984-415e-a3b7-9471da7052cb','43490403-add4-4047-8629-28378250c3c4','4df80d30-db3e-49a8-a36f-4656a874aaea','792ed518-2155-46c2-a68b-bbd7ef95798b','b73e7432-9b6a-4e9b-9bb4-0d6ebdd885f9','c9d601d4-2c03-4655-8779-10666e4c4c30','eb8b01cb-cf31-4053-8807-9bf10ce4ef2e','f81e8ce2-ad38-44f2-bd47-969a2a451509');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.173')
+  where id::text in ('231f4c3a-1fc5-4f3c-ae47-24a38d189e91','4c1a099e-bf38-47ef-8e79-8a3fad404996');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.348')
+  where id::text in ('232272a6-ba97-431f-b1b5-70382ee1e1b6','3317f3b7-d782-41c3-a005-8925a75ea5f8','333a947f-8bec-49f1-ab33-7d8eb1e03d74','42c128c3-357a-4d3b-bf0c-4132a66c5c44','4b998210-5636-414a-a384-26b65e4d4535','4fe26848-3303-4618-93f7-ed9e0c6262aa','547a98c6-e84e-4d00-a618-73c3e0986464','b19f84cf-3df5-41eb-b61d-301b48ebe630','c2bf362f-09cc-40ee-8016-d97fbb36685e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.432')
+  where id::text in ('23291403-d536-4e42-ae1a-8e90dc1d2698','55ff1315-5c4c-43b0-b4fe-86374450a4e0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.189')
+  where id::text in ('232f0bf1-cf1a-4fb4-bfdf-cfe17e2443ee');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.105')
+  where id::text in ('233a25e7-9bbb-4dce-9b9f-5bf30550d59d','6fef6879-42d8-40a6-afd3-52d32752b941','b25d6e56-0bde-4fd7-b8b6-7f63ab43be17','b83094a2-a6bc-4376-b89a-975350c705aa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.31')
+  where id::text in ('233f4b25-9013-4b5c-9ce3-9fc5e1f214ff','3bad49fe-2708-4311-8f06-c5727472f4fc','44b6ce74-2be6-4f80-ac3f-02e3cd4a506e','601d07df-1555-43f2-9372-5b5bb5d39404','c0ec703f-064c-4109-aab6-302ec61ac90e','d0ecd621-64de-4262-b4a0-832c35732672','f004746d-da5d-45ac-a0d6-a41daa05b8a4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.1')
+  where id::text in ('234781ba-93f5-45ed-8b64-b99e8e37a1aa','322843e9-e40c-43ba-8b61-56c6e13003c5','3f1751c1-2823-46f3-a196-18460e69257c','57b1612e-261b-4257-b529-cb1b4eb5e8c2','5de496bf-23cc-4753-990b-618a15a68bdd','650e851e-8303-4989-ba63-1d859d8f4aff','7e8aae0c-b042-41c3-a5df-79a07b1641f1','8383fe6f-282a-4d28-b712-7874209b35b5','c05ead2c-f147-48ac-b381-b3c6072296bb','dd93595a-1bce-4ac9-a927-516a182139da','e36c1fb6-a74c-4c8f-b15a-7e1ef05d8f66','e87fc67b-1e53-4abd-98ce-db0f27001bcb','eafc4717-8069-4943-8e60-4cdac7706312');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.182')
+  where id::text in ('234bebfb-0d51-49fd-9cb5-6d8f9da673f2','ff396162-8c44-4912-986e-3326acfc1e99');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.18')
+  where id::text in ('23503513-865b-4fe5-bc2e-c70829711b88');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.147')
+  where id::text in ('235253ab-f69a-45a1-a704-590fdcb43835','60f3e7e6-cecb-4ad4-b433-ef391223d800','61d0360e-dd63-4434-9176-ccca6cbdd81f','872a0a40-47f6-43af-85e0-8386b5a16b59','c47ac4cb-138a-4220-b4fd-e1f932d7e892','e121f338-b729-4b65-b831-59695fc2b7a9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.159')
+  where id::text in ('2394c0b6-499c-41e8-bdbe-a967ef1268ab','5ebe8b28-0e5b-441c-94d6-691934aa6793','8862fb46-02bb-4901-a876-5081d81092db','8f0f32fc-71ff-47b3-a45a-bf55c82b4546','c2487a25-afee-4617-bdbb-ceb299b27d39','ce70e204-b14b-4802-a072-7fdb0d44b597','d8bc7269-8e7a-4e60-a513-91b1ce1d770a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.37')
+  where id::text in ('23a5e364-d0bd-4364-8944-1db5975a87b8','5847cc6b-8931-4900-bf18-eecb9c988169','8852569f-4211-4f22-b8e3-34d28615b208','a7ecf577-bbd0-48c4-b16f-8c95a43b637c','c6b1ccd9-b626-4736-b419-05f3189ce448','d734479a-eccc-4cc1-891f-e61953d4fb30','f8f27137-7096-4cc3-a8e2-1a0c6e3e690f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.283')
+  where id::text in ('23c8c3d0-028f-4f2c-80f7-0c36ada58b1c','2a077c6c-0020-4df4-ae82-dffb1e27f786','389dc604-7b1d-4be1-95a2-2615a8b38a1a','5620cd91-6935-4a17-aa23-fc4903d5708c','88b14699-152d-41d4-bd0d-da22c15f68fa','a071f155-59bc-47ff-8f73-dca0fc885284');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.8')
+  where id::text in ('23d03b37-b92f-4e0f-9a80-1bf13238d497','3177acf3-2c12-4c29-b828-18ef337aba79','5de55bb9-84df-4dcc-bfa5-85586ae1fbda');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.2')
+  where id::text in ('23e13535-06d0-46a9-b444-50c4df3843bb','2c83a127-9625-4173-9c8c-8631e7519655','31b6fa5b-d2fb-40f3-ac57-55563ac5a59e','383ac858-7d41-477b-8d69-1b8305fdd6aa','430fd217-fa1a-40e1-bb3f-55ddfb233bb3','4818928a-b259-4e92-b597-6339542d59ee','760b7990-f220-4313-9500-ecc4a93cfd64','845b3478-2e91-45a9-8f73-af8ac6d0d182','a07c226e-3957-45d6-8f1e-b1930a5c11ab','caf7ed7e-d2cf-4655-ac4f-40b3af740af6','da7cd446-b084-42ec-8327-2c6d5f6b024d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.93')
+  where id::text in ('23f0b636-f667-4a93-83a2-edc8f79c8c40','d0eb52e4-ebde-4e1d-9088-3f52bf2c230e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.86')
+  where id::text in ('2420080e-6a6d-4106-bac2-6840fc93440c','2f4e7e1f-c48d-481d-9954-34276bc07ed7','308e2df5-cba5-4077-a35a-b5362b9add99','3f40f8ae-a2bc-45a9-8eea-91c3f1cdc74c','454556bc-5d00-4acb-ad9c-a0f914cc7e89','712582e7-5134-41c7-8cb6-94e49eb2d8c7','ad8a28e2-a994-4920-ad46-b1a708b2148b','c25e9774-e76b-4895-a356-4b4d400070eb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.123')
+  where id::text in ('2450e6ac-1e07-4ea2-8728-0a2175be4a12','831a9bb9-d2f4-4ce1-af44-426cee8e5ef3','a58efa26-f044-49ed-97db-2ecbe935eb79','e19493fd-8e26-47a2-aee9-5803068ed5d3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.326')
+  where id::text in ('24602272-4ed5-469f-a79e-b0d81de8e53d','2d244e3c-c504-403b-86ee-52a75b1ab6c7','2fb607a5-af9d-465e-984c-04c55306711a','3c2b42c6-85c6-453b-a62c-e835bf3e19d1','4a67adab-2aa8-46bb-9dcb-42f17bf510d7','4b897576-96d2-4848-95a9-7a96c69c0e56','523b1fa9-fff6-4a4a-ad72-3ddc4dd4c512','62a636ee-ac8d-4eac-879d-c527ef4a0d6a','631874ad-bcdc-48f9-8b47-767b3a0db05b','73cf4e2b-3781-4f3a-9b10-c45e6f275711','778f098a-7b70-4237-8109-62b09bb72524','7afca3ab-8739-4f15-969b-d7599bd176eb','81a074fb-ed07-4233-ae92-c5ff59ad74af','8a5c8b64-0cb5-4c22-8781-fae763e6080f','931c479c-3b8c-4719-87d3-96894d073062','a4705102-36c1-4dd6-8d0b-271875fa488b','b87a5670-7908-4c1a-aa5a-2909a6525f92','bb52a0bd-8800-4511-9f58-2d5cbe5db9ac','c221ff4f-ec13-48f8-8a4d-87abc35a3372','cc49fd2f-7faa-4caf-acc9-e79953f47878','d9504996-c687-4db0-9381-553bfd6b1558','e1631b6c-d0f8-4141-a83c-fe979f8c7c2f','eb538415-394a-4c9f-a5e0-7c95c5d0681f','eb6d2a91-2129-497b-b4a6-932fb2098806','eb80189b-a085-4dba-94c4-d169fba6a738','ed0d5dc9-7f47-42ae-8086-570bc6800dd7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.303')
+  where id::text in ('24648e9a-794f-4931-8203-a3c36e7b5e0e','8816f491-7979-4c3c-b63d-63914c9ad8c8','baeaf2b0-ac65-4058-b982-b9b221c22328','e0fa79ef-4b47-4d04-9adc-289efc0275e4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.385')
+  where id::text in ('2467a31c-02c0-4b3b-b71e-525e3eb5f211','470caa94-8022-4ff2-b581-4c0c9e42b673','50635a78-c855-4d48-8236-976de4679483','5c234fed-557d-48e9-a15f-9e4645cd5d16','6d63e4c0-dc81-4484-8831-0f53952f1d77','7a795819-c6f1-4f03-a135-199a4f8b7452','cbda7237-1b36-488e-b6c2-97992d7e34f6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.383')
+  where id::text in ('248ab27f-2edd-4ea8-bffa-5a47bbb53598','4edd574d-c145-4ccb-8b09-ded7b53d242a','82301472-c542-45da-a46b-aaed5e47065b','a9b93ac1-19e5-4f9a-9859-6fbfb1beb79f','ac12b7da-c452-4dea-95d1-d3d841b81960','f36e543b-e319-4077-9240-8771984715a6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.68')
+  where id::text in ('248ab2f1-5c93-4d51-8053-44b5db08eb2e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.46')
+  where id::text in ('2493d13c-37f4-44be-93b6-2aa44f63d0bb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.115')
+  where id::text in ('2497a789-7a66-4e4d-85f8-f452f54ce429');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.122')
+  where id::text in ('24af6589-0181-4a0a-87f8-00d14bf804ae','9e155bcf-920e-4bba-babc-b0a2fb0ba1d6','efd2366f-0fee-49a0-b647-fba6d2debb49');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.4')
+  where id::text in ('24c27f63-2b06-474a-aaf1-af502628f42e','2b3afcb3-0827-44a3-9ca3-8adbfcd5e235','3de778ef-23ad-4f02-a8d0-e63daf72e04f','42eeacfe-ad10-4379-b99e-55417539e696','585d2bfd-72f4-4c01-a167-b63fa2eecba9','731d0144-90da-4420-a16d-7cb1aa19d425','75d3e4f2-c2dd-4a0b-b3ff-7193d3c1e2b9','a1342a13-aa6b-443d-a4b0-2f6f272c1d7a','a4dd2bd2-5320-4431-bd57-dfbd6ea1d422','cd2c4fb4-0b2b-4513-949c-c6603540b59b','d00850e8-0649-455f-88ce-3bd5ca64360b','d490573a-2a32-456d-a191-3e99e18708ff','d53cf697-5412-412a-b6a4-187626deaeb1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.246')
+  where id::text in ('24dcc8a6-cad0-421c-ab11-d7ff820d2aae','8b16df6c-34c1-46c8-a5c8-c0fb15997ab9','9e1f2212-f24b-46a8-bcb4-fa53d50d2e94');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.5')
+  where id::text in ('24f1c09c-b2a9-49fd-a179-e10cb9d64843','47ca6406-a490-4d75-8cf7-a525ab223fd0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.144')
+  where id::text in ('24f65fca-67f4-4df8-94c6-09c748db5da6','4c3eb6c0-9160-44f6-8a57-0ad912f6e48d','e32686b5-2e6d-4b47-8f1a-4af31b711d2d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.156')
+  where id::text in ('24f67030-ec7a-45e2-9483-8f6b341b2783','6a773066-5825-4e51-8aaa-6c3d184eeccd','751f1f44-47e6-4f72-8d55-d7d13fe35bfb','ba6af552-775a-4efe-899e-bc6757a7343a','c9b4bbd3-31cf-4f00-afd1-2aa1f7f2e739');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.425')
+  where id::text in ('24f72130-26fe-45f4-a59e-d0f60027a602','475cbf37-7a01-478a-96bb-725806c529a4','54a98bef-f574-4d62-8788-f410f5c3c8f7','d74d5110-4a34-439f-bfd6-2569b1cf0f57','f0fbca82-2ac8-4644-9aaa-34830509173a','f93f9cf3-03bd-4c28-90f1-6763cd9ac194','fd885029-93d6-40ae-ba5f-4458342842f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.601')
+  where id::text in ('24fe0585-52c9-4427-b277-a16da3fcef55','5215efc0-e2e0-4e77-9f24-da9cbd20112c','9b5668fb-37b5-4bfa-bac6-72df9420bdf0','aab78a2b-f92d-4c89-b74f-d58732fb9847','f1cccdc8-0f64-4b85-a8af-e4bc98458219');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.32')
+  where id::text in ('250617f4-7df0-4f88-8ba0-2764004b97ec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.208')
+  where id::text in ('2509e2fd-fca8-4df1-972a-5bec9de67bf3','474af6d8-7caf-4846-a59f-5fa1281174f5','4becb1c9-4c39-45dd-a8a5-77780b1f2328','5bcd7850-408d-4ff8-8ad0-5bb64a5dd4bd','825d7f05-4b48-4138-9a71-d97d610173ff','9f568aa9-7b55-44cb-b7f9-643b8b5e4aaa','a1ebdefa-9d0a-4010-9b34-eff043c085d1','baac74ed-935c-4108-9416-774fe2bc4c7f','d39f98c1-a915-42af-ae2b-819cac461c8b','fdf4b47b-6b95-423c-9e79-f6961791d29f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.79')
+  where id::text in ('250a76b8-5c8e-4c95-9996-ec919c6bebe6','453afe54-15f6-41db-80ea-0242b84195fc','d74420eb-3a33-426a-89eb-1d8dcdbba170');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.289')
+  where id::text in ('25122e27-f64e-4be4-bd43-4498827449f1','25787a73-1c3c-4b69-a1ed-4409a9cfd34c','a99da5f1-8561-4904-a1ea-b325467d0e25','c3c3c5d2-5887-41db-adae-e18d035cefd0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.263')
+  where id::text in ('251e2dbc-3a95-4d18-9031-605f7b78a4b9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.487')
+  where id::text in ('254c6f0f-f2d6-4cfa-806d-698e858a1cb2','459179cb-c173-4686-95f4-f58249cdb6a5','c13e06a2-e03d-4eb7-95c7-183f2d3e1326','caf78bc1-27e6-423d-8ce5-bcccca7c386e','e9413684-58d2-4241-984b-f4c6ba203c89');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.67')
+  where id::text in ('25556e00-e438-4d39-a014-61a3052d133f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.443')
+  where id::text in ('256b14af-05b2-4061-831d-651fd4e91aa3','383cd877-c0f4-4589-a926-c16e21d797a9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.576')
+  where id::text in ('2570f327-9d3e-46b2-9f5a-acbf812d65eb','5e0a4c11-98db-4f5a-94d0-771347c158e8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.292')
+  where id::text in ('257113f4-45c8-4186-a089-aa594d5b80bb','5aedc495-ba54-4a73-8052-581b4dc84ba1','aac2f4a4-ca4b-442d-bccb-76890156bb9f','bb16718c-fd5c-41f7-adb6-035a2a20a3dd','fee4bd9b-43c8-40ae-a693-75a6cbb069af');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.386')
+  where id::text in ('2571b20b-f6c6-4ef7-b2f5-bccb490e404c','284484ef-a436-4b35-b8aa-39dc9660e605','40b67e5d-ab3f-4d20-874d-6791a7ad2a67','5d0d7c60-80ce-4709-8fae-ffc23324721f','66c8f407-7ed6-4dc3-8fcc-06cf0f2a5d87','a8d134ee-35d3-41e6-b63b-5ee11ecf36a2','c64da214-78c1-4e37-a3f9-8d1ea742a1fe','cd90818d-f3b2-4c8d-8739-0c649e412cb5','ea1a5a59-1cc1-4ba8-8d3a-ee59ebb26fd9','ecf8ba48-1a1a-402b-8d2e-cf33333c4a5f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.465')
+  where id::text in ('2579b0a9-3a07-4f8a-bd5e-33de93b81ad6','db2640da-38da-48f0-af7f-62342f9072a8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.13')
+  where id::text in ('25923349-4ea8-419b-8702-54608c14c647','a272a202-964f-4e12-8702-af636e62f830','a95b2e76-f533-409e-ae99-6312f0e150ef','ad91b6b1-8b8c-41bf-bb83-0b70fd91b0b1','e51f0bad-7c7e-4298-8e6e-6724496b8916');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.359')
+  where id::text in ('259c110c-0c27-4415-b448-c3d67d97f2e1','2af46385-3201-4035-96cd-731927f51df1','3bd92d44-854d-4d07-89e8-e13327cc7307','3fb04ae2-d9c6-495f-b74c-1c9d3fb57f5e','4a69da61-8417-413f-8f97-57c20dcf1a52','6d8118b5-25df-438c-9480-c3aa1c79975e','a1cc4969-085e-4256-a816-3a47f866dd7e','c22d9a0d-8be8-4256-8cb4-3d7f3403b6f8','ce1675f4-b0c1-4f83-84ec-5308ce1840ed','d37e1c6d-a769-4fb4-aaca-65243681a56f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.53')
+  where id::text in ('259d59a1-e428-48ab-9426-52657692b3ca','7c4baede-f569-4e37-91af-0852c2edf74e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.394')
+  where id::text in ('259e5b90-06fb-4d8a-8f7f-dc8f780d0b9c','28019b71-9773-45f7-aa50-96b2944762c9','347c0c8c-7aa0-4bf4-8914-7391b39e580a','36ecb24f-b251-4807-8ece-b7b956558f27','4b63e386-5227-4161-81c1-be25084fda80');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.614')
+  where id::text in ('25a5956d-72e0-426a-a09c-d608f5105329','64da6481-f0a9-4641-8788-101f4073bee6','a9526a9e-e6e6-4624-9a87-639ebff5c273','ff4a2f4c-9810-4c31-a63c-a5dbe6735983');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.204')
+  where id::text in ('25ad31c4-7796-4768-a664-4e6fbf13e83d','34b10be0-edad-4901-89af-941dd3184d5b','3cba50b4-8c9b-43c9-be20-42788e07dbdb','9d007be9-8561-481f-94ec-79d4364dd672');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.282')
+  where id::text in ('25d23fae-d5a9-4599-b545-d224057e5bf9','43f334d5-3e17-463e-bbe4-a2f3fad5dd12','4d7554e0-8ae2-48c7-ba83-04358ea5f47f','6406111a-abce-4e7a-a5d8-c3e5b9102592','772c67c8-24e4-4b79-956e-352ec19c708b','9ab3c1b5-a9bd-46d5-90c3-ea86a18d5f87','a67f6c28-ca86-4042-8767-ac6edc0672b9','c93749a2-3547-4d08-878e-6f18f9accf18','e1a66e88-e324-40ae-902d-9c9e2249a14e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='21.7')
+  where id::text in ('25e30325-99c5-4767-9f35-a3785c64ca5b','3605ff64-5463-4489-8259-483851032fe1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.11')
+  where id::text in ('25ea7716-d025-4459-acd6-7e61e6359929');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.3')
+  where id::text in ('25f02ec8-d08f-4a55-b778-9ab970b2bf29','31cf043a-a42f-4198-9be4-5bcd7e71e722','50ff1885-7cf2-4f7a-afe2-62524bdc35a7','568e91d0-3f92-4e7a-a152-d2da6be24fa5','607ba8a5-4d76-4f31-9e9f-b738d9560f21','6b494fa1-093a-4f8f-ae80-9e191ed61955','a2ada470-8528-4bae-8789-89334501f4a4','b0a13914-9c0f-43ea-b4b9-684c206ed0df','bdb76ce0-3929-4f9b-8ba1-bd1ec23ff1ad','c5933053-f3ae-4d23-8d1e-325661618d0f','f94df7d9-458d-4d29-91b7-829a3785dde7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.365')
+  where id::text in ('2614a9f9-62ce-477a-8d1c-c3c2308fc371','387023cd-6e19-4764-8ae8-b554ad28e219','6032ffb9-ed5d-44af-a98c-72c590dfcdbe','62ba711c-2463-430e-bb62-3200148068bd','71aa65c6-18a0-4679-a11c-f984f65ee994','83111ac2-a65a-44c3-a586-a315eb5622c6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.526')
+  where id::text in ('261503be-b1b0-492c-b720-1d97623958df','45015af0-f659-4909-8297-ff9e44c046ce','72607556-dcb6-44e9-a017-5061782f772b','96515002-a68f-4328-99f9-661819a56b1e','c722e6c9-a4b8-4aca-8927-f1942e83d87a','dc1d9a7a-8205-4c45-aa8a-144f1cb13202','ead96fa4-ae3f-4b25-8922-d69e65837b2b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.355')
+  where id::text in ('26172c4a-5cac-4366-ad28-f1aa20d8025a','27c2ea04-b103-462d-8ac2-2e370a89d02d','4aaf0bf1-52d8-423b-b967-ee1e20af47af','6d616f93-f251-4128-9077-9579cac1b394','b1a10e63-f2a9-4471-9225-3143eda40f73');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.181')
+  where id::text in ('26401ea7-220e-49f2-8d53-56f085befa72','3326ea6d-8f27-47cc-9eea-bf5d396388cf','4f5e297f-ab7d-4926-9d60-d264e453646e','585aaa56-221c-4a6d-bf2e-43af712b9559','595f56af-6cf2-4a0f-be1d-1d483aef01a6','65dbbd22-9e77-42a7-af6d-1cdafa659227','7f548785-b3a9-44a7-8f78-0f3dc0fd9a88','80e009b9-7878-4b10-9112-eb80d7978812','84d2c9ea-b686-4f8d-a638-8f49419c6f6e','861603a8-e976-4f65-b8b9-a7687c3ffba5','bf99dca7-06e8-4a37-b478-ca10dc85f6d6','e79c618d-64a6-4f35-a8b4-09ab53402906','fc6993e6-5950-45c2-9f5b-ca42ac0174b6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.6')
+  where id::text in ('264d2d05-2792-4094-a7de-038663db93ea','549b7631-aab2-4e44-98db-d7b8534e6006','56014ad0-21ff-4525-bbe8-bb92789880d5','c0dea984-37a2-41ca-b434-dbde2006821b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.6')
+  where id::text in ('2659d219-d868-431a-b0e7-47bf83802fc6','64526178-15c0-4afc-a051-3ee6b9cc0e29','789f9fda-12a6-40d2-8769-17417dc982bc','c2cb36b5-1b6f-4447-9686-32977808c1ce');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.189')
+  where id::text in ('26603f57-168c-465e-8ffd-d7a1abc857ec','6c6edeac-cf75-4cfe-a9b5-03a6d1da855b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.3')
+  where id::text in ('266f8171-f3ea-4151-91bf-4b3b1bf375ed','3199c404-45f4-4c87-a6b3-6380c14737d0','445969d5-4693-482c-8655-d865000f15d7','46124b83-af66-4298-9ec4-17c8d51cf5b0','59245a63-bd82-4ce0-a479-73abab7382f0','6c8f2443-6af0-4d69-b830-59e8b9f162a7','71bab349-886a-452a-9246-c8be99bbe830','79c7dff8-4f0b-4dbb-b0a5-c93e16d74ef3','ae38afcf-2e00-4cfc-b8f1-82c64ec23e6b','b0e2f1a4-bf43-4cb4-8312-e1d30bbe7965','b69149e3-8b72-4d21-936f-9a240297e061','bcfd8a06-a4aa-4dd3-8141-d4e36ce859c6','cff61c40-6639-4eba-b77f-bf5d440cba87','e258ece6-650d-4f79-a627-1ccdef335e2d','edea2175-7571-4803-a94e-702720946d48','f20aaca5-e3ce-4bcf-bb14-7337d523e525','fca29bf8-b900-4b48-8b2b-ca9405791fc3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.49')
+  where id::text in ('2680968c-1efb-4ba8-83dc-84b951496ad0','97bf69cf-de27-449b-86ce-e4559b42421e','9d3b735c-4dd6-45e6-bc1a-9d29c85e0660','a42681ea-3f68-46fb-8bf3-90b178d48607','c12c308c-a6dc-468f-a01a-b5efd3726751','dd511062-23d7-467f-9a6a-b0f1f5bf3fe0','e15614ba-2d01-4b6f-be31-f36d687afcf8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.185')
+  where id::text in ('268cb085-2d86-4de4-a482-ef77b51db508');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.441')
+  where id::text in ('268d88fc-e49d-4d8e-b6c7-7d7c4f32e30c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.426')
+  where id::text in ('2693fddc-288d-444f-98e8-c89145812441','78fcae6f-6b59-47e0-8628-afb37e910e0c','ad849c4e-ce0d-416c-9d0e-fd61c914ee46');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.172')
+  where id::text in ('26be56f4-e9a5-4d44-82de-538a2b7c4284','3fb04428-887f-49b3-bbe0-30a85950d58e','41079e3d-1e57-4af9-a278-29e79b4a6b64','512aa757-0efc-4b4a-896e-189eda5fd3a3','5d7a6d5b-b8d7-4ed8-99bf-c990c150dbd9','6dd74bb0-b480-420d-9b8a-607e88f9a668','85c010af-37dc-4d55-a957-c2052afd7a9d','95f01c1a-6faa-4359-b175-cd415ff4870a','a7bee020-8b53-4e86-81c8-da980e69a0c5','adec9a51-1dd4-4d9d-bdba-373404cfeeda','efe7310a-6f16-415e-85c6-d36993afb06d','f2efb0c8-36f7-4bfc-8c79-b194bb12fd2a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.528')
+  where id::text in ('26c80960-3cb5-47ca-832f-1c76b6a3c320','dfdaabe9-52d5-460f-aeaf-5b4fcbc45f90');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.423')
+  where id::text in ('26d1519d-f47c-4d2f-a1e1-1b729d12e75d','5de033c9-f3d1-41f0-879c-53ff15f8390c','61c6c09a-2356-42eb-9df9-23f94be4749b','64a58e52-9e8b-4017-b273-401cf38bf07f','6b86eaeb-4c51-4932-82bd-3f2f494925ef','7b8eaaa3-dd94-4342-8f92-3ca0760b9de7','7eb66729-e635-481b-ba08-3ceb3b03d8d7','a41875ca-1f2f-43db-a5d7-399e23c5b770','c6991614-33a7-4e64-b5bc-09374e497809','e20addb0-c071-4521-83d2-1d0149a5142f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.113')
+  where id::text in ('26d77cf7-4fab-46a2-acf2-2a333dc0ef67','4122d6d3-9d9a-47fe-aa0b-05e244fa0907','652ac3d2-76e0-4c20-91b0-45fb46538f54','d77099d3-0015-4e60-9a4c-def733ae93cf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.69')
+  where id::text in ('26e7f0d2-2bb1-4f9e-bac7-29924d20fcda','92480fa5-d933-4e1e-9dbb-bcf519afd391');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.191')
+  where id::text in ('26f8b27c-c16a-4797-a788-06805722f56f','35dbf647-87f0-4432-848c-28e86e313d06','4c65673f-1cd4-4e6b-b6f1-11bf4336f92b','503d87cd-e242-4c3a-ba50-ea0f1e30ec26','6f43b925-4d3c-4f95-b6f3-6fc711eae8b8','77b0c332-dca0-4bcf-bdf6-d13efbbe8dff','9671273f-9ec6-4876-b7a3-bde2f047ccd4','e06116ae-c683-42f5-b9d0-3c0c3e9156bd','e3be78fa-52f1-4510-ac3a-88bdeffe8289');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.382')
+  where id::text in ('270911d6-5cce-451d-ae56-63cc3abcd955','7e94b0c8-7ac6-4075-bf75-5453a00a4f0b','8108c90a-06f9-4092-940a-36cbe0fd7f74','883a409a-6d24-470b-b459-8d57d93c63fb','d54b9eb3-311e-4ef8-b502-499f4c5f00d7','ece62c29-4c73-48a7-bc6d-a9f5882c5f2b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.134')
+  where id::text in ('2712dbbd-e5e4-46ee-b9d4-938569c351ab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.227')
+  where id::text in ('271abc3e-1549-4066-9ae5-9a6245914807','28c1d3e0-e57e-4a0b-956b-8bef1f1dfdba','4f859d84-836e-4c21-ba1d-1c4c44a31c4b','5122eacb-d142-442c-bacc-e38479ac4e49','92c23698-1da9-4304-919a-d2d69216ec89','ae2747e0-c6b0-4ce4-8ecd-0c0b0bd2fbbb','cef5ef28-32f1-4d06-818f-48963e27ed58','d2eea686-e9c8-4512-afc9-ba7f9ee33f2e','ddb94516-e42a-48ec-8be8-fc337ceb266b','f2baa2ec-0ce6-44a2-a8cf-c7509e0e1de9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.196')
+  where id::text in ('2730511e-9b54-47a9-b739-c43fd9852d04','33873722-9da1-472f-a56f-4c4355c4dce8','520f8ba5-0d9c-4dba-a292-779dbb68ee53','5fab631c-e4c8-4fe2-9fff-f7687734670d','70d2a0fe-92dd-493c-8fe4-ca46f5b6cd0e','7ed31df1-3f2f-4f61-ace1-4b5ecbf9f4fc','8203753b-0d86-4bf6-a304-58d146a85035','86c344fd-4ed8-4e6e-ac1f-ce7c13effbf0','88779abf-14ee-43b1-a9ce-0408b5bddb19');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.9')
+  where id::text in ('275d2651-af9f-4cee-849d-8be0e5266a82');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.45')
+  where id::text in ('276478ad-eb92-496b-a732-ba505e92499e','2ded1780-4bea-46ff-9e54-629c2abd3017','71af5aea-1296-475f-9603-3ed869d04992','74a4e09f-9f1b-458d-8605-4e937b482dda','76fa31f6-3fbb-4a4d-9670-30ef2addeff7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.146')
+  where id::text in ('276c2950-37bd-4980-8aa0-5998e7f94775');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.134')
+  where id::text in ('276c941b-c62b-4fcb-bb30-be81776ca139','5150d9e9-678e-465e-9fbe-b68274ad81a5','55b49c86-5099-4a9a-b1eb-0ba3ed05f255','5c4d7235-fb59-4c56-a38b-7c5ea2d67798','66b6d1b1-74be-45aa-ab35-90ff0781a70f','8eed14ba-9fba-44ab-9544-b48188298584','a2960ced-cd74-437b-b90c-be8651ed1490','f8128088-ef0c-45e1-9dc4-3d8e059e51ce');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.211')
+  where id::text in ('27713374-7b8c-41e6-821e-0b51c9a8fca6','40998060-1f22-4c5f-a4d3-92d4589454ca','5825f1a9-d2b4-41ec-9b1c-d8870bfb97a2','78585ef0-c523-458e-ab92-12ce6ff78b37','8b32066e-41df-40c3-91c8-1ee8e47acea0','aae7a0d2-626a-4c5d-a0cc-6dd0eeceba6c','ff705e7d-bc3c-48b5-b269-d7ff55c640f7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.27')
+  where id::text in ('277517d2-94bc-486c-a7d0-4e59ffa18f4b','2e0d3ce1-e3f6-4ab9-9aa4-a326185eb8f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.96')
+  where id::text in ('27a33888-28ec-4002-b69e-8c778bd657c4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.422')
+  where id::text in ('27bbf3d4-0d4e-496a-a366-f5428a82a639','8d625696-3b48-4139-8997-f7af9ad7c5e0','f7ce432e-9daa-48a8-8ee3-8695ec175879','fdfb4d1b-5064-4832-8fc6-c15676af3a92');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.22')
+  where id::text in ('27bdf430-582f-4378-b72e-13c9c4a7b49d','fdea1ef6-faf1-422a-85b1-11237422310f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.7')
+  where id::text in ('27cc20ac-1034-459c-b280-7baad8dfb402','54e5bbd2-2483-4901-bb2d-91b957815409','56ad9ddf-4f2f-4679-a0b5-939bb4aff559','746c9f89-40c2-471e-b444-0eaae7440133','d15f5f2c-acc0-4a74-94e4-f0505676cab1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.557')
+  where id::text in ('27d2c57a-e3c9-4d47-b512-b9c0fd7ff75d','3b568231-9375-4906-841f-f33e4cc2a23d','c5344eef-172d-4f25-9f1b-d5f04da83d95','e1bef429-c906-41a8-b940-d071e6e8aada','e4020e88-7052-49cf-a503-f56408024593','fc3965dd-2586-42ea-a7b9-a334b28fecfc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.604')
+  where id::text in ('27daadee-ff9d-4cbb-b494-1564e3f52da7','5590f7d0-62d7-4723-ae44-0c90aaa3d080','66040958-42f6-4365-a904-75cc10e691b0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.523')
+  where id::text in ('27dd6fce-ef41-4aaf-b769-3c68928bd6af','47e7df36-223d-4cef-9f6b-f1bb11472d4e','5de52273-6e1e-47dc-a95f-fa4b8f3be955','6216e978-a092-4474-bd6d-42b8d387f677','9cf53604-ba22-4254-be91-7cf13f028668','d4faa6bf-31e0-47e8-91e7-c7769afcf02c','fed03730-8208-4d2c-bb4b-08b9fb41683e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.162')
+  where id::text in ('2800f300-b460-4e10-89cb-1e97327544bf','424aac32-cd6e-408d-bf1c-53e70e5b6776','52ccfccb-728f-40cf-8245-fd06b97bd10b','539a9531-8d1d-400b-8079-2b8262f27ad7','8181f481-28c9-4595-b946-226c68fbc995','991708ab-4a5b-47c5-b8e7-171e87444213','c9eecd22-781f-400a-be2f-d4a557898b21','dd308bf6-af78-4c0e-8575-c52c08493676','ec406615-5806-49f4-8290-c852508af1e9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.416')
+  where id::text in ('280623c0-7b7f-491c-9300-6b9fbd6c4d8a','3803146d-765e-430d-b392-dfb13fd86b75','53858498-c92a-419d-b422-53db0e7a446d','9e24e602-9c1e-4305-b5a8-d96c0892cfbf','a1658dd9-d7a5-4cd9-abe7-bc81b9c0171e','a3bbc996-a6a7-46da-8eae-40d6c7c08035','b71a4699-3826-44f7-989b-523c63283e8e','c7140e38-35bc-4589-a22e-824f6d670a6f','d86c7827-36b8-46a3-a0ff-4af882b8cf35','f0974e88-72e3-4e43-bd7f-001bdaf0ea5b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='13.3')
+  where id::text in ('280a1c90-4ebd-4a76-9630-4ca6bc25a866','614c6a6a-e95b-4b4f-822c-ff5c64c1e390','69e8416e-6b41-4be1-ab36-c90ee0585ed3','b49a7ae4-eddc-437d-8872-b9853ab85736');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.82')
+  where id::text in ('282922f5-e0dd-4c01-a064-2a13f40dc033','5ab0cc56-2b50-4408-9d43-17719c8a9fea','868fb2e2-991a-4ce2-8570-d2813cc78e4f','c819fcf8-8212-495c-a9b0-dc73c0b87109','ffe5315b-f323-48c2-8dac-8f98c32c8591');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.61')
+  where id::text in ('282d0169-c526-4310-a3ee-2852c41a3a3b','63dc3b1f-8f02-47ec-8cda-c5fbcc5c1975','fbb8f145-e4d3-464c-ac7a-58481876515a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.243')
+  where id::text in ('28303ee3-50d9-4ade-8c78-789c184e90c4','486cae2e-5603-4bad-af1d-220afca1fd5b','52d8693f-cd4f-4730-bad9-9a5e1e153b73','687c3d51-4c6c-4005-bce4-27d363f97f06','9bbdaba0-ad7f-43d9-8726-bdc9e5a17368','f24d6688-aac2-48a9-9249-311037c429e7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.316')
+  where id::text in ('283818a7-d700-4ab1-9f97-8618fbc49966','3e905f62-4f16-4dfb-bfd9-67d2d0f53dcb','981db286-95fe-46fb-b90b-7acc0f25cf3d','ba358ba2-87aa-4397-b687-37ea64ea7e5d','e78af945-2b5e-465a-94b8-df19ca0b08c1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.36')
+  where id::text in ('28432a33-6325-438c-9718-f6f58a65e61f','333599f6-d7e1-4fe7-b4b5-bf929e617a55','42fe1abc-b903-4bf3-9caa-88172d2837b4','53d811b4-6143-425d-b4e2-59324e70b751','7e3edb30-956b-4f32-84e6-fa89572cd64a','96fe0d3b-bae3-48fd-88de-26ebc5a5bb5d','c38f1a08-e5d1-47f0-aa22-ffd20101cb2f','c4043463-231e-459e-a3c6-deafd8bf1f51','e5efb823-307b-4a64-ba87-fedc047d5ec9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.227')
+  where id::text in ('28444398-bc14-4101-9a9a-07266de7e9a7','7f86056a-82b6-4d28-8c30-f908a8f65e74','8d4b5375-4688-47a2-8b78-4e1341933f13','e46dac3d-da2c-457b-8a3c-8c3b42538172','f227be78-ddcb-46f9-bfd8-114fbc474af7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.97')
+  where id::text in ('286bd2cc-0f6c-4778-9ac4-7f496221e772','2e0072d7-5522-4c4a-b0da-b5afc3b05476','3ba7e7e2-c6e7-424c-b561-daadd33d97e9','3dc3b5b4-eb30-4a6b-b7ec-287139c8f399','80801564-5084-4cca-9bb8-cdeaf2271352','84c02626-15d9-4da2-af84-480e23b6fe1a','87871c4f-af48-4737-b7d8-80260c30691d','8b51a3a0-a4cb-44e3-94d4-cb970a97d8cb','9489fec6-533c-4e5b-94f8-0d3e44814f2e','953c5cbb-c9fd-4c81-a5bc-9fc9d4e6cabb','954387eb-c40f-4949-bd95-2c7bf93bef9f','d357679a-3361-4cc5-8447-752e564d92c7','e52a8fde-b2ca-403f-a436-730ba95c7498','e8723a9c-d17e-44d4-9917-b437a0b8c871','f7116e2c-871b-4688-9319-09bc02e06aca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.423')
+  where id::text in ('2881062b-0e70-409b-b639-fab32e257ddd','30fce0fd-f9b1-4adc-aa0b-157404fc4b1b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.144')
+  where id::text in ('28b9b8e2-81f5-41d7-8e1f-256fb6aa4f2f','b8a6b46f-7e48-49e2-ab2d-7d34f1321d56','cf5448cd-ed18-43f2-b886-7ef4ceba547d','ece76dd9-757b-4a43-9295-59ff008f0810');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.228')
+  where id::text in ('28d065ac-3032-4396-a1d8-11457396d12e','50d294cd-aec8-44e2-a54f-bf816c6ee461','51d8e091-00ea-4ba4-a20a-68c03f53b45f','580052eb-07fc-4ba7-aa07-2fa6bc5827df','5e6c36de-c249-4531-ae6b-7ea4f117c32b','7ad835a1-7504-4c94-be0c-f247b2cd01d9','8c5ad745-1e91-4903-92c2-5af0235dad11','bce33bd1-29df-4a07-860c-8c09ba6e50d3','bf4eef4e-9fee-459d-ad26-31c1272b29a6','cb1016be-9932-42ec-8f3e-c1e22837d61e','fd297691-fa20-44d0-a772-776dbd9c3379');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.165')
+  where id::text in ('28db49d5-b678-40e3-bedb-2400202f630d','785f5202-517a-4aa9-a5da-bd0f779e7d1e','7e3cd34c-8cbc-424e-aa0b-8fcbfc198631','87efa3ef-7489-4d18-a833-21de559fd2f9','995476c0-4481-49cd-9c15-8f5149156ffa','a28fec60-6ab0-41c1-a39d-38d06d5fca05','aac789e9-f5f0-47c2-9956-3a661e118c26','e6ee159f-7c1f-47f1-a459-bde4792fea55','f89497c7-aacf-4285-8ae3-e18087e736ea');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.85')
+  where id::text in ('28ea57c2-faa2-40c0-89fa-e4b2e0079c03','99281ad8-729d-4bbf-b83b-bd1298966314','e7ac2719-8905-43f9-8a2f-756d2b3ac635');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.35')
+  where id::text in ('28f0ee4a-5cdb-4097-ac50-8c04a38b9e4c','3806aeb7-7db9-4c24-a477-ff54247b8909','411b25c3-fdf1-4ea6-858e-f178e3ea974c','570f2b79-8f97-425f-ba96-62eab688a83b','69904c07-7d19-49da-9b6d-72f3f3613653','6e08099d-e3af-447a-a08d-27dd44ff1347','81f90c87-843d-4b82-a107-aa781e129203','b6845145-4ae8-46c4-ae1d-e3f9e1a98a8d','dcef0061-be05-4034-9d6a-199657447985','e17b3555-f337-4523-9218-b1f1aea58ab0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.235')
+  where id::text in ('28f6d8c1-52d1-4f36-856c-28cdd672322d','c1819beb-be92-4485-8559-d0d813cb823d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.403')
+  where id::text in ('28fba2e6-d9ac-4bab-9c7c-a1394dff9693','9d2a4182-dd9e-4695-a6d1-48ec7f45cb1b','9f86920a-020b-4183-9c7a-bf3b36215def','c7f1cea1-7cc7-4b71-84fb-1fba64ac81e5','ce664d65-9a7f-4e2e-9a95-aaf13bbd757f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.428')
+  where id::text in ('28ffcc0a-3915-4087-ae24-5df0122faebc','f1388bd5-8478-4247-9bb8-ad172a496cb2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.233')
+  where id::text in ('29310659-d638-4a53-8433-380525624d80','81469a59-d805-44e1-afd0-7020ed6adc1b','f5478c1c-eacf-4aeb-9301-3ff3b0dc9170');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.538')
+  where id::text in ('293aaa4b-675d-4d70-951b-1a1a77f26748','495604b5-5eec-420f-bbdf-14758dd3b351','9f1ef2b3-5e27-4ad6-af5e-1ac62676c77d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.5')
+  where id::text in ('294691a4-9b3b-4e08-9a97-0727b42a92c8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.157')
+  where id::text in ('294c0c1d-0d57-4884-bf3d-a2cb808b5963','382287d8-3775-40bc-9f37-c67ca7d092ad','73ece1a9-73e7-46b3-a7a5-ab9d563c90bc','b20b6c47-74a9-46f2-ae09-d50c8ad1e77c','d389bda6-7750-49c0-8a16-0c2e5d38c47b','d599a26b-b50c-472f-9f78-440254bdfe16','ffc62eab-9ac1-4a7f-87a1-8d127f39b135');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.186')
+  where id::text in ('2954b379-af3c-4bbb-9057-4d9fee2fed05','4fccfd32-7f9f-48b6-a798-ebe474a23722');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.166')
+  where id::text in ('295acdd7-45b2-4fb3-b835-2b0de4c3da65','30ac4530-6475-45c0-8bbd-b63119bc0784','32f54600-8eef-4b1c-8d14-f0fbfe27fbc8','34d356e2-a1bb-419b-87d3-2c42cc2e587e','4b784efa-b143-4b2f-8151-151946091a1b','4bafe9ff-be0f-4cd2-8c6f-ed0b4e516f73','51c8de7c-3a09-4106-a531-59fb383b7b0b','58d2347c-1dc6-4a56-a216-0692c7b0ce8b','85f39686-7a47-48a6-8189-2bf58c5cc37f','866791d2-e92d-4c36-bda1-bfc0dbf6f80f','8b055010-77bc-4eb7-a16d-5bd79b1d5343','908ff3d6-f8e5-4af8-b815-97fa95d3326e','94c2a9c4-6386-437c-a0a3-905a79108af7','a240a541-305b-4db6-8736-81d8f4644e85','a6ac07fc-6a5d-46ef-b930-62bc0116a608','b0f81628-8d3f-4ce8-916b-ce97b2472ef3','bfa120c8-8c3f-4547-981a-f697c24363e6','e677949a-46ae-42e5-91a9-91e5bbcaf20b','febc2f28-cada-413e-9a2b-088bf747840f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.39')
+  where id::text in ('29851b0a-b7ff-4f64-957b-43acd7436b71','8092f30d-6c91-46fb-84cc-129fb290e234');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.559')
+  where id::text in ('29933cb0-c7e9-4068-b6fa-e5961c6aa6d1','93784ffa-f641-4989-b78b-6495f128c25c','9f8c885b-cdca-43ab-b4ee-0aead5886b60','e00bd41f-c29b-427e-ab78-3cdb6f7bc390');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.112')
+  where id::text in ('2995ff3f-a4ee-43b2-9fd6-7ab8b5022b4c','c0688206-da2a-42f4-87e4-c1b754fb4de3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.9')
+  where id::text in ('2998c0dd-6b70-4efd-839f-c2e0b9e93736','459a6982-566f-4001-a912-e419c7c6490a','4a8d1eea-e2d8-4534-b1cb-0793deb16120','9a1fd2ff-b128-4673-943f-20f0b017bad1','9d4a1ea6-99c5-4fd8-838b-ac6146d5783f','abbbe293-ccc0-4605-93c2-5f2cb561a40e','b010df1a-b7ea-4d07-b7bd-fac29c759c34','b9613907-f987-4927-a013-f81302b743dd','d0c7124f-5b1e-4deb-b5e5-d3d062ef39f3','d309ac02-8f53-4735-b6fd-120b1e7c0587','f04fcc0a-549a-4c12-a250-6443d60befe0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.127')
+  where id::text in ('29bdb7d2-882b-4dfb-883b-b9607cd6c07b','42d955ad-004a-4278-a6c2-c553c7644e8e','e378ded7-d361-444e-b8a6-0a644c0693c0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.162')
+  where id::text in ('29d9f9f5-7a06-46aa-9013-f6862bb6db73','9d33f72c-4227-4bcf-aaa0-0197de06892b','d3a27514-dd6e-4580-aaba-dd73c392396f','db395f94-b966-4ea3-9149-6cbac2bdf6c5','f0dd1d2a-9b7a-411b-bee8-6562540e6104');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.392')
+  where id::text in ('29de2a5f-2048-4090-9332-c5c30cc7a58e','b7f0a1bf-14a0-47e6-b66d-f63c2790a506','bcf1dad2-9379-439a-b2ad-2eddb506595d','fda987a7-90f7-40de-8e4a-78553cf6a0ca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.244')
+  where id::text in ('29e10a45-c5d0-46cb-a6f3-db9cdd48f9d7','29eeb784-a7c7-4203-af36-01aa65c53fac','76fedd89-6aa1-4807-be14-834e285b800d','7c93975a-572d-4974-93d9-2b6711ed75ea','bae31cc9-7d5f-4987-adc8-cc27fda37307','bde60e9b-01fb-4611-b6f2-4659977e3b5c','f492b2bd-b131-4e94-be62-a4a767d98fef');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.259')
+  where id::text in ('2a001205-790a-4dee-9d2e-4c553aec1f80','72258fd9-5e45-4c19-ab04-8d557226850f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.59')
+  where id::text in ('2a048d90-06a0-4a1d-933a-6615fb51fb7b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.436')
+  where id::text in ('2a04cc2a-f6c7-4fa2-bf4c-dd363bdd8612','624a6672-da1e-457d-876e-fb554a7ab740','8830ee5f-77c5-44bd-b47c-2a540d6203cd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.14')
+  where id::text in ('2a182194-abcb-49a4-b264-fe7cd7073688','84cd45fe-c6d9-4936-aa81-97593faea0c3','cb6653de-2471-4dfb-899d-d72493a90179','ea3ebc51-eb2a-4269-b946-ec1755a9aa45');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.185')
+  where id::text in ('2a248b14-a350-4502-a5b3-cc6ecb21af63','89f813f8-4d1b-4388-8671-39a85cf8da60','c47821ac-9004-43e0-9c9f-f22c11dc4a25','fe9a62a9-425f-479e-b408-db282f33c283');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.215')
+  where id::text in ('2a24c93d-9b53-4607-b820-82743cf1c01d','482f2ffd-d840-41dc-809d-dc02492148f5','7d12fafe-86c3-47f5-aa61-ee0f49478479','e33853ff-8997-4d36-8e6d-6aaf8dd1e898','f555ad4c-4e01-4576-b070-c5cc1803c4fd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.101')
+  where id::text in ('2a2c5472-d4f3-4f85-8ba6-0ee15518de6f','7adac82b-8967-45e9-a0ca-54136ca2c0ef');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.125')
+  where id::text in ('2a52960e-85be-4066-83a1-a0aeab90f00c','3ee2f71b-0265-4019-a12c-ec3866503628','642f6155-1893-46e8-8d77-4e3b9e818c1f','92fd903a-1655-42ce-b22b-e0a8d28821d2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.248')
+  where id::text in ('2a593f0d-d908-420e-a37e-62241f69bbdc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.284')
+  where id::text in ('2a6d7d62-db28-4758-ae9d-b7a5d950dc77','6bd97199-b16a-46f9-8ba4-31b77cb4b72d','f1aa76a3-4631-4d65-b99c-da0022bc72b4','f6dd3bd9-12cb-48ff-b1d4-6f1a2d6b6910');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.129')
+  where id::text in ('2a6dbd89-4503-4fca-83ae-b19368144f66','39e53480-499a-4f99-a913-07855186735a','7a8d8341-e3a4-4599-9455-25556feca646','aa466485-62cf-4f5e-9ed4-c5a2d32fae81','af028015-76bb-498f-bb1a-290c592c4d8b','e5520250-ac82-43f5-9ebb-b0a0a8476a82','ec09ec38-c8db-4555-96bc-a06a049118cf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.21')
+  where id::text in ('2ab60c2b-e24d-4e11-8f00-2d6fab21fbb0','32f2448c-505e-44fe-8557-d5c3165b1b71','4dd636df-5aae-44c8-a86c-3cff1087efb5','675b425e-a9b7-4637-9af0-0336f7d87614','6b227ff2-458d-41c0-87b3-11b5cef6c56d','89a33865-e118-4d7b-a0c9-d13ab03a7832','935d3827-b447-4423-8e9c-260eed6be65b','b827f54f-08b4-440f-b36a-8c1222252a04','c2bd422b-fdc4-4aec-b1e3-d1e4114ec133','f2f34899-e22c-4f88-8f1e-29f6b73e7750');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.47')
+  where id::text in ('2abd4738-8f27-4a70-bd1c-997eeab08e8f','30daa4a2-9f5b-4e01-bda7-4c0e023c882f','38cee0e2-4e1d-468b-a188-65846269481c','536a254a-dc1d-43a8-98b4-e74f3e524b13','b2a0851a-224a-4ccc-8a5d-f1c807830969','b4382ddc-8162-43e4-b224-94c08c9ad3bf','bc373e32-9e62-4fd3-b768-fc6b1c758255','f9b17634-e53d-460a-a7c0-a67df918aa6e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.49')
+  where id::text in ('2ac9a080-ab1c-4c87-9927-1052d41cfe26','2f22032f-cbe1-4c4a-9d72-533c91956f31');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.253')
+  where id::text in ('2ae922a0-598c-4367-b641-3321bd78fba7','a22036ff-4956-48aa-a7a4-9a677dbb32f1','dd3a1222-723e-41e8-9e5d-dcc00d446197','eeeb66eb-69a7-44a1-94a3-c1bcce78fdc3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.48')
+  where id::text in ('2b2d5144-1bd8-4616-8219-92cd4ea9f480');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.156')
+  where id::text in ('2b4388c0-175e-4e84-af2f-4e1b21b0735a','96c6d545-fe43-495a-aae4-bb1e7381cc2c','9e5844b5-6b96-4f93-9283-f77c117da544','a4d3e8dd-fa84-43e5-9bb8-ac6e8f210e53','fb5a539a-cc15-4dce-ba43-cc926fb31bbb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.39')
+  where id::text in ('2b4f3b02-af2e-4a3e-bd81-5be8f46174ad','2fb2315f-1d5c-4b91-9fd0-374d931adef3','3133ec40-0e38-4e07-8f6f-ea2114673a51','4fbc3197-71b7-4961-ac7b-796a79017449','5e7c1ceb-4ead-43a8-afc9-d9fc4fa06e30','5f128244-4c53-423c-9de5-e9818ecf1ffb','9de322a2-1a3e-4ad1-8799-b57e2b39240e','b0a83ab2-23aa-4ee8-818b-b9ae05e65549','dc045175-f9a7-4786-b1ca-cb2249847f70','e1b4c263-32b1-4064-a716-c5be0c6a9701');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.375')
+  where id::text in ('2b4f5588-2d95-44b9-b652-5e2f6592e776','778c6e5f-4a7a-4877-b173-77534e51ca50','983a43ed-f582-4b6d-b23a-e4e06185696e','a2f479c1-ffcd-4bed-95e1-f257c131c9ad','dc040279-65e8-4f73-98e4-3e7313023373','e50e7c25-fd6d-42e0-864b-9a933b696914');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.41')
+  where id::text in ('2b5a1b2c-4974-4599-9ba4-98737ae27621','f07528c7-53ae-4197-8c10-474ab856bde0','fe6c6adf-cb14-4bfb-bcb9-9c7de29aa5fa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.124')
+  where id::text in ('2b5f2a56-b36a-49f9-a148-65119d534052','2d9a0f4a-447d-41a0-9d21-ba389aacfc77','353fe4c4-af3f-450b-9c1b-fb2ad4cbb11f','57212667-a61d-4ca6-a52f-62cbd98f769a','6128555d-9d91-46b4-af3b-fa023dd1e0f7','6801e835-e9e4-479c-a410-15418bd5621b','94b32c80-475e-4f0f-9b5e-530b723f9c8a','9e293356-8332-4e2c-9c0f-a0c1b904baa9','b89ad10e-ec89-47db-9efd-0a6041d2b453','bb21cfa8-2295-4852-9b19-97170478fb57','be3bb67e-aa31-4288-9657-23f68faf345f','d8fa199e-df3b-47c9-8a77-ddca4d159015','db1e88a3-89ad-4dff-a628-d661c0c479b1','e79a6fd0-26a0-4e70-9857-cc2ee53c2280','fb258d54-ea77-4713-ab83-be11c982c66d','fdf9d28d-2a9d-434b-8e5e-01b41d61c19c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.98')
+  where id::text in ('2b689fba-860c-44ad-8df5-37eb365f498c','51864d86-08bf-442f-a565-fb087c315b26','550b93d3-531e-46e5-8299-25d30313efbc','85b5104c-fcd6-44e0-97b8-679465412347','b03112bc-fc7f-4aa3-af30-0917d0af5d05');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.233')
+  where id::text in ('2b6de5c3-79c5-4033-8989-e8b01d0734a9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.27')
+  where id::text in ('2b75d7d4-885d-4af6-81f2-faf6727235eb','5d09caf3-ce8f-46a2-980d-c048b2f5286f','66d0ce65-b44a-45c6-84d5-7aadd424240a','76c35d54-e7f8-416d-8ae6-05c96ec85aa4','a4393d26-1fed-4731-ad44-67fdabc38429','c20989f4-e4fc-4db3-9c2a-8fa7f9a1cc80');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.25')
+  where id::text in ('2b77fbff-36b8-4d5b-a0d5-2aa02a75e57d','370680b4-4677-4a3e-a377-0fea3bf7bf7c','476631ed-82ff-408d-a3cf-d2f33eec2f4b','5d50b2d4-a5f3-417b-8e35-0055d1714a30','95b61525-7c05-4cfa-b30c-8b0c6b8ec70e','dd0cdb1a-2d6d-4e8f-821c-ebf108e622d6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.185')
+  where id::text in ('2b811ffe-f503-427e-affd-18bd618967ac','7d90bad9-3848-45bf-ab0e-04e8ed1323e5','c8b20a69-6de5-444b-b61c-818d645f4d0f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.306')
+  where id::text in ('2b8b438f-b484-4307-9244-fff18ef0e5a7','3fff322a-c956-43b2-abb7-90a0e928ce8e','60fc9231-9c05-432b-aa8c-3fa48a802924','a5654b98-3231-4967-9069-cd9924be7acb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.241')
+  where id::text in ('2baf4fd0-342b-422f-912a-cdaf5224238f','abdb77f7-3255-4631-b66a-7c1a4fff04a4','b8083902-8095-422c-88e9-11089ad6f6dd','dc4f23fe-2d7c-48d8-94bd-3e4a6268fbc0','e39d7a3c-b1cc-424f-9758-a623e034673d','f97eb15c-c791-4489-a8c4-f046c9095ef8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.652')
+  where id::text in ('2bbed967-b7a9-4110-8894-3c9734e50e05','456f3d1c-24ed-47da-ad20-4294d8674e56','6bc56252-c9fb-41e1-bd12-2b7646f32c4f','80cbf6c1-073a-4c45-a2ee-32f5fe04c763','9c9b9f18-19f2-42b0-a2cc-c7308b9f9b5a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.16')
+  where id::text in ('2bcdaf2c-2847-4ee8-a6d8-15bd2b53dc8b','505c779f-8401-475a-89bb-723d8747bdfd','8a78bf2d-6257-4052-9e2b-851c70fd4767','9cc8fb3d-8f67-4641-8cc6-c33323e5f391','e9f8692c-2082-4e6c-a9aa-43c6eff92ec3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.556')
+  where id::text in ('2be18a5e-4d2e-48eb-aed4-487b3d29d24e','5ba8a025-99ca-4ec4-be7f-e9b50159a12d','c663297f-dc65-4779-a4b8-e10fc16fa9be','e2f5292f-af27-4afe-848d-cca3c5fecf33','ff51bb1d-7567-4d03-9835-d30ee4b9c727','ffab9ea5-66b4-4a4b-9595-1431de95671e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.148')
+  where id::text in ('2c2860c5-efab-461f-8140-14b4ca0c9959','3da2f3cc-0ba2-4540-b519-a7aa67036e63','798e599c-d763-4e62-912b-d96c1abb66d6','930c270a-362b-4017-a617-c37a840088cc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.343')
+  where id::text in ('2c325106-7851-4d65-921f-34fa347188f6','6ed25c5d-bf0c-4e9a-a7d9-d3ca765c9dd2','a165c4b8-ce5c-4df6-8d56-99bf7f03a8b1','b7db01bf-0834-4684-9970-b56cf991397d','bce43ffa-e81d-428b-8a06-5c441b9bdb05','f2e147fd-94cf-48aa-93f0-6b2b81f1c5dc','fce59b51-6d0e-44ae-a330-6faea06b5390');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.111')
+  where id::text in ('2c42a79e-a207-491a-a2f2-9c8f731150e4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.561')
+  where id::text in ('2c57b99c-3534-4dbb-a8bb-330733bba4a4','55514b99-56eb-4883-917b-bcd34916d131');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.444')
+  where id::text in ('2c58e18b-433b-4ef5-b52e-9c7611bc27ab','4e206c07-4978-4d25-9281-a3ab5fe71c92');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.145')
+  where id::text in ('2c64136d-687a-472a-8c3e-4126239587b6','30ad21b7-8c71-49e1-a2f2-ac522b9c397c','4f68d0f1-f14a-417a-9826-6f894b0dc71d','586824d0-5500-40e9-96ea-c412c7d4a13b','5db2b852-60e4-4370-a4f5-aa3810400abb','77602d6d-8d6d-4cd6-b1b5-96eae6e5a8f8','7e1bb0ba-ad1c-4432-acfa-35030ccd6f4c','a6fca394-115e-45f7-bb8c-dc6182f3375b','b6154181-828f-49c9-9f9b-f8d641d50ea4','d5d1c002-c339-40bd-9706-05044bbafe38','e7957e61-76fa-417c-8326-12275bcc95b0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.12')
+  where id::text in ('2c96157d-97fb-4d34-bebf-0f351d614084','623195e5-52a6-4c76-9c89-c52434d774ff','f8a57e98-50dc-445f-a1ae-e941807036a8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.424')
+  where id::text in ('2ca6f844-ee0e-49a8-97d1-735e03a41dde','e2017b70-50a5-4d66-8520-4c2bcda4c22c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.38')
+  where id::text in ('2cbac0cb-ef75-40bf-87b8-f623dc256107','2ceb3f93-1cdf-4210-bed9-6b04f1f53247','ea68055b-0a96-4c2c-9221-2d5bbbbcfa54');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.28')
+  where id::text in ('2cef4dbc-9ef0-43e4-b798-c6850e6a4421','39a7d093-0be7-4255-ba3c-765ea5705ca0','3b1190ab-3b6f-4a99-9e9b-0e0357b1e3e2','58f60dcd-ca5c-4b6f-84df-2004f3f28584','6b86b63a-3650-4900-a88c-1e102fd3ae97','7ee9543b-24de-4641-ba8f-61394f542932','9e45eb3f-abc0-49d4-b7f4-a68fe33c8597','b3c1e721-7235-4ada-b1f5-609c392ed8dc','cd862e3c-d317-44e9-94a9-276f5cf4013d','f2941516-6cf7-42dd-beaf-bb6c32268bd3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.418')
+  where id::text in ('2cf30932-766e-4265-b750-1c8337183a02','32f8ea6a-48f2-428c-94c5-43c73307e0f3','4a440559-e831-488c-9d96-5a7642acedd4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.392')
+  where id::text in ('2d21392f-e2bd-47c9-9a67-d051d6c24771','449cf70d-6d39-4938-9ae8-ae954b8e8f26','70df6d6f-4c34-4bbb-a996-9e61272764ee','d183b271-2379-46e4-928e-bbf702cb3bb6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.197')
+  where id::text in ('2d3a1e98-3ab9-424f-ab6b-2c17911a04a7','4031f59c-b8c8-4b45-b0d1-ea0abd3278c9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='2.5')
+  where id::text in ('2d4a5e43-c435-4d9f-aa4c-39cedb82fc5e','4bd20d2b-1a6c-4ce0-9f07-a67f1a90285f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.223')
+  where id::text in ('2d588872-2eec-4e85-8c13-77370b160a49','36273db0-8a57-4934-bd1e-841872abbbf9','406201b5-f24d-422e-9de6-944910070caf','4a8e425d-4440-41c4-82c4-9ad3ac435e4a','4c31c1ea-d323-48d8-9213-675415fac244','573e025c-a7c8-4e74-87db-ec53276b624c','5b18a9d3-ee32-46bb-9b3b-3e1298102151','74568aa4-1147-4d37-ae3d-4adc13a9ab27','80a6883e-99b7-4b77-b4f5-19cf2238f4e0','84e54269-6bca-4935-912f-6da1c5b36ea1','a2b91e06-c782-4cb2-a504-910b41296170','aab72e21-04af-46e4-bb30-5dc81fe0a3f2','de6bdcbb-ee08-4e01-88f2-e8f8997cc2af','e2920e4f-6664-4be0-a793-787f1b9ceb6a','edfb7aac-5845-46fa-8462-ebde89f05800','f97ca1b8-852b-48a6-a2c2-e1c21f79ac5d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.477')
+  where id::text in ('2d5aef19-ac24-4266-8d91-aebcf183a683');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.6')
+  where id::text in ('2d5df38b-f1cc-402c-ac60-93c9b3385f64','31481c9e-9731-4687-9745-691189d47b9d','48e8a49b-5646-4c11-8c4b-66f2439e5150','50bfef83-8c52-49f9-b675-f94e99d9f5cc','55c89102-2101-4a03-a299-5a2d7d2a4479','7419bfa5-557f-4518-952a-e5cda64d87d5','ad3a1d43-d90b-43c1-a5fd-0a31af971fae','e7da33d5-5fc4-4bc8-b6ef-fc2108d6b3a5','f4aa3cd9-8931-4cd9-9e43-fcefc234de49','feca7187-52b7-4c26-bdb3-bdd5aba16292');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.56')
+  where id::text in ('2d91726a-c61c-4f1a-87a5-05e3f67f2b73');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.3')
+  where id::text in ('2d93b475-58aa-4ba9-b581-4107f042ec55','ab9cf13f-6836-4360-b331-1be414121b87');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.201')
+  where id::text in ('2d9f7c2a-71ee-4b9d-967d-f0bb0183e026','85fe9707-4a52-4152-bc27-9157c97dda0d','a376acee-fb88-4010-8357-035de18f07a2','f5b0ce6e-daa3-4786-baea-b48584072805','f8080345-482f-4286-83dd-995c1dfd2051');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.318')
+  where id::text in ('2dab14bd-4dcf-494e-9878-5aedf4e99b60','4f005b16-088a-4fb7-a57c-dc600cd99eb7','633d238b-a8ba-42cb-b9de-36e647179d3b','863e2c10-8e18-4d0b-aab3-6c4f77393ccb','9064c09e-6cd4-4583-b8fe-7fee524db0fc','eefaef57-d70b-4f0f-b95e-0c48d15319e1','f6f9fb98-8bce-49e9-8d6e-e6523644fc13');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.272')
+  where id::text in ('2dc96e74-a3e9-4cc6-88ea-786fb0126851','576c0015-39cf-4307-a690-df3349759e0e','6a1960e6-2570-4011-a9eb-b0da53c9ca36','779731d4-874a-46ab-85b8-a6db45747599','80c56f67-98cd-403f-8292-869053166ee8','97f122a6-6670-4d7e-8508-2b226d469a01','af4d73fb-5361-461b-85f6-b394725faff1','b945bf20-e2a1-4cfb-a157-0a10861a65fa','e1e31ba8-e501-45e7-9641-5c55732fefad','e8bdfb57-0e39-4a3e-a804-7846d3bbdc6b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.95')
+  where id::text in ('2dcbbda7-8c73-4da0-b03e-8548842557a0','87895e62-8f1e-4242-a658-6563e4c79684');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.285')
+  where id::text in ('2ddc99b6-eb89-4ab9-95bd-4f3d1a37f372','467fa81e-e692-443d-ab80-1d627f707cd4','509edc3e-3863-4d9c-8bdf-c9fec4d62985','944f316a-052e-410b-906a-c05433027687','aad72e48-6b9d-4751-b48d-e4a8c6930bfe','e82e5d13-2e21-4f46-9af1-1f277963ebbe');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.42')
+  where id::text in ('2dfd22f8-5e0c-49ce-86a1-cc901c2ce6b4','7f942dc0-a667-465d-9914-427489c430c9','d75182a0-5e22-41de-961e-4199ac39abf3','da18d4c8-a24e-4593-bdf1-d0c4fb08dc10','eb714375-0003-4622-8196-fb51249e95e0','f1e641dd-5912-40f7-ad94-7a280939f7fd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.287')
+  where id::text in ('2dfee8ba-2ec6-4640-8490-b13ebb03b0ae','4160a236-69d3-4156-8a9e-b7c41cfbc524','c1175f6a-2f4f-445b-a778-042295fc0e9c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.141')
+  where id::text in ('2e1130b8-2ad6-45e8-a087-e9e0f0ba982e','d3e26ace-166b-4c5d-947e-7f80881a9b59');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.233')
+  where id::text in ('2e12054c-e4ff-442f-9c17-3c4eaf7c5702','6ab6284d-6399-4e19-87d9-960244d05d71');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.2')
+  where id::text in ('2e344cc2-329c-4cfc-937f-7cf02d0d523c','4c65b57f-39c6-4ee6-aedc-dbdf97a18ac7','6611674e-1d76-4bc1-956d-5d42e479c058','907a0523-c565-48ec-8939-66412c114df1','935dd7bf-c820-43ce-8c7f-c1ea5991ab7e','a8b01dfd-4f8c-4a69-9d8f-30a5d9d9691f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.205')
+  where id::text in ('2e3f3031-3327-45a2-81fd-b930c2c9e87a','2f2d5447-a3d8-436b-bd60-229ad3f742a4','3ffdb092-c614-4ed1-8d5a-60b1e198ee23','4785c106-8af6-483d-a0c9-c3aeeda6f316','6e70a4d9-56e3-4456-ae51-62c7c9ccf45b','96290354-f322-40b9-baec-28b91b1b0836','a3a1967f-f38d-4e23-9b6d-48abad83d28a','bd7cfabe-2d7b-418e-82eb-5be127247dff','c3111a2b-3331-4914-ae58-bc6058e14d66','c9842b4c-3ba3-4bff-a0dd-071679e2c309');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.165')
+  where id::text in ('2e4406ae-e279-4754-aea3-2aa33d86303e','40a60819-6682-4e7e-aae2-01e0ed936ab1','70605458-bffd-4b8f-94b6-9dde7823e291');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.106')
+  where id::text in ('2e643aec-268a-4054-b339-6bedcb9a0edc','303cf415-05d0-43be-9020-8a254e79c935','7366b6e1-32f4-4e1c-8138-4b6131b7d890','749dd580-dbcc-4989-9a0e-edc3f8cbdb59','7cdf75d1-b7d7-4871-af8f-037441ece8b6','a299e329-e3fa-41b1-b566-a0b4501dc72a','ae381114-6fa1-45e2-a10c-6b7bd85bd76f','c6378bd1-aed6-45f7-bb2e-db3fc8f8a4e2','d09e2eb8-b227-4e9f-b912-7b7e455c121c','ec72336e-5e9a-4504-a8c1-7390640e0cbe');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='11.8')
+  where id::text in ('2e684638-8f1a-4556-96b1-fb8719911fb0','6147ea64-2fd5-49ce-bc41-aac3d78b61eb','bd64e2ef-6be8-4e3c-b0e3-3bc873a15020','d81c84d0-bfe3-40c4-bab3-5161b61aa00f','fec19260-7dc6-4038-a227-1a2bd9285726');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.85')
+  where id::text in ('2e6a13e7-5279-48e6-822b-e8d6582ca30a','3651ed82-c6db-46e1-b726-a4e01ceabc46','4b6ef977-e5fa-48ad-a5d0-c89d1cf226e0','679d3819-5fe0-4943-a8c4-15f5c6f1ed1b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.311')
+  where id::text in ('2e6a5e90-2015-4b04-aee3-7a4dc8a79cb9','4cf9a3d4-6b87-4a61-aa6f-f7f9962df263','6954d765-f8b7-4dcf-beaf-fcd2bbaefe45','f69d87d5-016d-4bc4-8158-ef2aed8774c2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.466')
+  where id::text in ('2e6fda07-a7a7-4ec7-a433-f44389ed643a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.135')
+  where id::text in ('2e8dca41-246f-43a1-b1b4-d2fde16d69bc','7fc2fcfb-7a21-4f08-8fe3-e793594c151d','801b5fce-45c4-4689-9969-1d036bb00059','8725fddd-771d-440c-b9b5-1470529aaca3','acf0e778-da16-4dfa-981c-4b0cdccaae34','b192cbae-f373-41c5-a69a-b7ba77d77cd6','c0c7ff1d-484a-4984-9627-5717becd7f9f','d565cf75-ecae-4f7e-ada3-e3bae3470fbc','f1f5f9e4-1e03-40dc-b5fd-a14061c57d7a','f747e5c9-589c-4337-8e77-83269e7458f9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.198')
+  where id::text in ('2e9581d9-a709-4b03-aae4-e9aa7663eda0','33c035ce-43e5-48cf-8423-5382e978d17b','8325ad5f-6c12-4684-a15a-1653d57ce728','8547b0b1-9f2b-4cea-b468-c53e46cfef9b','91feb2d2-d8ba-40bb-b50d-c3ff64acfcf1','94c594a3-d298-4760-be8e-b88987d1727c','b2a1902c-55fa-417a-a2e2-a7b27d358cf3','b46a3e5b-0f6d-48f2-8976-777f83c74b43');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.43')
+  where id::text in ('2eb63bc9-9c87-453a-8b57-158056275836');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.9')
+  where id::text in ('2eb9c235-d2ce-4d46-a8c5-c840bc5eb4ab','676cfe9e-f038-434e-a5a9-d94f08b441de','93e77fc5-80a5-428d-a8de-db532460542f','9b0cd88e-a114-4b0c-8e26-d4c47f548886','a5985200-ebd9-4120-bf5d-62cf988599b1','ca1e26b8-8575-4403-9591-c6490c229b8c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.95')
+  where id::text in ('2ec7030d-517e-47dd-9e99-db0157fc78e5','d25b4bb1-8177-4a0c-9156-89ad6dd08036','eb752ebc-1588-4b01-90ba-6ac9dbcf46be');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.203')
+  where id::text in ('2ec93d69-aafc-4af2-9bc5-fdc5a8d34127','3499e0d9-8e47-4598-ae10-b39c4fbfad08','7907b3c7-d3dd-4c87-9b54-78da5cfc9819','c29db9e8-9c0e-4cc6-8de9-3d825e1a7456','ce13b46b-e995-422c-9311-34980e7b8a2d','ef41ed33-f733-4bc3-8b53-3dd81df31c94');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.297')
+  where id::text in ('2ecbbbf1-6d4e-4535-aca0-c65fe6edcd64','57434215-32ab-426b-b3d0-de1d59314d00','5a481c90-77e3-4414-81da-7d6ded87451a','6bc84659-dcc5-4353-bc0f-cfc13c6028c6','b1672a96-9fbf-4b12-b7ac-cd4ae688f499','cecfe47b-829e-4f0f-b499-27cb3e106215','eb03f454-45cc-49a6-ace9-9372911accdb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.92')
+  where id::text in ('2ed3167f-4c33-4d76-adb9-1993ddfd5438','4ec25256-45ee-4536-8db7-857045424187','cc9c9ae3-dde1-4907-bafc-d11ba3a72e6b','d524f5fe-b607-40af-8791-f4a238d4163a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.12')
+  where id::text in ('2f273735-11cc-4b15-a3e8-a312a07ee4d1','71ddf505-9126-408c-951a-6b64029258c1','73df140d-7644-4610-92a3-3f9c5487e9c8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.44')
+  where id::text in ('2f278759-8093-44e5-8094-fa1009de49ef','3479e719-f662-43cb-a090-ba2c6feb1721','76760935-86b0-401d-8e09-cb9a176cb244','7b55b22c-aee8-4765-b7b8-1b4e89a9f65d','8b49d62b-9c2b-4b03-b33e-512c8f126cb8','acde2dc1-2eec-4e50-91b7-c7d3fd273f77','bab05928-c8bd-41b1-ba0f-114338becbee','bc5e236b-9816-4f6d-bc4b-045a71334484','c3adb502-6ca7-494d-ae2e-fae6a41394d3','cc68c26c-3577-48b5-876b-1b0a81901a35','f3ae396d-4639-433e-97f7-ba90c329fe24','f76c4394-83d9-484e-8873-bb3fdf40fb8c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.273')
+  where id::text in ('2f45c81b-3185-4a96-bb76-8864016b492f','2f9a9d32-3751-456c-bbab-a48bcd08e5b2','3083e804-e8e7-4442-b935-fe9383efc76e','4dc49742-f4cb-402d-ae3a-012c64dcc92a','55aecdf7-fd10-4775-bdf3-55444ce2a13a','57f09f76-af2c-4ec6-9f65-74547dc113cf','67f9eac1-5810-4977-bc8b-401ea088fa31','7fed6dc4-7e3b-42ba-9067-40255a7d35e2','96670b06-bc96-4128-8f09-a24b3972fa02','a5fcac7a-1dcf-4ebf-8e2b-c5ff6260d5b4','af4ad38f-446e-4dc2-bf11-a8e42fd45f21','ef2758af-6f19-4b9d-ba7a-5ea52ed8c010');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.377')
+  where id::text in ('2f515756-5ace-4d41-a5b6-7b642a2d1e06','926615af-3b15-4c72-85e7-ab261ec507c9','c393c81a-08f1-4f34-b85e-0b0f2473cc80','d2a68255-f220-4dac-9dff-131c3d30c34c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.345')
+  where id::text in ('2f57b965-54a1-4f72-ae4b-c5be7e5c8126','5749c89b-cb43-4c1f-a339-d0a7fb007083','6d83ce87-bf60-4d4a-af29-411b88fcd06f','93e29526-693f-4707-8477-4bc7c8c44768');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.19')
+  where id::text in ('2f6bd854-ea72-4c0a-8a29-ce72ea0ee03c','3b2dcad7-533a-45cb-b704-df67d970d187','99af3873-d62d-43c1-905e-ae337918ec2d','9fd99438-e329-4a19-9137-b1358d37215b','a2fbbba2-81fc-4683-8598-fe268e75f552','c3671604-6430-4fe2-b1aa-e194abce257e','c4d372b7-2479-48b6-bd73-b176a0548b3b','c973564d-b0b8-4bea-8d78-f89164dd3470','d407aeb9-9913-44c1-bf30-76554f5fe42f','e3ef7665-5287-4ab6-afee-ab611f94b7bc','f633d9d6-fb34-4326-b6a4-68cbba5cc4ee','f6f63cec-19f8-446d-a708-967dfba0f6a0','fdbd99ab-2f36-4dbc-87f9-b0c3a1688c65');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.21')
+  where id::text in ('2f894326-27ac-4367-9328-36e76e970a09');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.36')
+  where id::text in ('2f8d00c1-f823-47ba-86af-e1d8f1d756c3','31480490-f0c6-4b21-b733-f7c77cca0910','755044a8-9bfa-46af-aea3-1acda3fb8765','9312d0ed-7677-4ca4-8484-05a8f6129680','e332b3db-958d-49d2-adaf-5bf2be6bf092');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='2.3')
+  where id::text in ('2fa43043-2d47-45e3-b079-b6fd2fd3ab31','819faed5-b0cc-4ee5-8e5c-15b47e548c38','d555b47e-245c-470c-84fc-4931da7503c1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.124')
+  where id::text in ('2fab9bcc-f5ea-4b32-8211-e0eb8a8b975f','bc201e84-db18-45d0-86fc-e8fb182f9783');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.527')
+  where id::text in ('2fad6bbc-9df5-45f5-b33b-6acdc3d8a160','b6bbd485-63b0-4998-8a31-54debdaf43e9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.565')
+  where id::text in ('2fb6f934-8c86-4029-b806-095f51f429c0','39153b2a-ebfa-4397-9a58-76db38dd5e2c','cacecd1f-5199-4bee-a451-1197e61c9673','f1de69f6-7024-45b6-9f12-0287f1bb3e00');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.11')
+  where id::text in ('2fbc3639-0a0d-4e50-bd43-9e1ea47bd9f2','62a7b073-26c1-44be-9aef-f8fb77226ef1','caec1c00-5946-4518-be63-cdd6374356ec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.323')
+  where id::text in ('2fd81458-8cce-48a2-9148-ca36bec494aa','4a1a3e15-eecc-4246-854e-7a899f25f21c','4fd2e60a-2c29-44b3-aec3-be3bfa167985','520e92f1-a505-44d6-b56b-4ceba8c00451','5a99291a-6681-432a-a8e6-7dedde55807f','698aa614-d482-4850-bdc8-01e5a14b7eb1','73f82ee2-b6b2-4e3a-9af2-674bd8264750','8a496fbf-4d47-4346-b15a-1b49d6e8f2e3','8c91b565-2997-402c-b363-814cd0a2da24','a1493e0a-2d83-457f-8b30-5eeb289c963b','c100800b-3650-4843-b822-7bc452c4c8c9','c66d196d-25d8-413a-9e0e-13b236b67953','f90287ad-4b1f-4794-8ed6-d2631b274a56');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.335')
+  where id::text in ('2fecf5b5-f2c0-4409-b42d-6142d56feac5','592752ee-9ab4-4440-a26a-d503d1f4d3f0','6705285a-6737-49b2-9277-b91fe167d2a3','a83a7684-7fd6-4cba-b258-dc984cf2e27d','cf9f1b46-5a87-4a96-a354-affdb43bea63','fb77fc56-bb71-4136-b34b-01c4bf4af841');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.118')
+  where id::text in ('300506e3-f09c-4976-8426-8062b585794a','42ceb467-390a-4c05-8620-939abd44a1f3','4ff2f2a4-2a0c-49bd-91a2-f4a351cd6534','515a835a-64da-4012-9375-c6448776f00b','5fbcac73-c9f0-466e-a658-f88e80d4ea2e','61a3dbe4-d77c-4607-b214-6a2aca1454bb','7993c0d9-dff9-482d-9c10-a13dd5566e4b','7feca318-e81a-476b-80b7-53f51f80b0e7','8ce8e64f-b243-4867-9078-6c847056c8fb','8f8dcd7a-654f-46e8-beb5-8d1317c19422','9c98c6f2-ddd7-46fd-b5a4-ebbe4428c6a6','b4e10fc5-890d-4eed-a979-946e8ec0edba','ce223e5d-72a1-4f5f-9709-1812d36ad718','cf43f8d6-d860-4b67-89e7-46954ae40501','dd1468df-4042-4e16-91b1-51ffe289ae27','eba7b8bc-e6a9-4081-b76b-f011c767a11e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.303')
+  where id::text in ('301057b6-6494-42cd-93d7-00dfd0f16f2f','5f63d062-0889-45f4-9fe1-4879753d6f29','693dee94-4684-4b92-830f-4bcd5cc80e70','8c43caf5-1c2b-4a51-aab4-dbe43e033921','af6ceb57-c749-4642-9969-96d0e3bc62dc','d8fe58bc-5833-42e9-bb14-7a6250c156b6','ea23136b-92cf-40f0-a0c4-95d79331e8cb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.548')
+  where id::text in ('30190742-04bb-473d-b5a1-516512150981','5794c347-508f-4e01-9b7c-56294b88993a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.51')
+  where id::text in ('303a5c5d-3d02-4725-99a0-2819462ef2b5','3335ad69-afba-4067-a1b5-898f5fba5826','3739b9dc-d466-4182-84d5-588c87108493','398fde1a-f691-4d73-b812-4d68627312f7','3f6c1bcf-5fb2-4ae1-a6a7-2a17591ec491','4363a452-9025-4888-894d-09466b201c05','5943abb5-b5af-42a3-96a6-42edbd927eec','8988fe6f-5725-41e6-bfc4-29c244bed126','8ebcf5ed-d87b-42bd-a3bc-6641bb8b4c11','a0049aa8-0607-4097-9b6f-aa5a1500748d','a433b3aa-4fca-4483-a883-11e3fe483f2a','b31414c7-20eb-4806-b7ac-c09fe696a83b','b5ce5f7b-0f75-4e15-a50a-fd16c671f319','b7a931c6-111e-413e-a346-fbee7176a2ea','b7e31d76-67d7-4c07-ba60-b35b5fba1a8c','dcf8cf60-7978-4806-aa88-5d4337f7229e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.68')
+  where id::text in ('3041f92b-342a-41fb-ad0c-860b8ade2f76','6b16aab0-801c-46a9-9f54-a47c1606a71f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.216')
+  where id::text in ('30698237-f86e-4fd7-adc7-506f91fb3151');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.234')
+  where id::text in ('307408c6-95e5-420e-9d81-4e563144dd97');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.394')
+  where id::text in ('308b28dd-5641-4896-a224-cd71c84ee999','715c84c9-4613-45cf-98eb-4bff97d4582d','b3622785-12e4-474c-b545-459dbdc94c51','e8556b53-3147-471d-b229-66f0a0d4cf84');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.6')
+  where id::text in ('3093ab66-5ca0-4ab2-983e-331987a99632','780d040a-2849-4681-a126-884a105f19c6','7a01e6e2-33d0-44d0-8526-478736c09c54','ed2b3fce-a958-47ce-9cd1-3c772fc6a61b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.74')
+  where id::text in ('309b9bb4-b734-4abd-98d5-0891fdec8296','a3c67374-6073-466f-88aa-d823c368732b','b86c4eba-aa6c-48b5-9ec5-fbf9835f514c','f54937ee-ed1a-40d8-95f5-59beadd800e7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.12')
+  where id::text in ('30b35492-5b52-43a8-a88d-61216b008d8d','43c5b74d-18b1-46f0-b31f-1531916cd767','44ebcde7-444b-4533-909e-47e64e5fc184','4fbcfab7-3ad0-4f57-9f22-e9b2c6e55e15','54e8e3da-8758-44b8-8792-e908642a2290','689f0834-e884-46cc-9be3-366288182924','b3e01f98-b6a9-4909-b27c-45cb61b3be4a','bec74df7-63b7-4f24-b323-4a256a4b3b5a','c499f1a6-7a3c-4e7f-884d-af1e31358270','c57eb702-bf16-4d78-936a-4fddee5dcfa8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.45')
+  where id::text in ('30d15b2d-c4be-42ed-882d-18c57519932b','44144bdf-3fcd-4ffe-813f-0d3b596434bf','7a2f3e78-95d2-4a27-94e2-4ceeed1f0727','9299d57b-fc4b-410e-8f8b-7cc7b2bc38c9','acd97c2f-070f-410a-95c7-11e43e00503d','b2ec4992-3922-42ec-ad36-9f31053ef6ce','b74f48fe-9aef-4fc4-b703-30fa03d2018d','d1d557c1-79e8-45d4-b0b0-69ec4099fd89','e8d44518-6bc6-4673-9c37-0da1dacdced5','fe46f54c-2650-46c6-96e3-c4679726c4ea');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.353')
+  where id::text in ('30f7c8b3-ff4e-43a0-8cd5-873a41540133','51e082bc-df94-4fea-b74b-9d1966fbb34c','5709c454-f9b9-444b-a194-2a75fdb604fc','5b7416ed-55fe-43ab-a85c-43501e0a67d4','70806d90-5e1e-420b-96bb-e54b2f1c0e79','932c80b1-62cb-4f33-bfe5-8fa2cf4d4f1a','95b8c51e-0553-40a0-aa7a-99dd3b060203','d67d9567-cfac-41f4-aa88-5159ccd7051a','f7406cd9-d2b5-4f3f-bd99-b7f0cf12bbfb','fccb30b6-d567-49d9-9ee9-e5e0001f102f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.393')
+  where id::text in ('31031a21-3f6b-4aa0-bd73-59c15b2c6b32','42aa8d13-c7c2-4b10-9fd5-b924878085b3','646b4f0e-f454-4083-9991-6cd965f4413d','7b01119a-ab3a-43dc-b258-f1d8bf934a0f','b01985b6-d6ce-444a-be10-ba15a3dbbab1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.324')
+  where id::text in ('313ce233-b105-4ab8-a0a7-33038dd4db9f','68cad2d4-2d48-42c9-a886-ee6756aa928f','8bb1480e-01f7-448b-9427-36cebe7b932c','8f4d3bfe-0154-418a-bce0-035225a3f380','9c541d71-afc4-4c27-ab70-a67aa3888209','fc1ab903-4ba5-4750-b8b8-a9ba5b665b8f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.135')
+  where id::text in ('3143e4b4-5541-4ed4-914b-ac8beab74511');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.15')
+  where id::text in ('31468e08-dadd-43e5-8042-f4f337d1b8ad','435f466e-477b-4ec5-acb3-09b154dfafc3','48e5c5d8-7bac-44cc-bdb9-fca388c65214','4c12316f-7007-4ebb-b127-01b0ec226b86','51b30f71-6897-481d-bd93-104190aeb270','540761fe-d06b-4aba-9419-0cc3506233ef','5b34693b-0ff5-4c2a-9ced-6eb6a745b300','5ced8bbb-f24e-4f8c-a920-ee57a33235a9','638238dc-4cc4-4e4a-9b89-611b39b4cdae','6749aa44-7403-4180-b50c-f15e7911595a','7be0db0e-4c10-4fdb-8bce-0482fd1d48c5','7d6b8d51-ab2b-4076-a763-6832dff18a70','87005330-f672-4dbb-896c-bcc30e2118fb','9095ceb3-671e-40f0-899a-ad35a3b79064','91364666-afb4-4cd3-9b27-01776f59e8b1','a55be43f-2253-4cf4-9370-c0b38937c8f2','a77b9519-a526-4af7-9e9b-02878f2de026');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.23')
+  where id::text in ('3168d8b7-7f92-4ffc-80ca-180f62dd9b47','3ae48769-bab2-4800-a200-6aa34eeedc0d','4e4f29eb-b0ab-49f6-90af-a3ec3ddace85','5368ee05-0c9e-4739-afbb-f58cc7be9198','5b63cdf6-f4d5-4473-8875-60232aa33462','6bfe2fe4-12b4-46eb-9b62-00e15edc140e','70904cd2-2462-4dfe-ba2c-b0d797d8cca3','8a848a3f-657e-4621-b5f5-ac27d3d7e2de','8eadc905-48dc-4075-b4ed-af76d12de636','9e1e5a37-4fd4-40dd-90c2-9c81da83d4ec','ae66b6be-31a7-4793-9ac6-accc0e04d3f7','c5e68239-654a-43e9-941f-f03d56ae8429','c8c00575-a9c6-4d39-9620-356b93083bc6','d098f063-291c-45d3-a795-6ea938c5d8cc','d1d449b7-e729-4a41-a879-96a99ba749f1','d22e6714-5c89-4ac0-ab74-0e276e362f8e','f43103a9-25d2-4a89-8ea2-b5da68480f9b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.461')
+  where id::text in ('317dd3c7-aba8-4c2e-a5a8-4f8e2b478af2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.37')
+  where id::text in ('31883a26-4892-4168-b5bd-bcfb0e2a3bf4','9f47efba-534a-4881-9750-490de7e858b8','ca1718c0-2571-4bb9-80a7-43414957304b','d41e25a9-eb99-42c1-8673-d8c7e04b864b','f771e73a-0efa-416e-aa2c-cd0b6f45e731');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.236')
+  where id::text in ('318bf87a-df5c-496a-ace2-6998c5c52e67','3cfab8c4-4acd-40b6-8076-7c7d5d3fcef4','56e38995-cdd5-458f-a706-c956a37adca7','5e5bf213-95b5-4e19-ac47-2c997a9a9c78','706f7091-0f76-4933-a459-86de95df63da','7991a7ea-d802-4c50-89d1-899dc1084b3a','80d17a93-f238-4e59-88e0-40757bb00ca4','82f13848-bc3b-4516-976f-ff0cd4d5e257','b91cdeea-6440-4183-a877-f914816baba7','c345e4ed-4673-4359-b0a8-34dddd604bd5','cb7dc3dd-a00d-4983-9adb-8910f125d88c','dab45cf4-317f-42ff-a747-062946cb6409','e6c3c1ed-5c3b-4f37-9f49-d5fdbf9e9051');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.238')
+  where id::text in ('31916770-bbfd-4148-bd33-656fde9ead1d','b51a6b5e-3b38-44fe-a5ad-80f919dc0201');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.347')
+  where id::text in ('31b54738-d9ad-45cf-8e92-08549b79f02a','3fd95396-9b07-4af7-96dd-23b850de7440','41c79e7e-65b0-4216-83b2-f6087c6c09d7','53cacb99-16ce-47e7-a31e-c299eccf8e81');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.337')
+  where id::text in ('31b873b4-da7d-484c-a5e8-ccf56a2a896d','482ea58f-9469-4699-af3d-8ebffa48cef5','6d241789-4571-49bc-be76-37cc60166636','9f03a62c-c81a-4f03-b236-50926db0ff92','be1b7d69-3061-4bbc-be35-1587e511ad64');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.209')
+  where id::text in ('31c1bb36-f1db-4eea-a019-50f7436a8ffb','5c518d31-ce77-4e39-b73b-2c4d94ba4499','6f40078e-6387-4a0f-a3a0-58839599173b','717b7340-d693-4afb-8c8d-2561855c37fa','71cdd219-247e-470f-909e-4e7e81eabb93','8fef0594-b9ef-4e4e-b540-fdaf107109fb','a7b4f047-d9ec-45d2-9f1c-a6b52a03cf51','ac50c490-98b8-4296-8f93-5cf9bc79eabc','d403c5af-e919-43f9-a851-5b2b3efe6aec','dcf541a2-8007-417d-ab4f-0f67cb694c40');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.142')
+  where id::text in ('31c23d37-97e0-491f-ac3f-334079e598df','6c092865-26dd-4825-9552-683740b09bbf','b895ae8c-104a-4dd3-b2bb-7d99bc509ee0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.358')
+  where id::text in ('31c83455-0836-4a0c-b4d7-661726e277fa','619a81bf-6d53-42ed-98e5-63edeacc9bac','8f5e1443-0379-4d36-af93-d9a014e303c8','a8636fb0-db5a-4867-b25d-affa81c3431d','e96bcc96-9755-4f5c-946c-992036cd56e2','ebeca00c-985e-462f-9ae1-a887fc430689','f7ad9c99-a95a-4cd0-a733-3fe3c7c3c3df');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.458')
+  where id::text in ('31d59b2e-7784-4d13-a629-506196855778','85ce87af-12b2-4779-b5fd-5ed4d86135f5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.237')
+  where id::text in ('31ebd79c-7aac-4bc5-872c-463ab30f6727','39485f67-ab80-408a-8a1f-f217c558b91a','51c6e27d-2116-4f4f-9d50-fa1c559f9ef4','52a85329-5fc9-43d2-8ac1-37b85604f3b0','bc74775c-f518-4cad-a028-12a571a2e8d6','c38de348-d166-4503-84fc-c85170324377');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.99')
+  where id::text in ('31f6af0b-dacf-4a3b-b1ae-988d0356fdf0','757a7a2f-4488-41f9-bca5-f46ecc87a5de','8589f6d7-08e9-4e36-a2a1-ff7fede33cb1','891fb34b-84db-4ce9-9857-59f2637de321','f4d76f4d-f8fd-4ab3-9cc3-39f102193fe3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.277')
+  where id::text in ('31fad952-0cfd-4731-975e-18681f8e4730','6f80d587-e29b-4561-88f3-b8324acc174c','87f6378f-39ac-462b-acc0-56829eebf3d2','a4010f96-7928-4382-9800-5d92e4ea4574','df4033db-a707-423a-9af5-515d1e13de0c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.81')
+  where id::text in ('32234d10-010c-4dae-9790-857d0bb7a318','6f840df1-03bc-4d97-a70b-b603589ec100','8ef307ff-d99b-4a92-bd94-0465ae9e0614','bfaa933e-1297-4143-998a-02630907dfbd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.401')
+  where id::text in ('32238ee1-8582-4a89-85f3-9cf486092a17','36b4f99d-4141-4fed-9ad7-2b3b129486af','54ebf62c-6568-4ccd-958e-c081da1ab67c','70330f22-72b1-4937-ba22-a1b0943df93a','785ed338-e705-45f6-a5b2-ad853e0b9563','92e5fc4e-558e-4c3c-8e1f-c11e6d9a052c','aeb800ca-486f-4136-80d2-0fa0d687ab18','b146881b-ead7-454c-93de-07699c0eb91e','c8d0698c-b3cd-4334-b7fd-cf655bfe4a90','cdfe981d-a369-43b4-921d-04d9c682fc79');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.95')
+  where id::text in ('322bf4f9-69c6-4a7e-9eb3-993fdbc4ff8e','509a302a-c0b9-467e-bf3f-a8fb47325b29','f143336f-1640-437f-a5c9-28b8f259923b','fb357d4d-eb0b-4d80-b159-dd782be85821');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.146')
+  where id::text in ('324f8a45-ea3a-4a15-9009-1e963070c441','d1149fa1-f04b-4a38-a11b-5401c6fbe337','dbfcb93a-487e-411c-9949-afc1f1425ac3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.71')
+  where id::text in ('32581a42-8278-401c-a794-4ca75ec23585','47cac81c-e38a-4498-8067-37bf2c101bb5','d25ed1c9-7cc5-4ac5-ba07-e7d7d260eace');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.271')
+  where id::text in ('3261200e-fb1f-4735-b2fb-8c7713004b65');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.18')
+  where id::text in ('32a157be-35f1-4e61-a698-c7d1d999a910','6e66aca1-0371-4c7a-aeb5-d386e0f934aa','72257a25-4c4e-414a-939e-aa665a172ebf','9917dbe9-fd50-43a9-b70b-e3e8527ac738','c80d949f-0d6c-40b2-b562-d1ef1f9ec505','ff9c3802-5f2b-4bd8-b736-1f075286339b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.378')
+  where id::text in ('32b903bd-2fb2-48be-aad0-bb0886e419e4','473ae6dc-e0a5-4685-bf73-e5976956510a','5fd8f63e-273f-4195-bb49-897949a2106c','c3de9488-9d82-4fc5-a6b2-b99a58089c51','c4eb117a-b3b7-4385-b331-4740997a79bc','fcaf2b1a-0256-46a8-adab-52fad190d2b9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.65')
+  where id::text in ('32bb3c65-9756-4178-8003-5e4a66015c94','65ef5e20-62fc-4536-b8e8-b019d8e0ffa6','6eabbd90-34e7-491d-9fe4-bd9f460c39a1','73846490-3fa7-4042-a8eb-5e4409d8b8e1','93c87c93-a4d1-4b69-95c9-d5cac7e97ccf','a7518191-c6ae-4773-ba1e-2796fbeb8a67','b3f937eb-d9bc-4720-9ce4-476d70e3b2db','d98b966d-31f4-4867-b9aa-c301e4a36d44','dec5d6de-81ca-4e8b-bc17-d783784d2d32');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.1')
+  where id::text in ('32be025f-2b5c-429d-a290-662cfd68ebd2','bb61ddc3-cedf-4eed-8ea7-2738722a3510');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.406')
+  where id::text in ('32db4366-0fb7-41e2-bbd4-b7b0ff8ea5ba','484bd99e-0760-4303-b09c-4b29c31ddd12','6b7a8c8c-2bcf-4415-9947-138ec71e7dea','7dfda9fd-c270-4505-a73d-bd2639d47f69','9588d7e5-b3cb-4c8b-a7e3-4f2ebe596ba2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.25')
+  where id::text in ('32e04886-bdff-4e20-baeb-d8c01c86426c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.142')
+  where id::text in ('32e87b33-e629-4881-ad94-888cc76c553e','4058a989-7313-4b41-a865-e68c8398e32a','7fff3d85-a508-4f2f-ba26-c776a4e0a191','eef30fc6-ee4e-46c9-b3a9-1c2ffa022b79');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.9')
+  where id::text in ('32eeb544-466c-465a-a272-d17711da91d1','78bb2290-2031-4525-a0d4-84d39d38f6e4','90b7e1fd-fd28-4551-ae5e-c6d85f26df42','935ebb2e-cf4b-429a-a82a-772814a18b57');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.385')
+  where id::text in ('33084d9b-6dfd-4650-b15d-b55ff936e731','35913358-1f8b-4e5c-ac42-85183d0e145f','6791c07e-3795-432c-9186-5d6afa09041a','aba5424c-1826-40b2-af43-17dc66954e4f','b4aa8372-7294-4b44-b78b-0948cd2c19a1','f6cf96fb-8343-40e8-8d25-80bd50db69f8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.9')
+  where id::text in ('3311fe28-72ae-458c-978e-870c54acc0db','89e0674a-27c9-40b1-bca6-30eaee923e61','ceaf6b57-acae-4411-ad52-0c65622dfb2b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.119')
+  where id::text in ('33184c35-c790-46ce-8c3a-2774a00fd45d','3b5e8893-70dc-4f04-bc69-9222b989ff6f','3f7f2655-5abf-4f64-9c95-1e9756290427','4afb76e3-61d4-4c05-9237-a49e9c1594e2','64493572-8c24-47d0-b3e0-4f875586b180','a84abfa2-9e03-46d1-9ddd-d74b6b5b69a3','cadecf9d-c48c-4bd4-adbd-b20d6dddf49e','de17dee1-3216-4cd0-b7f3-07e779067104','e459c857-86d8-4fe0-86d7-82936b8c2ac9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.4')
+  where id::text in ('33242a9f-b9e9-4d78-89df-900e7de53b90','b2169a85-8dfb-4711-afb3-752ff3a3f5f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.24')
+  where id::text in ('33247da3-7055-49bb-a89e-88f6d3efebdd','71b517be-9af7-41cd-baa7-86672faa6645','99a46ac7-4589-46ed-9b5b-c343559d6519');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.277')
+  where id::text in ('33270bbd-293b-4191-9795-1525789a6bc4','3a55c9f9-0897-42aa-9817-febf4e9a0132','43cd9883-3a2a-4866-9185-c17ffe1fd4c6','bf178940-497c-4b2f-8334-28da4d305905');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.242')
+  where id::text in ('3328021d-14c9-44ea-8f7a-43f2961690cc','62873cbd-c15b-473d-8eae-930afabbfeea');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.493')
+  where id::text in ('333337fc-3dc1-429e-bfc6-a29a6b59dfaf','4acb2400-81ed-47ef-abcf-7437825ba20a','df9658fe-dd5f-4683-90ae-da01ed3c8fc5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.305')
+  where id::text in ('3333a2d8-ab53-485d-be12-cd0f0fa567bb','5e1f314c-f597-4083-a1eb-c53bce751f71','6974429d-e099-4686-9b86-67e7bb81dfec','7d1ffeb4-1b02-4a67-96b2-e566d834fa47','a459d895-9781-4f1a-ab83-7c87a452ee4f','c4d413e0-d1d3-4871-9955-923d63e1df0e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.93')
+  where id::text in ('3346b749-6dbc-4f38-ae64-546b9bda348f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.58')
+  where id::text in ('334ad5f2-7797-4a51-88e2-3d65bb0d7696');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.36')
+  where id::text in ('3367391c-75be-4d1a-915f-c9707c3c6f62','8ef7d3d2-9c4e-4b55-9d18-99a5a0d0cebd','9a64281b-8fd7-4f49-ae65-9f0ab84121a7','bbc1dcdb-467b-4d45-bb7e-f621e33d7c4c','cf15c1a3-eba9-4338-85d2-f6bf7a392d31','e9f31c3e-cb2a-45bd-ae15-3d9fa941d656','f42f297e-8a90-425e-ab5c-a16ef1604898');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.18')
+  where id::text in ('337e6cc3-d258-4711-89c6-c40873e67b5f','846aeeb5-eebd-499a-96a3-7c01e0520ffd','864e0bf7-d2ad-429e-aa73-3f9497c785eb','e5f50358-08ef-4a35-ae04-71affd2a3067','fa4e6506-cc93-47f2-81b6-28d808406449');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.299')
+  where id::text in ('33909519-7447-41a9-b400-d65ed6fdb293','3a6cd737-f0ae-47d5-bfd2-b4a72b2b4128','c7ac7d11-d464-445a-a557-0f3189f6c1a8','fe76929e-466a-40b7-bd61-ce4043ee70fa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.25')
+  where id::text in ('33be1ac4-3c14-46ae-ae7a-88815580c2c9','3d293bd1-8c83-4e4a-84b6-0142c85f0999','6d36e0ba-6690-403e-9f5e-eef21297b509','743e27b5-7c05-4b92-89c1-05dae7e5e47d','7954409c-0823-4338-846d-c5ea374fa04d','935a0b90-938b-4936-a9de-25ec73e642fb','9b967ba9-b1de-44cd-a3e3-8d9c6a4d1766','b50a9910-3d0f-4e2d-8675-4c37d67e8415','bdc1efdd-8268-4057-8cf3-eca859b6a3ee','c0235aa5-bd6d-464c-9ebb-578da97ad834','c221953b-1ce8-443a-97e0-1e91c219c48b','db362a40-4587-4ea5-ad2a-e12079a05632');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.103')
+  where id::text in ('33c539c1-0ad1-4ecf-bf5e-3524bb151a0f','3b753e95-0cca-4187-b647-0cd5a9375b4e','3d8ba874-1eb8-4d30-b4dd-65258042e33d','536c0cce-a9a1-409a-8f34-3ff4c876ff73','6b95a198-1ec6-401a-9862-104a8634f148','6d142ba6-ec13-4f04-851b-59946db8f736','78a1f91f-9b66-463a-95e0-edffd6bb13e4','8da0f959-7d8f-47d7-8a29-66176c68af51','9e80b40b-cd57-401a-89a2-367eae41c84b','c50f9c3f-5cb8-4345-abd4-c58ef6871cb6','c9dc29fe-0742-47a5-8103-a1780a82bf8e','e0baf27d-5bf0-41c7-8e63-bb1adafac4b9','efc79d5d-f999-45bf-9dc4-cdc5dd9d5c17');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.49')
+  where id::text in ('33c79497-2c12-4c08-9207-7164d53a2625','714a6dd6-2916-4488-85e2-523308cb1d56','73ccbaaa-0b12-425f-976c-db4eb6ce3f7a','75160ada-d0ae-4ebc-931d-c72580354c8f','7de83346-0e22-4415-9271-9e1a3de4f85d','926e2a5a-321b-487a-ac92-aafc8fbb6f61','95ef476c-e755-44f8-93ce-706c8c5b3ee0','a1637481-3aa5-45b2-8a0d-f254e629ee55','aef9a6d3-69a3-40b2-9e90-dea31777695a','c98f899c-9569-45a8-91f5-ff262dd2391f','d2a9c20b-7c29-4062-b63f-9e76619bf008');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.21')
+  where id::text in ('33dd1676-914d-4435-9df3-3f9311e4cb4e','4468374c-5787-4ac0-84ca-596322d1a259','63ad7cad-72f9-45d8-a5ea-cb213b6ca3ec','764b94fa-5dd0-421a-8bb8-70e7824c326c','7667d446-1cb3-4476-b390-e7c1e2812894','7f4e1ebd-0ab4-466b-825e-5f636414d014','9c63a699-bdeb-41f4-8738-c4b170c2033b','b6e9654a-efc2-4037-9a20-675b9d0c8bf4','dd6db120-67b9-454c-9720-bc3711a748c6','ee5cb689-f7bb-40b3-a35b-6f416a2ed397','ff8f739f-81b5-4b67-b8a4-4aa472b9c93b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.56')
+  where id::text in ('33eb750d-9ac4-4d75-b7e2-1bb72a923c10','50ba1fd7-2c6f-47c3-8d5f-9ee3a119e445','6c8e23ae-7da0-429a-a8d7-1e78b19e9991');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.64')
+  where id::text in ('340cce26-02d8-41cb-bde5-b9064ea9bb26','580b2da2-6c95-41b8-9957-01a1bd59a344','904c7191-e582-4eb4-bcb7-3dc5900e23d1','b2986259-6ed4-47e1-9b59-f10799cd14c8','d4276f26-45bb-45b4-8353-69edce72a109');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.278')
+  where id::text in ('34730a61-e2c1-4f48-915c-451a580eeb1a','391c097a-0c9d-4f6f-aed0-27366971e29c','49417821-8199-4443-bfff-d6786ee659a5','511cfebf-47ab-4f10-a255-a786d6faa21f','93c00ec8-5cbe-4b38-89f7-586c4228d16c','bbfcfbbf-d9f1-4eb9-9e1f-0c78b03559ad','cac44164-95f5-432b-82c8-23eae5063abd','f472a638-44de-4305-bee8-84bca7d9dc3b','f54c3a07-afc9-40a3-916d-9a7f306b6379','fad876d8-a358-4cc8-84f8-808b6bbe7e4a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.346')
+  where id::text in ('347dfb69-98a8-4a44-9f54-b01f8990fe09','43834410-ae3e-44dc-a345-7eb5d7cb787d','7a26a3e5-d316-4fa4-8507-747baa3106fb','c963b037-1aca-4687-8d98-602be62971b1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.99')
+  where id::text in ('34968b76-1eaf-4862-80e1-13f7b41fc83f','7ed7db0c-04a0-4b30-b9a4-f480af41ba0e','82cd5abf-9b4a-4704-85c8-8bcc145dd496','a2e01ed8-d56b-45ea-b80f-968eae33bac6','c4482498-fe04-4b9c-8a46-fc69c6b11d2d','ea27a70e-4e7d-440b-8981-498b2bde76f3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.157')
+  where id::text in ('34aab4fe-89d0-4271-ba61-710304319ef6','62ecfb74-a467-4a83-97fb-a47f194fd249','ba3f488d-98fe-4eb6-9143-72dfc33c1809','e0f8f8d6-896c-4806-bb1c-d9b112deda58','e8937bdd-290e-4aad-9482-d2b4653bb355');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.23')
+  where id::text in ('34afe21e-80fe-4795-bfd6-4b0c66f50322','52f4e31d-0838-4e3f-af71-9d27c827301b','7d11b33c-1d63-4b57-aab3-9af8084b365b','853cf18f-d496-44b3-af4a-af175bac50c3','9166535b-c3ae-415e-a7ae-332d6de611b6','e4c9a212-affc-47ce-a91e-28b8781b6a5a','f4bff31c-adde-4ee3-b2ca-5afb86bc0a5f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.421')
+  where id::text in ('34cd3c69-34bc-4ca2-80c7-4806d7e90d6a','7e344116-1e72-47d9-909f-25c8fbaa3e04','7ee48afd-2298-4c25-b11a-0afa4784479a','bbe4c6a7-2af3-4847-ac2c-b7a11462b5ca','bf52efe6-df8c-4564-9890-1298280907a1','ee692600-cfd3-4595-883e-e000d55ab33e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.11')
+  where id::text in ('34cfef3a-0b50-49fb-8098-98b605ef7993','8c92eea0-9d28-43aa-b8ba-1f79ffce221e','e5122003-9667-4ce6-bc5b-54a07fbc7bfb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.3')
+  where id::text in ('34e2ad21-7a3d-4722-971a-8382fe746d9e','cb7d24b4-95cd-42f1-8302-648ab21042c0','cc0692c4-0c46-4d37-8453-9761d0ef2d8d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.346')
+  where id::text in ('34ef1113-516a-4628-8d6a-8387daab1e16','52e8790e-48ca-483e-9cf6-c67d2eb4f511','5eea5460-63aa-4c67-9219-e43de7d96d4c','693c4783-63b5-4d64-a888-4390e917705b','719c5d91-f87f-406b-aeb2-c18095dcb4d0','79684652-7e7d-4cd0-8b6a-15bd4f823c63','b537bb2d-3daf-47a8-b599-e6a695677b3f','d7c42a88-b0b3-418e-8fbc-1313846ad9fa','f6b6620d-25c8-4304-817a-0d027883aa88');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.526')
+  where id::text in ('34fa4375-f5ab-44dc-a1d8-9f537aa01c76','705f7eae-10a6-46f1-ad4e-48c5b21ec1e3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.435')
+  where id::text in ('3507a11c-6a1b-4e08-ae9e-0da208bc7eca','ac522519-35cb-469f-a342-7e1784fc0a20');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.546')
+  where id::text in ('35093ecb-cfb2-4ef7-97a4-ab250fa6bef9','bf4da80a-fb83-43e3-80b1-8a5b04549255');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.39')
+  where id::text in ('351af41a-7d90-4e94-b2c2-e2ae9d13f648','54cdcc57-e994-44d7-8aad-b1d712c528bf','673e274b-9bca-41ab-b43e-1b46cfb8e80d','70abe0ab-c2de-4cac-ba0b-5b50c1cc8198','97fe15fc-6c0b-40b5-b50a-8c4803ada5fe','ab39ffa5-9490-46aa-ac1d-8e4d6b5188bf','ace400a4-6a66-450e-8fd9-dc638030f1ca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.629')
+  where id::text in ('35406a44-4d34-47cf-8dd3-1c14cdfa7ade','4e8111b6-801b-48ab-8193-8b4b04d3d0fc','7e3366cd-0316-474f-81ce-7e50c2ebfcaa','964eee1e-65bc-4273-afe7-77d4e07fb3eb','acbf469c-170a-4d94-bf17-700bf52ef193');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.88')
+  where id::text in ('3564247e-e789-4ef5-975f-b1e4bbd0a88a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='13.11')
+  where id::text in ('3569af64-b825-4715-b5ff-c3d7c12d6407','4faac888-0a71-4e01-9c9e-173616eb9731','5a1f8c35-c3a2-4b0c-82a8-47f217fa4ee5','6077346f-ccd0-4eb1-95ec-1509da4c6e90','6bed1113-2e56-496d-b51e-6ec108bfa810','7ee0c788-6e85-4900-8b2b-ac66de2652a3','af6d2200-4c7a-4573-8541-b7a066dbc7c4','f1b6e231-1046-471f-af3b-23a5a7979331','f305a7bf-2704-445b-95af-aad9fc5fbd29','f4b15ac3-910c-4ffd-8e17-2a48d16389a7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.516')
+  where id::text in ('357bd2ed-afad-40e0-8ee3-2e98d45dc017','39264cf0-8da7-4bb6-b83d-4cd668d4c110','bf6e9f8b-7a94-44d5-b48c-91e7a3ec8a76','c0f198dc-90ba-418d-bf43-977a10ec4362','e75d3990-52d3-4cbb-97c3-71249e56e7e4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.103')
+  where id::text in ('3581c14c-6331-4420-9db7-34e41d7b8132','689f81c5-0dfd-40e7-b264-59e386247ba2','be41be06-c20e-447e-b343-874c65ffc072','c3a9b67f-f829-45f8-86ab-a876ea786b3c','fe9f5d59-962b-4f1f-bc6a-218a8d6f3c2e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.482')
+  where id::text in ('35b0bb90-2c4d-4a47-80ae-b88509f664fd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.257')
+  where id::text in ('35df8f7c-ad73-454e-957c-49419d78714b','cff27c17-ad62-44ea-9c15-cb3d2af124a6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.315')
+  where id::text in ('35e9a5f6-bfb4-4d50-aebf-489cb2825025','38062865-30d5-4991-9abe-5cb27193c0e8','50bc85f7-e5d5-40b8-bc5c-72ce2b56ab74','5615f943-5268-40d6-ae33-97d06cc204d4','6e4c664b-b635-4710-8b15-3d2806c40011','9c6b5a04-ccd0-45ab-b600-fe12aafcf13c','a25b8818-0f60-487a-9ad7-c2c3e07001c4','a2b98a8f-ea87-4cfe-977b-30ac23e7927a','b0a995b0-db25-4dd4-b53e-7b267f71cdc7','d3a620d1-b5de-457f-840c-a482be2cdf47');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.407')
+  where id::text in ('35ea7144-1f32-469d-9465-e5ce2fb5ce1a','7378d1e7-bdb7-43d4-912d-65c2c8b48c7f','7e244a72-beab-49b0-a805-b7cd39afc984','8530727a-eefa-4fc4-863e-370fe710bd64','975c4e5c-3b82-4a1e-bdad-6b372567a1d3','9f678f5a-10be-4d5f-83d7-ac18da042db8','f9d167e8-82a9-447f-b555-bd287140c628');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.208')
+  where id::text in ('3612736b-e516-430b-8e15-3484461850b5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.318')
+  where id::text in ('3618a913-9fae-4270-8e42-462d640c4c10','44d01d4e-937b-4041-a6d7-a63e6aaf1294','bf6cc104-c2ce-4bb2-b927-89b24a54838f','ca51081a-1e8c-48db-83ac-e8e10948432e','ea0ae07d-ee4f-407e-8dde-e30e362a779a','f6e5336f-8d7b-4be9-b135-24c49e62f787');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.193')
+  where id::text in ('363fd93c-8851-483b-94cf-d860ad183c4c','7815d7b5-5ad6-4eb5-a6df-9a7867e684d7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.81')
+  where id::text in ('36514182-761f-4f06-a157-1e9ed14e5467','747419a3-0dce-478b-8803-504130b4158e','938c71e2-fed8-45b5-86c1-ccd5aaf4d0f6','c615425c-0216-4937-ab0e-6b45a0799c6a','f574321c-5790-44fb-8910-542c67b9870c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.65')
+  where id::text in ('3654657b-4649-46b8-b1a9-02937876f26a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.23')
+  where id::text in ('367ac286-72ea-4594-abb8-0d9db439f7a2','8e5c4e46-a83c-4769-8c85-f3a864cc3e02');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.291')
+  where id::text in ('3680aed3-f96f-4e6f-8417-87d153b99195','41e39c47-7d72-4e9a-a642-c682628104bd','8c48e2eb-e969-46d5-816b-fdceebed3406','e1de3609-cba6-4e14-a99d-519b570468de','f9da89ba-52de-4587-ba42-78b8ccb63306');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.108')
+  where id::text in ('36ad99da-2753-42c7-9b60-dbedd29e3431');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.41')
+  where id::text in ('36ccdc7d-ca3b-4045-9e66-202304268a87','55c4c55c-3b81-42bb-873a-f5a8e11c9ae5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.246')
+  where id::text in ('37062418-459c-44b1-9d28-4d93d8455801','6e8171f9-5d58-4c38-abbf-327aa9a8f0f7','70f5b9c3-e088-4aae-8c3a-82f2ba0b9160','7d4388f0-5f9c-4e78-97a5-848ae6165720','966170a4-befa-4ca4-90d3-a28cb05cf15b','9b02aade-b316-4b8c-84a0-08f4c390b7fb','a660cc3e-3bf2-4a53-a64b-e69bc33c2b22','d4d70480-6a54-4c52-b78f-66d7fd01f5bd','ee908eb9-27e6-4a5c-939c-d1046ea6bb3b','f5b06bdb-b59e-41f0-8826-a0bfb8b2f950');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.148')
+  where id::text in ('3719f963-d633-4d81-b4b2-e538714aabef','72b54cd5-80d5-4eb3-8c6b-78c75b8b4668','7a4bc6d7-5248-4ad4-b6dd-6a1d0e7c67d6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.9')
+  where id::text in ('3726cbf4-e9dc-4b48-860c-2a9602cb93bb','4e19a0f5-d790-423f-97ea-a95497b4a662','5b501858-0ea0-47f5-89d4-6126e8fd278a','b0558ce2-a15e-44b9-8693-3610b6158ff3','bb532267-8936-4819-a958-b7293b630108','f8d5b7b3-d425-45dd-b739-0a4cfb644cec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1000000.1')
+  where id::text in ('37360941-2da0-494e-aad3-2840c2f374ab','af7f6121-e42a-4333-9866-9ee299a813d2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.588')
+  where id::text in ('375943ec-9374-4e5f-ae0a-3ff036b7625f','6bb783ca-19d9-4b30-a812-4383be7a984c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.559')
+  where id::text in ('3759698d-3607-4285-b5ce-8db783700028','e620ab22-114e-4e62-b440-a515d760b32a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.236')
+  where id::text in ('37603691-04f8-4cf4-925e-2c2648c0967d','3d4e6bb9-b7e5-40b9-95bf-d261eeaeb5d2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.186')
+  where id::text in ('378700e1-99d5-43af-a4e6-778b1a2efafd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.189')
+  where id::text in ('37c52914-14a8-481d-acca-e7368155d644','cdb40e79-7488-42eb-af08-fc9307920bb6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.2')
+  where id::text in ('37eda08f-a1e3-429b-a16f-a7030e01491e','4796d8e6-8e80-40af-b990-b01afc10a3db','cd774ccc-fa4e-4230-bfbc-48d6582baeba','e0850204-01fb-42cf-85f9-e6d0670f61ef','ef9172aa-e41d-43c3-a1e4-82584eaf12ab','f4942ffa-ef7e-4f8b-a743-e098abd1ffdc','fa9b04c0-5bb8-4dd1-8734-2bd2ba44138e','fe24166b-bbfe-4b3f-8381-d44cca5ad86c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.342')
+  where id::text in ('38008c91-ca36-47f7-8307-784e7a32afb6','3ff378ba-83c4-4709-82e1-b16461e12471','4e30fb51-438f-47bc-b094-533efb206a78','5be32235-97cd-4d50-8048-266496241a70','784320e5-e678-4831-aaae-b2d45aac41f5','b78f9d4f-abe7-4186-a9a6-93274c709772');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.175')
+  where id::text in ('380ce02f-6961-44dd-8882-a7898968d145','53c47c71-d16c-434d-bbef-00eca63e4aa9','71d92a82-76d1-44b2-9dcf-e4722305381b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.13')
+  where id::text in ('382ee0cf-0c84-4dee-955d-7788029e9274','4be12895-eeac-497b-aacd-f43d9fa415c6','65bfffa4-4a41-49bd-bc4e-77a79790bc27');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.69')
+  where id::text in ('38343ec7-d498-406c-9529-41bbebfa562c','729d385a-4a95-43eb-a03e-efd24483ffad','e278a344-bff5-4d84-b70d-679f43e6e2e6','f6b37530-108b-43a3-a810-21362c9dd2c4','fd548a56-d233-4086-b361-f96e863b1782');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.107')
+  where id::text in ('388bb75f-084b-4746-83b7-5044a7e6d586','56f5604c-408f-4107-80ef-c8412e9c7871','f2cd63f2-1111-4dcb-80d0-014c3657ee20');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.13')
+  where id::text in ('389a5a73-df02-4ec3-a11c-2ff7cf55926f','40217cb4-fbd2-4157-9d94-585727fa1dd2','b12f3856-295e-4c32-92de-fd7dde434ff7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.49')
+  where id::text in ('38d18429-e636-48ad-921d-9b7949696c2b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.16')
+  where id::text in ('38d8ec64-112a-4a22-ab07-b9134c6aeff7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.364')
+  where id::text in ('39052d7f-9547-48a7-8722-ba0202117a02','6ef00a37-9bb3-43fa-8be8-a07c4675197d','7c9fa2d8-7b56-46bc-851c-aa6a0a0834fb','95483af3-b0f1-4805-8c20-64dc06d852a2','e71e564c-c67e-43ad-8083-8d0712ccd80b','ef2f2e55-6d39-48c7-99ce-650cf299a947');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.106')
+  where id::text in ('390676f1-2bb0-4d63-b979-d9bf2b29a1a6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.25')
+  where id::text in ('3918ec86-9f3a-4bc5-b7af-822fcca9a8be','538d4b9e-6603-414b-bc62-5a2cbd0a2370','68a231e8-0133-4a10-9fcc-22675ac5f196','ccbf7b83-b0a3-4f44-b0aa-992be6d376be','f2b73153-0dff-4c00-aa62-959d18d82bd9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.39')
+  where id::text in ('39192a41-5167-4292-9ed2-aa1ea06bbbd9','668b9ef0-1e8a-4b70-9924-f5ef169223f8','6a3e1788-9293-43db-bc95-69f198b6d4a7','79b9a66c-1cfd-40d1-bd96-2df78712d266','9dda44cd-99c3-45f0-989e-06f4b25ea067','b6de866e-c58c-4ebc-899d-18923f305bb5','c0ff5c45-6c14-4814-be2f-fa6eec7257cd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.531')
+  where id::text in ('392c5f41-74c5-43cc-9dc6-0660baeb9c28','b5d2ae76-b24f-4195-be8a-de5a42fa055a','c022a836-d88a-4e9a-90a3-f4ba0be37b92','d8142ff7-cd02-4ff1-9979-1639f68153e3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.214')
+  where id::text in ('392f1f42-0c21-49b2-96d3-7b4d51a85ccf','6acb145e-026a-4ef8-9fc7-fc3a9e702995');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.38')
+  where id::text in ('393ca569-c3aa-4b31-aaf5-2692c71deedc','3dac5813-258f-4619-ab59-bf2ef1c4f27d','4515238c-853c-4c61-8490-c5796d6c80f9','5b458d80-cc4d-4697-a346-508a7d594f61','7bbca3af-88e8-4155-b3b5-d44a2f63cd79','7d60faed-de30-4c8b-b048-ad44a99ff47f','8272b7ac-897c-428c-9156-12fedca7ed2e','cb31baba-c821-4cfe-9f8d-645fdc96b8e3','d37bf663-dba0-4253-b02c-263546a28b02','ebb8506a-5277-4f6d-93a8-a11e31f14042','ed53d5fa-683d-407f-a985-e69075d78d0e','f59db4f9-7a63-4ae4-8aee-a6ab3d85b1ac','fa368a2d-7024-490b-a384-19dadc7204ad');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.481')
+  where id::text in ('39625236-808e-43ae-87be-e00666096bff','afbd3322-41af-470b-a2f1-cd5e7be1d38d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.176')
+  where id::text in ('397ca2a6-9a1c-4922-b49b-47a0d3cb7548','5ab63224-620e-4ce4-8456-27d0b3e9325e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.252')
+  where id::text in ('398257cf-40e8-4ac0-a289-07534cb421ac','dced276c-3695-4217-85fc-0c0d97c92734');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.2')
+  where id::text in ('39858478-c54e-400c-a6d5-53b08798fc5a','b18163e2-85b7-475e-acb8-0963381bc285','ec4a64d7-0d11-4e31-bc51-209cc5f467b6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.355')
+  where id::text in ('39aaef50-0517-4bfd-afce-7e3b817f00af','5dd3dfc5-ef88-4a19-94b6-f23a68cf569a','883c943e-17fa-43e4-b339-d197f1242e0d','a40e8b4d-0b75-4036-9a71-f4db6a8b7299','af354a7c-2fc6-4af2-ada9-cab9376f8422','d41b5375-8eaa-4643-b581-d479ec9e7b87','dbf90bf8-2d39-46e5-a08a-3a9a857d6a10');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.518')
+  where id::text in ('39ae9498-f8ea-4e1f-96ac-de22051e3546','616fad7c-95ee-44c4-955a-8575004c09c0','91ced056-9923-40b8-ae62-8f45abc48f8e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.79')
+  where id::text in ('39ed47de-a94f-462b-b08f-9ec7c50c16ab','65fcb2ca-62c0-416b-8b23-b3faff99e8d1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.137')
+  where id::text in ('3a2779e4-1a12-4b0d-923d-a9e15c57abf6','4198ab21-4e7f-47fb-a8f7-bb801cd1f360','53e92fd1-e21d-4c3a-9943-0aaf385393ef','56ffc7ec-d4db-491b-98af-32fb7a972940','57212672-6de1-4056-a5a1-a1bf60ff717e','5898a4e5-eeff-4a84-9584-32a92fd8af8a','89652179-99ba-4613-80bd-6de3b29b518e','8c0ecabd-0f95-4d4a-9f0a-d484ee514420','ccd76227-74ac-4e6c-9934-da4b964a4e96','d573920b-ea7d-4fff-b6e0-6953a5b9b95c','d78d8e51-53a4-4057-9dd0-5e3146019b94','db790a07-02bb-4255-aff1-bf6f7e300f84','e271dec9-d35d-4543-9363-c581637d4654');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.552')
+  where id::text in ('3a294fe3-a135-45ec-89d8-8c125cf8a52e','753ff425-1fbb-40c0-9424-09c9607f2b2a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.64')
+  where id::text in ('3a2f189d-8cf8-401f-ac39-b3560ee57337','6a171ccf-752c-451c-9172-694ae8a42de9','947be755-a1fe-49bd-83cc-801dd459de71','e79790b7-fc33-4cfe-9a6f-379a4c1611b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.154')
+  where id::text in ('3a57caa0-2e7f-44a8-870e-b3e1050430fa','3c1719ae-98bf-43ef-9645-8b2a1f046e43','3f973f7b-bee6-407a-b301-ad8447750241','40dcee6c-6934-4ec3-81c3-4675da7c2fc9','716a7203-2eb9-49f1-a8d2-d0216359d587','af063a66-b347-4e05-b5a1-a0621839007e','b135dd6d-7ec0-446b-83da-266cdfc2684c','b93fd5be-7081-497a-b6fd-866e7a181fda','d35389df-a5bb-4dec-990c-57da70d386fd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.104')
+  where id::text in ('3a5f13d3-5b14-4e3d-b807-1fb33ae8be0b','3baf4f58-ed6c-460e-abc4-bc878903d167','c6ed2906-cf94-49d7-bcc2-cc22933f9f66','dc1a407f-524f-47c5-b0cb-351034c1c56d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.283')
+  where id::text in ('3a6457ac-adab-478e-834d-e9b0b19a54a6','3c1fe2be-17b7-421a-b081-b4fa4df30844','3cdcd967-cbe0-4c58-8352-c55110834b6a','92074efc-c214-4101-bb96-b7b49a40a230','e1766270-b0aa-42b0-937d-735d74de1075','e809521c-adad-4683-bab6-4d6784de7e73');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.176')
+  where id::text in ('3a69cecc-34ca-4016-a4b3-e1f64a7f1492','bed48231-411e-4a9e-bc9d-651957f3e622');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.37')
+  where id::text in ('3a7a5977-b0db-4e65-9d7e-ec5446ebcc34','3e9560c2-e279-48a1-8c7a-f31610362cb2','85b0539c-635f-41fa-9027-5d3bf862f8bf','9b9ef146-3cbd-4fda-91b5-f6d5d2687445','b0a155f1-d2f8-496e-8957-46a517b030d8','cad27401-1058-4a7d-93c1-0754f41bf5a7','ffd86c12-5ae7-4182-aa26-aa688b431d58');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.203')
+  where id::text in ('3a9004d7-ad80-4c3d-bc86-7feec911adf8','545bd30f-a4ae-43f0-a023-b1eceade0b17','5a1428a1-6b99-40a3-a761-f41553772c32');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.108')
+  where id::text in ('3a9cf674-7491-4f30-9abb-c603c91d1c34','71409a92-78ac-4052-a8a8-397896c79e6e','a5842c3f-8177-4346-8165-b5e150154f00','e3dbba7e-2f81-4640-9f40-65152b3ff729','e4d178e9-ce2c-4b7f-8135-ee0419ee8ec2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.7')
+  where id::text in ('3aa9d74c-2e63-40c6-b819-cb4e5d5f24d0','8e10355b-fb27-4afa-98db-8635148702ab','b3c65e65-35a1-425e-94a9-2cc937500f0d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.346')
+  where id::text in ('3ab79972-2cc7-45c5-8a75-5c46c434c81c','4df16a74-f6ec-4bc1-be16-1d72628b1559','81462367-e19f-428a-bc91-fc0d10ea7dfd','814bbcdf-dbdc-4011-a80b-a0f9472952f6','9f8ad25f-95f1-4b56-b76b-1efa41e9a76b','a60fcb88-dda2-48f2-bcf7-f1391019ed71','b5013096-376b-499e-9c0e-9c7d459f2515','b597acc7-be18-4dea-8fba-3eaf881f9957','c09c7818-a12a-4bfc-9982-2a9cc2f4b831');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.48')
+  where id::text in ('3ab8626a-b022-4bc1-8d2c-c1a7d08e570d','706044fe-3c5b-4381-be84-4374b69d98ec','8dc906f4-e027-4636-bd36-cf0ed68a61ef','9cce6466-ba16-461a-b03c-1d303e756364','a22891a9-0c7d-431e-b7c9-5d7e3c3c6b21','bf00ea0c-a76d-4cf7-bee5-965633422d9e','ddfb28de-7837-44ed-9018-24f0c22bd049');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.55')
+  where id::text in ('3adbed5a-037c-4c43-b15b-1d9f6a21ec2f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.381')
+  where id::text in ('3adf0bb0-fa1b-4392-a71e-a000a743c966','50a1bff9-1a3c-45c0-9271-22d1481bc509','57d929da-5db9-4d7e-a335-44e8bb859098','656c9dc2-fe89-4a07-a690-44d33bbb69c5','6b891ea0-657b-4b1a-a656-5adfe3d7387f','a253d361-e163-4562-ad16-3ac30650dacb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.237')
+  where id::text in ('3b152044-b931-4098-b43f-3c4419e731ee','8f623f11-6030-4d4c-95ad-a252379b1a4c','b924b645-1a81-43ed-bce9-89fa29454a56','b9c6ee27-9098-4c45-ae18-d96fa81191b4','c8d8ce26-497f-4254-a4c5-3784d2290ce8','cf3da280-33ca-440a-a345-d84ff131d35d','dbab7d91-42a1-41c6-a175-806ae5428095');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.545')
+  where id::text in ('3b2c5582-9d5c-409a-933f-ff5fa8cc2fce','7b4a7ab3-2d61-49c1-bbed-4d1fa4ff16b7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.379')
+  where id::text in ('3b40ecaa-873f-4043-a531-70980f742c57','4a1076cb-6ff0-4b32-83e1-41f8daac8da1','4deb952a-6d77-4ca4-8f13-b7fa86d07047','5d0851d6-0918-4d3e-a7f7-f9e7e330ca55','aefc7d60-65c8-495e-a7ab-f0d3440e314d','d0363e51-3233-4853-b8ac-c4e27f1fdef9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.159')
+  where id::text in ('3b55b1f5-8c36-4e33-9534-c8bd76e199a0','5e4a579a-3c05-4c5d-a471-413bc2972f04','ffd8bd71-e8cd-460c-88f1-b2b197dd9686');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.29')
+  where id::text in ('3b59cf26-eb4f-473e-82cb-ce51456aa8dd','56d13756-9e47-4236-a3dd-7d8db97f154e','9d252a8c-0e6a-408f-8aa0-ebf611fc7e67','bd5b98b4-f02b-4d73-94f0-3631421e8b41');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.92')
+  where id::text in ('3b9590ec-7857-4d7f-af72-352081a99c15');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.99')
+  where id::text in ('3ba2b0d6-d422-444b-97a2-c7a24a105723','71350b2a-f39f-48d9-b1d1-54560b1f08b0','b89c57cb-9c82-447d-b8c5-35c9b88099fb','d3f79e80-6324-4814-87d2-6b669c180166');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.44')
+  where id::text in ('3ba3df1a-4017-4c75-b23d-22e8d24cf124');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.172')
+  where id::text in ('3bb09443-871b-457c-9464-855a8fa68259','5c28153f-961e-4bc3-9efa-0f33764342b6','88817158-9e2f-4dad-9065-42e65dccb613');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.59')
+  where id::text in ('3bcf312b-c9e6-4adb-9f64-c309aeb2682a','82030a82-f435-4de8-a4bf-a517eccf835a','b1dc6a56-535d-4144-9a43-f1c04dbf2036','bd6e753c-2c05-46aa-8192-ad3bc652cda5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.609')
+  where id::text in ('3c14329f-d9bc-4aca-9789-d4303243379b','559aa764-92b8-4b9a-ac06-618b328a024d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='13.2')
+  where id::text in ('3c155a12-f9d3-4ff1-b831-4d2bf524f358','6726a6d6-1aec-4f2f-915f-3241029eab78','6db7e67b-7aad-435e-8f70-cefea5210890','7a6b9b44-f9b3-4a12-84e6-3c824b91efec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.544')
+  where id::text in ('3c15660d-2f54-4505-9e20-ef09a7944d33','c11822ea-e74e-4a6a-9f48-f3b032a2e613','cd91112b-56a6-48df-9ec0-8bc4ba2c5ec7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.44')
+  where id::text in ('3c1fcbc0-91ce-4dae-94ce-1be8729dfbec','52f47745-338f-4bbe-aed7-b8ec9b50e11a','69cbd997-a1d4-4b4e-bde9-b3c3b7e2bc43','ad7bd487-b25c-40b3-8bac-a27d33d60ef0','b6624758-9d1a-40c1-9157-2a79a1137bf9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.139')
+  where id::text in ('3c2fefe8-8d56-495d-b9fc-ff055c1ebb75','5aebc2b7-08ae-476e-945e-620f100fe26e','788c1c3a-8add-402a-b42c-8a91d635fb54','a60b1108-6cfc-4191-b98f-cd8f9761b4e9','afa8d05a-844b-4661-a06f-ce6e030d2bec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.542')
+  where id::text in ('3c344b46-7282-4931-b7d7-cfbbf1cbab2d','f0b7792d-1026-4ffe-a915-c95560be61bb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.269')
+  where id::text in ('3c3c6dc5-baf9-4594-8595-4a6af10d3d84','41423b42-a430-4b99-9f14-53adabe48a9b','4dd5aae0-e3a7-4a0b-8a7d-3a672528807e','9cd342d3-3a1e-4f30-97b0-6939b8889e21','d433a100-80f7-4526-883e-f71784799580','d8e4d47a-ae81-4881-af65-cc3eee37f8dd','e0fd1918-113a-4cda-90ad-4687d42e1148');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.48')
+  where id::text in ('3c5e7a88-8219-451b-b775-90ef4f196aa7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.367')
+  where id::text in ('3c624aad-41d9-4d4c-93fa-968116850831','40e12bbe-c213-46ac-ab6f-45dffe013c3c','81345749-177d-429e-bc3d-366d5294afa8','ac10d117-c188-405e-a879-032b0c8e37df');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.84')
+  where id::text in ('3c673961-0933-45fe-9aec-7ade2a402dea','6654956f-af16-4cc1-9c10-cbe6fe1a52c2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.15')
+  where id::text in ('3c689eb5-6625-442e-9270-31733248dbfa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.116')
+  where id::text in ('3c6bb787-904f-4442-9c24-9427eb852ce3','535870e6-854b-4fa7-a773-2401abb76e08','7ded68dc-dd2c-4b52-9e55-927c319aa084','89bfc4d7-b843-4930-a2d5-1571e054f54e','9213060a-8b47-44c4-b5d9-41e9169a274d','9777b0b3-6476-4400-9365-1e272b01696e','a1ba4e6a-70c2-43cf-9205-998099242c11','a434b12c-93a6-4d86-991a-18147ea331fe','cf6ab0ff-e5e7-4d89-8eac-adb2b0102c01','d5f50504-069a-4d5c-b958-dcb7872e73d6','d95073cd-1ab7-4ad6-b5bc-0cac4c68c80f','f2386184-8ab9-435f-9262-0e70762a7a41');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.194')
+  where id::text in ('3c7636bf-d867-4f1d-88a5-654e6e9dc1d6','5c35ff9b-fdcf-47f6-b417-fbe97305884b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.224')
+  where id::text in ('3c8809a8-7b87-4732-89e8-ecc8046e7ec6','70b1c3e1-9d99-4d43-bbaf-6c9cf5de79fb','9bff2c85-baa1-4e4f-8f21-635f76158f46','a543a62c-7bf6-437c-857a-908dd1eda575','a6c3a57e-3694-4230-b806-60e817abadef','b56250fa-28cd-453f-9f3b-7c592db5d290');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.376')
+  where id::text in ('3c9fc9e8-ade9-484b-9142-3743db564743','81fe5051-d894-4a44-864f-a91c05d7d696','9ddd43e1-cec2-4205-a36d-40e3fda15a68','a14a478d-e9f6-446f-b036-cf6fcf6f96e2','a567b154-60dd-404e-a7b1-23f5f29f9f60','cae8f125-93f0-44fd-9efb-8bacbff14e2f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.352')
+  where id::text in ('3ca5febf-cd76-4807-9c1c-7e606963a4d6','56e61437-6ab6-46b1-8a0f-91ad89be8391','8f2f9199-9899-4d43-b0b8-88be30688748','d2f12f05-ac0f-481c-bf04-292d256a78f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.251')
+  where id::text in ('3d2bcc50-cf26-46df-9047-c0d2b7534e7b','49332fe6-0a16-4461-8e46-59025b21147a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.415')
+  where id::text in ('3d3fbdd0-35d4-41a8-b7c9-b2db950afa6c','a7ea3d8f-d09d-427b-b3ef-d0e42b0c5622','b68fd0b4-1be7-4dcc-8138-a0e2846e8ffe','ec3b7888-4365-44e6-980f-017c9fda9ecd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.26')
+  where id::text in ('3d448cfa-f889-4b02-a79d-f0658336b5e9','75419ba4-d812-475d-af44-e05ae133848e','8c46286a-f50d-4fc1-85c0-e4b876d4b1fb','fdd170d5-b30a-4377-a898-3ff5672589f0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.24')
+  where id::text in ('3d619974-ebf8-41e4-809b-c0727ed21401');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.145')
+  where id::text in ('3d68ba48-60e7-4444-af6e-a1fe6a8a3a21','74dad0d5-d5e2-485b-82d1-141111f6439f','9542eae5-8022-43e6-8891-b5978a491912','d7605c9b-9860-4af3-ae7b-3897179b3702','f099db96-124a-44c8-8320-afe0f9f2120a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.335')
+  where id::text in ('3d7813ac-663e-4837-8aa6-465d696b6ad1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.231')
+  where id::text in ('3d94419b-6ea8-4ebe-94e1-cc3dfd8cabf3','537f7270-d499-40d3-b149-b0cbf728062f','59670d1e-3299-45d6-b5ad-d4af23088272','88e667eb-b879-401c-8eaa-4bb64efbf272','8a56fe31-999f-428e-b1c8-7448ba8cbb59','b712171b-0738-43c0-8518-4f47a14d1d98','fae247da-0742-48e7-b631-39486798b732');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.311')
+  where id::text in ('3d954291-f2f2-4efd-a0b1-095283ce01c6','92497917-b101-4421-bd59-57e3d6c0d639','be28f195-6ad0-4f02-a5ff-252c9faf5fb3','e1a9e6ba-3d60-4605-bd6a-e826b54936e0','f4210cdf-77d0-4a47-9b8c-2f7868d3acae','f9460ce7-c670-48b4-a271-769d72711f32','fc8232a6-91ad-40e4-a26b-5602c4a08d54');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.212')
+  where id::text in ('3d9cbd29-1f40-4157-a536-fd2e356f4690','45e0c9de-a699-40ca-8ee4-96dd0fcaf832');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.34')
+  where id::text in ('3dbf89de-09a5-462e-b768-d2753eb28937','7b83ee16-2ba5-4517-bf69-0e6b4abf3197','c7badc80-16a8-4807-92b1-2da4bea916cf','d64b73dd-5f3c-4303-8e9d-fa7defe1895b','ff4c331f-1676-4cb8-a7e0-8485f1bdae47');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.92')
+  where id::text in ('3dc310bf-b30e-4b14-ba49-13cf24f8b2ca','55cd762b-3662-4499-adf1-879528f688ad','9faf25cb-8271-4f98-b5d0-60c5070797cf','df0c3c68-3b03-4276-8164-df0cf0762a80','f80768cc-ce47-4a29-b490-24168fa40807');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.171')
+  where id::text in ('3dd0819a-2354-4722-a536-59d3bbc5fb0f','50c51839-d1cc-4267-a1f7-e4bc6a7ba480');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.97')
+  where id::text in ('3e25b255-2f68-40c5-82e0-2d8de2a149ac','4bd5d538-d47a-43e5-869b-963e44db1b14','853fe9e5-0704-42ee-921a-70b4513bf125');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.275')
+  where id::text in ('3e272f08-6982-40e3-81bf-6fdb4c9faa9e','903ba567-31ca-4101-8d52-0470dda2d9d5','a24015a6-843b-4f4e-a840-9a84242db36d','fd8dcf29-ba52-49e7-baf2-4b18855a8562');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.332')
+  where id::text in ('3e30e6bd-59fc-4d7e-aa58-d4721e6f0d0f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.54')
+  where id::text in ('3e4343c8-0f28-4f98-bc89-bb706ffb8e0e','6ebce288-c536-402b-b335-4b85398e12c7','cacb0acd-13cc-43c2-8b32-c32bea1249a1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.238')
+  where id::text in ('3e672058-d31a-4092-bd65-9e0209a3bf03','836fcd9a-36cb-4433-9b8c-0ec31c63ecce','9140f483-0de6-4042-976e-9226f01bd7de','d2ef239c-d5b1-4e09-85a4-a0680b417d02','de8edab7-4968-423d-b502-8c685b7a2d4b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='43.7')
+  where id::text in ('3ec8fcf6-ab6f-486f-86a3-be259df0c377','82549a10-d4a8-4111-ae49-9b8c28138b60');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.19')
+  where id::text in ('3ef7e203-5fd4-4836-b9c3-e2b1e3a60029','5c89d05f-7f1c-4760-a724-b8b05c3506cd','6b7f7354-1403-444e-b83f-56c11cc94d61','799ab616-b10a-4679-9503-776671362160','87884cf4-6752-4124-b865-e3f9b10f0afe','daa9e4d8-40f6-4f6f-bf29-98861b5f801d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.11')
+  where id::text in ('3efb864a-53d2-40a1-9faa-b0ffd5a2d021','3f7e3681-9fdd-4095-b544-645da32bf864','43613ece-cd9d-4273-91fd-db57eac9167e','eda526e9-d635-4298-b9d0-01455972a189');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.129')
+  where id::text in ('3f02e59e-a11a-494d-99c2-5c9020de195f','8260a939-3cc5-4330-a04a-67bc4632be57','99f62c49-f927-421f-a081-0fd82b5ffac9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.574')
+  where id::text in ('3f06a0a4-af79-4da1-b0db-032f9b958221','48f40333-8d50-4063-9f9c-f6a56ed829ac','4a16b5a7-ee9b-407e-867a-7d90e099b57d','ef13090e-3a58-47ba-9344-1bb93e58ea12');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.258')
+  where id::text in ('3f1a82c0-f992-4a34-bb30-65717e24af4d','5bfd9179-7d74-41f4-9c10-dc07196213b9','6887a202-9c20-44f0-aedc-dddc88f82862','c43ee06c-f177-416a-abae-2e869605bf3f','c8e03ebe-e757-4b7b-ad5e-55f284fe46c9','d51ad81c-a731-4c05-98f5-eaf5b445df3e','e8424e0b-36d3-4bad-9ee0-0414a1a52db3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.222')
+  where id::text in ('3f29d989-663b-4d12-a834-64862bf2331d','7d2eb513-4124-436c-bf22-3cde6bb9336a','a1f1dbdc-153e-4c75-b467-5affc2c50f39','a27efdfc-1698-4a7c-a0e8-77ff0962346c','b7a3810f-257e-4a5a-b11c-eeee4d106d4f','c28ac29e-863b-44b9-bb62-6181d72c4421');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.171')
+  where id::text in ('3f5bc375-7b3f-4be3-85f7-593172f0f7a5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.153')
+  where id::text in ('3f7b3234-8bb9-4591-b91c-879ca9b2193e','7c51f8be-2aba-4d6e-8a77-6bae4104f13e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.87')
+  where id::text in ('3f8920a9-6bbf-45c0-b64b-55ce615ab45c','59fbea41-8105-4bac-beb1-8d0c5aced6f0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.199')
+  where id::text in ('3f959fee-dee6-4176-a736-d0131f8cce02','ded21648-f5e1-46f7-920b-5fe4b0339ba9','e1820c16-e5e7-4507-b7bd-352556bf1526');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.39')
+  where id::text in ('3fa92a1b-af14-4a1c-9abc-47ffd0cea31c','4066cc2f-e69d-4be6-b1bf-a91a33f1ab6f','431fdfe0-d889-4e75-8a72-2911d3cae464','cf1a0de4-92e0-447b-badd-86553e10b8fb','d282316b-b23a-4306-baf4-e4f12827adbb','ef72a244-610a-43ac-9a7e-c9941e9cbc7d','fbba5209-2671-4e53-8fa1-862215002fa2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.129')
+  where id::text in ('3fb7b6b7-5623-4b1e-9a05-025c3bfe9673','539f20f2-6703-4c87-9a98-990f80ec1b3f','53cf22b9-58fa-4dcb-8178-5649fe8598c7','80f2b82d-3728-49ab-a53f-50ca58139424','9ad057d2-67bd-44dc-829c-11a1daf1e205');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.282')
+  where id::text in ('3fc9d1a7-1eb8-4be6-8a62-4b22bae10764','5a99b9c8-a821-42cb-a7a7-e5204f47bd1a','daca9c58-98b9-4170-9005-d0752101bce0','f6adde64-f069-4386-a0f4-78669a612c64');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.361')
+  where id::text in ('3fd9499c-f6ea-44fe-9fa7-87e661591575','54c776dc-4a78-4a99-8e71-90fd431ebc49','648b4031-b9ea-4878-adfc-08f36a634c81','85f6446d-50ca-4e96-8ba7-4092c21ae108','96a310aa-5c4e-4bc8-8840-4478493e2fb9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.137')
+  where id::text in ('3fe37849-a4d5-41fa-9376-9509539b5590','545de501-2b78-4c19-b1fb-3217c3be0828','72c5a4c0-dd29-4112-b931-c6c33a48781e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.114')
+  where id::text in ('400e43cf-0bb2-4d91-bafd-f7671fb676af','40c3f9cc-0894-4ae4-add1-7c205ec6d6cc','8d3f0cd6-4bea-4413-85e4-89010934b7ee');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.548')
+  where id::text in ('402e1f52-1075-4c60-a074-787a7f9c12c6','6396f80e-7b75-47ca-9ac6-16a6be7147cf','756eaf89-6295-4113-9368-b1d8884f0f4a','912dd56b-b694-4e79-9279-75ef3f0e177d','981ea61e-a69a-4e52-801e-27d8d8944ede','9da4edf3-3181-4b16-9c03-d8417bf9b28d','a389017a-4db1-4022-9329-51d57aa8e17a','def7e226-2eb8-4a5d-b7a5-9b775c290a47','e53889f5-5d40-41c0-b638-ec40a616e75c','f3d4e95e-6bf3-44d8-bade-ac19626005e7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.2')
+  where id::text in ('402e9fe7-1c01-4daf-b49b-1e67791217f9','a87c331e-21bd-41b8-902f-af4b4717cfda');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.112')
+  where id::text in ('4044a47f-d2f6-416c-8947-2abefd750b28','46d86be4-776e-4036-9b87-433f44deb8b3','65d0d71a-5aa6-4fa2-a5e3-5b07275e576b','a1989685-ce40-4ba3-9f49-e8fb3f4acda3','a49be23d-4a2f-4551-a8f7-ed9143991f6e','ba36d5a5-bb16-453b-b5ca-5e3af80a812c','f1bde093-da19-49d0-b2a8-172348d6d12a','fbcd2e75-a830-415f-ac04-9034fa2ba954','fe20e005-f972-454c-a64b-9a58d6ebfc62');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.284')
+  where id::text in ('4052fde0-677e-4f10-8df9-6a7155ce3503','6e362dce-eca2-4c22-9cac-922f46bcad82','72e2e201-c210-4187-a2f6-5cae2e93306a','8933aaa9-67ac-4e31-a7b6-b90bc44af041','8acf62bf-e08c-4bdc-830f-d69a60847eb2','bfc3fa96-46e2-48d5-b451-24f68f4b54e6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.566')
+  where id::text in ('40cf2ef5-0bbe-419b-9dc5-9956b355af87','ea911076-6e5b-4bae-b361-ccb59adc30f0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.494')
+  where id::text in ('40dfafb9-ffd2-4cda-a770-da9394d9729c','b5c7ece6-76f9-468a-a44b-265d9c966aa4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.207')
+  where id::text in ('40e8fc2d-4459-4650-af33-6c22b5b5e799','85b1445d-4e2d-46f2-abea-0660f2c4c3e8','9bb287d5-27d6-4999-b524-06ce36963457','d6472abf-532e-4bb7-8952-b8edc73aefe1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.22')
+  where id::text in ('4129f31a-8dc9-414d-a145-d62b6ccd5dce','5223aa87-60c4-4425-b773-66c3a64e4002','6e9b2cce-0f28-41bb-a9f3-528fcba7933a','fb4bc2ef-826c-488f-bf62-f4f575873d4d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.328')
+  where id::text in ('4137ca75-2c44-4726-b94d-38153ab54070','84fcee7e-f6ea-4d30-83ce-d1c2a1f208b2','881ce1ba-b2d9-4237-9e5c-7f524f385dcd','cf8a98bd-c494-4ba6-990a-42f81ebe6e3b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.155')
+  where id::text in ('413b2d0e-e893-41f2-8e83-cd70d16f8d76','f0c975e5-8c6b-490c-b056-5b3e586ded36');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.333')
+  where id::text in ('413d02c4-ef79-4c62-885b-7c4c0ea60fe7','42dd5ce2-799a-4c65-bb3d-6d2950dffcb9','45a95ca6-10a3-4596-a524-e55020fdbd44','46bdcc37-51d2-4bf9-a676-185ad7e73af6','5366aa99-dd98-4bef-b758-49da5dc94019','54441d93-aaec-4c14-90bf-667a411140ff','6033f091-03b2-4b31-96e1-e97e631227ee','6725e663-adf1-4c1a-ba51-f1cd26d51db0','70d4cac2-76ff-43c1-96dc-297a70374e8b','837d871b-e1b4-47e0-af3e-f2c2ee6de112','8e0eefeb-dc33-4106-b36c-2abb94a3fbef','9bfb922b-7ae8-4c44-a5c1-29b0d3586f44','9f12ab3f-028b-48b7-8266-ca83562aec3d','a5f4c3b0-9156-437f-bd9f-d09878ec9388','b0af851f-0db5-4bb0-b13b-83aa3e08a681','b2e398c3-8932-4bac-97b4-3cc4c4703765','c28aa78d-13de-448f-85c7-161de47ed633','e5c229ef-f751-45b6-82e9-6d785163709a','f734ef49-5023-4614-9670-73635164352a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.193')
+  where id::text in ('41593af9-5f82-494d-bfb7-e0e029dc2273','c4f2c84a-5b8d-4630-bc0f-e55dcaf24714');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='13.1')
+  where id::text in ('416c17b3-ac4f-44e2-a8c0-9e31386f644c','5cb9a8e5-50b6-48fd-b979-cdd45a79a5cd','5e4b2230-91cf-44fa-8e40-7b22570c3a0e','5e6973d8-7919-446f-8704-eb90382e18b8','624ffe9c-b77d-43d0-ad5b-cd801b44c856','65110edb-da37-44cd-80a0-fee0a2e87094','68ed9649-9af8-44ca-8352-a940dd4abfdb','6d594b8c-29f3-4a70-97ce-30ab0c0e902b','701d4d82-874c-4052-9875-99d17b4fdfd2','7d1179fe-fa7f-471b-880e-8b643cc2bf46','9619d9b1-7fcc-4e4a-bffd-1a689e060d59','a786ce2a-3467-4a93-a3df-cb0451145629','c4002046-5758-4dd8-b462-329ab2fc6567','c92d036c-52cf-4ea4-bec8-b6b757227f1c','d50f4973-fc20-4e06-b643-ee3cd5dd3758','d60ed5ec-1b77-4d74-9010-5c7bda56da3e','eb3acc78-30ee-4ce4-9f26-f69adc86bdd6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.636')
+  where id::text in ('418c74aa-a149-4a87-bc48-f05d9f67932c','4b73c903-140e-4021-b468-1dbce6acc929','9a97b1b8-29d1-4262-b10a-84e0d7dd75eb','9fcaf05f-3bc5-4d99-ae86-51f31c3f8939','dfd63f93-0a05-4fc0-87e9-37d3f04e99d2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.186')
+  where id::text in ('41a83c99-00d9-4dc1-9e1b-4f5cf3553658','6f4002f5-ba18-4857-b0d2-c43c0b0d6c2d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.309')
+  where id::text in ('41c3e1d3-151b-445b-b016-16f2122bf9cc','db55cfc3-6d59-4552-a2f0-242f5f2917c1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.227')
+  where id::text in ('41d64d65-88c8-4a6a-9a70-61fee91a6d3d','4ac6a10a-a111-462c-a080-d36b2c4b6b46');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.231')
+  where id::text in ('41d912e7-f165-4a61-afd7-80c10af76104','d9fae484-6466-4f61-8230-920234c74b81');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.56')
+  where id::text in ('421e37dc-491a-41c4-a877-884a082ebf0d','43cbab4c-7e54-4cae-a440-53d3abd8859a','4da7df5d-b008-44dd-b300-173df6dcb8fe','68675699-2f7a-45c4-a2d3-1454e926b868','6f017e90-382f-450a-9410-65f52031e7ea','7bd0ff04-0b1c-4187-a403-a76176338d3f','9564f5a0-f76e-4754-b366-c6daff32a70f','9c3f0ccb-577b-46a3-82d4-67b6f4296712','c4b3f993-cfe7-4b36-bfcd-b0bb199e7e8c','f8866035-34cd-4c88-97bc-461b27ca6085');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.152')
+  where id::text in ('422832b5-badb-4a3e-bef3-d4c2167b99f7','7483f8d3-f36e-406f-9f22-ff93fb65ef61');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.243')
+  where id::text in ('423475d7-2b23-4cf5-af69-b258fc4f8567','837f1b34-e185-4779-995d-dea3c6b2546d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.342')
+  where id::text in ('4242a737-c3d4-48cf-ba40-3c94ca047fa2','42e0e349-9660-43de-a14e-b4da16ee5fb4','48da9333-dd36-49dc-a23b-a9adec1a6ef1','6df9a934-49fb-44a0-b81d-dd04a74917e4','7fd9e9f4-c3e7-4cfa-8bba-c28c6441d91a','9598f8b7-b01c-4fc1-8795-f8ae5c8f5af0','a591601f-f5b9-4335-8aaf-bb0cd6c73b3f','cc43e619-d43e-4b37-91c6-e5bfe88ceab3','d463e893-b9b5-497d-a7fd-85d26ad1b2ab','d88d440c-12d5-4def-814d-e4ef2684f03d','dc4d669d-0610-4ad7-bdfa-a5fd8573f984','eef1024a-6d98-4550-b504-fd4fc83482a4','fb089871-ebcf-4ab5-a794-07d4cfa950bb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.219')
+  where id::text in ('427545c6-b47d-4577-beda-746c90de5a33','54bfe070-5631-4dfe-a242-1653a36c4a19','b285086f-393e-4447-8fe7-d21367face27');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.52')
+  where id::text in ('427bd284-7795-4fe0-87c0-fc8f410e9a9c','44fac4d5-0672-4f0a-8fea-e8eb0e703de1','d316f743-7482-4b7b-b262-60e13d92d2d6','ef5ca647-8004-4587-91a3-57db12df1714');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.132')
+  where id::text in ('42ab74fa-befd-4ebf-8127-0800179612a1','b6f89966-74f2-4325-8ca1-9b4ac0538e14','e9c302e2-2d2c-483b-b84f-c4d533cb9f80');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.469')
+  where id::text in ('42bd5a13-7fda-4606-bdad-518157d977a6','9d04e112-706a-44dc-b6b0-9a4e7b218107','bfbbd944-c998-4a93-8fb1-3220e98ef73c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.61')
+  where id::text in ('42ea775d-16c2-4e53-be90-9ce0945e3eec','4faeb798-fe97-4763-8a90-1077de8c4ba8','8d21c919-1ec4-454d-9875-84c30fb569be','a78a956a-1194-457b-92d7-e2c7c2bd5b5f','ed2e6819-a062-4a1f-a2c0-6bd5d0d0e691');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.24')
+  where id::text in ('42f6eda4-a27b-47a4-afaf-2f0702922007','4b19db19-65d5-44d1-9b24-b3c393da7c35','54afab9f-ee42-4aaa-bee6-f74949745d18','834af15c-9745-4d1a-a39c-9f2c7e091bd7','8695f9ff-f1f7-448b-a812-245ce47b9ed9','8d6ff097-65ff-4e67-bce3-f6fd0a61e56a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.555')
+  where id::text in ('430187e9-7d33-424a-a081-ac7e024af6b7','58809658-c504-4193-80a2-feb1836f156e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.221')
+  where id::text in ('430d369c-6ae8-4ba5-90dd-1ea386a46f0d','a5b073be-0686-4609-ae28-cc8d83cfd0c6','a74a856b-4733-4c07-8d10-35762b28b51d','ac4f0ac1-365d-48c8-81aa-f43fafe06040','db3050e0-e181-4a6e-8613-c10148ffe64c','dd7b2042-6c74-4d25-9f92-49519010198f','fab16a0c-1a13-4f0e-8b07-2fd6839ddcb0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.17')
+  where id::text in ('439cc9a3-c41d-4eae-b760-7f1178ee23cf','8ef1e2dc-2f39-4359-baf1-403cdf3acf32','a80712ed-c001-46e8-9f22-4efedf5afa92','cc52f23a-10dd-4477-9153-f2fcd3d337ef','dbe54aae-aa2f-460e-be29-ce866c135be2','f5825ec5-d741-4c1d-b599-0659dbaa52bd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.163')
+  where id::text in ('43cb7c7c-f858-4a5c-9f4e-7c200cc4e2d8','6c9166fa-fe16-4776-aa1c-d62a9496ca86');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.165')
+  where id::text in ('43ef007f-301c-42ed-bcde-dbbce5fa59e4','fffda6e8-85b4-4026-8b82-07e963f8c4f7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.114')
+  where id::text in ('43f36cc4-c57a-44b0-9cd9-45b774855b08');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.476')
+  where id::text in ('440cdcd0-7a31-4631-82e8-53df84e6aeea','fd4df00b-a2a2-4215-951f-1dcd3f28980e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.148')
+  where id::text in ('441d5054-0dfd-4e6b-a879-77ad51065167','a3f84fe8-c942-45db-baeb-a69485e0303b','cdb9fbc7-1baa-4e72-8ebf-52525a4ce5f2','d44df16a-522e-408e-8d43-ba756eadc9b0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.217')
+  where id::text in ('4441fb77-ca68-448d-a109-9cb95074ad2e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.138')
+  where id::text in ('44cb80be-5f4b-49e3-a7c8-633a26e1ffdb','516cb151-60e7-482b-8fca-2f149329b3d6','691cbd05-546b-4c1e-949b-5d4e17e7dbf1','6a96a603-ea6e-4207-b781-c5785ddc9621','6b8aac2d-39ff-44cb-ac48-ccf9b636bda0','931dfe0a-56ea-438a-954c-59ba58a86903','bd24b6d2-0bfc-44ad-ac3f-d46332ab7d84','f3b6c619-8aeb-4290-b374-a11cb5c46b8e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.41')
+  where id::text in ('44ece546-ec3a-4c96-a9cd-23be1af22c93','71725f99-8470-47e6-aa30-130e97dceb34','8a993a12-83c4-4e96-96ed-1b4cf38ac66e','93732efe-6356-4bbd-a81f-238e1780aea2','e49cb1a9-8374-4de4-a87c-393ced692015','ed6a0a8d-1484-477d-881a-edf96499a6ea','ed95bcf7-a99c-492e-8a4e-04d14aa0f014');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.149')
+  where id::text in ('44faeab6-1573-4e13-adb3-6435a30e5d07','6eba4c36-bd6d-4088-bb4a-c1a266a83087','80aa386c-cb3b-4f66-95eb-2d07e67a1ed4','af33a0e0-091c-4672-87a7-3afccca89c04','b03ba057-d6ea-48e8-996c-c2807d5ce4b5','f5e0f8ef-425f-438c-8bb5-fdb913a574c2','f88590ea-e0ae-4a4c-838e-7aa1750fbe30');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.174')
+  where id::text in ('450937d5-e211-4631-8675-7c4a31201e63','594050c8-1599-4fdf-ad89-04ae2a4495e0','59bdbdfb-f3fa-443c-9a94-0d016e673be6','c53f16b6-043e-4403-97ba-d03aeec6f265','d815a7e6-cdab-48ba-b8b5-1f77801c78b4','e7834d80-134b-49b0-a01f-1cf9b2129f42');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.55')
+  where id::text in ('451bc6c9-e7ee-4bea-a8af-d54148b8985e','57045a5d-ccdb-4f8f-a9a4-c9e34a8dde0b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.82')
+  where id::text in ('4526fd44-d37f-4df4-b310-b524d772e7a0','56245ed0-de22-480b-bcba-e127ace8622a','5d2ec0e4-1295-4341-81cf-762cb06fc905','5d5ed4b2-9738-4caf-a71f-84c3afd4fbfa','82f6a863-203c-45f8-92ec-cf4f1b675ee5','baf5fd54-3374-43ca-b0e6-8767f992cc46','c5819964-cf1a-4d9a-a151-1eb02ee77f01','cf1397ac-da87-4efc-ae60-7143fabc17da');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.28')
+  where id::text in ('4544aac2-e413-45ff-819b-540dae27f8a2','99bc7fe7-afef-42e1-8f54-3e9285095fd0','dee85cf7-9c1d-444b-ba50-1207c261eb0d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.499')
+  where id::text in ('4545f6d8-e820-4473-ae05-95c203bcae3a','e9e41727-cd1f-4056-afb0-904aa50f71b7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.206')
+  where id::text in ('45610161-9da3-4fa5-a453-c9219da0d92d','589980a7-7964-4d89-a86a-1909b41301aa','820aed72-7c0e-496a-873d-5c40cc264296','94aa905f-f5c5-4eb2-9d37-d59442a14f28','b5323333-1006-4e04-9fbb-a7ff0f3e7091','f0955cf6-3ac8-485f-be01-e77ce2fd67f0','f32594f6-4ad5-4ae6-a3b6-9603286852b4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.158')
+  where id::text in ('45ba6c0c-e91b-4072-a44c-b3ed0481225d','d053b20f-9fc4-433c-bd22-03422fe57738','d3aeaa55-9a1a-4b51-8073-22fe421faef9','e4d58cd0-1ac9-4459-8981-d1a3cc0c1a15');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.233')
+  where id::text in ('45bb9793-b5b9-40ea-b9d3-6a273f27c7a5','4e908fc9-a6df-438b-8d10-f57a68eaa6fc','5f9d137c-58ac-407a-8683-ce0fa734381a','956f851f-444d-4289-9b21-08a5a8f99861','cc2346e0-e7d2-4506-96b6-ed7c80f0e9ec','f1e7d8a4-440a-4e2d-9742-fc39016ede9a','fefbcbae-1b7d-4db8-a880-e43a1f15ddc0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.39')
+  where id::text in ('45bbc457-c571-4be0-8ea0-9155639de824','61994630-f057-488d-a8dc-c34b840c2b1c','68c16f2d-b87d-4f7e-8eba-fc9a8f595700','6b4607e4-2a89-44ed-bd72-1d87762ad715','983f0a22-f18a-47c7-ba60-606ee796a61e','a3fa8195-160b-4ab7-843e-3792c670c3c0','c6effd35-cb45-4f5b-89e0-33d2b0c960d4','c90acad3-06e7-4fb2-893f-14f59254f138','dd0ad074-d755-44bf-b36a-cd3c4b2179cb','f1ed5c4e-2caa-44a1-8920-dd6f1054e66a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.45')
+  where id::text in ('45e52721-f8c6-44b8-a6af-aec58b345403','54626f6f-a4bf-4a96-93f3-d269a24b736a','7b551069-f31f-4d85-829c-b4d6589cfeca','c4581033-2440-4179-8a58-2488d6bac3e7','f025d30d-f95c-4bb3-8b19-2b59dee9aef8','fe0bf8d1-f2e0-4ca2-8eda-7c6a2f209fc4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.606')
+  where id::text in ('45e5b260-1721-4c6c-8a0c-45f5c90b0ff2','df93da9b-d2ee-4fe3-8010-be387c87eb84');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.206')
+  where id::text in ('46183b74-2c37-4ab9-a7fd-a0e7a6135510','63c06a24-fa4a-477d-b605-2b46cea81965','64360b4d-cb32-46ac-814e-fdd728360323');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.188')
+  where id::text in ('46309903-3ed9-4c59-8bd4-828777046451','c8aafc70-d15f-4176-85ac-e937f793ef87');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.603')
+  where id::text in ('4640f04b-b905-4cc7-94a6-f28cc9b1e9ce','86e6bcae-9596-417a-a33c-064bddac00f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.301')
+  where id::text in ('4650789a-6b2c-4c95-bf6c-6fdbc8589acc','4b8a1570-ef1b-454b-96ab-e306a476dcf1','7cf3a975-44c7-4642-a249-b23a8c00bd36','942e7cc6-1a79-4d0b-acc0-51c05cbb3e6e','d290277a-8d44-4689-9db9-c7cdc2a2ea7f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.451')
+  where id::text in ('465b139b-7d1c-4d8e-9746-0d49edda4eb3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.275')
+  where id::text in ('4677ba79-f057-4a6c-a5a2-1bcad7416761','7643aef9-b397-4198-a9a6-44f5d044d6cd','7878b133-9d82-4235-a8f6-4cf0ac0f9750','86c7ee06-d5dc-46f3-a320-b49981b32625','8951b87d-5da3-45e9-94c0-7bdcbc38915b','9aa6364a-8c95-4007-8b80-9b25fa51e3db','aa57a94c-b6d9-41f2-b9df-8a46db0a172f','d8590c7a-7929-4b7a-9a95-6c66ed1392cb','ebec0ddf-6301-42f5-8716-1bffd65cfaa6','f47aa1bb-917c-4664-9d0e-53dd055a9235');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.391')
+  where id::text in ('4682b8e1-e0c5-4437-87ea-1539744a8a57','76a153fa-7b83-4a4c-b961-b091227c7518','857789fe-508b-4a12-92e1-ebed6de2a1cc','8bbf7293-d280-4b9a-8498-58e262d93413','9c13cf1c-a7f1-4a6b-8549-f24159d1cab7','f0c6bccd-18be-46df-8b0e-191889570c2c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.132')
+  where id::text in ('468a18da-bf93-4e25-b321-7ce2484b88c3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.631')
+  where id::text in ('468eb0dd-cc36-4589-aeee-b4fa8e8266d3','7035be39-24f4-444f-9f5c-19d720a82e4e','828339ba-1d5e-4ea6-9fb0-336f735e047c','ae8e2fb2-daef-4d85-a1ef-6f01800f8036','e8c0f14e-bd3c-4c5d-9cc8-3fc55de3d831');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.504')
+  where id::text in ('468fb8a9-66e8-40f0-ab7e-bdbec689a7ac','f5ba6633-9970-4505-ba84-d033f5cd1b5d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.426')
+  where id::text in ('469b5bd1-cdac-4ce1-bb85-b31a54566117','95435654-d1e0-434a-a9e1-de9f2df6a17b','a3a4bfd9-487b-4920-96cc-004ae722fd82','c157c4bc-a646-4c8c-81cf-0eac6e74be81','dbcf748f-af7b-4bac-b307-a0931a8fdd37','e456b38a-582a-44a4-875b-683a59715791','f5462730-1f51-450a-8c59-aa210a963069');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='11.1')
+  where id::text in ('469caead-917d-4bb5-a781-9cf8162ae175','616ab80c-3cee-4b04-a0e8-9177e4a456f6','75aba175-248c-4ffb-ad00-4a4e28e0d9c6','75e9227d-89e5-40da-83e0-c707d1b6143a','9f7b6624-028c-4fb1-ae31-8d7f50ab7801','ad5b350a-aa0a-43c3-8085-c9f496147fd1','d6202ac7-6e31-44d5-9669-e785577822af','dc860480-910b-493a-95d4-1ba9ae1853ef');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.64')
+  where id::text in ('46e5a0fc-a508-4cf4-aaf1-19f9dc6e3caf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.485')
+  where id::text in ('46eef4fd-28c5-43b0-96f1-9bbb0493d847');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.249')
+  where id::text in ('4700ce7f-f098-48a6-b0c3-a79710f49ec0','4bf897e7-254a-4cd0-8bcb-1e8328c4e845','4d82c31f-9721-4a43-8a2d-ee281096617c','c55cdbbb-bc84-4f1a-a0fa-e192dc5e42de');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.19')
+  where id::text in ('472e3099-d35f-4f01-849b-f378391a1628','54e2b9ec-6538-4981-b18c-31d60062918b','61034406-501f-41cc-874d-d6edbddd0db7','6816768c-9e1a-47f6-909e-d1250f9c9d97','7026c9d9-20c3-4782-b69e-fef2d7c2141a','979d5384-172f-4fb0-99cd-ba68a1e0384b','bb278473-70f0-4984-b981-3abbb1469bc0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.535')
+  where id::text in ('472e6c18-1a29-4ee7-9def-6c45c45db3a8','5417c91c-73bb-41fa-ad4d-b9ed129d9676','7e7a5dc3-e167-4552-a657-3977a0a6b370','9711a2d7-f853-46f9-82a6-468132bc09a4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.412')
+  where id::text in ('47327563-0e6f-467d-91d4-f3b3892d512a','78a9942f-93be-4b08-a3a6-16e01441bd56');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.28')
+  where id::text in ('4736641d-0ce7-4fb1-86a7-d6289fd27edf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.37')
+  where id::text in ('47391f7e-3093-4256-9aed-e82fa9355a1e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.45')
+  where id::text in ('475c0523-90c4-41b1-93cd-a093b619bad6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.495')
+  where id::text in ('477185cf-fc03-47d6-ac53-2a49199a9132');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.329')
+  where id::text in ('477548d7-6ca6-451b-9a18-f8bfc2189860','67e9705a-0bbf-4499-a5df-347cdbe11362','6af749e3-4c38-4edd-adba-6b67be50ebf8','ddc98fc7-974e-47da-8d7c-dab675e8b06f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.409')
+  where id::text in ('477ee1e2-5be3-4518-a910-011140b4ebd8','64712524-d6e3-46f3-83b1-63e3dd7de063','a29a6ab0-2e17-451a-9f31-ac798f7d4274','b5a12d75-fe38-4933-b59b-fcd792935872','bc45ee29-7527-4a7e-bd3a-7374baba38a2','c3a0a785-a142-4204-bada-095feb8bda3b','c674815a-ed3a-4716-bc25-af46be5e0bd2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.388')
+  where id::text in ('47a10b05-1989-48b3-ac40-83c29e964919','53311c18-139c-4d2d-91b6-f95630bb366b','552ccbb8-f30e-43c2-886b-762f307b48ff','7c650487-df88-4c42-9592-b458e332c971','8d7c762b-8068-4f62-a71e-d12b84e90de1','a5a9e63e-80ae-410b-97a6-5edbcbc097f4','e6067df1-ec4e-48fb-805b-4a75371cc5ae');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.599')
+  where id::text in ('47bb3c46-8e31-4044-b0a9-189137fbc360','f0f1f623-647d-4c45-8b2f-2b5688132233');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.194')
+  where id::text in ('47e4514d-cfe1-42d9-9d0c-b1f58fcf20d7','d52e2bb3-a090-4da2-a8c7-4507ee78efb3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.199')
+  where id::text in ('47f9bab8-50a4-473b-a330-5da959c4aca4','e6887751-e361-43b9-81e8-90a02e9083cd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.433')
+  where id::text in ('483816ce-a921-4071-adae-4f901b1d0065','a9a98931-35d1-45ce-bc92-4639ca523d29');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.527')
+  where id::text in ('48a36b2f-8aea-4a5d-bf5e-5d4dcc55d2ef','7f86fd2f-f89a-4d92-a91e-93fdbc049579','8ace0044-7842-44cd-86fd-51a7f60eb52c','c78d61d9-d792-4218-a7cc-6b941fff35c9','d3ceb66c-93e1-4c8e-8016-7a46e0acf745','fb85add9-41f4-483f-bb0b-23922f5c7bbc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.89')
+  where id::text in ('48c87ba1-2d17-4f61-8975-4befa51815b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.88')
+  where id::text in ('48e4665f-8dcb-49f0-9ef8-35e169326d43','4fbdba3c-d352-46ec-8993-16b886eb3832','bb638d48-6bc4-4e44-baa5-315e37650d6b','bce15140-a57d-4f46-8dc1-ba09481ab553','e77c93a2-a92e-46f5-b384-5c4a4b2c5d1e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.622')
+  where id::text in ('48e8273a-bfaf-4f5b-991a-a839e00853d9','80558f4b-b3a7-4fa1-a7d3-57e22ea93e24','8c14e7a2-91dd-4aa6-9e66-87379176acae','ed6cb6ec-0e9e-4079-b467-e07344b8f78e','f4899038-3b95-404e-80f4-8d9c7c2cd5e4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.602')
+  where id::text in ('48ff1ab4-a975-4770-b0cb-4722ccb41510','5e28ce8a-01ee-43db-bc30-5cfcf9313ce9','80cd2257-ef00-44dc-bf91-e950b2f8d2c3','a9e2623c-4f8c-42de-aeea-a2c6e7f5eb35');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.442')
+  where id::text in ('49068fda-29db-4bde-8250-2599dabb7e8f','cb749c3b-4725-48db-9d5c-17ec45ab7a1a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.16')
+  where id::text in ('4925759b-2e9e-45e2-9c7e-6c0775c94363','532705b8-fb5d-4cc3-8f25-132546266563','5a32848e-869c-41e0-960f-ebad690e2515','6798b446-8f82-4580-a8e2-39ced1a44afe','706378e5-bc1e-4d83-aa0e-e64fed3920c5','84c853a0-ef5d-4b23-8423-a39cfab45c67','9afd2d1b-3b81-41a4-92f5-c0a77935bd35','b8887279-bbfa-42a5-b02f-cbf7a7413209','c567a36f-893a-4999-b1eb-d99a8c0f09dd','d401277f-50c9-43df-9600-4fbb9647209b','e679567a-0645-4c2b-b908-d92c05d832ea','ef848d2a-c83e-434c-80c0-0bf28d76842d','facdcfc6-9c69-4ef7-aeb9-830d6b4ec06c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.595')
+  where id::text in ('4956715a-4882-48ac-ab23-3bbea1fa3fd1','a244377b-c695-460d-a959-aaa851ef050b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.16')
+  where id::text in ('499728b7-757f-4aa1-9699-9d3e0138cb38');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.117')
+  where id::text in ('499e582b-b1da-4be4-a568-cc308ff93d70');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.405')
+  where id::text in ('49b0dd8f-27ea-4e21-965a-cdd8367ec8cc','d171e41b-cc0e-4306-acba-38c66c23dafd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.167')
+  where id::text in ('49b8332d-e7e1-4c7e-a879-ed8ab5302c57','9e018986-453a-4106-906a-d60a2d44c0b3','deff42c2-d95a-4c35-8f6c-6fedb7d96e73');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.331')
+  where id::text in ('49bd5589-a3bd-4fba-912e-9e8c2cc9d13f','551143e5-77a3-46b8-ac5b-9fa780c10665','6caa5553-4631-41cb-8108-83300b13bd3a','a21a4d4d-073c-4156-8160-f6ce553771f2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.281')
+  where id::text in ('49bd5908-8e87-42e7-8644-feb9e8224454');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.236')
+  where id::text in ('49c3e281-4b49-4e54-ac0a-4c44ff953b4d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.475')
+  where id::text in ('49c492a8-6ac7-4158-b8f3-883d4da0bb20','892b8a6d-2955-4ce1-9b92-2d6d47a21bb6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.31')
+  where id::text in ('49ce1fc2-2631-4806-972e-165bcf34c506','8bc5e944-fee3-417e-8e71-8d10b6f885a8','c9fe69ce-120f-445c-b1d4-5324e2050bf6','dd20cd9b-58bd-46dc-88b7-13152419c67e','e13a39d8-58b1-4c22-aede-f7a504c7ac70','faaee290-ac23-4866-8da7-5762b553f428');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.248')
+  where id::text in ('49e1f8f8-c7ea-465f-871c-48a4111f77e0','58ae1db1-3c1e-4fbb-af56-58a620d2a719','86029d5e-296f-4426-ae8b-8ff5f207886f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.374')
+  where id::text in ('4a01d93d-216a-4d20-81e2-3a83592f56f9','83899828-f99f-4694-972e-12bdb231b40d','9e909206-bd58-47a8-9ea6-f78e1ff742be');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.529')
+  where id::text in ('4a5920de-d5a3-4565-8869-3d11c43723a7','a3b873a9-4fdd-4e2a-88c2-865b5a6a71ff');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.96')
+  where id::text in ('4a88ab5c-be21-44d7-b0e5-2cf09f7234f8','7f164319-3138-43d1-a8f5-816e11d14960','86326405-7ffe-4eac-99fc-6413467988a0','8bc69789-e4b4-4b1f-819f-95aa1381a083','b27085ef-22a2-4874-83a3-df879f223c46','cb020ee0-f932-4add-8417-6ca90cdd0eec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.21')
+  where id::text in ('4aa3919f-2032-4804-a5fc-1281617a8e8b','75717263-dd4f-44f7-a9b7-cc8764510f92','bb738654-454d-4206-bc2e-a721b00681a3','e3b9d84f-8002-499c-b93f-5255323bc4e8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='29.1')
+  where id::text in ('4ab94c5a-94a1-4d3f-88f4-6efad7994255','fa611257-d257-4116-8855-6f7a4c4498f7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.472')
+  where id::text in ('4ac7f95f-3338-4ddd-8183-fbe50f974c0d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.214')
+  where id::text in ('4ae28c2d-3927-4151-816b-e50c576e9fda','4dd5dc54-d29e-4b41-aa9d-84adf0b4d702','5cc5c570-169b-4b9a-9963-773ae9667436','684dd274-71ac-4f36-904d-811a5c3ff988','6dfb41db-f1f8-47b4-a1be-ba5db6ada352','72c863c9-2123-4d39-8c6e-96c5b07b8d14','92398311-e462-452a-bca2-3b590a9da77a','bc9ac238-32b9-4945-a59f-a40b480c306e','d2bc154a-2a06-4858-9313-0b2fb732d0ce','e12d0396-4d27-468b-97d7-eaf6fe5b37bf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.391')
+  where id::text in ('4af9963f-fbae-409d-ab1f-050cefaa1221','65f2a2b5-9c42-46b2-bbd9-e815ba2ae075','c80b7ffa-787f-4ef8-877e-8fef310a2ca0','d65293de-744a-4d78-8b77-d6b397690d1b','d7b3a70b-d0ad-4282-bb3a-a93f6450d1ed','d8065186-42fd-414e-ac48-fdbd5ba630cc','f1395363-3082-4862-a136-32f1ee2e5da2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.132')
+  where id::text in ('4b1564f8-ba65-4917-88eb-225b19b810dd','4d3ccba4-b19f-4ea7-b9f1-fc877641b5e5','5dd5471b-47d3-4615-ac9f-9996b927d1d9','f20c590d-6020-45b5-88e5-a0188a9e4b0d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.555')
+  where id::text in ('4b1c3c05-810e-4ded-b73a-8f2176b189f6','4b58a8a1-2d27-45c3-87b4-dddb1c9de0b9','de04cf5e-e8d9-484f-8c3f-64c09d5530a8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.26')
+  where id::text in ('4b3199be-bd93-4157-9266-d0fba970bad9','5cf972d2-2162-400c-a7a7-dbb171ce8704','865d599d-42bb-4902-9606-352c4085d704','87c28174-5447-4868-bad0-117a16bb9953','e77bcc4b-5b5a-4ba9-b00b-a438d1c0cd46','e94d315c-c5cc-4269-82f2-dbfa9b3c34e3','f9c8c001-69a3-4b02-9220-e6a14ba26cb3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.409')
+  where id::text in ('4b3e8ede-e562-4364-9a60-58e3e844470e','4da6d734-11d8-46b7-b480-433edba552e3','61fb86e9-764d-4756-b4ed-cb115e0ec3b6','77fa7de4-6303-41a3-90f9-2328431f17e8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.24')
+  where id::text in ('4b4fea2a-d3cf-4791-b5ac-eb6f55a7a9d4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.122')
+  where id::text in ('4b9130a1-8a86-4cb9-97d6-734fae802699');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.212')
+  where id::text in ('4b99f33c-3fc1-4145-9a6b-77d3604a6f69','9de9bd3c-47b5-4b5e-a84a-36553a3f6cfa','b6da0262-a1a8-45fd-b32c-329773b5d356','c4361876-b2df-4f08-b3c0-4042c777a109','cb32ffa5-5f0f-4534-950f-f2e8de481724','fc28a868-e2bc-41fb-be43-49964ebf1e33');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.92')
+  where id::text in ('4bd89a7c-4091-4c81-ac20-9a8ee231fb87','67ff5131-a476-4eb0-aa86-51d3f32179a8','b7cb3d65-995e-4730-af48-ac14f8f113f7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.621')
+  where id::text in ('4c032659-8419-4612-b56d-3d7fd0bffa7b','5fe29089-56d5-4274-a434-e65851e0e6b5','95ebed4b-a10c-4bd7-913f-74f93e249c1c','9847d75c-744e-489b-a70c-5b56afe2ebdb','b44f65ac-e5c1-4bf1-ae38-f463ccea4bd0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.14')
+  where id::text in ('4c30a478-e467-4023-8c8f-52e3146a24eb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.139')
+  where id::text in ('4c5ec971-fb98-4245-9071-bfd788ecc581','4d07ca1b-660e-45d9-81a7-0657e4291d01','5b4e829e-3ece-4f8b-b744-bdaf89c59871','72ef3a0a-a2aa-4030-8120-831c4735b598','8668b021-258c-4096-9fe9-4fb1a9bf19c1','989c64c1-5497-4992-9d35-887c6245164a','dc3295c7-b9c0-43a6-ad79-4add6b1ec99d','e5b76b71-f527-4468-8d38-1dc9553ab863','ee4020e0-f657-41ef-91aa-e2096abae0c7','f435231c-fb60-4b45-80af-4506b0461b98');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.44')
+  where id::text in ('4c80a5e4-95e8-4242-bd32-3c4b03462874');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='52.1')
+  where id::text in ('4c8ff2b5-4ff2-4e99-bb48-3766d7f0b862','64e737a9-11ec-49a8-829b-5965883756cc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.246')
+  where id::text in ('4c975fa1-eced-4855-adc2-426cf5c0433a','b5c6bc8f-7b14-45b6-aed5-ff8a7ff01d46','d9ffe0a1-e946-439e-a76c-ab6054bb3f95');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.447')
+  where id::text in ('4ca3658e-1247-451b-942e-f372643a9019');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.33')
+  where id::text in ('4cb2adb0-e3cc-4f7a-bf24-42bf293bd261','656a6826-263d-4373-bcdb-ec1e210e3b55','82e8b471-dc02-4dad-b45d-dc414002121a','bf71b003-837c-40cf-9a76-16fd2932a53e','eff0bb1d-8e9b-410e-834f-eca808e1c2b7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.58')
+  where id::text in ('4ce765f8-1be1-4c71-b287-5ef61cf7e06b','5146201d-59e9-4770-88ee-b8c0da460fe3','622a0c51-a4aa-40e1-8b12-63283b06ea87','69099c98-215f-49fb-901e-09dc43d02f95','a84a8c8f-1cc8-4704-a9fe-087b674e929a','b7043a56-b81b-411d-badc-26448c599274','de8b826d-6ab5-453b-8f5f-d2fe8ca7b3ab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.188')
+  where id::text in ('4d277f71-fce9-469e-9354-d5c10531a71d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.594')
+  where id::text in ('4d3278ee-cbfa-4fd2-bdc8-cd5f008d8989','ff40fcb8-316e-4f8a-a1f9-c31cf2c806cf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.168')
+  where id::text in ('4d338169-e97e-4b1e-a8b5-96c6dde53023','988c1879-278c-4b53-a825-172e9373b2cd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.536')
+  where id::text in ('4d3f1b53-9894-426c-ac34-eb326317089c','7db05781-b738-494a-bddb-c0c1c9346c62','7e534471-e398-42d4-a569-60fe3be31696','840065a7-6fc3-4879-8195-4e7403be61d2','9aa3b07d-c965-4c0a-aab7-88537def47e9','b000c358-6c13-47a7-bd48-01cd4d4ecb26','b65c81bf-9d75-454c-93fb-ec4d48b91f05');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.164')
+  where id::text in ('4d4c3286-28f7-40f5-8acb-4631b3d4d94d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.285')
+  where id::text in ('4d869c08-9d77-4209-b5db-d62ad1b3d093','c300e093-91d3-425f-9175-dcf72e659990','d029713d-7b01-4a1c-96aa-464bb76663b7','eb2b453a-8368-4e49-b958-fc6777f54ad8','f95e6bdc-86e4-4e8e-ad7a-f6f1b166fd8b','fcfd2770-62b9-401d-9ce7-5bf17170cfca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='58.1')
+  where id::text in ('4de73ef4-c51c-49a5-b502-02c51d7d8993','629e6833-184c-4f61-8f64-7ad7b88476d8','7df90735-a635-4e3e-bdf0-10569b1ebadf','7f4ad899-c29d-4796-b74e-ed0018424ae4','9751a434-9d6f-4904-9a1e-ff85963a43d5','9b9313de-98a6-47fc-853b-82b301fa4d3f','aa395778-3031-41d7-abe6-20e6fd533274','c5a02ead-d020-4075-9560-31a016b65725','e37a5e20-d794-408f-9d04-12ee9dcb4dc9','f9338849-ba92-4e3b-97a1-4f76d4504346');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.74')
+  where id::text in ('4df59cde-90aa-4f39-ab7f-5dae7b13095d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.22')
+  where id::text in ('4e050d93-0436-4712-a85e-ef0e081ee110','d62c9090-2e4a-4aa6-a619-01a91bc74e5c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.406')
+  where id::text in ('4e2ce984-2d46-4480-ab66-3b60cfe82ced','a36a9e49-351f-4edd-be28-eb801f3b6307','cc275410-c528-403b-b85b-35bedeed23c3','dbc36030-2ebb-4ee5-86d3-1acf4d3563dc','e4f9b34f-9c97-4ecc-8096-a91b4670a84c','e6446c66-e51b-49ba-a23c-46fae4217b08');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.249')
+  where id::text in ('4e4a275c-bd03-4804-8493-827278c394a1','736e19bf-06f3-4f69-aa2d-871bb68a4f87','7b0b2460-23a4-42fa-a595-9f6452cf4d7a','de69bcdc-be13-4610-ba97-f27b435bf769');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.584')
+  where id::text in ('4e4c2afa-776b-4822-9063-2b28648aa4d2','4fcc7243-77a6-439d-b6c3-b67a49ac05c3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.313')
+  where id::text in ('4e968019-37d6-4158-937c-b6382e413dbe','78ba9b1d-aa68-41ce-86f7-6c7ec8029e5c','81a21ceb-9ea1-44c1-ac79-9413156f8bd8','9077ebae-5614-4861-9c9b-dbf1cebfa20f','9153232b-cced-489b-86ae-a1bb8ba50b10','9cc45203-c9ed-4bdb-a8b4-aa2f7e987446','a66c7554-6eb7-4d66-a190-d36f16f57834','b3c5285f-13e3-46f5-8a3d-60901d3aab69','b4774211-44ef-407c-8227-b64815d984a2','b98ad293-1c67-438c-b53f-26a6bdd9c807','c50697d0-9a58-4c1c-83bd-a41f7d06f115','ebb6a322-5732-4c52-b20a-d751bdc1c719','efaeea11-7d6b-434d-889a-3859e6b7d8f7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.191')
+  where id::text in ('4eaa88bd-9c08-4369-99ef-ed5c373229fa','d1f74a5b-730c-4acf-9586-c819dcb31957');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.114')
+  where id::text in ('4ec0ac44-da52-49c3-aea8-4aa610332ba0','a9d271e1-fff9-4c06-981a-ff808c49d063','ad65fece-6edf-4c52-83b8-39da891dc852','e8702dfa-3d87-431c-b54b-21a963c428fa','ef6f6621-0b9b-4d61-a9ab-55be0d0b4381');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.74')
+  where id::text in ('4ed12694-e2a0-445c-817e-ce712197da7e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.174')
+  where id::text in ('4ee6d5bf-7772-45a2-8117-5b4fa5c52ff8','7a6b129e-6f73-4097-8906-bdc71bd12492','b10e65ad-c0c8-4f83-bee0-3498c8857088','d57ade43-9372-4801-aab9-286a17a122da');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.81')
+  where id::text in ('4f1a8fd9-edc2-4744-b15b-356df3e0cd41');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.29')
+  where id::text in ('4f25b269-0c63-41ed-a696-a42737b251d0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.191')
+  where id::text in ('4f6464a8-d6a3-4916-ba8d-cb9078c7c50f','748f1562-0191-4fb2-a5a3-687c8cf42b48','ec10d537-cdd3-4a25-8312-2fce0162efaa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.148')
+  where id::text in ('4f7611e5-dff2-4cfb-b10d-65bc6455ab80','71dff677-c7de-49dd-bced-c4228fafa4e7','7a57ca32-05f7-43d3-b086-5b539cae201d','9728d08a-d72c-4d9f-9cbf-a991b380e556','ab7e0bbc-3477-4cd4-b772-a858942a4998','df784a30-2332-42eb-b0bc-356044fc001d','e86da6c9-a9dc-41a2-8f26-561dabce4c3b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.198')
+  where id::text in ('4f8df462-a131-4607-b7c8-c622c312c8c1','6f3ca640-b5a6-4165-b139-285055aa6f41','78f22742-fa87-43ac-9967-410d572b03e1','8f1a3108-26ad-49e9-9791-a97bd2459bd5','901c592c-4ba3-4db7-8168-971f0ee0ecbb','93885545-13fc-4cd9-b215-4f885dbc0c35','9e9cc63e-998d-4b2b-af16-d86ddc8494ed','bb33bdd1-8456-4948-957b-0607b22f8066','c1d0b5b1-8af6-4d36-bee5-2084f93d9afc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.218')
+  where id::text in ('4fba6c39-bd37-4f78-b8df-3b2ad29ab5fc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.442')
+  where id::text in ('4fbe2b13-9e67-4825-be92-80196ee23e7a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.108')
+  where id::text in ('4fc83b4f-bc06-4f8d-a9c1-7e8a2e9bd02d','845a123a-7443-413a-b48b-f6be064c6df0','daf47d0a-1a2d-4a67-b775-2325b548c5c7','eceef68e-9bd7-4d4f-921d-1d6d5040a53d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.27')
+  where id::text in ('4fe5e4ef-1077-45c0-85e7-ca1c31031914');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.86')
+  where id::text in ('50111a98-0170-452c-8810-18af2fef1e04','577a99fd-88f3-40ff-a54d-64b7ac994f6a','57904957-25c5-4204-822e-89463fee86aa','7765c8d2-c67b-474f-aafc-3cf6a72d28d1','802a6c27-1c3c-4c2b-9fde-85c5de94cf76','c7f3c39f-5e0b-4ba7-8a58-eeb0a8a7cd20','d14625e1-552c-4363-9b4c-30a14749a21a','dd22bf81-bfe4-47b3-af34-14691c982432','e1b8ceb9-8a7a-4c35-a941-57bf48e81ad3','ecb2f933-d8c4-487a-8771-b151dd6d1815');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.347')
+  where id::text in ('5018f07c-7bd6-4e8f-8759-b1c2652bb2ce');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.288')
+  where id::text in ('502269bb-297f-4c67-816d-dd749cecfb56');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.339')
+  where id::text in ('502c5209-2b40-488c-ba90-55c9c45913ff');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.503')
+  where id::text in ('5068d068-2383-4343-b39a-edb291cf35d0','862f729a-7f12-4d74-9af4-18547d0b4d9b','86ab6d2d-28d0-40ce-a3f5-b06b11005494','99165385-feb2-42ee-9070-72a23c60fc36');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.14')
+  where id::text in ('506e801b-6c74-44cf-8fc1-c33a305c2697');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.65')
+  where id::text in ('507eaf88-7c18-492c-8034-b449b56053cd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.136')
+  where id::text in ('508d4330-447e-45be-b0e1-6dc29b5dac98','71dee33d-64cd-4b44-98f2-6215be3e7f73','c60733de-4d9a-4c33-a88b-9cacf99de969');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.233')
+  where id::text in ('50b51617-02c1-497e-9f37-0c322e59f353');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.7')
+  where id::text in ('50bf0492-3ba3-4e9c-a9ab-46e2dc15c552','540b259a-3bfc-40cf-a56f-74ef655cfaf7','a13b1ea5-7773-45e1-820f-6b2054f10323');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.17')
+  where id::text in ('51061bb8-1955-45ea-a54a-4307df7f1761');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.377')
+  where id::text in ('511a00d0-a13c-4a96-99a3-ad17fb0312b3','57d30799-f081-4c28-a9f8-6e176654dcdc','5a2e1132-4a9c-471b-9ba3-d3d81ffff74b','6489bab6-fb9f-422e-9a3d-8513882653bf','6b74c665-cb57-4d0b-9c6b-ff55917c9e46','9edadfff-d7c4-493e-a711-9782cf3d869e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.356')
+  where id::text in ('512c3867-c04e-4d65-bf72-7a66e3d1c785');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.239')
+  where id::text in ('518e1dcc-1574-44b6-9b93-9cedae3c86aa','7bc729a5-2f39-42bd-978d-d21ffb8f64a4','81b1845f-2df9-4a3e-9782-86f188aefad6','9af93971-02c7-4fa2-94d9-7964abbdb38e','cbce86b3-b4a4-4d30-80a1-6e57eeeac45c','e406a19b-19df-4bfe-abf7-76b9cea531c0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.202')
+  where id::text in ('5198413a-a2d3-49c2-b581-c60b655f8fdb','eaab73c6-e497-44b2-8458-86c5bd1794a9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.93')
+  where id::text in ('51a9f938-df75-452d-845b-82601c7785fa','fd92b7e7-e4ed-4c01-ba5d-cddeb1af7506');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.446')
+  where id::text in ('51dc0d07-2495-4a4b-90b1-12c18ce435fe');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.429')
+  where id::text in ('51e92d4f-0736-4a66-9d1d-782a18168e3a','6e63a321-3c8e-429a-a03f-8e83268d09f0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.305')
+  where id::text in ('52100cdf-656a-46d2-a995-ee5c2e8243c3','530ee276-ca21-4427-aea5-599df5e78795','5db586a4-08b6-4c9f-bdb9-52292e4d35d6','a11430fe-6b66-4d6f-a3d0-431a493abc8b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.508')
+  where id::text in ('52a939b3-d36f-40ad-9667-0239cf443916');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.32')
+  where id::text in ('52b1171a-8dd6-41de-88cd-9c8526ebb0aa','5fdf720a-7a9b-4c2a-8900-deb293f7ab21','68ea5a4f-03e9-45bb-9c56-faf3f6c3645a','7bac4473-e1a0-4974-8b63-dbf86ab1f9d3','dfa181e4-12af-4533-89c8-bbf957315ba1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.31')
+  where id::text in ('52b15965-a229-40be-b75f-24fbe70eb5b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.315')
+  where id::text in ('52ba4c18-d43c-40c5-b0e3-3706c625cbe1','8f10ab6b-e5e0-44a4-9f48-c203e186499c','c5e88191-6089-4255-9613-3249a452dc13','cb603c59-72ed-4a9b-97a4-55f22472e3a6','fc125497-bcd1-43c9-ae46-458aab803b4c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.266')
+  where id::text in ('53180d0b-cecd-40d6-b1de-5fa0a09b76f4','a7575e7a-1820-4702-8e39-6dc2f95015a2','b29adea5-30f3-4c54-9a2c-c5c946b4d729','d1eabc0e-92ad-4756-94b8-e3a62da1d506','edf8d5ac-539f-4123-8ef0-4ab3fd90073a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.142')
+  where id::text in ('53220f6a-ca7b-4d1d-b4a0-c779890fb354','9582c187-5293-456d-acb2-ac5ac256942d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.617')
+  where id::text in ('53375bfe-7f62-41b0-b5f9-ddb92caedb9e','b18d501d-6384-41f5-abc8-e244ce545121','be6729b6-74dc-48c1-94df-19bc4cd65089','c3cc5b58-9985-4635-b4ef-f44b58b736f4','d8491111-153b-43d6-9fe6-d8e0a796c8e8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.438')
+  where id::text in ('533d671d-1860-4e7b-bcf1-f39f70074576','6461c767-4124-465b-9868-f0c03141fe77');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.6')
+  where id::text in ('535a2252-2f21-4cc6-b0e3-9ed0b961121e','af0f4c4e-d996-443a-ac59-ba371f051383','e68bec17-5db7-440a-85aa-a177432e8522');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.128')
+  where id::text in ('5372b7b4-f392-4b9c-b794-3df507f2fb85');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.469')
+  where id::text in ('53921578-6eff-47f8-879d-3538132c54e4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.642')
+  where id::text in ('53a12ed1-b958-4025-a2e1-fc3ad10aa2c8','602bca47-ae8e-4344-81d0-a718ce22c3dc','61596a62-6e85-449b-be71-d73bb99cc81f','a4df2741-6b87-4af8-82d4-2e48f180c68d','fd1012e0-42a2-42d4-a261-07ae7badf5f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.107')
+  where id::text in ('53cd2ddb-d134-463d-adbb-ec9e65320c41');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.14')
+  where id::text in ('53e6f252-12cc-45a1-a284-fa052ec96fad');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.355')
+  where id::text in ('53f5f53f-eaa4-4d91-a8de-5ae4305d407f','57b60729-8c4e-44ad-bcc0-8dc9969e036a','955baca6-8d1d-41ca-9934-5acecdcb9f8c','9b54400a-03fe-4d75-b974-e2876a5e8a11','ebf9759f-f9f9-4db9-888d-a8a8e3111ed4','f1269118-1c85-4b99-89e3-d58922c0b7f3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.218')
+  where id::text in ('541e3a2e-2c93-403b-b8cc-11c2c4161ea9','dca2b0ef-c07a-4be7-a78b-a97ab98cef5b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.238')
+  where id::text in ('5426f6d3-6e55-4764-82f7-6c4cdf6c6c58');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.451')
+  where id::text in ('543b2cc8-0063-4cf8-bcab-70386fb08b8d','da080331-6f89-401a-b953-6f4d631c0d35','f3941b39-f6b8-4bdd-8c07-8d66d0d6034d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.105')
+  where id::text in ('5466a1e4-c3bc-4a2d-96a9-58aa00a9b886','898b9441-47cd-4e36-b3dd-ff71e88b3d1b','99ce7a51-70b2-4bfd-b7c0-8380b4be5848','a3b0a07d-f1ff-49c5-b924-9d08568d9455','af9e5f79-e204-43c1-bf17-c8656d8c9d63','b14e689c-72a9-4e19-a095-eb78e032c98a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.141')
+  where id::text in ('54d4ce9a-8c33-4df8-a3ca-c660a9e532e0','581a5914-f5f2-43de-97ed-807da3c82933','6e8a4a00-5228-4212-963f-4494d02f132f','941ad56f-d8f6-4adc-a3ea-4c59446b5ce3','f460c62b-1cd4-4666-b732-390b73bd3f4e','f5395b72-2ce1-46cb-beb5-5ee266ac790b','faefd723-7ad0-4930-851c-f58bf6cae22c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.648')
+  where id::text in ('5502d2f4-9b3e-4d02-bbab-3b66e4326d4f','75ea0e6f-2eb0-4041-9d09-d365d8eeaee4','880cb75e-eb19-4d13-b9c7-8e7aff3a69d6','b7d3620d-2022-424a-85ee-5481bf306363','f6108fdb-31d3-4cd0-be75-8f69bc95947c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.199')
+  where id::text in ('55274d31-fbfd-42c4-bb11-dc0037c919ab','eb252dd3-7bb9-4c22-a041-d3d4217e18ea');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.282')
+  where id::text in ('5590cbc0-a59f-41c2-ae25-cd7080325b1d','785df4f8-2eb6-4303-a88e-6ebb9ce67ad5','97d256e7-941e-40c7-bba3-16522f6a4d85','a03c7dd7-a960-4fa9-a671-863b981b1d07');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.107')
+  where id::text in ('55a653e6-5f3e-4075-821e-bb7c5caf1537');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.67')
+  where id::text in ('55abe38d-f2c7-471b-93ef-107e2e5ac4ff');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.49')
+  where id::text in ('562fa418-76b6-427b-b50a-eab62b6abb9e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.198')
+  where id::text in ('56381b57-5c2f-464a-917e-8f5948ed2104','66196c9c-cbe1-404e-93fe-80cb5b6f574f','e17e1d1e-77df-4cef-ac83-af11abc9e1d1','e33362e0-f5f1-4d62-8235-e9c146ffa613','e76203c1-881b-45a0-9ec5-3b74af48ec58','f8bd1a60-6e1e-4e38-8e60-c98502d88251','fefa5c95-701c-4109-99c9-6d20c40998f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.226')
+  where id::text in ('563ef38f-4351-4501-9e3b-9945eab40422','5c2a3cad-c2ff-4482-a3cd-ba7f9af7cd51','9d37c76f-f7e3-4e08-a33d-78815a631064');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.112')
+  where id::text in ('5653be47-ec1a-4745-883e-6418430a88d5','723095b7-9a04-434a-b5b9-31859543156a','8f900f62-2ea4-4c40-b08d-7fbb1824c6c3','a9e3e747-762d-4f73-be7c-aecdd44fd246');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.403')
+  where id::text in ('5665f284-0fb4-47bc-9815-e75bc85c4698','da026965-5885-4512-a17f-ccec411339d3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.608')
+  where id::text in ('5688850c-fdad-4b50-8307-ec581691702c','5f2a3e85-b399-4ba7-90b2-0293f4509f1e','70c8c836-21af-4957-810d-37d56ddacd15','e1e8c37d-507f-4c2f-8840-66d9676cfec0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.341')
+  where id::text in ('56a4188c-f4e9-4ad8-93f8-2598fa792367');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.77')
+  where id::text in ('56cb891f-da42-4573-8294-4f4150255ce1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.43')
+  where id::text in ('56fd202e-9e55-442e-b98a-21bca54defee','9846750f-4265-4745-a157-53fd4e0ebf9d','a5439fb8-6cbc-4373-b99d-a262d1b7a73c','d0a2e896-9d18-468b-8bfd-2667b71d4405','ed1d3f99-4c17-4ee4-8e79-ed98d68a5e54','f037e047-ce20-40c4-9fb3-57c0e34f3945');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.128')
+  where id::text in ('573599c1-d3ad-42f8-863b-a487c67c4388','842529f0-0efb-4293-84ab-45132db309a6','9efe2f61-9608-4f50-a3a9-484512d82e1c','da8e28e1-e357-46be-a2ed-630202e72a02');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.317')
+  where id::text in ('573a3112-ca20-4c8b-b8c7-a15a83ee0212','87917bfd-ea99-453c-b6e0-9b648a38f1ca','87dee870-82f8-4cd0-b38c-d4f7f2cbaa0d','a1fa6e42-d9a2-4ec0-a0a8-45c739b9a668','b83a8d44-d6fd-4689-80d6-67f9451c11d2','d6b70ec4-4800-4619-b7aa-3053a6057e4a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.157')
+  where id::text in ('575a69dc-5dba-4913-9799-c3d2af27b84c','8009d120-316c-4208-b283-fc29415f5b24','82000363-3e3a-474a-bd65-b2f6e19cd06f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.68')
+  where id::text in ('579dd35f-cf9b-4b53-9362-605cb47ec9a5','5e8925f8-dc0d-44b2-b0d6-b184ff9ba736','93db5fb0-ee04-451b-94c2-e1bb8c5b4811','a5085dc8-bee9-4100-ae1a-5ddebadb6049');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.215')
+  where id::text in ('579ee1f0-e0df-498c-93a7-9f9280bf1b68','c290a67a-ec27-4f80-9f65-c104658b38cb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.46')
+  where id::text in ('57ab7765-0305-4a8b-9611-de331a3c2153','624e0c1d-d7ac-42e5-adc1-5f96f9b4b1c4','7db79ef9-aff0-4b77-857c-49579202075e','8501ad51-6459-40c2-a870-7b9c01791dac','abcf181e-6198-4837-8938-c6bb95bd4efc','b613e448-7bfb-466c-abf5-e4dc20b283fe','e6a369ce-d261-4f49-a065-80575fb00c96');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.196')
+  where id::text in ('58092cc6-bca4-4b5f-8e6b-10de6cc810ab','f71cbc06-2ff8-4f35-93bf-672eaf93a1f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.95')
+  where id::text in ('58c7b895-19b7-4434-b88d-84f620e213b5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.112')
+  where id::text in ('59118866-4a2e-42d1-b66e-030c851f2cc4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.195')
+  where id::text in ('59164ca4-2891-4493-b625-d054d6118a0a','c7415b5f-c066-48a7-84ea-848580bd9a4a','d8a370ce-d96d-4a27-8507-9dae2bc2f7d9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.151')
+  where id::text in ('5989511a-85cd-4054-bca5-ec1fc4aea1e8','5d2e13ca-3c70-4e31-862c-d2b8248891f6','8ee7e866-34ee-43c5-9b33-abab500e3a3e','ba106e13-6fc6-4908-8f9c-85d9afc23a79','e079f02a-e2d2-4916-83cc-b51e03514362');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.376')
+  where id::text in ('598a0ea7-2305-4222-96d9-1155d08f50d5','6646b4fb-a42c-4027-9888-d332a7d4d96f','875d687f-4c4a-4ea1-9c11-b617cd03b256','b8e4b1cb-3254-4353-9204-bb11b18b2241','cdef0d9e-386a-4be5-84f8-177255246942','dd382a09-81ef-4a18-ba16-53b83d805311');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.122')
+  where id::text in ('59ab5191-2658-4ad3-ac45-e708f7d6ce62','bc2c4434-cee6-4dc1-b20c-c1f91bf6ab1c','bed3a4cb-6de7-409d-8f8c-6000c5314cf2','c944e309-acf8-4570-bbd4-0e090e68a20a','de639057-800c-43f3-b8bb-b51c73450cff');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.118')
+  where id::text in ('59cf99ca-5ce7-49c2-8537-789d69a4f1dc','d296b3f6-c1ea-463c-bf01-399b9e7051de');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.224')
+  where id::text in ('59d00446-74f9-4326-b35f-f6cb843bc643','780f4ae9-699d-436d-9a15-58c33e3a1234','880dba7c-4f3f-4246-9467-842b917de4a0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.525')
+  where id::text in ('59e614b3-1a8b-431a-8a2a-93fedd5a94ce','dad4d23b-9aa2-4c7e-a145-556e8b2936c2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.464')
+  where id::text in ('5a1db6ef-e45c-437c-8da1-aa1ea817c2a0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.63')
+  where id::text in ('5a3d1229-1ff7-4211-bf35-2e95a73b5ed8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.262')
+  where id::text in ('5a6cf25e-6530-46ae-8d44-655da1ae3b65','5bcfd897-5fb0-4b3c-9473-ff0c8315e7b7','731f845f-118e-44a7-a649-8d25fd62eac9','8a2cc6b1-6376-4b63-bd12-55a3558b4d42','9d434129-e8d0-4b0e-8c7c-0555c469fc0d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.139')
+  where id::text in ('5a77c766-59e0-4449-9a23-769959e216c6','725ff019-738a-490f-80f1-fe8d99cf6b72','a2673b30-f584-4ff3-84bd-ae0798e97f20','a59781d8-94dd-4ce5-8d31-c988aa0bd7a6','e19aa76d-66c5-465f-b255-abfdb4716e3a','f58c4930-ac53-4f52-af8c-d68b8dd7ab9f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.133')
+  where id::text in ('5a79714f-7abf-4404-8d2f-a83f11cf86f5','b1a34dbf-d25f-4f18-a64f-a10dacb2489c','ce54cee9-74e7-4dbe-835a-32dd5631c5cc','e870a1e3-dee8-493f-9326-1edacbc45c0e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.13')
+  where id::text in ('5a7a29e5-c0f9-4614-9855-9795dc1d2221');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.19')
+  where id::text in ('5adc5bf4-406e-436c-84e1-3fcee38443f5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.187')
+  where id::text in ('5ae9e278-2126-4f81-9d2d-8b9a84e08367','7ffe1913-5cee-4b6c-8a30-c4f163533b89','b6c3136c-65d8-4d2f-99b6-ac1c6338f982');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.468')
+  where id::text in ('5b6b1897-1e6c-4eb7-935c-012f89ecd598');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.9')
+  where id::text in ('5b84a430-328b-4824-baef-b8302983b122','6b837bdb-c42d-433f-b1ed-3deb83f68212');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.135')
+  where id::text in ('5b8c8cee-e0f9-4a4f-92c9-09153b40c73e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.377')
+  where id::text in ('5b9f78c9-07d1-436f-ad63-e5b8eae6697c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.7')
+  where id::text in ('5bb5edf4-ab95-4cab-9f7a-cacd13c3f6d0','683a373e-7a32-4c5d-b680-01a2571ac87a','938c67fc-7ee4-4a4e-8a79-249b347530aa','f20a7379-56fc-4c59-91d5-54592a23413b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.164')
+  where id::text in ('5bd34b69-67f3-4cc5-bcea-0d3b6aedf3d9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.35')
+  where id::text in ('5be32804-9845-4523-8f74-a51a7325e952','6da18c39-d032-4c72-a5b0-338b106880a5','7ec1e020-7831-4329-a258-b9d90ce5f54e','cc1cce63-5616-4376-b768-530a1e52109d','d8cb79fc-2325-4469-936f-b6a3c7805f4d','f7d93041-73c8-42d9-8a99-b4c87f4d94aa','fb5b0c4a-9a1d-493a-9142-2578996cb55c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.134')
+  where id::text in ('5bf0118e-f46a-4aa9-989a-90f6a6525096','6f2aae00-ab4b-49f7-b9cc-8248dddd0eac','ab37b080-3b39-43d0-85aa-40e209e6cc80','ed328ada-04bc-4d14-9a0d-b786d82802b7','ed3b6359-efb1-42b3-b31d-aed02b948359');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.563')
+  where id::text in ('5c07bd8b-6494-48c9-834c-a1338747b41d','e83a3a87-df56-4c1f-9e4a-ffe386b9ccdd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.83')
+  where id::text in ('5c30dded-136f-4873-bae3-aa35b9ea2fb8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.186')
+  where id::text in ('5c4d001f-851d-48f6-8bc7-b0d93bc36046','ed718184-d3a5-47c0-b5e1-6184c506e1ab');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.15')
+  where id::text in ('5c53d1c2-b63f-4cea-af2e-c10e17bb6f65','5d2a3a53-bf95-46e2-aacd-dcc6e6298ccb','72493561-17cc-438c-90ee-1765d307c623','72601728-6373-449a-9244-c73eadb53a5c','775dabe8-1b4d-4594-9774-3b33682b264d','8064d35a-34b7-4974-8bb8-876f63bfdd62','8bed942a-cce4-43e0-a551-dbc7ca54f012','8e8b56df-9200-4e62-8352-ff4346972df1','fb118f11-5c0f-4b2e-96b1-739117202a67');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.84')
+  where id::text in ('5c8d6df3-2c31-4f62-844c-509829423726');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.352')
+  where id::text in ('5c92a402-6862-4228-b427-c3abd329c97e','7a33adbe-8b50-4c41-8617-6162484728ca','93d31f23-8d27-494a-b718-97d316baeed5','fafca298-89a7-4b29-8737-513899e1353b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.323')
+  where id::text in ('5cc0ed7c-1f7e-43a3-a285-dd0b782bfb03','9e9c6c5b-4cc2-4ce5-819b-815858ffd270','b71d18eb-b22f-4ef6-b052-acef4eb40fd0','e348fe01-915c-4946-a81f-430a228eb044','f2143f30-414d-46ee-b3ed-dada4ebde07f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.52')
+  where id::text in ('5cd348c7-1f92-45d2-b246-92c56e998836','5ffe3e86-99d4-4a27-87fe-2d2c4268a800','6d7350ff-ced8-4268-b7c5-d0c5d5b622fe','7e79ab34-c528-4605-a9f7-2de0b6f21d9d','97c119bb-c335-4962-a7a6-f9304a6bf326','deb9d11a-1f02-4f6c-9c3b-e268795d3198','e3026378-c14f-4f81-b9dc-c113ddaa2965');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.241')
+  where id::text in ('5d498974-90c8-46d3-ae5e-823a79dd18ce','bee35b5a-36e1-440a-a39a-3707501440d6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.62')
+  where id::text in ('5d5f2e82-603d-4701-bf9c-b252e63e60f6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.32')
+  where id::text in ('5d963712-eb31-4527-af3d-b3cc93e6f83d','61efeb25-232f-4dde-b4b1-35624bebddee','98b88227-b1bb-48d6-a9c6-ec1efa7cce52','99ffed16-9b77-4d55-8976-7e4cb807cd0e','9f7ff77b-dc0b-42fe-a8c1-c7b51fc5403a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.214')
+  where id::text in ('5d9c2cdd-559c-4d9e-88b0-b350e655a25e','5dd2b1fe-69f9-4683-bbd9-41d8237de01e','e2cda502-b876-4f6a-9af5-690427f7831a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.182')
+  where id::text in ('5db2d605-96b6-44f1-af59-0b3ee6a6eb6c','9993e832-be43-4823-aae5-78864fd52824','b177e8ee-3692-423f-99e0-35a62bc8921e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.125')
+  where id::text in ('5dd93b23-0bd5-4fcc-9200-6d3dfccffd79');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.161')
+  where id::text in ('5e031593-e29d-46f9-b768-1aecd9569761','890e96e1-9422-454b-a751-18bd03126676');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.42')
+  where id::text in ('5e646556-c92c-4e5f-b733-feba1d7f01fc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.537')
+  where id::text in ('5e7eef5d-8d2c-4f42-86e8-36f88ce4a1fb','90c37c26-b24d-42e5-ba1c-2479e4b1f55b','cd12808e-d942-47b1-aa4b-249d59784252','d86e4c24-5fa6-46d8-bfba-ead50efb84b0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.27')
+  where id::text in ('5e93510e-13ce-4889-986e-e299fca1cde4','6777f1f0-94e6-46de-9b05-2257f2612726','a20e8b53-baed-43c8-9d85-166b5b275153','ca343286-7f53-446a-9161-1c7dd8839760');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.173')
+  where id::text in ('5eb56e80-0967-42c2-b93b-26772eb1ebd4','a01fee5b-8948-425b-96e9-5f35870538f3','aa62a331-2e7b-4ddc-b5e9-c4f380115faf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.279')
+  where id::text in ('5ee90353-c765-4380-9ba9-55bb21aeb6d3','dc33fa8b-b2b6-426b-90b2-c2955e5a5e0a','f8cafd3c-8eca-4030-a826-69b07846d3df','ffa0fe08-a2c1-41ab-8fba-3d6190849062');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.175')
+  where id::text in ('5f814238-31d0-4f39-b35d-34bfb4358456','8df9f256-3921-49d8-83b3-1e64f4dabfdf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.87')
+  where id::text in ('5fb02bc2-c477-4369-9a38-3695184107a6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.206')
+  where id::text in ('5fc5a174-12b3-48e9-9221-497b9397acd1','c3d471d7-5fcf-4f40-9966-602a4114a554');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.8')
+  where id::text in ('5fd4698b-0081-448e-9aa9-0f507fafcb08','7d5c387e-1392-478d-b71d-63ab507c877d','93640060-9a93-4a0b-a35c-26c9950203b0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.16')
+  where id::text in ('5fec5e4d-97ea-4be6-a9dc-c085e1bfcdc4','f7bbe69d-952a-41cd-b6f0-10b8c583e351');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.102')
+  where id::text in ('6017ceed-6157-44aa-9e94-ae00e21e7017','60281cf3-a3e9-4b3a-92b2-5aa9bbffb38c','8273b5e5-349c-47d4-a568-06ae772986fe','850e28e2-cd76-45d0-93e8-9cf69e0f5527','8cb0e1e3-aecc-4b3b-b09a-0f1418f2889d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.14')
+  where id::text in ('602906f3-2fd7-435e-b1d7-8410b18a5e85','62b32986-7d4e-4698-a799-1bdb1d28f612','9e05c2d5-1fd2-404d-b846-a18dd7b18731','f2b1951e-8553-4f47-bb85-665022c1a917');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.236')
+  where id::text in ('6032077b-0ede-4b3f-8295-ad2ed6585534','6b6b2148-3a1d-4f10-8588-a1649d6fc87f','6fe18e0a-53fc-4d10-84fe-65c0f2171f24','8d7fe712-bf7b-4441-99b2-95eeec807b38','9876a18e-4a44-4870-8f04-ae7a689bc958','f5d31284-ed9a-48ab-a89f-dd48f5c54670');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.48')
+  where id::text in ('60726f94-8ff5-40a4-aea3-c0ef463b327b','abdf75d6-8769-400b-82a3-6c5a4eae0728');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.366')
+  where id::text in ('607d338e-034a-4e18-b9f3-2902c36ce0c5','6effdb74-cd3f-49c6-ab54-55227792d525','7f349397-4dcb-45ae-a1c5-2f1071918275','afde8a01-e46a-45c1-9c38-f98413c69d8e','b100e057-12a2-49f4-94de-1e62d7e4580d','b5658cc6-b661-4c89-a11f-7c3152b5e1c2','d863209a-932b-43b7-826f-85cc2fb21db7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.287')
+  where id::text in ('60961b8d-dd4e-4275-809b-d0d15d6c5a4d','7d89c8b1-d156-42de-a302-6e4a154680e5','a8c826a6-f2cf-493f-b045-4876bbf5408a','e3c35058-389c-4c39-b6fb-2418173461fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.498')
+  where id::text in ('60a0c7c7-9f9b-4139-be6c-ad92e1cdcf7e','7d84adbb-ea22-4b1b-a1e6-b15c49f8510b','b291e6ce-58e7-4248-a3c4-3cd4190d1046');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.321')
+  where id::text in ('60a513a2-85be-4605-b25d-b5f44bc7c75a','c87a8dee-d73b-4576-be13-aec8d0047363','d9c85acf-517a-4915-9655-2f64cfdabfb7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.463')
+  where id::text in ('60f3c75c-5e52-4963-80f9-aa4c462a3a24');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.39')
+  where id::text in ('61264665-b7d0-432a-90aa-85940fb4ff5a','709b39bd-721d-4c5f-8504-c067277187d2','73b683b5-82c7-41e4-b7b2-37775ab79c52','850a47b3-f081-4313-859e-ace8d83df030','851e23fa-e2a7-4814-8eaa-b71f309d48d8','9e3c78f2-13ea-4c8c-aa23-f64207d55e06','fee41599-277e-4f50-8961-9ed447affaa6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.229')
+  where id::text in ('6143c631-deee-47a2-b1cf-034b0274ae21','c79e4cb9-9f66-4c52-b4af-a15ba4c06f36');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.456')
+  where id::text in ('61552939-ee77-4248-b1fa-fb87d49a9223','89e24ab3-2c2d-4ec1-877c-35a03a1ac585');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.247')
+  where id::text in ('617259fd-2f8f-41e9-b5de-4fa8b47bd7ee','6f97e812-c4c6-4f10-b777-affa92bccc1a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.158')
+  where id::text in ('61b11f36-3613-479b-83b0-f7c3d93fe054','6d351b24-9e1c-4aae-8d57-692f923ddf42','95367531-b89c-49c6-84fd-f6e15ffc592e','b0fc6769-cdc2-46ee-8ccb-f232cd951483','b297e0bd-d645-4d2b-962f-15cd68984a87','b7c1df47-955b-47fa-bc71-0d075ef712bf','f0bc4633-4d16-4234-baf2-e2da9dffd8d9','f43f6c4c-d2bc-461f-a97a-d1d4d4debb33','f4e09192-3208-4525-9d04-0a8102e5fbb2','f90e13ef-43a5-436d-8c69-ebcde3cfd911');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='22.6')
+  where id::text in ('61c70383-7a67-412b-b063-ed849afa1a2d','7bd91fe5-b8c4-4861-b3fc-2ae3ddeecef9','8b91fdfc-c9bf-469e-9c25-be8f25ec9a23','db650e16-b81d-4a06-9e84-1a57487b0e12','e20b5a0a-87eb-4b81-a665-8d0adf2d02ac','e2fb416d-d633-4a22-be68-cefbcec6bb16','e6cbb22e-4df0-45d8-af2a-f8f2892ce508');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.615')
+  where id::text in ('61f80d0b-a6d9-4e37-bab7-c69028c92a40','7760798b-c80a-495e-9b76-8b1102a14290','924d0482-4e98-4955-a6f7-7526a65e43af','a7f964b7-d299-47f1-b044-04f280620e0e','ac5373ee-eb4f-4936-bbf9-58f8e1559f9f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.75')
+  where id::text in ('61ffe88b-8ad8-410e-a16f-490c954bb0c0','76813718-0d60-4e2b-8cb4-c93bd09cdf52','80a0a484-777a-4530-a8ba-4abf4993e92d','f9b27cdc-97c7-4d77-8b67-c2c06d4d72be');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.21')
+  where id::text in ('62165e43-1d3c-45f4-96a3-df4e2aa328c9','8a46c2d2-5e91-4e9d-9de7-70a7e7f0cb2d','9420ec47-e765-41b4-83c9-ab00d53b2086','b6d28957-f395-41cc-b3bc-c90c86c8ce5b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.572')
+  where id::text in ('626dbaf3-33b0-4ba0-b61a-f928da790dde','fcc7c279-2587-4716-bbb2-fe6720a4831b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.217')
+  where id::text in ('629329fb-325a-4544-94b8-ac747fcfa05b','be936f40-e6d2-4ce9-8a3c-fce8cf13887a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.571')
+  where id::text in ('629f6a0e-6d28-475c-b6bc-effe439ddd06','90e21d5f-50b6-4dd8-a848-252d2e9ddf39','c2722dfb-ac39-411a-9948-16311bbdb2fa','c7901ada-1f86-4a82-8f9f-f1842b22c0dc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.187')
+  where id::text in ('62baaab8-e99d-4c3d-b979-5863ae412461','be999006-9757-4098-b2a0-9fa6a2a75b0b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.171')
+  where id::text in ('62ec1d54-158e-4700-ae52-797f098e482d','e4c57751-40aa-4f3c-bbeb-276a665b857f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.463')
+  where id::text in ('63318893-3879-458b-9e0b-31962604ea82','d9da16a1-37b9-4013-97c5-b4f210050c1a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.204')
+  where id::text in ('635d7a59-4c52-4790-a3a4-42a9479044fc','84958493-d663-4f68-817b-da89b1f8ef90','95df09a1-5846-483d-aad1-05487a1be9b2','9886ade7-19da-4447-867b-ab79c2a87ad5','d1709186-6184-4772-ad34-12d7542a9298');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.71')
+  where id::text in ('636d2c4d-0731-4610-8999-a13195ab3213');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.342')
+  where id::text in ('637a275d-a952-45a6-8f84-e9ef70e12763');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.316')
+  where id::text in ('63de83da-86a2-4c10-8a9f-d23e1cd6bb40','7ba6e984-8fa0-4efc-8fc5-f75e11f65e7c','883ee0fb-3cdc-4ca6-b7ab-e4b788e4bccd','d527eab6-a5cf-4080-9dfd-9b6b37a74e26','d654c5a3-2646-4829-aba7-2fc6c0c04748','dbc5dbe4-a04d-4533-b7a4-09ec31df9f78','f4443d10-88f4-4ba8-8ff1-4725a19f9400');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.38')
+  where id::text in ('6412748a-2a34-4221-b7bf-adbd62692988','e2df6025-aa2a-4c62-9ed9-889f38ceb473');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.29')
+  where id::text in ('646b107b-3ff8-47fd-9898-fbc9a77830f3','8f2b29aa-6561-4688-b403-52e46e7064a4','ac3687f1-61fd-4046-a98d-a052bbe0692f','ac745854-1e70-43d0-ad0a-9eadaf5f4a6d','deb3adba-7c6a-45e5-a263-46354ad1d531','f885cbe9-0533-44f2-a740-ef17fb47bdb5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.8')
+  where id::text in ('647d4f70-6ecb-4197-9afc-148d0fc7c25d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.138')
+  where id::text in ('647e40e9-6950-406c-a5fd-ae7208633fd4','6b7e9d83-d961-41eb-8999-d667d6fabdb6','be52101c-c060-457c-a57b-ad9dea89b092','ed7bcf84-b28f-4a5b-8d50-0a46f10c141d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.514')
+  where id::text in ('6489402c-44dc-40e8-a7c6-60ce528d59a8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.78')
+  where id::text in ('64968f4f-2e55-4d72-a468-5a649adec4f8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.179')
+  where id::text in ('64a79202-9a4d-4eff-a8a0-6edc21624ff4','684ec02c-edfa-4de6-a2da-befeb85f1319','a59c5387-6790-44a7-91a6-d1f05d7ff846');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.68')
+  where id::text in ('64b09735-a328-4abc-b7c5-b10d3bcd855e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.225')
+  where id::text in ('64c22e8d-9aa0-43ae-b0bc-6d97d33bcd9f','8dabd7cd-bfc4-4ad8-9297-f94e6161cb6d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.269')
+  where id::text in ('64f554f0-c6a4-480e-bb0e-6972d3d35fb5','8abcc1da-e6bf-4a95-a774-d911029095b0','996e2ba9-a4d3-4f49-8a16-52af19e3e7f3','c58a8a1e-0224-4f2d-9bb5-898c57beed75');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.509')
+  where id::text in ('652f696d-62c3-4389-bfe4-3edf23b08f9a','b139568a-3e37-4984-a237-55749d5bdda6','ff2b00d5-c2d2-43e6-944b-2a0a1ab6b131');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.168')
+  where id::text in ('655db236-1a91-4735-8ce5-960bad1f6727','8a7b04c3-fbc0-4762-a8a9-07cedcecd291');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.11')
+  where id::text in ('6575325e-2330-4e6b-b8b6-b33f7bf97e5d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.21')
+  where id::text in ('657929c6-7998-45fe-95f1-e81937e760d2','6ae9b7aa-3df4-432e-93d9-63613a9b369b','6d8648af-078c-4735-a8f0-deed55b0c9f3','79683b65-f99d-4b9d-9cd1-2ac050b8d954','8cee33d6-9cd9-4f13-bd96-ec26e06b2024','ca50d2dc-c411-4807-a0b8-23b0cd617c7e','f0634e51-d61e-4126-8800-10145e2a8980');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.76')
+  where id::text in ('65ad58e4-95e7-4d12-a31f-439a9a8b3c14');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.195')
+  where id::text in ('65d4bfd0-6c2e-4dc3-ba20-ccc56d855442');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.245')
+  where id::text in ('65d90ab1-3371-4075-8017-9428544fb36c','e0d2cc80-7b9b-4036-8abd-4ae8d9f75913');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.164')
+  where id::text in ('65f25844-eb7f-446c-b943-6b94cd134c5a','66b3fafd-3167-4639-9ec0-9b786dcb10e9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.29')
+  where id::text in ('663d9493-a2a3-4873-aa68-9850a0c19fc6','bebd93ae-b1d5-4aca-9243-8e890f5872aa','e93a564a-411b-4048-bfdd-fec15599109e','f5a30548-1520-4d39-af5d-b12fc3ade8d3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.18')
+  where id::text in ('66418645-5c0f-4459-9aeb-9c206a660e70');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.11')
+  where id::text in ('6648edea-f877-4b0b-88a4-c874e72d793e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.256')
+  where id::text in ('664d7c37-1a95-402b-b70a-5b7ae71e88a6','e198e327-3044-4cb3-92ba-f15501c7225c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.401')
+  where id::text in ('666d8253-f327-4948-9807-60b363cf0144','ef031a6f-ca65-4351-9bdc-21b50b58ee02');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.67')
+  where id::text in ('66838ad6-6c0d-4d4f-980a-9dd250dd4c84','87728452-da00-4169-b6e3-8d82e522b238','9c41df79-6796-4a04-9d81-0f59b9e10cdb','c5388cdc-51c8-4fc3-89fd-c2c15f3265a7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.379')
+  where id::text in ('6753c599-f767-481b-a3e0-c6d80b133b29');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.15')
+  where id::text in ('67649f95-5057-47c1-9681-10f0e7f08950');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.534')
+  where id::text in ('6768c378-676d-4c9b-b103-6742002f69ac','f90fbb7a-45a4-4e0c-8223-a84061ca11c2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.14')
+  where id::text in ('6790fc56-1eb8-4746-80d5-455d8f47581c','a8e33fb5-dbbe-4ec2-a0b4-569c088b3852','b8e620a3-94e7-4d01-b3bf-1863e2bc0a62','bf35b4ef-a605-47b1-86ca-0f03d298a50a','c81a37eb-3545-48fc-ad35-c1207bb43168','f7bb9526-4d88-45f4-9dac-b9bcf2b104f3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.507')
+  where id::text in ('6797f3a7-4cbf-4f51-91d6-d0649f6bed09');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.307')
+  where id::text in ('67986f26-0eaf-48f3-adff-07c9a1373c2f','68893721-8b6d-428b-b659-33ca69942ffe','96d4559a-b3ef-40d5-a44d-0b74d62dbc5e','b24b6b3b-9baf-4885-ab5f-3041131908d9','e6ead735-909a-402c-a48a-7d029eeb25b1','fc1302d4-d4e9-48b0-8caf-32335d38be61');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.438')
+  where id::text in ('67acb0f1-7023-45dd-97b4-927244446f9f','d1fd4ce7-11bc-4a8e-afce-183c8b541cb2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.539')
+  where id::text in ('67c8eb09-c2d6-4a97-85ba-b254678332de','85393b35-6465-4e98-8123-6d4c3934e33e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.564')
+  where id::text in ('681699db-8bfe-4cd4-9429-3c59a65f4712','c350d4c4-a05b-422b-88c9-6592e36f60d5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.192')
+  where id::text in ('68193a29-ad58-46af-9aef-1e93c8650c40','72488cd5-f291-4135-b320-24fa6af7e7f5','95d9acd8-d790-4d74-9480-feeb443e5174','ce47f5ae-b4be-41e0-8b22-24ae5cbbcc65');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.341')
+  where id::text in ('6831e96e-dca6-4576-9b38-40f59800a8ca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.624')
+  where id::text in ('68361738-9b3d-4913-8915-a187a33b67d3','8d10a140-52f9-48b2-b6eb-82de6867f560','9963f318-6c49-4f4b-b70e-04d2d3d7bd3b','9f2ebae3-3905-48a2-9f36-8623b81c5bf5','f2c72c09-a42f-4fcd-92d0-b99928de8a66');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.461')
+  where id::text in ('68676955-534c-414c-a729-371aa2f30ced','77dfc1d2-532a-4a3b-b0d2-11b68bff30c6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.26')
+  where id::text in ('687f3321-8cee-42ab-b073-8205a20034ee','7402f999-b696-452e-b37a-9ef892822ee0','e1f8f2ee-df18-49b1-86f6-a1908a3b8b59');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.493')
+  where id::text in ('687fd3a5-3b41-4892-af17-ef7d34cdabcd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.33')
+  where id::text in ('68a0bfc1-63ea-4a96-be96-1abff90f179f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.181')
+  where id::text in ('68da2a90-1fcc-4601-96a2-571e540b508a','8ec72d85-aac1-411e-923a-04d025f865b7','908ec139-e511-4c44-b958-3c74e17c2d5a','ac2c1541-ec54-4cac-a063-938a8f4a3e8b','ae2a9e6d-f84a-44a4-98c6-c588b249acfe','c899c696-f97c-4bde-bddc-22bbf3aff17b','db6fc28b-1854-40cf-a075-35e580eeefe3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.46')
+  where id::text in ('68e56684-2169-4249-a64e-9887e1179f0f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.84')
+  where id::text in ('69288e0b-edd6-4817-b1ab-2c40eb59fbf4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.592')
+  where id::text in ('692d6c94-9e5c-4c4f-8c1c-c70e22c8d5fe','d9c70536-2f24-46e6-ae20-de5297fec9a7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.503')
+  where id::text in ('692de8f3-4cef-4957-a1c2-2e6b987d1dc4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.477')
+  where id::text in ('699785ba-a3cb-4467-8567-bf48b164b3ca','83fb92c0-36f5-4789-b7e2-bddd6ecfa352','930242a8-0e67-4ad7-938b-7e69031a0093');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.246')
+  where id::text in ('69ab7d17-0c54-4117-a8e7-3be59cf71bbb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.268')
+  where id::text in ('69ba565b-81f0-4711-9d14-730fbd67ec31','9c7d1310-8405-4531-8075-096622b227f1','a4ce6020-a4e7-4a9f-a6f4-7d703e585d89','ca62d2f3-cc82-4eb2-b30c-731f5986de3e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.106')
+  where id::text in ('69bfbe47-fbf7-4c69-a716-9a042bdd4b81','75dc7d50-3584-4c1f-9781-b14aefe05bb2','864699c6-6a94-44a1-98fc-0978b6a38c25');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.93')
+  where id::text in ('69e04d6d-bd10-451d-a732-3c088ec6b808','a1d9b85f-af17-4240-8ab4-6f7b671a4463','d5aa7714-60e3-4906-bc0a-389d4e838282','db66f11d-cb72-45cb-a746-03740256251d','eb1f9c0e-d10e-4183-bc67-9541aab09f4c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.163')
+  where id::text in ('6a31c473-ec41-4c3d-8417-62a1a91bcc9c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.242')
+  where id::text in ('6a356fd6-6a0a-4a57-9e64-cf1c5c8f296e','7a63542c-5c1b-4738-ab85-5ce9e7c010e0','a3992427-a504-4bb5-a8b1-99c240d32963','ae0bce8b-34f9-4501-8da4-3af5980b1d27','d53801e8-19f8-408b-9a54-a94b4d07740e','fa1c54d8-aef0-49d0-adf2-7fe0c8b64de9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.288')
+  where id::text in ('6a53cefb-4149-4c60-8d7b-b359d5a836e3','c362bcfb-8e7f-43fd-b038-a4ff1d44fce4','d3e37b61-3f64-4254-ba6a-435f03ff1b6a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.57')
+  where id::text in ('6a5ee21e-c902-4e33-9c03-8b61d533cf54');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.271')
+  where id::text in ('6a7e1081-a745-4b6e-9679-289c0ec9d18f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='18.13')
+  where id::text in ('6aa8e9cb-599f-48f7-819c-612494aa08f2','a37b7919-f85c-4101-ae26-94f15f2795a8','c61221ce-a575-46ab-aa71-ca8e868e0880','cdc680b5-0f59-48d3-bec6-7297156933e8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.449')
+  where id::text in ('6ad7ed37-5789-4552-89b6-6ffe7f8fe068','70b41718-cd92-4000-8401-d976f722d905','f39477be-d1ff-43f6-aa67-3846760ab6f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.342')
+  where id::text in ('6addf527-ca75-4eea-a725-1af14f84cd2b','b5b25012-230e-4cb8-ace3-cb3de659e95c','eb778e50-b4c8-4f2e-96e1-98225f63bed1','f9d76014-f3f6-409e-bfd3-2df6d8b4faa6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.142')
+  where id::text in ('6adf5d29-8f01-4553-905c-35869b4a240a','93e7ab15-a4f2-4235-ad7d-f857cdf3a02f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.109')
+  where id::text in ('6aeccc51-fc15-43b1-921d-c9324359d58d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.54')
+  where id::text in ('6b2ad22f-147f-4ca9-ae1d-0c7fde41a8a5','7a70e546-aaa7-4dd5-a2ac-9dfadacc9e7b','9938a1d3-c3e4-45c5-8ffb-34ea00bb3c10','f4f92755-87c1-4c34-bbe4-031470851c53','fdd47056-adf2-486f-b1d8-1a0e504f9b08');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.286')
+  where id::text in ('6b549288-26a9-4f7d-89cc-13d30cde8d1f','7a52d4a7-b621-4ea7-8374-c85ee40084c2','ac546e11-6bff-492c-b7e3-0340ee352e79');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.184')
+  where id::text in ('6bd133b8-21e1-43ee-9b9b-459e4fe81498','f3dc13e5-e4c3-4320-a34f-d827c23a4c70');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.88')
+  where id::text in ('6bd1a697-030f-4e63-ada1-0c5ea73185ea','6fc50340-cc39-4d25-848e-e14032d43edb','bb2c09c2-2ed9-4ae3-83fd-89325a3f3fd1','cf4a1811-1490-43b0-8e22-7474acacda62');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.511')
+  where id::text in ('6c578b07-9013-4fd9-9370-db743dd7d911');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.17')
+  where id::text in ('6c67c4bf-855f-49fe-a928-f9bf42c2c7f8','f12c2446-6459-406e-abe0-2634c22ca118');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.334')
+  where id::text in ('6c709baf-d50e-4bc4-a400-31374736a8c5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.145')
+  where id::text in ('6cd1ed2b-51d1-4109-981b-0deed8b7b330');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.533')
+  where id::text in ('6cf66f00-7583-49dc-b69f-804dfa03245c','ce57b3aa-ff03-4878-832f-f8a2fce17f4c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.108')
+  where id::text in ('6d269744-5de9-45d7-bd02-0cc060f704a9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.28')
+  where id::text in ('6d58c4c3-fa27-4a9c-917a-a57f95a2cfe8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.457')
+  where id::text in ('6d8d700f-6218-4d8a-8e63-bfe435db77d4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.53')
+  where id::text in ('6da701c6-093a-4d6d-a7f3-e4fa82842a1d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.562')
+  where id::text in ('6da96ea9-9454-40c8-8366-191e479e428e','9f33c0f6-7d4a-4ba3-8133-4ff0a40c0618','b12305e4-201f-41e6-94f4-8a60851a0206');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.524')
+  where id::text in ('6e021ff8-939a-47a7-a659-a580df4c0510','ee4d78f3-9d05-4b60-80d3-1f7642452d68');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.135')
+  where id::text in ('6e166de2-fd16-449f-aace-311c083b7c34','b4ba600a-f860-4cd3-9376-73aa0f197de9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.496')
+  where id::text in ('6e211e7f-b5a0-41b0-a961-0d5f4b242920','fb7ff5f2-38c5-40c3-bd72-a80d7de451e4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.167')
+  where id::text in ('6e274852-537f-47b5-8608-d59c1ef56a81','875ff68e-6f36-43c6-8aab-148761c235bf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.502')
+  where id::text in ('6e302411-1cf1-47b5-8855-bb9c412b4edd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.557')
+  where id::text in ('6e323273-d96f-49e9-a276-4961fa789649','ab35ddc8-48b7-4d5d-94ee-de9d2dfea8ec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.498')
+  where id::text in ('6e55ef01-e05f-4dc4-b521-a2f126803dbf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.188')
+  where id::text in ('6e5eaa40-71da-410a-b6f4-afde96ad2311','70beeacb-911c-4188-b708-bf9064528a64');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.19')
+  where id::text in ('6e986ea6-a6f5-440f-9503-54f1348575d2','9b9d9049-8ca2-44fc-9a19-d59600e06a2c','e573d774-bf9d-4ff7-b374-2aaded0ef601');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.75')
+  where id::text in ('6ecb7964-63e5-4903-a248-4b3e374182e2','deb9a9b4-1e07-4a87-9487-39faaca1e2b7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.12')
+  where id::text in ('6ed983ee-8a83-48be-ab20-f381f5080f29');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.89')
+  where id::text in ('6ef19727-c4e5-4818-b9f8-38046335a920','9fa5df54-48ff-40f2-8095-2ca3a2bbbcc2','a0de19d8-ab2b-4e80-bebe-ed624a2320bb','a978ac97-024f-4cb3-8bd9-780178a96dd5','bc94c928-b32a-4140-9312-08321aa0264f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.455')
+  where id::text in ('6eff2119-757b-45f2-9068-a94c28a9477a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.158')
+  where id::text in ('6f642bc5-0fee-43da-9504-f8d96b674baf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.255')
+  where id::text in ('6f64a4ea-dcc2-4d93-a9f9-e7e68dab0ac0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.77')
+  where id::text in ('6fd11565-cadf-4bf3-b9f2-1d4ef56d3483','e88267d8-0272-48c6-986c-5c05943977f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.411')
+  where id::text in ('70127fda-11dc-41ca-97ca-1995c94a9fd4','7f8f3b1b-b957-4102-a332-d06728c0def6','902d724d-1a08-43f4-a05c-241d5cdd9b70','daf71d2d-cd85-40d5-a5e2-992486e16a8a','dbf9e048-f226-4279-adbc-8bd215af52de','eb09779a-a72c-4a8b-9664-119f976564a5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.226')
+  where id::text in ('7022a685-4fd8-4977-9645-ff787c55a58d','8d97265e-6ed1-4341-a4dd-1d622ef0206a','dc6920bd-8b56-4523-9c76-51ad6b1c1314','dd67b0d0-a4a1-4158-8e49-eadae641a232');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.288')
+  where id::text in ('70595c37-f65e-4c47-9fca-439c89044d26');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.8')
+  where id::text in ('7089e986-5beb-47c1-8855-4f8d5aca32e4','fb6b3323-5e19-4521-8711-6de03c698b0e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.289')
+  where id::text in ('70edbc72-9705-40af-a51e-d087ed5b5b7a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.56')
+  where id::text in ('70f864bc-3f45-4422-b6a7-40a31eff0b23','854b1522-8a15-48f4-8f23-6c4828e03a6c','95348e93-0b85-41f1-b7fc-8514f3bba0af');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.253')
+  where id::text in ('7106fb88-5b64-4de5-a4b6-490fd2385450');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.239')
+  where id::text in ('7160a9cd-7132-4d74-9f6e-1cb4bb13e7f1','a596b997-f0ba-42c4-9a44-6d5214fb4e2b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.444')
+  where id::text in ('71e2e1f9-6dc1-41ae-9330-a15e2792217a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.24')
+  where id::text in ('71f51933-e183-4489-9ecc-cb6f1d38e44a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='21.6')
+  where id::text in ('7202e1d2-bb55-4c07-9b84-59d9b165af27','be18efa9-8d8b-4ec0-a750-d75fc4d19f64');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.123')
+  where id::text in ('72201a6a-35e0-4da9-ba01-c701f26cce08','97747e83-0288-4b46-b994-ac2bd62f3b60','def1aa4a-2fd4-4dca-9903-9a6e51f005a5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.22')
+  where id::text in ('727978c7-5586-45d5-872f-34083a6e2437');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.131')
+  where id::text in ('72968df9-a86e-4102-aee6-813182de3499');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.149')
+  where id::text in ('72d4979c-03b1-461f-ac6e-251248f43c9d','ba571c1e-6d29-4b00-b3c5-d19f11ff0153','ccf09801-536d-49fc-b911-004ad13200e5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.362')
+  where id::text in ('73423634-385c-46f1-a109-06723f2bb236');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.5')
+  where id::text in ('7348b88b-2448-42fd-8e1c-5479a977a89c','acfd9721-ffc8-46b5-914c-93d0c5e8e08b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.327')
+  where id::text in ('73d78ce1-fb81-4e32-8a4a-d9a3a522adcc','783aeeff-17cb-4bcf-97a9-d1a5a9eb964c','a6f35c51-fbaf-468b-94e9-8e15f83c875c','aeaac55e-8a15-4553-8cd6-40aa51823923','b2f0ddbc-baca-45b6-8757-bf2d0783c3ff','cfaa1e03-5d3a-4beb-8570-a17ed937662c','e2290a5c-30af-4459-9b95-23cd8051174b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.136')
+  where id::text in ('740d778d-efa8-4c0a-9179-099331d424d8','9d664708-acd6-43f3-a0fc-6da67eb6dcf7','f9563944-cc31-4e7d-ab0f-2bb5163da90a','f97eb89a-cbc6-4556-8bef-c24949a36fc4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.554')
+  where id::text in ('741b66ba-ee5e-47b4-be33-544012e37b24','b1321d1a-7dc4-4a48-a615-5a4baa9e06c1','c04341a7-3f0f-434b-b363-26de3c3f851f','df9c335f-c16e-4857-bf83-50aeaed1adbb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.208')
+  where id::text in ('743538ed-58f7-4ed0-97c6-dd26a564db82','d9542e60-44f2-4ddc-8287-8b39731c6905');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.109')
+  where id::text in ('7499569b-b653-486c-a917-7c61e441f8ad','912d922d-7c7d-4c58-8623-e70c67c8532d','b27fd1bd-e8f9-4c58-9378-575d46e8d947','d77bc599-81c8-410f-8f11-5446adae8b8e','f5c3c9c9-e087-49ab-80c1-7c32021bd9b1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.53')
+  where id::text in ('74ed70fa-8749-4db8-98ff-866b495de488');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.94')
+  where id::text in ('751e429c-52d3-4c88-b785-bb55534ea996','a032c6cf-772e-4e61-8fde-d6b08da162c4','af739864-690c-4e82-856b-7d054bf9d0f7','c4a03cae-994f-484f-be5e-12fb6ff7a0ba');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.41')
+  where id::text in ('753e7594-cba4-4a3e-9e17-28e4ce0b2047');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.23')
+  where id::text in ('7567d7a0-23e4-44da-94dc-f6120298b895');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.37')
+  where id::text in ('758d5069-24de-45af-b62c-0c1ab8bf4554','8b6ff3b5-8702-48b3-af8d-313cbae8d6b7','b06e6aa6-6712-4af1-b956-8a3595c5b997','c36373a8-9758-4ab9-afdc-eb1ff3b6c0ae','ded70e09-de2a-44eb-beeb-9374b004bef2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.47')
+  where id::text in ('75a15069-c739-42a4-8fd4-9fe2fcb518b0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.655')
+  where id::text in ('75cfde82-0358-474a-ba5e-9100031e658b','768fa11a-757d-4a31-99fb-c8e30cebe1e8','82f6e3f9-30e7-4602-9cc6-c3c183ce175d','91152353-f1fa-4482-a8b9-0c77806e1540','cf56f722-f702-466c-a808-81658bb63c09');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.558')
+  where id::text in ('75e3dff4-f8fc-48f7-822c-4d665963e7d2','969e8f04-00e2-4913-b737-3075c5b6562b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.169')
+  where id::text in ('76ba24fc-6932-4726-98e5-f195cf91436f','89b76cbb-7a13-476a-bf3d-f94a9a5704ae');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.39')
+  where id::text in ('76f4d0fe-cc6c-404b-8454-9aa15002657a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.284')
+  where id::text in ('7738b064-d4d9-4b9f-96ba-16e9f63fbedd','9321a832-58d5-44c3-8ed1-3acb70981d40','ca0e3846-2ff0-42a5-85a0-d85af0c59f4c','e622b947-5a8a-4504-bfbe-ebffefb71a08','ebd025b9-8f1e-46c1-9258-d3f97a4d9875');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.157')
+  where id::text in ('77717895-35f5-4eca-bf77-5888ed013c9b','c195a7b6-6e44-4e3e-a621-7a426312fe39');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.12')
+  where id::text in ('778074cf-dcfc-41fc-a9fb-9b13f27ea237','a8177666-205a-465f-8880-0beb87ff281a','cef8a807-eccc-459c-91a6-99947261b5b2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.9')
+  where id::text in ('7790b21d-f721-4ca0-897f-f19c36657c1d','a378a696-9048-47db-bd7d-08fc58b48fda','ac93898f-0af0-4022-a6f9-6bb12002768b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.459')
+  where id::text in ('77ea480c-09cb-4a5f-91fc-928790159cf6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.459')
+  where id::text in ('77fc9c4d-dd2b-41b3-bf03-3e49df2d06f2','ed9dcb6d-4165-44d7-aaa4-69c4a3362573');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.357')
+  where id::text in ('783a9334-f728-452c-9f5a-96324e99f1dd','7f7a2038-b88c-4ff7-ae7d-f9d2d959e155','ab11dd90-d29d-4e5b-9718-2e0d3ee4f2f0','b4ea1cec-9f57-409d-b824-91552f486e63');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.136')
+  where id::text in ('785d37c9-3b6e-496e-b56b-021aa4409c9e','9e140747-41a9-447a-ac67-da010aafa376');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.21')
+  where id::text in ('78610bfb-46ea-4fce-9ecb-20768df310ab','9a5df857-3dd3-4662-95f3-732da168db4a','c9b4544f-5d9a-40a2-9f66-267646154b96','ed0ebbd3-dfc7-4c5e-ae68-61622b0b327e','fc47b268-0d36-48c5-8a9b-cb63706deba3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.82')
+  where id::text in ('78772752-504e-4594-822a-9f88077d45a7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.551')
+  where id::text in ('7892ce10-9ab9-412e-ac74-1117cb7e3ec7','fabe1832-45d9-47fb-87ad-36c598080c9e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.307')
+  where id::text in ('78e3af11-c569-4fce-92dd-5d83f8c3a5ed');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.489')
+  where id::text in ('799329d9-abb3-4808-8035-4a0d9d7e6799');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.494')
+  where id::text in ('79a13a7f-54b3-4398-aaba-204cb77db1fc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.179')
+  where id::text in ('79b0337a-d318-428e-b2cd-c6a8ba68223a','865f99e2-5e80-4f81-8bcd-012134b65938');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.3')
+  where id::text in ('79cd8316-1c63-41f3-97c3-79cce0b2d2d3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.114')
+  where id::text in ('7a40948e-c17c-482b-9dfe-adf861e06783','bd71123e-d4c1-4b19-9939-de647cebe811');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.76')
+  where id::text in ('7a7bb6c0-55b8-4670-a9e4-cd3704c343f2','a1cc6bc4-dc82-4904-9a28-bf40a1fed704','ca678f96-4413-4043-b38e-7aa58970f470');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.78')
+  where id::text in ('7af161c6-0971-409d-8773-532e36a6ecf6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.57')
+  where id::text in ('7af1a80b-5c3d-414d-8743-f23f2259391f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.349')
+  where id::text in ('7b27f19e-816e-43f0-8ad6-4a4029d86be1','908ef64f-c483-4f79-b009-3898c634ebe0','d4eb963a-1aba-4701-8f4b-b22c12c1ebd3','dc77ab8f-8260-48e2-8998-39ee1cc4cc0d','de2dd0c5-38b7-4789-bfb3-da835209ac2a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.14')
+  where id::text in ('7b57cf44-79f6-4f6e-9df0-617f28466498');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.177')
+  where id::text in ('7bbe1a3f-d840-41f2-b92f-503bd46e76e6','8561deeb-7b61-4e84-a01c-4aeab7a80b51');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.552')
+  where id::text in ('7bf3f27c-fe0b-42a8-bcda-417561e88af0','c5d01273-47fe-4fdb-b790-9f973f93a4d9','d833e0e8-652d-4265-896e-6000016bd3b7','e95f3729-915e-48d7-bc6e-9d1b726bea72');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.203')
+  where id::text in ('7c28663a-e470-488e-a7c1-accdbfb042d8','9bf7db5f-3816-47b2-bf61-8e73c39c7b99','b0655323-3f95-4396-95a9-07f75a5253d5','eb46ade8-d9a5-4c8f-8ba7-91ef14182bfa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.68')
+  where id::text in ('7c431ae7-5c08-4ca4-9516-ff7c404df906','f2991455-2362-486a-8573-746e5d72847a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.221')
+  where id::text in ('7c815b74-b7e5-4c1a-ae9c-21ede78727d0','fa03f63d-39c0-4cfc-958a-d90ad5075ca5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.183')
+  where id::text in ('7cbbf37d-5308-4a38-97d3-f05a30f39363','eb6434bc-7de0-4fa6-af19-94512e4fe374');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.163')
+  where id::text in ('7cc3da9f-3df5-4580-8515-c4d1a6cafdb9','b8348c96-e80f-4c31-b956-1b83c3f53b34','e8ff8551-45dc-4f17-a044-12eecd4b2986');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.543')
+  where id::text in ('7cff66ee-6b84-4fcb-b82d-0ee0c8a5cea3','ceba3f67-4e2e-491e-a2d2-1d2bb9c177ff');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.453')
+  where id::text in ('7d058498-966d-4f3b-a980-37bb371ea616','d0abe6b5-0592-46ce-a485-b74d634524af');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.229')
+  where id::text in ('7d367889-963f-4607-8ee1-f5efe5178695','7fc4cf8c-a9ef-4726-ba2d-d18bd8e0a28b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.121')
+  where id::text in ('7d72193c-38a4-412a-bf32-717cd758971c','8aa3a37a-93fd-4ed5-98b1-e7074e9d31e6','b8b5e46e-4835-4386-999a-9a3577773b5d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.116')
+  where id::text in ('7da4d68c-6cfb-4498-9da7-a10c12ceefe8','9ac788d2-e0f0-49d9-9d2c-dc43215f2c40','b8aa188c-aad4-49c6-8f43-ed115352b05b','d0535c71-c594-4862-aade-fb925ff16efd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.7')
+  where id::text in ('7dfa70cd-593e-424a-bec4-9523f485b21a','84f9efaf-2d3d-4708-817e-7f7bebbf28bd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.267')
+  where id::text in ('7f700193-7339-411a-b9a6-cee217dc51c0','9f3adcae-966d-4e20-86d8-2ed694011170','b716dae7-c757-4d25-a6be-8fab769805d0','bfd964fb-7673-4fb1-83a2-160cd9374ad0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.26')
+  where id::text in ('7f714a41-359f-46aa-afc8-e9d46eba3d48','8eae2a81-7927-47b9-ae2a-e628e0769b1e','91522568-5928-4df8-aca9-2e4a0c6571ea','973ea779-05c6-423d-ac68-0ba78ebad9c4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.83')
+  where id::text in ('7f937bfb-71a0-4fc5-8825-854ed5975747');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.13')
+  where id::text in ('7fbc5a8f-1d80-4565-b178-c378a7d9498e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.126')
+  where id::text in ('7fe3b0d7-9955-40c5-a6d9-d056bd8c7c94','d95de9b9-55a9-40c2-b197-be8b5d09b652','e268258c-31ba-4f62-9607-53058395ab7c','e9dcaebf-fb85-4d8f-8dc8-7175e321041b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.76')
+  where id::text in ('80123b24-658d-480c-8d28-1e46d5a3ae3c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.315')
+  where id::text in ('80193da4-c9a3-4d0b-a1bb-4729c72d0986','87d563b3-be9e-4d34-af93-327ca851f276','d47648d8-32fb-49f1-8b84-0789132b134d','e41f8bcd-cd7d-449e-89ff-7988b7c7667c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.129')
+  where id::text in ('803e51d4-b033-4ee4-8ce0-6b75123c1aca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.152')
+  where id::text in ('804a81e7-8dfb-4cb0-9b29-525a0f1e83c4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.376')
+  where id::text in ('806ed86c-6d6e-4a88-905e-3ef11a7ecf3f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.19')
+  where id::text in ('80a181d0-5797-4b3f-a49b-999b1ad9fa50');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.31')
+  where id::text in ('80ea0236-07ee-4107-8aab-c2ae8f5902b9','84a9ad32-48e3-41cd-984c-90c003dfbfcf','872e6c2b-0903-4127-90d8-aaa080766435');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.619')
+  where id::text in ('8179130e-41b0-4d0a-9f82-94a277d2b6fa','b8814405-2e22-4d2e-8690-c171aa177c27','baa1413c-b9bb-42b2-bfe6-6eee0ab453c1','e227dd6e-4fdd-4939-babe-35d637fe952f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.71')
+  where id::text in ('81e660eb-5ee2-49a5-82b3-11ca9f0f4ea6','bcf6541c-7683-427b-a6d0-cc9a9e314df5','cb89d077-dcc5-4c71-81c1-e96f40bdedf4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.635')
+  where id::text in ('82347783-bac8-4e35-90a9-58147d790dc3','d4bd1794-de77-4da0-a7c5-39aba5b7a2c7','df926409-41f5-4456-a0ea-a60e1c885ef3','f2efce55-2d65-4a64-8acc-4d2ce20cc033','f505e009-1f0b-4679-b3ff-52500e7a279b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='19.5')
+  where id::text in ('8286242e-3b6f-46bf-b632-afe51862bc43','cf524dde-8a2f-4714-b353-eb44e1326a42','d5e8945c-3409-46c6-b85f-660e6435b1c5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.75')
+  where id::text in ('82868f75-d324-4410-9643-b68fb0097b6e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.462')
+  where id::text in ('82d3fdc4-68b7-471f-8d2e-228c0ac0e4db');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.119')
+  where id::text in ('82f6aaec-026d-49cc-bde2-4b9b2fcf901d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.205')
+  where id::text in ('836bf097-11b7-4488-8079-d82d7c980e51','f18ad239-2587-4bf2-a65f-86182b97d2c1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.163')
+  where id::text in ('839c76b9-50f8-432f-88e4-6c2dc599f356');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.108')
+  where id::text in ('83b3776d-0a72-4330-8459-2f6c7dc6abf9','84aaa35c-71b0-4c64-a3c1-3c91bcf7b5a2','dc0724ac-2987-4cc8-80e4-a9fba27dc25a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.505')
+  where id::text in ('83d4d3c7-67d3-4eba-8ea1-1a2a322f7f0b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.371')
+  where id::text in ('83e094e3-885e-47fe-96f5-a6aa481938bf','e63ed28b-d458-4977-89eb-cc900783d280','e858bb9d-b3b8-4f36-be9a-42c7397d8dab','f2ef5c90-3740-41cf-8783-c6dd1a23f571');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='11.3')
+  where id::text in ('841abdc0-58f6-4c0a-851a-2055e39e395c','bd7d13d9-7f20-4c68-bb13-5130e8f7ebba','d13c445a-049b-4e29-9e1e-c3f3f2a8c75c','e1af927d-70e0-499e-b60b-4b50b9965954');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.186')
+  where id::text in ('8478e817-2c51-4ba1-9c1d-0dab2df83630','9f7d4c81-2a98-41ac-b21f-500d27efe913','a709703c-bfe9-4c8d-8bd4-41040336c290');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.485')
+  where id::text in ('84fd8d85-3ee5-49d2-bf3e-15d92a8fd792','c7f90e63-017c-44f5-8cd9-df00b6bab3c7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.38')
+  where id::text in ('85027e37-dfd7-49f3-a1e4-eb35b9dcca99','93f1d9fa-5c1b-41a9-90de-9a28516ea72e','9f77d118-5442-46f2-8ed4-0c9ce5ab689e','a479d73a-b162-42a2-bd0e-3748c63ce967','bae861c0-ef89-4146-823e-58fc42f99e9d','d09a8337-1bc1-45b0-80b3-4c6d38a5d8d3','fe264b47-c83d-43ef-af30-aa9d2c650940');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.491')
+  where id::text in ('852c7121-1191-4ae8-b6e9-9e2bdf457bb2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.349')
+  where id::text in ('853ab3e7-5272-4b68-84a9-54772c0f491a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.54')
+  where id::text in ('853b7973-6ddd-4338-8410-39e8bf40c32e','935e0139-ece8-45a2-a1ed-baade57a8360','d2402501-e3b4-4152-8f4e-05b4686ed241','d7e43ca0-08de-49a6-9ec8-55caaddd79a9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.605')
+  where id::text in ('855999df-2c49-4c80-a14b-f33e4c7076ce','a41ce053-a7b4-4a8a-9b54-9c2ca303b5c8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.386')
+  where id::text in ('8567e145-1529-465f-bf69-f687f827adae');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.373')
+  where id::text in ('8568e6eb-2865-48ac-9d46-27f8b0a6b6fb','8ebbf5c0-c695-4a7f-b612-70c477489461','d67a450b-0858-4ff0-aa50-fe8f3d275fee');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.466')
+  where id::text in ('856e1d5c-4e5b-422a-b1c3-1511945b2cf7','a2cea56d-6209-4057-9848-8b872b04254b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.547')
+  where id::text in ('858f3f76-4487-46aa-bddc-ab6b71a90f2a','a1ae7ac0-5dc7-4421-be33-d717c1754f87');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.154')
+  where id::text in ('85a0137b-a8f8-4eb8-8146-c779efa75fb4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.21')
+  where id::text in ('85b71d17-91b1-45d6-8ca1-928defb39852','9017cb09-773e-4528-881f-31b7a72ea6fa','984d9cc2-2fbb-4ad2-a84a-94d9fa0f43c6','c8fd1e01-c42c-452c-a54a-fd6ced8d5d65','e895eeec-e0b3-4021-b836-f662e909ffe0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.124')
+  where id::text in ('861d29b4-5ab7-4fa0-9ec0-2452c3481083');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.116')
+  where id::text in ('8621e31e-73b9-4d77-81e8-bb1d3f0fcd96');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.308')
+  where id::text in ('86532e7e-b8b7-407e-9932-3f9c26855f34');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.83')
+  where id::text in ('86651839-ae32-40cc-92c1-3c460855b776','e853d2f3-215a-484e-8a91-b3159a787b53','f6ca0a4d-1a99-49f3-a977-059318679de0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.2')
+  where id::text in ('86d29b48-89b5-4c19-8ccd-a7babfd5754b','d494a9a6-4b91-4660-9864-9f043a32dc40');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='2.4')
+  where id::text in ('86edbfb2-1522-4cbe-ac52-f27f213d3a17','ce7d114e-94c6-4c73-8eaa-bfd14c3e3084');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.589')
+  where id::text in ('8706a491-e204-4c9b-af57-d9923a0b7da3','d15f514d-22b8-4f3f-a661-a779b9ffd4b2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.85')
+  where id::text in ('87088cd7-be38-4dd9-9e64-5c40ea9e9ced','ece18958-a4d0-4932-a55c-10c9c19bf75e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.126')
+  where id::text in ('87267d3f-cee2-4a31-8b6c-9a6c344c6024');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.471')
+  where id::text in ('872c07f9-9f9a-408c-b25a-e43e00fad1bc','c85a7071-0146-4376-8746-bdba0e6aa2a1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.8')
+  where id::text in ('87b2e0c5-cff9-448f-85b5-d60bc6efd4b7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.197')
+  where id::text in ('87ba55e2-ea54-4cfa-b97b-14ed76d364eb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.194')
+  where id::text in ('87fff500-21fb-42e9-82e7-e29002f03dd4','d03c4136-d96b-48ab-827d-67376326e964');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.66')
+  where id::text in ('8809e3fe-b69d-4055-8fb4-2ff04294f066','95529422-0160-463f-a45e-4844a014af7f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.329')
+  where id::text in ('884f452f-3305-461f-82d5-09d5fe6aec2e','b15228a6-001f-48aa-b91f-a1388beeea61','ba708237-89d5-427d-8fd8-46bdeb82ba84','ce17939c-8ecb-4c8a-9a6b-b5e691586f1a','d50b4539-72a0-4c70-9538-91ddccfbc4c3','dd06bbc9-419b-4f77-b420-3e3a6249d347','e955e23e-8cb7-48b1-a01d-c97f1a7b4682');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.478')
+  where id::text in ('88cf601b-9703-4c78-bce9-3a18fe435b66','fbcc5da7-2ad2-4821-88f7-cd853a637104');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.132')
+  where id::text in ('8994806d-3328-43c7-9378-8b9f740a2f2e','a9322d88-c0eb-413d-ac2f-5b01e79c1092','b00d59ac-c5e8-4f18-acf9-30aaa9eebed3','dae655ab-3f4b-44eb-b8e4-17146a12ef0a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.94')
+  where id::text in ('89ebf12f-48bc-4323-a297-49ddde3b7f7f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.457')
+  where id::text in ('8aaf2e5e-1f7a-4425-b220-6fada8fd1943','962d0cdf-5395-47c7-b1b8-027c6ff51f32','d45a892a-f18a-47b8-b1b8-c47b204033c9','d80f0d44-aa11-46e4-99f5-59cb2acc2579');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.15')
+  where id::text in ('8aaf3d82-2f9a-41a4-8ded-f5cf8a3528f3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.549')
+  where id::text in ('8b7277a4-7ecc-4932-b4c8-e7c1442443c0','ed225f6e-09fa-436d-a77c-6675f903704f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.627')
+  where id::text in ('8b96fc67-25bb-40b1-b268-5b390061c2a5','e0faef93-bda8-45bd-b256-111caaf57c10');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='26.1')
+  where id::text in ('8be62549-f8b3-4ac9-9364-d264a3d814d9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.166')
+  where id::text in ('8c1f9927-d5a1-4392-a114-cb47fd5a80bf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.596')
+  where id::text in ('8c2fffc8-3ed0-487a-931a-ace8cff13262','aebd2e7a-878a-423c-8ca2-ea9f4dce2a18');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.195')
+  where id::text in ('8c8b1c74-4ecf-4dbd-b854-d0c64e3085a6','e159da38-8c1c-42b1-914f-d8d8f58b08c8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.127')
+  where id::text in ('8d029cc9-a1d9-4bc7-90ab-12f1349098e5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.465')
+  where id::text in ('8df07af9-4d5b-4504-b1db-ed04620d0a1e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.44')
+  where id::text in ('8e437df8-f5e0-4fa2-9521-d2f1cbff1da7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.449')
+  where id::text in ('8e580281-95f7-44c0-8d61-79dea167eab3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.85')
+  where id::text in ('8e90a5f0-a99c-4371-9041-925729569005','9f41f047-26eb-4cda-ba5f-8bf611bd4e33','cfb33087-cb17-4635-88c0-7c083672bddd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.18')
+  where id::text in ('8e976edc-f6f4-4979-966e-d9136873ce48');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.491')
+  where id::text in ('8ea98500-e418-47f8-9146-664d24c8bab3','dca5b7f3-b975-4dbe-9888-06abd659dc08','fad03737-814a-4afe-99ac-7470079ee708');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.24')
+  where id::text in ('8f6ea08e-78c5-4dbd-ae4c-88b41d4ad442');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.404')
+  where id::text in ('8fa0f4f3-c93c-42a1-b6bc-278c27d26028','d130c143-7452-4ab8-b539-b008138cb488');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.85')
+  where id::text in ('8fa5a2f2-8191-466b-b084-236eff5761ac');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.85')
+  where id::text in ('8fdd26f6-0d2c-4cef-9ddd-b8b37ad1ff77','9b930c47-ddc6-4719-ac94-fa3e8bc6b3d3','e37fae19-6d1d-4688-b668-d1227cbb0342','fe3e62a5-3b92-4f48-b264-a010927f3957');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.287')
+  where id::text in ('9013e5f8-b5a9-47d3-8e32-e889ddeb9e8f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.327')
+  where id::text in ('90167db4-f668-4c7a-9a75-79137ae4563b','ac3dfd53-3db7-4dc6-82d3-24dacc6b9f6a','cf289ac0-326b-4928-9c5b-33a4693c0ad7','e072d965-de35-4869-84b5-1ee643501aea','eb188e87-d981-405d-8354-5ec36bb0c450');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.52')
+  where id::text in ('9074122a-04f3-4c8b-a1f4-15dfe33f3699');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.232')
+  where id::text in ('90d50041-0394-4c16-b180-6a43ae1025a4','b290a347-b7ed-4449-95fa-a9061842553b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.15')
+  where id::text in ('90ecf7a2-8390-4559-9165-b62981df2c61');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.75')
+  where id::text in ('90fd34fa-e19f-43cd-b907-9a0615a22127');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.633')
+  where id::text in ('9107e6f6-6c97-4a56-a94e-3341990fc3c7','9a6b2a56-3214-4a93-bed8-baf02034f18b','a98ac6e3-3b14-40d4-926e-3786728d99f2','cba02cc8-27d2-470c-8210-00e9a4f3a5f7','f7687525-d11a-4300-b061-4503ee97ed57');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.17')
+  where id::text in ('9141c365-a048-419e-b4e5-8d2b12db8ddb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.644')
+  where id::text in ('914b80f4-60fb-4946-9c28-e9d7e6e982e0','a1f77055-202c-4cc0-a602-b58bbdca73f1','b84cdeac-361c-4402-b032-88dcef8c2efa','d032aa92-5952-4f29-9eaa-71cef60214cc','db253aef-a3b9-4d01-a60d-c080b6f07536');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.93')
+  where id::text in ('919258ec-8b3d-491b-adeb-f3890e21e5f4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.103')
+  where id::text in ('919f6996-95db-460b-bce6-33a4b8ba335d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.211')
+  where id::text in ('91c7077e-f206-49b5-a94c-32562678f777');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.22')
+  where id::text in ('9246ae30-a4ec-4ca5-ba29-b3025644674a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.54')
+  where id::text in ('92709a33-7dc9-41e9-a7dd-9881715321dc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.149')
+  where id::text in ('927b702b-1eca-41e6-906f-c8fa51620713');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.625')
+  where id::text in ('92a48be7-30f6-4f8c-b3a6-01c5b154cba1','b06fe1df-89b9-42d4-b6a8-b3edd623c026','cf7e7094-ebe8-48ec-8b2d-88411c70ad54','d132dbc1-25d7-4cd0-b21a-148237225bba','ed67cded-f129-4263-abbf-703f825bec1a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.324')
+  where id::text in ('92b512ef-a3ad-49aa-a070-f9626c2ba31b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.71')
+  where id::text in ('92e24634-75d4-4276-8483-0737164fb6e5','b1fd1de7-bd43-4688-8153-40fb1c9ed245');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.23')
+  where id::text in ('93543e80-9048-4505-851e-f321e17bf360','a6b4e113-a894-4401-882a-d4cc586cfafd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.94')
+  where id::text in ('936b85f0-0008-45d4-9330-5bfd8aad801b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.206')
+  where id::text in ('93a83683-eb14-44e5-9c46-16af500f4d7e','f2581d0f-5221-4ffe-88c4-1fc2438f8dcc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.213')
+  where id::text in ('93d99d10-0a17-4964-a32e-d962a4884020','c7789610-be49-4a32-9cf8-7ddcf7840064');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.7')
+  where id::text in ('9463f378-91d1-4a0d-9fb6-e7c3fd1319b2','b670bdd5-139d-492e-a7fa-6707fd752c19','bc630445-004d-4f2c-8c65-0ad93b7ad1fc','c8ba92bc-335f-430a-89df-8ff2d48b9b6f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.424')
+  where id::text in ('94910795-39f4-4eea-b110-69c2cfe1c984');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.131')
+  where id::text in ('94bfa28b-7f4a-4038-867b-aff33ded8359','9d12a762-b7da-44b7-8fb2-1f49cc39ac32');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.53')
+  where id::text in ('950a7a61-b9e7-479d-acb0-b15462963c76');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.211')
+  where id::text in ('961aeb1b-46f2-48a3-b4c5-b8a579949b8e','a02adbf3-1c0a-4e75-b4e0-2171df0e9338');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.14')
+  where id::text in ('9668bc1f-ce86-410a-9c7b-d6f6c85510e2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.502')
+  where id::text in ('96a2ca99-1a4d-4b8d-abe6-f75f47f9f2cd','f9ebd4b8-d736-4d2a-9eb7-071245547ac3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.467')
+  where id::text in ('96c21c6f-d90e-4f85-b748-492dcd8afe0a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.36')
+  where id::text in ('96feef2b-4051-4b81-b953-87c8875cd75a','9cb0f8a5-520a-4f4d-a718-5f8298e00df4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.591')
+  where id::text in ('9733422c-cef8-4489-86d2-1d3972c4b38c','e5ff8fe1-4159-4f6b-aa0a-84fa6920364c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.293')
+  where id::text in ('976bd788-10f2-4848-9f3d-041d226052d6','a656b351-3304-473e-8dfa-0a4c31bbb1ea','dff8daf4-ec44-4802-bea0-6eeed4bc7405','e0c21c7f-57b3-453f-9708-8c44ac63260f','e3834294-92c6-4792-8fc3-f79ada005ed1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.24')
+  where id::text in ('977ac278-7615-463f-9a00-deaca830f49d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.108')
+  where id::text in ('97b4b411-0014-4238-8beb-d9fe644c919f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.47')
+  where id::text in ('97b7a31b-cb30-474a-9da5-c3253ad4036d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.63')
+  where id::text in ('97f3c18b-e88f-436d-b428-b69bfc77206d','f63f0c2f-173e-457f-ab30-087c9fef40c5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.78')
+  where id::text in ('9878c071-cc36-4194-818e-6ecb3efb9547','f41e9f0e-1eb9-433d-a300-32b56441f59a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.537')
+  where id::text in ('991ed502-b6b1-4e5e-b66a-f6ac2daa54a2','fb58cd06-02d1-4838-aae1-f3b36d5a9a2f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.62')
+  where id::text in ('992ae69d-327e-4956-a00e-56d25b9457f1','a59d4007-e0a3-4f55-9e9e-f10f82a66765','dfaed2b4-b8d7-42be-b4b3-c6ca25ea544f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.179')
+  where id::text in ('999a7c1a-804b-4334-833f-b9e45c7b63e5','b27fa6a5-2d5b-4554-aa2e-a83c54353c91');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.456')
+  where id::text in ('99cb69d0-41b7-47a0-9feb-f81038eeda1e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.131')
+  where id::text in ('9a17572a-61ce-4f08-8014-a15bd581292c','f70516e9-55b2-4f72-bdd1-db59fa4e7c2f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.478')
+  where id::text in ('9a90287b-56b2-45eb-8c81-e542de363707');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.231')
+  where id::text in ('9a9a1f0a-10e8-402a-91e8-5a2252ba3a4e','d37fe71a-7594-42a3-92d9-7e123d4b47f6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.413')
+  where id::text in ('9aa99131-3622-4a49-9caf-bebf293ee9c8','bab0331a-bb82-475f-9b54-5835cd304849','d6d17eda-62a6-4fa3-965b-e27fdfae0d02');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.64')
+  where id::text in ('9b77d363-bef9-4538-be9d-2d93315bcf69');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='16.55')
+  where id::text in ('9b8fc996-195e-4674-9966-9e850fdcb55e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.59')
+  where id::text in ('9bb3c3de-f8ea-4cc3-b1df-556fc274d65a','bf8f2dfb-1a7f-4717-92a3-61ddf1439e83');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.419')
+  where id::text in ('9bc9985f-8f3b-487d-9ff1-1135114bcb54','f0a51154-0220-4b12-9fc4-48323921816a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.14')
+  where id::text in ('9bcae260-b63f-4642-bd1b-184943ebf37a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.101')
+  where id::text in ('9beddb6b-0881-4d87-9f39-6b550a7129da');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.9')
+  where id::text in ('9c6071ac-d626-4614-ab90-6d4ac0995937','b4b9a496-37bf-45fb-8a1e-56e5a82f9b58');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.581')
+  where id::text in ('9c7e81cf-f0c2-4a9d-b218-81220b7c5c13','c54c59ab-cb52-4f90-9752-f687adf974de','d65e1d22-8aca-409d-aace-9be68acd874a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.16')
+  where id::text in ('9d838e1c-5ca8-4e3e-990a-577f7f6642bd','a2b18a3d-7dd0-43cc-865c-c44bf5ef9cf1','aba96f3e-4ded-424a-a0a0-4494778fd46d','c35e4c2b-5149-4d7f-b1b1-02a13cc96cd7','c957005c-f4a5-4ef1-90d4-edda77d348c5','e5c8afcd-bf75-4042-aace-174ec7554365');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.75')
+  where id::text in ('9de109dd-f811-46a2-b72b-e873a739012f','a2c12296-595e-4bed-bcc3-db365fc5ba54');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.468')
+  where id::text in ('9e53248a-58ad-4413-9b2d-444190d383ab','c32d4dee-0895-4b71-b1db-c25455a2bf5d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.36')
+  where id::text in ('9f3eae6d-c94a-48f2-95a9-2febf88e9cde');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.33')
+  where id::text in ('9f659fb0-e561-4aed-8f0a-7d3ffae0ef45');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.107')
+  where id::text in ('9fb2f337-e8ea-4227-aa2d-54b15d67f14a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.144')
+  where id::text in ('9fc6d4a0-fda2-45ba-a82a-31452c5ce17a','f6a2bc7e-62ca-4388-836a-badd2d5c05e8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.228')
+  where id::text in ('a08c354b-ee34-41c8-a54f-121a05c815c8','b7ff2b84-604b-49e1-8c02-c8161569ceef');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.69')
+  where id::text in ('a094f703-8de9-481e-9def-45ab2cfbe675');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.159')
+  where id::text in ('a0c999ff-1c73-4d81-b9dc-e19ee452fcf0','e00499bb-c40f-498d-8458-d8f803de404f','fe73b262-c88c-4b18-bb71-76183d1280e1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.9')
+  where id::text in ('a0cf39bd-2204-4451-b74b-6806ffa828e8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.47')
+  where id::text in ('a1064445-152a-4441-8c6f-0b460f696999','fccdd1a5-5d8b-4d01-bfb7-a65b02226347');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.109')
+  where id::text in ('a13075e1-fe63-4f14-b401-226c2ccb95f7','ac44f078-e932-4dba-ae00-0a5dfc155152','b4ed4f9f-359c-41e7-96f7-2a6d22f9d7e4','c5c6f8d3-be9d-4001-a616-01d6d23da010','f15b124b-5530-4364-84d5-01368f49f172');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.62')
+  where id::text in ('a13ac825-1bf8-4c41-bcff-8818f5041c88');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.264')
+  where id::text in ('a1535745-74dd-419a-8263-0840cf6e7d68','ab0a093a-767b-42a1-80e7-8b1ad85647f0','d71e0031-74b7-4008-b46b-9d82348270ec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.399')
+  where id::text in ('a17a8c16-ec49-4921-9369-4066c17fd4c9','c2b13859-f3b6-428d-947a-1286e6c6586e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.73')
+  where id::text in ('a247bd87-fde3-4545-83eb-0eb8327cff08');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.195')
+  where id::text in ('a25236de-b719-47a4-a1fe-ee0df03b7630','d9024264-4857-4b7f-9760-354b20997341');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.127')
+  where id::text in ('a2547b86-c141-47de-b3d6-4e5d75b42614');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.31')
+  where id::text in ('a2f7f908-70ca-4b04-aada-885309b67ea5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.237')
+  where id::text in ('a3257f90-9afa-41ae-89ac-921760fc35f5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.13')
+  where id::text in ('a35198e4-dd1d-401d-b912-58b92a1f01bb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.192')
+  where id::text in ('a363bcfd-2b92-44eb-bdde-c8b2c2dee367','da67771d-aefd-4f22-8669-eaba8b462e3d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.54')
+  where id::text in ('a396217f-353a-44f8-a4e5-77791a5f13b2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.38')
+  where id::text in ('a3b4133e-c033-4f56-bd2f-9619b1afadf9','e75c6f43-94f5-4ea0-bc3c-dc24f959221e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.49')
+  where id::text in ('a3d72c00-1f87-4385-8c29-6b33056a8d12');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.253')
+  where id::text in ('a432317b-7c55-47ee-a6e9-9f41d786dcb6','b47fc645-3ef9-4a8f-a902-46156bc605af');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.113')
+  where id::text in ('a43717de-3d52-44d3-b1eb-b6eef4bc0da4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.17')
+  where id::text in ('a44dde71-beb6-4d60-8cbc-afed9d7f168b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.58')
+  where id::text in ('a45423ec-324b-4ab3-bbbf-ddb7eebaf453');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.72')
+  where id::text in ('a46b05e9-627a-4ce2-87df-bbaa5870544b','a6aae8cc-524f-40d6-8f5d-b13b3ab77a79','db32b98a-3929-47c6-8159-915661b89f02');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.178')
+  where id::text in ('a52d73ed-27bf-41ce-84b4-adcf55812363','ed3279e7-ee79-4336-a669-a30662e045a0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.454')
+  where id::text in ('a59d0269-b1b1-4ed9-8a7e-8082b2e177cc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.101')
+  where id::text in ('a5a422aa-58cb-4a98-9f5b-4c964e903a4a','e26a71ea-09a5-447f-aec0-4e5e3d64b0bf','ed5a53bb-9ab4-44a6-9ea8-e45a92257a2d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.22')
+  where id::text in ('a63ee1bd-818a-45e3-a704-4be18e9d3936');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.41')
+  where id::text in ('a67bf899-3bdb-4695-9b79-80b0ce80fc41','bde8028a-11d5-4ff6-9e47-c166b9c52dc2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='101.1')
+  where id::text in ('a67ed829-c8bb-4253-bbef-381d4ace4209');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.241')
+  where id::text in ('a691ff20-f07f-4c27-9b41-2bc03bfd384b','a787d5c1-eb62-4cf3-94cb-90bdfdca6ae6','a85a7815-5b32-4d99-9a56-153f94e4a51d','ec947720-ab8f-4f79-b612-f0a433fc2e2e','f0bed397-f2f0-4fb0-ace3-816bbf7b6692');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.219')
+  where id::text in ('a6ce11e4-a924-4ee7-9c22-97615289d73b','b095c448-37bb-4658-88ca-0c1f7c210e76','d488ae6d-c44f-4ce0-bdc0-41e46add377b','ec5aafe7-ac4a-4abd-a160-46c492c9c643','f502fb09-c408-4fc9-8148-fc3cf14e1ae7','fbb801d3-0ee6-49e3-b075-3b9439be0766');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.133')
+  where id::text in ('a6d4a339-852a-4ee5-a848-860700242d43','bb9aee1a-ef0d-4ccc-840e-9661b9420e84');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.13')
+  where id::text in ('a72f2287-7fcd-4d9a-8631-7713de064584','c4c7e5d5-9061-45ef-9799-65fe2ca6aeee','fd1f3f17-4086-4562-aa45-bb6883fc461c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.62')
+  where id::text in ('a7488420-48b0-45d6-a93b-e3a09284bd14');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.45')
+  where id::text in ('a7a7c28a-9d5a-425c-8bf4-a3915b3f43db');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.506')
+  where id::text in ('a7ce8346-d47b-4554-a482-1e81737c1757');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.79')
+  where id::text in ('a896fb6f-5363-44a6-a35c-0d0d86ce1395');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.101')
+  where id::text in ('a8d0a918-d030-4bc0-b831-2e227f572b7d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.131')
+  where id::text in ('a8d16b97-30a8-4ada-8eb8-df82cec874d7','b9caba21-6397-4da9-a3f9-24823156fde6','ec037d0e-b6d6-48ab-8cab-9b0389748ad1','f4db3504-f169-4996-a056-12b4dbfa0658');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.183')
+  where id::text in ('a973c10e-f05d-43c1-a100-5b52e1c370cc','aaa83e07-ba1a-4dd6-9a1b-203416dd9582','e49183a2-c9a0-41f6-be40-748c524f7c91');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.389')
+  where id::text in ('a98ef2c0-cacf-4c4e-9c66-c5de8a71fcc6','c5878731-0de2-40d2-b57b-ad1be1e6812b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.18')
+  where id::text in ('aa31b496-f931-4753-bd21-8ea5923c9316','fa1837de-47b2-44b2-a96c-6509d6a965ed');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.4')
+  where id::text in ('aa42231d-8176-49f0-b6bd-de55df2f88fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.453')
+  where id::text in ('aaf5ec80-97c4-45b4-bd2a-cd7f4b947464');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.79')
+  where id::text in ('ab0a504c-5d68-4155-8956-1284e2b911fd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.156')
+  where id::text in ('ab4fc881-4cd4-4ed2-8df0-336eb7504492');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.454')
+  where id::text in ('ab7064ee-70fb-4837-994f-8ffb8f1e6672','ae4185fb-2675-4867-bdf8-e3a517de4665');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.59')
+  where id::text in ('ab753a4b-fb98-48df-88a6-ac0113b5b0a3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.135')
+  where id::text in ('ac4fc928-82d3-4cac-a4ac-580838cd2da2','dec96942-77f2-46e6-a57a-e50772aaf5e6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.558')
+  where id::text in ('ac808cd3-abd8-474e-bb0b-5cb05a94698e','cb16dadf-0d6d-43f5-bea0-dc97cbd35a88');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.73')
+  where id::text in ('ac9b8aac-4d1e-4681-b8b7-c620c75fe5f2','c146b99f-851e-4caf-8b88-0490da0fed4a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.82')
+  where id::text in ('ad1cd9ee-8aa0-4a6c-a4c5-41d23717eb7a','bcef32b8-a9d0-450c-9604-ae394e73a313','e2403b47-10f0-4889-93f3-711484e3db47','e99c36c8-97f6-4973-8a9e-b90f44f97d8f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.597')
+  where id::text in ('ad25eee2-3e0c-459f-97be-8dc56ea83418','c7e1b804-7ced-4d7c-a233-309f9fdf3a99','d893c314-622e-4341-bd6a-ce6a16b881df');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.68')
+  where id::text in ('ad4c9595-3298-43f6-95f6-a4dea2dcaa41','b4b1efae-1cb0-4b9b-9fbd-72f877c29feb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.254')
+  where id::text in ('ad6cfa3b-0af3-4584-ab83-3b936874e59f','e9c54fa1-4139-4837-a72b-37f78c012877');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.143')
+  where id::text in ('ad80099f-6537-46b1-8787-adb00f4c7269','eda7bf07-e6fa-4bb6-b5b2-a36a4e81d37a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.479')
+  where id::text in ('ae1a827b-1124-4dcd-9cc1-ddf8bb742633','ca9b60c2-ac12-45fb-8168-9df03a4885ee');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.145')
+  where id::text in ('ae8fbbb8-2a7a-48c8-8018-0360300b9154');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.84')
+  where id::text in ('af0a513d-3f4c-44d3-a6a3-44d53ae92248');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.96')
+  where id::text in ('af958349-c531-45e3-b792-f51e51bd1ba5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.458')
+  where id::text in ('b002921a-d9c4-4027-95a2-21a9617af4dc');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.105')
+  where id::text in ('b0487b5f-9f8b-4a6c-ba24-df8726c96357');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.481')
+  where id::text in ('b0c6568a-ac77-4330-aebe-3f8216404182');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.102')
+  where id::text in ('b1099017-03bc-487c-848b-a6f9c4d6c772');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.57')
+  where id::text in ('b1dd2d0b-0825-4360-8b34-3e8e33a87db3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.2')
+  where id::text in ('b1f09a85-64a8-4f2c-b6c9-765bebf158cb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.167')
+  where id::text in ('b20b956c-e28f-4510-99f8-88af989af954','cd5195c7-7409-466c-8cac-f490e6737788');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.579')
+  where id::text in ('b216c44b-12c9-4bc3-b812-3c5a315fe823','c47db141-b632-4330-b55f-237dc49b4d28');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.479')
+  where id::text in ('b26cd500-8c19-40d7-9ad2-c83e3121985c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.575')
+  where id::text in ('b270c4e1-d57f-4c33-8d10-ecad0a050018','b47c8111-21a0-4e12-8085-72a1c8159cd3','cda42fc1-006f-494a-bc1e-ec0d80295cb5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.126')
+  where id::text in ('b2f417c1-8443-46b2-acd0-4b196b7aab4f','c7fbc42a-ed13-478a-9ca5-b40d88122c75','c939adda-a4cc-405c-9edc-4a1b166eb46d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.1')
+  where id::text in ('b31e9fd2-9083-42b1-b1c8-e4c76c0af54d','c522f280-d64c-4379-b3de-6006b02e5303');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.79')
+  where id::text in ('b32f5388-56e6-4f09-b536-b5a5f8ddf129');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.448')
+  where id::text in ('b347ec20-1427-4b88-a5c3-7e86e1ac55c9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.172')
+  where id::text in ('b36e3f15-7d55-42bc-9514-f645788271bc','b5871786-41b6-4d26-9a76-b7d24b6dc3df');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.23')
+  where id::text in ('b3a65a9b-5afd-482b-9d9e-a7392f1e21aa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.17')
+  where id::text in ('b3d9502d-aec8-4aed-9986-704b84429ae3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.136')
+  where id::text in ('b462ce99-4914-4387-96dc-96caa714c395');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.28')
+  where id::text in ('b5e45685-4402-4c1e-b08a-000eacacb51b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.417')
+  where id::text in ('b609fbbb-2109-4a47-a492-6a55030ab9d7','dc3aa877-a1f2-48f0-a39d-2ba160e68015');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.169')
+  where id::text in ('b681fa4a-29b2-4ac8-ad12-6dec302089b2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.11')
+  where id::text in ('b695b22a-4b0a-43b3-b0d2-bbe4a4fd88e9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.125')
+  where id::text in ('b6dcd120-f723-4572-aaa0-23e0474f5855');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.25')
+  where id::text in ('b768fb6b-a89e-4fb3-b446-50ad7e802e19');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.61')
+  where id::text in ('b780355f-8390-489d-89d9-2626553ba74f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.261')
+  where id::text in ('b7bbf47d-241f-4391-ae42-68b8fe8db52c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.73')
+  where id::text in ('b9176a6a-256b-4f78-a640-753a87154684');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.81')
+  where id::text in ('b9e1e210-2810-48f5-9da1-cf2fd8df0251');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.487')
+  where id::text in ('b9ffec8d-b84d-48a4-b2f4-70d4e461e869');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.99')
+  where id::text in ('ba36b344-c7ad-47f6-87e7-03ae946e940c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.427')
+  where id::text in ('babdbe74-4461-4ef1-95e9-b66ad79acac5','c17d7848-1e2e-47db-9525-4d03daef1f06');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.8')
+  where id::text in ('baf2ec47-0792-4647-8af7-ff07fb405241');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.235')
+  where id::text in ('bb25a585-893d-4b4f-9db9-543ac9781ad3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='21.5')
+  where id::text in ('bb74ffd5-3c1b-4fd4-8f9d-260565fa2ac2','d097dda1-3458-4df1-8252-d980e12a2937');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.146')
+  where id::text in ('bbc3191d-9746-4c35-9560-b6e3f10a150c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.177')
+  where id::text in ('bbfa9b6b-b821-4290-a1a7-127fdaae8836','ed487db3-b8bf-48dd-b2a0-48adc097a958');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.201')
+  where id::text in ('bbff8c98-9c99-4d65-80e1-98bafda40d5e','e722b11e-003e-43e1-ba5f-c85920b77323');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.232')
+  where id::text in ('bc62acf6-0eb9-4e0b-ac7f-f4c822086eee');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.69')
+  where id::text in ('bc6e5300-f0a3-4c43-acfd-fd75dc2af61f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.61')
+  where id::text in ('bd185a34-4640-417d-a150-890c2cc74380');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.103')
+  where id::text in ('bd2da895-37db-452c-9d4d-dbff763b25c4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.119')
+  where id::text in ('bd3844bb-8331-4529-b41b-a9c9c35cfc87','d172d76d-6fb3-45d1-9746-6234bcf8ac58');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.97')
+  where id::text in ('bd419853-e17b-4e6f-a1de-81ab3402dbf9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.165')
+  where id::text in ('bdf3a47c-0bd2-4afb-9b0b-5bb0f7fbadf6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.408')
+  where id::text in ('be270885-72ec-461b-99b5-75d385bd74e1','dc2bb0a6-c7f4-4cfd-af8b-a96fe1bb090b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.178')
+  where id::text in ('beed21a5-78d8-419a-b0f6-137e5175b4b8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.13')
+  where id::text in ('bf4dae21-b00f-4cdd-a725-c6a9022ec73e','d76192cc-dd69-4a4d-9da2-44420dc4b74c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.152')
+  where id::text in ('bf98889a-5838-408d-8da1-4dbb8e2a1b19');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.439')
+  where id::text in ('bfc44e90-8e3f-48dc-ace9-c61515e79df4','e21ed79a-a5aa-482b-9406-c741b0bcced8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.416')
+  where id::text in ('bfe5a2be-bf61-4f80-8988-9d1c9b10e6e8','f957e908-34a5-4fd8-9674-8adf40f05e99');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.47')
+  where id::text in ('c13e3071-7653-4f63-95aa-d353e6124b23');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.63')
+  where id::text in ('c2089527-95dd-45cf-ac63-3a7e021a2c40');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='14.1')
+  where id::text in ('c2aa475a-342b-419a-b8e2-f0baaedcc06f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.26')
+  where id::text in ('c3d1ea04-7db7-4606-9a73-aa1112ca8504');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.106')
+  where id::text in ('c4057a90-d75b-42c1-a541-e36d55e33763');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.26')
+  where id::text in ('c4fe28a6-8ab3-4db1-adfa-790af415990d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.25')
+  where id::text in ('c514fc62-852f-4300-b692-44f44d740b19');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.69')
+  where id::text in ('c5a5b545-43a0-45f1-96f5-c5c7bfd54ac2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.8')
+  where id::text in ('c5b41371-33c5-4e31-8b06-88d95416aed8','d3f5ea94-e517-49c4-a73d-db7766aa6efd','da8a98d1-d79f-454e-98df-95e4019e6540');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.7')
+  where id::text in ('c5e0eba2-a6bf-41a8-b5d1-1e7c1eb6d3fb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.131')
+  where id::text in ('c5fd5f30-c5dd-403e-9d3b-81fa0af13e27');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.155')
+  where id::text in ('c6680fa4-d89a-4b7e-a6ee-f1187e78861b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.455')
+  where id::text in ('c72a300a-1e70-483a-82a0-028934057353','ccd45cf3-968f-42f9-83ef-252c2743d429','e3599a36-fef2-4c7b-826e-e1277ce02cb9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.52')
+  where id::text in ('c7413821-2b94-41de-822c-f13ff14151f1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.31')
+  where id::text in ('c74a57ef-72a0-453b-803c-23921a40f07b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.51')
+  where id::text in ('c77ba617-c567-4aec-bf38-1918c2742381');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.244')
+  where id::text in ('c782f12c-327e-4c73-bc7b-0aa60664b94c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.6')
+  where id::text in ('c8dfa968-1459-4f70-be5a-7addeeddfb56','eba25d8e-4cc2-40b7-a69c-bb85ad4dccf4','f9a804a4-323a-4e74-8206-d7815cd99bea');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.484')
+  where id::text in ('c9009d59-a3f8-4f23-b57b-e4c1d3d27286');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.74')
+  where id::text in ('c979828e-c4b9-46f5-8fe9-fbc6e386ebe6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.111')
+  where id::text in ('c9a01274-167f-4569-a2ba-2d908146151b','d42be862-5cf3-45c2-a523-3f1651c53ab1','d8dfa16b-c531-488d-857f-e9fa5e71ae01');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.21')
+  where id::text in ('ca103ed2-ce98-4d51-bd19-a8d20c463829');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.437')
+  where id::text in ('ca343652-5959-4595-bf56-e39e2df34b7f','f4d0cc4f-6afb-428d-9b3e-3d77aff8a68c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.25')
+  where id::text in ('ca39ac3f-ee2f-4ed3-a991-48eedbe82861');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.224')
+  where id::text in ('cada7716-39ab-461c-9da6-3b97eb03c74c','ee6f4de0-638a-43f7-9db2-e298f1c7a344');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.235')
+  where id::text in ('ccb3664e-5944-4767-adb0-30fd113f1649');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='25.29')
+  where id::text in ('ccced2a5-c003-497a-a8cb-24c4e3a470b0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.49')
+  where id::text in ('cd4dc21c-9532-4894-9bc5-19118cf4f930');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.65')
+  where id::text in ('cdda6ad7-bba1-4f76-8c43-bc0b0f35b854');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.425')
+  where id::text in ('ce5a2572-7cd5-49db-8f41-9d8c21c5053c','d0be69b7-8407-4382-93c9-5115e123728e','fc4a2910-84cf-43e4-a84b-af088457dc16');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.462')
+  where id::text in ('ceb0c22e-a40a-4b78-b67f-3347ce475b3b','f1286e20-892e-4e69-85e8-e5cf0801fb84','f6f318b5-615f-47a4-8e1a-43d14d7db05a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.32')
+  where id::text in ('cf3e624f-319c-4a87-811a-fe1a7c40a758');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.86')
+  where id::text in ('d0ca4f4a-4c4c-4e6e-91eb-a3085ede4580','d668c8f3-7244-40d5-9bfa-c5d1a1b0a097');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.102')
+  where id::text in ('d0ce3aef-d9a1-44f9-a80b-43c0a14b03a5');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='50.1')
+  where id::text in ('d120cd1b-4ee8-41f0-b686-4cbc69f9bbc3','d5fb8bf8-79d1-4183-a7ae-8e7ccf45e133');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.56')
+  where id::text in ('d141d5ab-42dd-4fd2-952b-231a2b7e8f3c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.5')
+  where id::text in ('d194eb12-91e6-446c-a124-a64df2e59641');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.63')
+  where id::text in ('d1ef3ca6-7386-400f-ad57-e3a4174c44cb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.33')
+  where id::text in ('d241e116-f5b6-444e-a659-af7a509d904d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.155')
+  where id::text in ('d25ca546-8700-4cf1-8a6b-da76948e8296');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.528')
+  where id::text in ('d310b85c-80ad-4110-8e2a-17e9b552bb2d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.134')
+  where id::text in ('d35ff964-8c7f-4cad-a819-71c03aaafe0d','dc6f3029-0c99-4973-9847-a02e71c9c465');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.371')
+  where id::text in ('d36cc97d-1150-4a53-a05e-b2d0b00fb79a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.45')
+  where id::text in ('d4033c62-fb65-4ad8-9aeb-21a05d62d4bb');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.59')
+  where id::text in ('d4a44148-d7d7-4770-9993-0dba66f3747e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.7')
+  where id::text in ('d5bd8561-09c5-48e7-88bc-324b4cf152d0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.27')
+  where id::text in ('d6106ae1-95c0-4d88-9fb2-5cdc3c638a9e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='8.12')
+  where id::text in ('d745900a-e819-47f4-8094-7461b47a9f5d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.486')
+  where id::text in ('d82df6cd-9fca-4f65-8da7-1de34635499b');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.215')
+  where id::text in ('d8dd5f4c-14fd-4937-bef9-d42ce54e6578');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.31')
+  where id::text in ('d8eabcfa-056d-41c2-94ad-c0c00f358858');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.499')
+  where id::text in ('d9c31b48-e8b3-4756-9206-79cb4c8f7b0f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.359')
+  where id::text in ('daf00a75-aa55-41e2-b141-9ac9ac68107f','df810d10-a78e-4669-b319-5fbb7c3f89a2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.286')
+  where id::text in ('db06a635-9a0a-4a3e-9ed8-bb0a89437336');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.86')
+  where id::text in ('db1b4c6e-0f36-40b5-b3d8-500e305c0054');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.42')
+  where id::text in ('db941eb2-1883-4243-975f-d3898bb242e8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.162')
+  where id::text in ('dc75d420-ca04-496f-ae3d-aabe0433e6b4');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.161')
+  where id::text in ('dd980b3b-a7d8-455f-b89e-681000e6afe2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.509')
+  where id::text in ('dda6deef-ceaa-4047-8d1d-abeaf7b4aa1c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.102')
+  where id::text in ('de2c5a77-f562-472b-bbf6-8e3400bd7ecf');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.118')
+  where id::text in ('de45e70f-c1da-4ef0-a5ea-089bf7f8094e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.102')
+  where id::text in ('de95ce23-d7c1-45ff-b387-df955746e2ec');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.51')
+  where id::text in ('e00c2e1b-3bcc-4f5a-87f6-5c3627e178af');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.48')
+  where id::text in ('e026e4f1-69b2-40d1-a8c6-dbc90ffe0b0c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.111')
+  where id::text in ('e05ebdaf-c4bb-47ba-b805-53863e7a0b23');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.179')
+  where id::text in ('e11acb8e-2bfb-4b65-a4e9-325bd7836c31');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.172')
+  where id::text in ('e14bed84-afc4-496a-bf9c-2d35433224f6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.173')
+  where id::text in ('e1557b09-f3df-45cc-94a4-39b11378db5f','fe065855-e916-438d-b667-215c3f812f51');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.66')
+  where id::text in ('e2ec4e73-d116-47e4-8b0f-b3bfa50f9942');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.76')
+  where id::text in ('e36a17e2-071e-4f69-81af-b8df827c2a99');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.16')
+  where id::text in ('e374dde8-8a2b-4f26-abf1-df3e2d456f73');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.29')
+  where id::text in ('e428bf1e-e88f-42a2-a4bb-7582a94d4d55');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.77')
+  where id::text in ('e4601bfd-43f7-45c5-851a-4950510bcd12');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.492')
+  where id::text in ('e4a2506a-b56b-49bd-8b62-4148ba7fe0b9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.333')
+  where id::text in ('e4bd3ef1-6e04-4164-81c3-a60f31931f94');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.63')
+  where id::text in ('e4d3efc4-e1ca-4d35-9b46-1513863c13f0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.56')
+  where id::text in ('e63ea79b-fe00-440a-a6c6-bb907d9f4170');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.541')
+  where id::text in ('e6a35b96-d88b-46c8-ad44-4fccd590dd9a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.279')
+  where id::text in ('e72e608e-f68e-456a-aab0-adda220ee779');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.52')
+  where id::text in ('e8cb3020-6ddd-408b-8c24-359053a503df');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.51')
+  where id::text in ('e95fba25-80f4-4e2c-8e7d-e6e50304a95a');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.47')
+  where id::text in ('e9bb5cea-3d30-41a3-badd-cb635adc9e58');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.533')
+  where id::text in ('ea6be30b-e956-4f6f-b2ac-8e18cf0aeacd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.445')
+  where id::text in ('eb5b0a9e-efb5-47cc-9e47-579687f64c4c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.82')
+  where id::text in ('eb9b2f8b-4756-41d2-b0a3-f940c557d4af');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.73')
+  where id::text in ('ec11b544-a27b-467f-975d-a119dd81d7c1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.34')
+  where id::text in ('ec9b8a61-7a7e-443e-b7ae-f7a4d7f8ab82');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='7.56')
+  where id::text in ('ecf5525e-b037-4b6b-9884-c01dcbe7dd16');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.35')
+  where id::text in ('ed72abff-eaaf-434e-8ad3-1c2ddd740f07');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.133')
+  where id::text in ('edcb5d5e-131e-4f9f-a467-5378a0b3ed01');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.452')
+  where id::text in ('eec896f8-f005-402d-8076-3661590d1b1c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.105')
+  where id::text in ('eee52394-6b0a-4931-87ec-36b222ec2452');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.152')
+  where id::text in ('eef52d86-5c51-4755-95a4-50fa89b9f51d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.275')
+  where id::text in ('f017a752-068a-43f2-ae41-c45ff5dd49b7');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.159')
+  where id::text in ('f083a1b2-4633-4c8b-a16a-3a304904c104');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.109')
+  where id::text in ('f1a5cdeb-4e11-4abe-a3e3-05f9a859ab22');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='4.48')
+  where id::text in ('f20dd0a3-1dcc-4f7d-b77c-e839adf9d5b0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='17.34')
+  where id::text in ('f224aa21-ab7f-4b61-b613-44814347bf0e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.122')
+  where id::text in ('f286bb37-03f4-43ac-82eb-e7930f7a248d');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.39')
+  where id::text in ('f30134b9-5d8f-49b9-9c9e-f93fb98b01c3');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='20.19')
+  where id::text in ('f302f671-c621-4330-9d5e-cd6c6f4aacd0');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.448')
+  where id::text in ('f36b9d3a-b524-4dbd-9616-be6fd941ce37');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.103')
+  where id::text in ('f44ed0b4-81d8-495d-b595-5f6d06ecee99');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.439')
+  where id::text in ('f45976d0-a7b4-4e3d-a2c4-019648e8b735');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.119')
+  where id::text in ('f45dd06e-a6b6-41aa-9a32-badff720e4e9');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.61')
+  where id::text in ('f46ae360-f4d0-47b8-af01-57e5e11f8e51');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.542')
+  where id::text in ('f65a140b-17d9-4ba5-a7fd-f5a85a928f30','faac07c7-4dbd-4243-9bfe-42dded4a74bd');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='12.51')
+  where id::text in ('f71a3e8a-4f44-4091-a5b9-81e58b856e5f');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.521')
+  where id::text in ('f7283471-8288-4ab8-b976-74248080f57e');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.87')
+  where id::text in ('f807f8d2-68e0-470c-92f4-5ca926c73b6c');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.171')
+  where id::text in ('f8ecbfd5-4881-4a07-9dc6-8e3d50072845');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.501')
+  where id::text in ('f92c4635-1c8d-45a7-a4df-cc690c0d48aa');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.98')
+  where id::text in ('f937bb86-270e-4323-a834-6a298aa71de6');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='10.35')
+  where id::text in ('fa657d04-89b6-4229-99bf-19767c454a47');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='1.578')
+  where id::text in ('fbaa4706-2157-4530-9b00-37de3757a1ba','fcb6fd85-a4bb-446b-8507-39c86c5614e2');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='9.28')
+  where id::text in ('fc332479-5e2f-4d35-a4dc-743f5e60e9ca');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.121')
+  where id::text in ('fc3902f7-0644-4759-906a-44526b05d395');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='5.93')
+  where id::text in ('fc391c7d-8329-4c60-a69e-718593324ff8');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.98')
+  where id::text in ('fc6f6733-06df-421a-8cdc-03ba64869bb1');
+update product_variant
+  set product_flat_id = (select parent_id from _item_parent where item_code_str='15.133')
+  where id::text in ('ff7256a5-516c-4f35-8ffb-4324207444a2');

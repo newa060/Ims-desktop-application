@@ -38,7 +38,7 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
   const [refundExchangeDialogOpen, setRefundExchangeDialogOpen] = useState(false);
   const [activePurchaseId, setActivePurchaseId] = useState<string | null>(null);
   const [activePurchaseItems, setActivePurchaseItems] = useState<any[]>([]);
-  const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [selectedVariantId, setSelectedVariantId] = useState<string>('');   // replaces selectedProductId
   const [refundExchangeQty, setRefundExchangeQty] = useState<number>(1);
   const [actionType, setActionType] = useState<'refund' | 'exchange'>('refund');
   const [refundExchangeNotes, setRefundExchangeNotes] = useState<string>('');
@@ -81,17 +81,23 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
     setExpandedPurchases((prev) => ({ ...prev, [purchaseId]: !prev[purchaseId] }));
   };
 
-  const getRefundedQty = (purchaseId: string, productId: string) => {
+  const getRefundedQty = (purchaseId: string, variantId: string) => {
     const records = returnsMap[purchaseId] || [];
     return records
-      .filter((r) => r.productId === productId && (r.reference === 'Purchase Refund' || r.reference === 'Purchase Return' || r.type === 'refund'))
+      .filter((r) =>
+        (r.variant_id === variantId || r.variantId === variantId) &&
+        (r.reference === 'Purchase Refund' || r.reference === 'Purchase Return' || r.type === 'refund')
+      )
       .reduce((sum, r) => sum + Math.abs(r.quantityChange), 0);
   };
 
-  const getExchangedQty = (purchaseId: string, productId: string) => {
+  const getExchangedQty = (purchaseId: string, variantId: string) => {
     const records = returnsMap[purchaseId] || [];
     return records
-      .filter((r) => r.productId === productId && r.reference === 'Purchase Exchange' && r.quantityChange < 0)
+      .filter((r) =>
+        (r.variant_id === variantId || r.variantId === variantId) &&
+        r.reference === 'Purchase Exchange' && r.quantityChange < 0
+      )
       .reduce((sum, r) => sum + Math.abs(r.quantityChange), 0);
   };
 
@@ -99,10 +105,11 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
   const handleOpenRefundExchangeDialog = (purchase: any) => {
     setActivePurchaseId(purchase.id);
     setActivePurchaseItems(purchase.items || []);
+    // Use variant_id (new) falling back to productId (old rows)
     if (purchase.items && purchase.items.length > 0) {
-      setSelectedProductId(purchase.items[0].productId);
+      setSelectedVariantId(purchase.items[0].variant_id || purchase.items[0].variantId || '');
     } else {
-      setSelectedProductId('');
+      setSelectedVariantId('');
     }
     setRefundExchangeQty(1);
     setActionType('refund');
@@ -112,13 +119,15 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
 
   const handleSubmitRefundExchange = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activePurchaseId || !selectedProductId) return;
+    if (!activePurchaseId || !selectedVariantId) return;
 
-    const item = activePurchaseItems.find((i) => i.productId === selectedProductId);
+    const item = activePurchaseItems.find(
+      (i) => (i.variant_id || i.variantId) === selectedVariantId
+    );
     if (!item) return;
 
-    const alreadyRefunded = getRefundedQty(activePurchaseId, selectedProductId);
-    const alreadyExchanged = getExchangedQty(activePurchaseId, selectedProductId);
+    const alreadyRefunded  = getRefundedQty(activePurchaseId, selectedVariantId);
+    const alreadyExchanged = getExchangedQty(activePurchaseId, selectedVariantId);
     const maxQty = item.quantity - (alreadyRefunded + alreadyExchanged);
 
     if (refundExchangeQty <= 0 || refundExchangeQty > maxQty) {
@@ -129,9 +138,10 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
     setIsSubmittingRefundExchange(true);
     try {
       const res = await window.electron.createPurchaseRefundOrExchange({
-        purchaseId: activePurchaseId,
-        productId: selectedProductId,
-        quantity: refundExchangeQty,
+        purchaseId:    activePurchaseId,
+        variantId:     selectedVariantId,
+        productFlatId: item.productId,   // product_variant_flat.id
+        quantity:      refundExchangeQty,
         actionType,
         notes: refundExchangeNotes || `${actionType === 'refund' ? 'Refunded' : 'Exchanged'} units`,
       });
@@ -143,7 +153,7 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
         toast.error(res.error || `Failed to process ${actionType}`);
       }
     } catch (err: any) {
-      toast.error(`An error occurred processing the ${actionType}: ${err?.message || err}`);
+      toast.error(`An error occurred: ${err?.message || err}`);
     } finally {
       setIsSubmittingRefundExchange(false);
     }
@@ -199,9 +209,14 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
   const activeFilterCount = [statusFilter !== 'all', !!startDate, !!endDate].filter(Boolean).length;
   const clearFilters = () => { setStatusFilter('all'); setStartDate(''); setEndDate(''); };
 
-  const activeProductIdDetails = activePurchaseItems.find((i) => i.productId === selectedProductId);
-  const activeProductIdMaxQty = activeProductIdDetails
-    ? activeProductIdDetails.quantity - (getRefundedQty(activePurchaseId || '', selectedProductId) + getExchangedQty(activePurchaseId || '', selectedProductId))
+  const activeItemDetails = activePurchaseItems.find(
+    (i) => (i.variant_id || i.variantId) === selectedVariantId
+  );
+  const activeProductIdMaxQty = activeItemDetails
+    ? activeItemDetails.quantity - (
+        getRefundedQty(activePurchaseId || '', selectedVariantId) +
+        getExchangedQty(activePurchaseId || '', selectedVariantId)
+      )
     : 0;
 
   // Group purchases by date
@@ -422,12 +437,24 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
                                       </thead>
                                       <tbody>
                                         {purchase.items?.map((item: any) => {
-                                          const refundedQty = getRefundedQty(purchase.id, item.productId);
-                                          const exchangedQty = getExchangedQty(purchase.id, item.productId);
+                                          const variantId    = item.variant_id || item.variantId || '';
+                                          const refundedQty  = getRefundedQty(purchase.id, variantId);
+                                          const exchangedQty = getExchangedQty(purchase.id, variantId);
+                                          // New join: item.variant.product.name (product_variant_flat)
+                                          const productName  = item.variant?.product?.name
+                                                            ?? item.product?.name
+                                                            ?? '—';
+                                          const sku          = item.variant?.sku
+                                                            ?? item.product?.sku
+                                                            ?? '-';
+                                          const variantLabel = item.variant?.variant_name && item.variant.variant_name !== 'Default'
+                                            ? ` – ${item.variant.variant_name}` : '';
                                           return (
                                             <tr key={item.id} className="border-b border-ink/[0.04] hover:bg-[#faf9f5]/30">
-                                              <td className="py-2.5 px-3 font-semibold text-ink">{item.product?.name}</td>
-                                              <td className="py-2.5 px-3 text-center text-ink/55">{item.product?.sku || '-'}</td>
+                                              <td className="py-2.5 px-3 font-semibold text-ink">
+                                                {productName}{variantLabel}
+                                              </td>
+                                              <td className="py-2.5 px-3 text-center text-ink/55">{sku}</td>
                                               <td className="py-2.5 px-3 text-right font-semibold text-ink">{item.quantity}</td>
                                               <td className={`py-2.5 px-3 text-right font-bold ${refundedQty > 0 ? 'text-danger-text' : 'text-ink/35'}`}>
                                                 {refundedQty > 0 ? refundedQty : '-'}
@@ -465,7 +492,11 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
                                         <tbody>
                                           {returns.map((ret: any) => (
                                             <tr key={ret.id} className="border-b border-danger/10 hover:bg-danger/[0.04]">
-                                              <td className="py-2 px-3 font-medium text-ink">{ret.product?.name || 'Product'}</td>
+                                              <td className="py-2 px-3 font-medium text-ink">
+                                                {ret.variant?.product?.name ?? ret.product?.name ?? 'Product'}
+                                                {ret.variant?.variant_name && ret.variant.variant_name !== 'Default'
+                                                  ? ` – ${ret.variant.variant_name}` : ''}
+                                              </td>
                                               <td className="py-2 px-3 text-left">
                                                 <Badge variant={ret.reference === 'Purchase Exchange' ? 'warning' : 'danger'} className="capitalize text-[10px]">
                                                   {ret.reference === 'Purchase Exchange' ? (ret.type === 'exchange_out' ? 'exchange out' : 'exchange in') : 'refund'}
@@ -508,27 +539,33 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
 
           <form onSubmit={handleSubmitRefundExchange} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="ref-product">Select Product</Label>
+              <Label htmlFor="ref-product">Select Variant</Label>
               <select
                 id="ref-product"
-                value={selectedProductId}
+                value={selectedVariantId}
                 onChange={(e) => {
-                  setSelectedProductId(e.target.value);
+                  setSelectedVariantId(e.target.value);
                   setRefundExchangeQty(1);
                 }}
                 className="w-full text-sm border border-ink/[0.15] bg-white rounded-[7px] px-3 py-1.5 text-ink focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
-                {activePurchaseItems.map((item) => (
-                  <option key={item.productId} value={item.productId}>
-                    {item.product?.name}
-                  </option>
-                ))}
+                {activePurchaseItems.map((item) => {
+                  const vid   = item.variant_id || item.variantId || item.productId;
+                  const pName = item.variant?.product?.name ?? item.product?.name ?? '—';
+                  const vName = item.variant?.variant_name && item.variant.variant_name !== 'Default'
+                    ? ` – ${item.variant.variant_name}` : '';
+                  const sku   = item.variant?.sku ?? item.product?.sku ?? '';
+                  return (
+                    <option key={vid} value={vid}>
+                      {pName}{vName}{sku ? ` (${sku})` : ''}
+                    </option>
+                  );
+                })}
               </select>
               <div className="text-xs text-ink/45 mt-1">
                 Max returnable: <span className="font-bold text-ink">{activeProductIdMaxQty}</span> unit(s)
               </div>
-              {activeProductIdMaxQty <= 0 && (
-                <div className="text-xs font-semibold text-danger mt-1">
+              {activeProductIdMaxQty <= 0 && (                <div className="text-xs font-semibold text-danger mt-1">
                   This product has already been fully refunded or exchanged.
                 </div>
               )}
@@ -555,8 +592,7 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
                 min={1}
                 max={activeProductIdMaxQty}
                 value={refundExchangeQty}
-                onChange={(e) => setRefundExchangeQty(Math.min(activeProductIdMaxQty || 1, Math.max(1, parseInt(e.target.value) || 1)))}
-                required
+                onChange={(e) => setRefundExchangeQty(Math.min(activeProductIdMaxQty || 1, Math.max(1, parseInt(e.target.value) || 1)))}                required
               />
             </div>
 

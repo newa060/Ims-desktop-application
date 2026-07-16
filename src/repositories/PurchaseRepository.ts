@@ -2,7 +2,12 @@ import { BaseRepository } from './BaseRepository';
 import { Purchase, PaginationParams, PaginatedResponse } from '../types';
 
 const PURCHASE_SELECT =
-  '*, supplier:suppliers(*), user:users(*), items:purchase_items(*, product:products(*))';
+  '*, supplier:suppliers(*), user:users(*), ' +
+  'items:purchase_items(*, ' +
+  '  variant:product_variant(sku, variant_name, color, size, ' +
+  '    product:product_variant_flat(name, purchase_price, selling_price)' +
+  '  )' +
+  ')';
 
 export class PurchaseRepository extends BaseRepository<Purchase> {
   protected getTableName(): string {
@@ -30,7 +35,7 @@ export class PurchaseRepository extends BaseRepository<Purchase> {
 
     if (error) throw error;
 
-    return this.toPaginatedResponse(data as Purchase[], count || 0, page, limit);
+    return this.toPaginatedResponse(data as unknown as Purchase[], count || 0, page, limit);
   }
 
   async getTodayPurchases(): Promise<number> {

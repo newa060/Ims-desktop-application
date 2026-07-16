@@ -13,7 +13,8 @@ import { useSettings } from '../contexts/SettingsContext';
 
 
 interface CartItem {
-  productId: string;
+  productFlatId: string;  // product_variant_flat.id
+  variantId: string;      // product_variant.id
   name: string;
   sku: string;
   unitPrice: number;
@@ -49,42 +50,53 @@ const POSPage = () => {
     }
   };
 
-  const addToCart = (product: any) => {
-    const existing = cart.find((item) => item.productId === product.id);
+  const addToCart = (variant: any) => {
+    // variant comes from searchVariantByBarcode or manual lookup.
+    // Needs: id (variantId), productFlatId, parent.name, sku, sellingPrice, taxRate
+    const variantId    = variant.id;
+    const productFlatId = variant.productFlatId;
+    const baseName     = variant.parent?.name ?? variant.productName ?? '';
+    const suffix       = variant.variantName && variant.variantName !== 'Default'
+      ? ` – ${variant.variantName}` : '';
+    const displayName  = `${baseName}${suffix}`;
+
+    const existing = cart.find((item) => item.variantId === variantId);
     if (existing) {
       setCart(cart.map((item) =>
-        item.productId === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        item.variantId === variantId ? { ...item, quantity: item.quantity + 1 } : item
       ));
     } else {
       setCart([...cart, {
-        productId: product.id,
-        name: product.name,
-        sku: product.sku,
-        unitPrice: product.sellingPrice,
-        quantity: 1,
-        taxRate: product.taxRate || 0,
+        productFlatId,
+        variantId,
+        name:          displayName,
+        sku:           variant.sku,
+        unitPrice:     variant.sellingPrice ?? variant.parent?.sellingPrice ?? 0,
+        quantity:      1,
+        taxRate:       variant.taxRate ?? variant.parent?.taxRate ?? 0,
         discountAmount: 0,
       }]);
     }
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart(cart.filter((item) => item.productId !== productId));
+  const removeFromCart = (variantId: string) => {
+    setCart(cart.filter((item) => item.variantId !== variantId));
   };
 
-  const updateQuantity = (productId: string, change: number) => {
+  const updateQuantity = (variantId: string, change: number) => {
     setCart(cart.map((item) =>
-      item.productId === productId ? { ...item, quantity: Math.max(1, item.quantity + change) } : item
+      item.variantId === variantId ? { ...item, quantity: Math.max(1, item.quantity + change) } : item
     ));
   };
 
   const handleBarcodeSearch = async () => {
     if (!barcode.trim()) return;
     try {
-      const response = await window.electron.searchProductByBarcode(barcode);
+      // Try variant barcode first (new path), fall back to legacy product barcode
+      const response = await window.electron.searchVariantByBarcode(barcode);
       if (response.success && response.data) {
-        if (response.data.currentStock <= 0) {
-          toast.error('Product out of stock!');
+        if (response.data.stock <= 0) {
+          toast.error('Variant out of stock!');
           return;
         }
         addToCart(response.data);
@@ -133,10 +145,11 @@ const POSPage = () => {
       const saleData = {
         customerId: selectedCustomer,
         items: cart.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          taxRate: item.taxRate,
+          productId:      item.productFlatId,  // product_variant_flat.id
+          variantId:      item.variantId,       // product_variant.id
+          quantity:       item.quantity,
+          unitPrice:      item.unitPrice,
+          taxRate:        item.taxRate,
           discountAmount: item.discountAmount,
         })),
         paymentMethod,
@@ -240,23 +253,23 @@ const POSPage = () => {
                 <>
                   <div className="space-y-2.5 mb-4 max-h-80 overflow-y-auto">
                     {cart.map((item) => (
-                      <div key={item.productId} className="border border-ink/[0.07] rounded-[10px] p-2.5 bg-paper/60">
+                      <div key={item.variantId} className="border border-ink/[0.07] rounded-[10px] p-2.5 bg-paper/60">
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">
                             <p className="font-semibold text-sm text-ink">{item.name}</p>
                             <p className="text-xs text-ink/50">{item.sku} • {formatCurrency(item.unitPrice)}</p>
                           </div>
-                          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeFromCart(item.productId)}>
+                          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeFromCart(item.variantId)}>
                             <Trash2 size={12} className="text-danger-text" />
                           </Button>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1">
-                            <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => updateQuantity(item.productId, -1)}>
+                            <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => updateQuantity(item.variantId, -1)}>
                               <Minus size={12} />
                             </Button>
                             <span className="w-10 text-center font-medium text-sm text-ink">{item.quantity}</span>
-                            <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => updateQuantity(item.productId, 1)}>
+                            <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => updateQuantity(item.variantId, 1)}>
                               <Plus size={12} />
                             </Button>
                           </div>

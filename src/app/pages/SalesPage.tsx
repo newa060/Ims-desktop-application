@@ -142,14 +142,24 @@ const SalesPage = () => {
                     <th className="text-right py-2 px-4">Total</th>
                   </tr></thead>
                   <tbody>
-                    {(detailSale.items || []).map((item: any) => (
-                      <tr key={item.id} className="border-b">
-                        <td className="py-2 px-4">{item.product?.name}</td>
-                        <td className="py-2 px-4 text-center">{item.quantity}</td>
-                        <td className="py-2 px-4 text-right">{formatCurrency(item.unitPrice)}</td>
-                        <td className="py-2 px-4 text-right">{formatCurrency(item.totalAmount)}</td>
-                      </tr>
-                    ))}
+                    {(detailSale.items || []).map((item: any) => {
+                      const parentName  = item.variant?.product?.name ?? '—';
+                      const variantSuffix = item.variant?.variant_name && item.variant.variant_name !== 'Default'
+                        ? ` – ${item.variant.variant_name}` : '';
+                      const colorSize   = [item.variant?.color, item.variant?.size].filter(Boolean).join(' / ');
+                      return (
+                        <tr key={item.id} className="border-b">
+                          <td className="py-2 px-4">
+                            <div className="font-medium">{parentName}{variantSuffix}</div>
+                            {colorSize && <div className="text-xs text-ink/45">{colorSize}</div>}
+                            <div className="text-xs text-ink/35 font-mono">{item.variant?.sku}</div>
+                          </td>
+                          <td className="py-2 px-4 text-center">{item.quantity}</td>
+                          <td className="py-2 px-4 text-right">{formatCurrency(item.unitPrice)}</td>
+                          <td className="py-2 px-4 text-right">{formatCurrency(item.totalAmount)}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

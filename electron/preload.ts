@@ -7,13 +7,31 @@ contextBridge.exposeInMainWorld('electron', {
   getCurrentUser: () => ipcRenderer.invoke('auth:getCurrentUser'),
   setCurrentUser: (user: any) => ipcRenderer.invoke('auth:setCurrentUser', user),
 
-  // Products
+  // Products (legacy — still used by ProductForm for backward compat)
   getProducts: (params: any) => ipcRenderer.invoke('products:getAll', params),
   getProductById: (id: string) => ipcRenderer.invoke('products:getById', id),
   createProduct: (data: any) => ipcRenderer.invoke('products:create', data),
   updateProduct: (id: string, data: any) => ipcRenderer.invoke('products:update', id, data),
   deleteProduct: (id: string) => ipcRenderer.invoke('products:delete', id),
   searchProductByBarcode: (barcode: string) => ipcRenderer.invoke('products:searchByBarcode', barcode),
+
+  // Parent products (product_variant_flat)
+  getParentProducts: (params: any) => ipcRenderer.invoke('parents:getAll', params),
+  getParentById: (id: string) => ipcRenderer.invoke('parents:getById', id),
+  createParentProduct: (data: any) => ipcRenderer.invoke('parents:create', data),
+  updateParentProduct: (id: string, data: any) => ipcRenderer.invoke('parents:update', id, data),
+  deleteParentProduct: (id: string) => ipcRenderer.invoke('parents:delete', id),
+
+  // Product Variants (product_variant — desktop primary interface)
+  getVariants: (params: any) => ipcRenderer.invoke('variants:getAll', params),
+  getVariantsByProduct: (productFlatId: string) => ipcRenderer.invoke('variants:getByProduct', productFlatId),
+  getVariantById: (id: string) => ipcRenderer.invoke('variants:getById', id),
+  createVariant: (data: any) => ipcRenderer.invoke('variants:create', data),
+  updateVariant: (id: string, data: any) => ipcRenderer.invoke('variants:update', id, data),
+  deleteVariant: (id: string) => ipcRenderer.invoke('variants:delete', id),
+  searchVariantByBarcode: (barcode: string) => ipcRenderer.invoke('variants:searchByBarcode', barcode),
+  searchVariantBySKU: (sku: string) => ipcRenderer.invoke('variants:searchBySKU', sku),
+  getVariantsLowStock: () => ipcRenderer.invoke('variants:getLowStock'),
 
   // Sales
   getSales: (params: any) => ipcRenderer.invoke('sales:getAll', params),
