@@ -9,6 +9,7 @@ import Dashboard from './app/pages/Dashboard';
 import ProductsPage from './app/pages/ProductsPage';
 import CategoriesPage from './app/pages/CategoriesPage';
 import BrandsPage from './app/pages/BrandsPage';
+import VariantsPage from './app/pages/VariantsPage';
 import UnitsPage from './app/pages/UnitsPage';
 import POSPage from './app/pages/POSPage';
 import SalesPage from './app/pages/SalesPage';
@@ -66,6 +67,7 @@ function AppContent() {
                 <Route path="/products" element={<ProductsPage />} />
                 <Route path="/categories" element={<CategoriesPage />} />
                 <Route path="/brands" element={<BrandsPage />} />
+                <Route path="/variants" element={<VariantsPage />} />
                 <Route path="/units" element={<UnitsPage />} />
                 <Route path="/pos" element={<POSPage />} />
                 <Route path="/sales" element={<SalesPage />} />

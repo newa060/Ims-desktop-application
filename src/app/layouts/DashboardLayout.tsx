@@ -4,7 +4,7 @@ import Logo from '../components/common/Logo';
 import {
   LayoutDashboard, Package, Tag, Award, Ruler, ShoppingCart,
   TrendingUp, ShoppingBag, Users, Truck, BarChart2, DollarSign,
-  FileText, UserCheck, Settings,
+  FileText, UserCheck, Settings, Hash,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -16,6 +16,7 @@ const menuItems = [
   { icon: Package, label: 'Products', path: '/products' },
   { icon: Tag, label: 'Categories', path: '/categories' },
   { icon: Award, label: 'Brands', path: '/brands' },
+  { icon: Hash, label: 'Variants', path: '/variants' },
   { icon: Ruler, label: 'Units', path: '/units' },
   { icon: ShoppingCart, label: 'POS', path: '/pos' },
   { icon: TrendingUp, label: 'Sales', path: '/sales' },
