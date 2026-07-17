@@ -12,8 +12,9 @@ import { toast } from 'sonner';
 import { useSettings } from '../contexts/SettingsContext';
 
 interface PurchaseItem {
-  productId: string;
-  variantId: string;         // NEW — required by create_purchase_v2
+  productId: string;         // product_variant_flat.id (FK)
+  variantId: string;         // product_variant.id — required by create_purchase_v2
+  selectedFlatId: string;    // UI-only: which parent product is selected in the first dropdown
   productName: string;
   quantity: number;
   unitPrice: number;
@@ -76,7 +77,7 @@ const PurchasesPage = () => {
   }, []);
 
   const addItem = () => {
-    setItems([...items, { productId: '', variantId: '', productName: '', quantity: 1, unitPrice: 0, taxRate: 0, isNew: false, newName: '', sellingPrice: 0 }]);
+    setItems([...items, { productId: '', variantId: '', selectedFlatId: '', productName: '', quantity: 1, unitPrice: 0, taxRate: 0, isNew: false, newName: '', sellingPrice: 0 }]);
   };
 
   const removeItem = (idx: number) => {
@@ -85,16 +86,22 @@ const PurchasesPage = () => {
 
   const updateItem = (idx: number, field: keyof PurchaseItem, value: any) => {
     const newItems = [...items];
-    if (field === 'variantId') {
-      // When a variant is selected, auto-fill productId (= productFlatId) and productName
+    if (field === 'selectedFlatId') {
+      // Parent product changed — reset variant selection
+      newItems[idx].selectedFlatId = value;
+      newItems[idx].variantId      = '';
+      newItems[idx].productId      = value;  // product_variant_flat.id
+      newItems[idx].productName    = '';
+    } else if (field === 'variantId') {
+      // Variant selected — auto-fill names
       const v = variants.find((v) => v.id === value);
-      newItems[idx].variantId  = value;
-      newItems[idx].productId  = v?.productFlatId || '';   // FK → product_variant_flat
+      newItems[idx].variantId   = value;
+      newItems[idx].productId   = v?.productFlatId || newItems[idx].selectedFlatId;
       newItems[idx].productName = v
         ? `${v.parent?.name ?? v.productName ?? ''}${v.variantName && v.variantName !== 'Default' ? ` – ${v.variantName}` : ''}`
         : '';
     } else if (field === 'isNew') {
-      newItems[idx] = { ...newItems[idx], isNew: value, productId: '', variantId: '', productName: '', newName: '', sellingPrice: 0 };
+      newItems[idx] = { ...newItems[idx], isNew: value, productId: '', variantId: '', selectedFlatId: '', productName: '', newName: '', sellingPrice: 0 };
     } else {
       newItems[idx] = { ...newItems[idx], [field]: value };
     }
@@ -381,22 +388,76 @@ const PurchasesPage = () => {
                     <div className="grid grid-cols-12 gap-3 items-end">
                       {/* Product selector or new product name */}
                       {!item.isNew ? (
-                        <div className="col-span-5 space-y-1">
-                          <Label className="text-xs">Product / Variant</Label>
-                          <Select value={item.variantId} onValueChange={(v) => updateItem(idx, 'variantId', v)}>
-                            <SelectTrigger className="h-9"><SelectValue placeholder="Select Variant" /></SelectTrigger>
-                            <SelectContent>
-                              {[...variants].sort((a, b) => {
-                                const aName = `${a.parent?.name ?? a.productName ?? ''} ${a.variantName || ''}`;
-                                const bName = `${b.parent?.name ?? b.productName ?? ''} ${b.variantName || ''}`;
-                                return aName.localeCompare(bName);
-                              }).map((v) => {
-                                const label = `${v.parent?.name ?? v.productName ?? ''}${v.variantName && v.variantName !== 'Default' ? ` – ${v.variantName}` : ''}`;
-                                return <SelectItem key={v.id} value={v.id}>{label}</SelectItem>;
-                              })}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        <>
+                          {/* Step 1 — Parent product */}
+                          <div className="col-span-3 space-y-1">
+                            <Label className="text-xs">Product</Label>
+                            <Select value={item.selectedFlatId} onValueChange={(v) => updateItem(idx, 'selectedFlatId', v)}>
+                              <SelectTrigger className="h-9"><SelectValue placeholder="Select Product" /></SelectTrigger>
+                              <SelectContent>
+                                {/* Unique parent products, sorted A-Z */}
+                                {Array.from(
+                                  new Map(
+                                    variants.map((v) => [
+                                      v.productFlatId || v.parent?.id,
+                                      { id: v.productFlatId || v.parent?.id, name: v.parent?.name ?? v.productName ?? '—' }
+                                    ])
+                                  ).values()
+                                )
+                                  .sort((a, b) => a.name.localeCompare(b.name))
+                                  .map((p) => (
+                                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Step 2 — Variant (grouped by color / size) */}
+                          <div className="col-span-2 space-y-1">
+                            <Label className="text-xs">Variant</Label>
+                            <Select
+                              value={item.variantId}
+                              onValueChange={(v) => updateItem(idx, 'variantId', v)}
+                              disabled={!item.selectedFlatId}
+                            >
+                              <SelectTrigger className="h-9">
+                                <SelectValue placeholder={item.selectedFlatId ? 'Select Variant' : '—'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {(() => {
+                                  const productVariants = variants.filter(
+                                    (v) => (v.productFlatId || v.parent?.id) === item.selectedFlatId
+                                  );
+                                  // If only 1 variant (Default), show it simply
+                                  if (productVariants.length === 1) {
+                                    const v = productVariants[0];
+                                    return <SelectItem key={v.id} value={v.id}>Default</SelectItem>;
+                                  }
+                                  // Group by color then size
+                                  const grouped = productVariants.reduce<Record<string, typeof productVariants>>((acc, v) => {
+                                    const group = [v.color, v.size].filter(Boolean).join(' / ') || 'Other';
+                                    if (!acc[group]) acc[group] = [];
+                                    acc[group].push(v);
+                                    return acc;
+                                  }, {});
+                                  return Object.entries(grouped).map(([group, gVariants]) => (
+                                    <>
+                                      <div key={`g-${group}`} className="px-2 pt-2 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-ink/40">
+                                        {group}
+                                      </div>
+                                      {gVariants.map((v) => (
+                                        <SelectItem key={v.id} value={v.id}>
+                                          {v.variantName && v.variantName !== 'Default' ? v.variantName : 'Default'}
+                                          {v.sku ? ` (${v.sku})` : ''}
+                                        </SelectItem>
+                                      ))}
+                                    </>
+                                  ));
+                                })()}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </>
                       ) : (
                         <>
                           <div className="col-span-3 space-y-1">

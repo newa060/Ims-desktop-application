@@ -44,6 +44,7 @@ contextBridge.exposeInMainWorld('electron', {
   createPurchase: (data: any) => ipcRenderer.invoke('purchases:create', data),
   recordPurchasePayment: (data: any) => ipcRenderer.invoke('purchases:recordPayment', data),
   getPurchaseReturns: (purchaseId: string) => ipcRenderer.invoke('purchases:getReturns', purchaseId),
+  getPurchaseReturnsBatch: (purchaseIds: string[]) => ipcRenderer.invoke('purchases:getReturnsBatch', purchaseIds),
   createPurchaseReturn: (data: any) => ipcRenderer.invoke('purchases:createReturn', data),
   createPurchaseRefundOrExchange: (data: any) => ipcRenderer.invoke('purchases:createRefundOrExchange', data),
 

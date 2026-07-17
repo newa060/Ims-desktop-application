@@ -47,19 +47,33 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
   const loadReportData = useCallback(async () => {
     if (!supplier?.id) return;
     setLoading(true);
-    setCurrentBalance(Number(supplier?.balance || 0));
     try {
+      // ── Fetch purchases ─────────────────────────────────────────────────────
       const res = await window.electron.getPurchases({ supplierId: supplier.id, limit: 100 });
-      if (res.success) {
-        setPurchases(res.data.data);
+      if (!res.success) {
+        toast.error('Failed to load supplier report');
+        return;
+      }
+      setPurchases(res.data.data);
+
+      // ── Fetch live supplier balance (Fix #1: avoid stale prop) ───────────────
+      const supRes = await window.electron.getSupplierById(supplier.id);
+      if (supRes.success && supRes.data) {
+        setCurrentBalance(Number(supRes.data.balance || 0));
+      } else {
+        setCurrentBalance(Number(supplier?.balance || 0));
+      }
+
+      // ── Batch-fetch all returns in ONE query (Fix #2: no N+1) ───────────────
+      const allPurchaseIds: string[] = res.data.data.map((p: any) => p.id);
+      const retRes = await window.electron.getPurchaseReturnsBatch(allPurchaseIds);
+      if (retRes.success) {
         const pReturns: Record<string, any[]> = {};
-        for (const p of res.data.data) {
-          const retRes = await window.electron.getPurchaseReturns(p.id);
-          if (retRes.success) pReturns[p.id] = retRes.data;
+        for (const r of retRes.data) {
+          if (!pReturns[r.referenceId]) pReturns[r.referenceId] = [];
+          pReturns[r.referenceId].push(r);
         }
         setReturnsMap(pReturns);
-      } else {
-        toast.error('Failed to load supplier report');
       }
     } catch {
       toast.error('An error occurred loading the report');
@@ -336,8 +350,13 @@ export const SupplierReportModal = ({ supplier, open, onClose }: SupplierReportM
                       {purchasesForDate.map((purchase) => {
                         const isExpanded = !!expandedPurchases[purchase.id];
                         const returns = returnsMap[purchase.id] || [];
-                        const totalRefundedCount = returns.filter(r => r.reference === 'Purchase Refund' || r.reference === 'Purchase Return' || r.type === 'refund').reduce((sum, r) => sum + Math.abs(r.quantityChange), 0);
-                        const totalExchangedCount = returns.filter(r => r.reference === 'Purchase Exchange' && r.quantityChange < 0).reduce((sum, r) => sum + Math.abs(r.quantityChange), 0);
+                        const totalRefundedCount = returns
+                          .filter(r => r.reference === 'Purchase Refund' || r.reference === 'Purchase Return' || r.type === 'refund')
+                          .reduce((sum, r) => sum + Math.abs(r.quantityChange), 0);
+                        // Fix #3: only count exchange_out rows (not the exchange_in replacement)
+                        const totalExchangedCount = returns
+                          .filter(r => r.reference === 'Purchase Exchange' && r.type === 'exchange_out')
+                          .reduce((sum, r) => sum + Math.abs(r.quantityChange), 0);
                         const totalActivityCount = totalRefundedCount + totalExchangedCount;
                         const hasOutstandingBalance = Number(purchase.balanceAmount || 0) > 0;
 

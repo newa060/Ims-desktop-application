@@ -152,6 +152,28 @@ export const setupPurchaseHandlers = () => {
     }
   });
 
+  // ── purchases:getReturnsBatch ──────────────────────────────────────────────
+  // Fetches all returns for multiple purchaseIds in a SINGLE query (no N+1).
+  ipcMain.handle('purchases:getReturnsBatch', async (_event, purchaseIds: string[]) => {
+    try {
+      if (!purchaseIds || purchaseIds.length === 0) return { success: true, data: [] };
+      const { data: returns, error } = await supabase
+        .from('inventory_history')
+        .select(
+          '*, variant:product_variant(sku, variant_name, ' +
+          '  product:product_variant_flat(name))'
+        )
+        .in('referenceId', purchaseIds)
+        .in('reference', ['Purchase Return', 'Purchase Refund', 'Purchase Exchange']);
+
+      if (error) throw error;
+      return { success: true, data: returns };
+    } catch (error) {
+      logger.error('Get purchase returns batch handler error:', error);
+      return { success: false, error: 'Failed to fetch returns batch' };
+    }
+  });
+
   // ── purchases:createReturn ─────────────────────────────────────────────────
   // Decrements variant stock and logs inventory_history.
   ipcMain.handle('purchases:createReturn', async (_event, params: any) => {
