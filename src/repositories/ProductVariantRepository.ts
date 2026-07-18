@@ -222,6 +222,61 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
     return data ? mapVariant(data) : null;
   }
 
+  /**
+   * POS / quick search: match by SKU, barcode, variant name, or parent product name.
+   * Returns up to `limit` variants (deduped).
+   */
+  async searchVariants(query: string, limit = 25): Promise<ProductVariant[]> {
+    const term = query.trim();
+    if (!term) return [];
+
+    const safe = term
+      .replace(/\\/g, '\\\\')
+      .replace(/%/g, '\\%')
+      .replace(/_/g, '\\_')
+      .replace(/,/g, '');
+
+    const { data: directRows, error: directErr } = await this.supabase
+      .from('product_variant')
+      .select(VARIANT_WITH_PARENT)
+      .or(`sku.ilike.%${safe}%,barcode.ilike.%${safe}%,variant_name.ilike.%${safe}%`)
+      .limit(limit);
+
+    if (directErr) throw directErr;
+
+    const { data: parents, error: parentErr } = await this.supabase
+      .from('product_variant_flat')
+      .select('id')
+      .ilike('name', `%${safe}%`)
+      .neq('status', 'Archived')
+      .limit(40);
+
+    if (parentErr) throw parentErr;
+
+    let nameRows: any[] = [];
+    const parentIds = (parents || []).map((p: any) => p.id).filter(Boolean);
+    if (parentIds.length > 0) {
+      const { data, error } = await this.supabase
+        .from('product_variant')
+        .select(VARIANT_WITH_PARENT)
+        .in('product_flat_id', parentIds)
+        .limit(limit);
+      if (error) throw error;
+      nameRows = data || [];
+    }
+
+    const seen = new Set<string>();
+    const merged: ProductVariant[] = [];
+    for (const row of [...(directRows || []), ...nameRows]) {
+      const mapped = mapVariant(row);
+      if (seen.has(mapped.id)) continue;
+      seen.add(mapped.id);
+      merged.push(mapped);
+      if (merged.length >= limit) break;
+    }
+    return merged;
+  }
+
   // ── Parent product CRUD ───────────────────────────────────────────────────
 
   async createParent(data: ParentProductFormData & { id?: string }): Promise<ParentProduct> {
@@ -327,7 +382,40 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
       .neq('status', 'Archived');
 
     if (search) {
-      query = query.or(`name.ilike.%${search}%,category.ilike.%${search}%`);
+      const term = search.trim();
+      // Escape only chars that break PostgREST filters or LIKE wildcards
+      const safe = term
+        .replace(/\\/g, '\\\\')
+        .replace(/%/g, '\\%')
+        .replace(/_/g, '\\_')
+        .replace(/,/g, '');
+
+      // SKU / barcode / variant_name live on product_variant — find matching parents
+      const { data: variantHits, error: variantErr } = await this.supabase
+        .from('product_variant')
+        .select('product_flat_id')
+        .or(
+          `sku.ilike.%${safe}%,barcode.ilike.%${safe}%,variant_name.ilike.%${safe}%`
+        );
+
+      if (variantErr) throw variantErr;
+
+      const parentIds = [
+        ...new Set(
+          (variantHits || [])
+            .map((r: any) => r.product_flat_id as string)
+            .filter(Boolean)
+        ),
+      ];
+
+      // Match parent name/category OR any parent that has a matching variant
+      if (parentIds.length > 0) {
+        query = query.or(
+          `name.ilike.%${safe}%,category.ilike.%${safe}%,id.in.(${parentIds.join(',')})`
+        );
+      } else {
+        query = query.or(`name.ilike.%${safe}%,category.ilike.%${safe}%`);
+      }
     }
 
     const { data, error, count } = await query
@@ -442,25 +530,155 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
   // ── Low-stock / out-of-stock ──────────────────────────────────────────────
 
   async getLowStockVariants(): Promise<ProductVariant[]> {
-    const { data, error } = await this.supabase
-      .from('product_variant')
-      .select(VARIANT_WITH_PARENT)
-      .gt('stock', 0);
+    // Only scan variants that have a reorder threshold — then keep stock <= minimum.
+    // Avoids pulling the entire catalog (and 13k+ out-of-stock rows).
+    const PAGE_SIZE = 1000;
+    const matched: ProductVariant[] = [];
+    let page = 0;
+    while (true) {
+      const { data, error } = await this.supabase
+        .from('product_variant')
+        .select(VARIANT_WITH_PARENT)
+        .gt('minimum_stock', 0)
+        .gt('stock', 0)
+        .order('stock', { ascending: true })
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
-    if (error) throw error;
-    return (data || [])
-      .map(mapVariant)
-      .filter((v) => v.minimumStock > 0 && v.stock <= v.minimumStock);
+      if (error) throw error;
+      const rows = data || [];
+      for (const row of rows) {
+        const stock = Number((row as any).stock);
+        const min = Number((row as any).minimum_stock);
+        if (stock > 0 && stock <= min) matched.push(mapVariant(row));
+      }
+      if (rows.length < PAGE_SIZE) break;
+      page++;
+    }
+    return matched;
+  }
+
+  /**
+   * Paginated stock alerts for Inventory UI.
+   * type: 'low' | 'out' | 'all'
+   */
+  async getStockAlerts(params: {
+    page?: number;
+    limit?: number;
+    type?: 'low' | 'out' | 'all';
+  } = {}): Promise<{
+    data: ProductVariant[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const page = Math.max(1, params.page ?? 1);
+    const limit = Math.min(200, Math.max(1, params.limit ?? 50));
+    const type = params.type ?? 'out';
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    if (type === 'low') {
+      const all = await this.getLowStockVariants();
+      return {
+        data: all.slice(from, to + 1),
+        total: all.length,
+        page,
+        limit,
+        totalPages: Math.ceil(all.length / limit) || 1,
+      };
+    }
+
+    // 'out' and 'all' both page out-of-stock from the DB (fast head count + range).
+    // 'all' appends true low-stock only on pages that reach past out-of-stock.
+    const { count: outCount, error: outCountErr } = await this.supabase
+      .from('product_variant')
+      .select('*', { count: 'exact', head: true })
+      .eq('stock', 0);
+    if (outCountErr) throw outCountErr;
+    const outTotal = outCount || 0;
+
+    if (type === 'out') {
+      const { data, error } = await this.supabase
+        .from('product_variant')
+        .select(VARIANT_WITH_PARENT)
+        .eq('stock', 0)
+        .order('updated_at', { ascending: false })
+        .range(from, to);
+      if (error) throw error;
+      return {
+        data: (data || []).map(mapVariant),
+        total: outTotal,
+        page,
+        limit,
+        totalPages: Math.ceil(outTotal / limit) || 1,
+      };
+    }
+
+    // type === 'all'
+    let lowAll: ProductVariant[] | null = null;
+    const ensureLow = async () => {
+      if (!lowAll) lowAll = await this.getLowStockVariants();
+      return lowAll;
+    };
+
+    // Only load low-stock list when this page needs it or for accurate total
+    const lowTotal = (await ensureLow()).length;
+    const total = outTotal + lowTotal;
+    const results: ProductVariant[] = [];
+    let need = limit;
+    let offset = from;
+
+    if (offset < outTotal && need > 0) {
+      const outFrom = offset;
+      const outTo = Math.min(outTotal - 1, outFrom + need - 1);
+      const { data, error } = await this.supabase
+        .from('product_variant')
+        .select(VARIANT_WITH_PARENT)
+        .eq('stock', 0)
+        .order('updated_at', { ascending: false })
+        .range(outFrom, outTo);
+      if (error) throw error;
+      results.push(...(data || []).map(mapVariant));
+      need -= data?.length || 0;
+      offset = 0;
+    } else {
+      offset -= outTotal;
+    }
+
+    if (need > 0) {
+      const lows = await ensureLow();
+      results.push(...lows.slice(offset, offset + need));
+    }
+
+    return {
+      data: results,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+    };
   }
 
   async getOutOfStockVariants(): Promise<ProductVariant[]> {
-    const { data, error } = await this.supabase
-      .from('product_variant')
-      .select(VARIANT_WITH_PARENT)
-      .eq('stock', 0);
+    // Prefer getStockAlerts({ type: 'out' }) for UI. Full fetch only for rare bulk callers.
+    const PAGE_SIZE = 1000;
+    const all: any[] = [];
+    let page = 0;
+    while (true) {
+      const { data, error } = await this.supabase
+        .from('product_variant')
+        .select(VARIANT_WITH_PARENT)
+        .eq('stock', 0)
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
-    if (error) throw error;
-    return (data || []).map(mapVariant);
+      if (error) throw error;
+      const rows = data || [];
+      all.push(...rows);
+      if (rows.length < PAGE_SIZE) break;
+      page++;
+    }
+    return all.map(mapVariant);
   }
 
   /** Fetch all active variants (paginated internally to bypass 1000-row limit) */

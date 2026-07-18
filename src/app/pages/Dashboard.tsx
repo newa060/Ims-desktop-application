@@ -64,15 +64,52 @@ const fmt = (d: string) =>
 
 interface StockModalProps {
   mode: 'low' | 'out';
-  items: StockAlert[];
+  items: StockAlert[];      // used for 'low' mode (already loaded)
   onClose: () => void;
 }
 
-const StockModal = ({ mode, items, onClose }: StockModalProps) => {
-  const isOut = mode === 'out';
-  const title = isOut ? 'Out of Stock Products' : 'Low Stock Products';
-  const empty = isOut ? 'No products are out of stock.' : 'No products are running low.';
+const MODAL_PAGE = 100;
 
+const StockModal = ({ mode, items, onClose }: StockModalProps) => {
+  const isOut  = mode === 'out';
+  const title  = isOut ? 'Out of Stock Products' : 'Low Stock Products';
+  const empty  = isOut ? 'No products are out of stock.' : 'No products are running low.';
+
+  // For out-of-stock, load paginated from the IPC layer
+  const [outItems,  setOutItems]  = useState<StockAlert[]>([]);
+  const [outPage,   setOutPage]   = useState(1);
+  const [outTotal,  setOutTotal]  = useState(0);
+  const [outPages,  setOutPages]  = useState(1);
+  const [outLoad,   setOutLoad]   = useState(false);
+
+  useEffect(() => {
+    if (!isOut) return;
+    (async () => {
+      setOutLoad(true);
+      const res = await window.electron.getVariantsOutOfStock({ page: outPage, limit: MODAL_PAGE });
+      if (res.success) {
+        const all: any[] = res.data?.data ?? [];
+        setOutItems(all.map((v: any) => ({
+          id:           v.id,
+          name:         v.parent?.name ?? '—',
+          sku:          v.sku,
+          currentStock: v.stock ?? 0,
+          minimumStock: v.minimum_stock ?? 0,
+          category:     v.parent?.category ? { name: v.parent.category } : undefined,
+          variantName:  v.variant_name && v.variant_name !== 'Default' ? v.variant_name : undefined,
+          color:        v.color ?? undefined,
+          size:         v.size  ?? undefined,
+        })));
+        setOutTotal(res.data?.total ?? 0);
+        setOutPages(res.data?.totalPages ?? 1);
+      }
+      setOutLoad(false);
+    })();
+  }, [isOut, outPage]);
+
+  const displayItems = isOut ? outItems : items;
+  const displayTotal = isOut ? outTotal : items.length;
+  const isLoading    = isOut && outLoad;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={onClose} />
@@ -87,7 +124,7 @@ const StockModal = ({ mode, items, onClose }: StockModalProps) => {
             <span className={`text-[12px] font-semibold px-2 py-0.5 rounded-full ${
               isOut ? 'bg-danger-text/10 text-danger-text' : 'bg-warning-text/10 text-warning-text'
             }`}>
-              {items.length}
+              {displayTotal}
             </span>
           </div>
           <button onClick={onClose} className="text-ink/40 hover:text-ink transition-colors">
@@ -97,7 +134,11 @@ const StockModal = ({ mode, items, onClose }: StockModalProps) => {
 
         {/* body */}
         <div className="overflow-y-auto flex-1">
-          {items.length === 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+            </div>
+          ) : displayItems.length === 0 ? (
             <div className="py-12 text-center text-sm text-ink/40">{empty}</div>
           ) : (
             <table className="w-full text-sm">
@@ -112,17 +153,8 @@ const StockModal = ({ mode, items, onClose }: StockModalProps) => {
                 </tr>
               </thead>
               <tbody>
-                {items.map((p) => {
-                  // Build variant label from color + size + variantName
-                  const variantParts = [
-                    p.variantName,
-                    p.color,
-                    p.size,
-                  ].filter(Boolean);
-                  const variantLabel = variantParts.length > 0
-                    ? variantParts.join(' / ')
-                    : '—';
-
+                {displayItems.map((p) => {
+                  const variantLabel = [p.variantName, p.color, p.size].filter(Boolean).join(' / ') || '—';
                   return (
                     <tr key={p.id} className="border-b border-ink/[0.05] hover:bg-ink/[0.02]">
                       <td className="py-3 px-5 font-medium text-ink">{p.name}</td>
@@ -140,6 +172,29 @@ const StockModal = ({ mode, items, onClose }: StockModalProps) => {
             </table>
           )}
         </div>
+
+        {/* Pagination footer — only for out-of-stock paginated data */}
+        {isOut && outPages > 1 && (
+          <div className="flex items-center justify-between px-6 py-3 border-t border-ink/[0.08] text-sm text-ink/55">
+            <span>Page {outPage} of {outPages} · {displayTotal.toLocaleString()} total</span>
+            <div className="flex gap-2">
+              <button
+                disabled={outPage <= 1}
+                onClick={() => setOutPage(p => p - 1)}
+                className="px-3 py-1 border border-ink/[0.12] rounded-md text-xs disabled:opacity-30 hover:bg-ink/[0.04] transition-colors"
+              >
+                ← Prev
+              </button>
+              <button
+                disabled={outPage >= outPages}
+                onClick={() => setOutPage(p => p + 1)}
+                className="px-3 py-1 border border-ink/[0.12] rounded-md text-xs disabled:opacity-30 hover:bg-ink/[0.04] transition-colors"
+              >
+                Next →
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -191,8 +246,8 @@ const Dashboard = () => {
       if (statsRes.success) setStats(statsRes.data);
       if (chartRes.success) setChartData(chartRes.data || []);
       if (lowStockRes.success) {
-        // getLowStock now returns product_variant rows.
-        // Map variant fields → StockAlert shape for the modal.
+        // getVariantsLowStock returns low-stock only; out-of-stock is loaded
+        // on demand via the paginated getVariantsOutOfStock modal.
         const variants: any[] = lowStockRes.data || [];
         const all: StockAlert[] = variants.map((v: any) => ({
           id:           v.id,
@@ -643,9 +698,7 @@ const Dashboard = () => {
       {stockModal && (
         <StockModal
           mode={stockModal}
-          items={allStockAlerts.filter((p) =>
-            stockModal === 'out' ? p.currentStock === 0 : p.currentStock > 0
-          )}
+          items={stockModal === 'low' ? allStockAlerts : []}
           onClose={() => setStockModal(null)}
         />
       )}

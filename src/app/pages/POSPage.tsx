@@ -7,7 +7,7 @@ import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Search, Trash2, Plus, Minus, ShoppingCart, User } from 'lucide-react';
+import { Search, Trash2, Plus, Minus, ShoppingCart, User, Printer } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSettings } from '../contexts/SettingsContext';
 
@@ -23,11 +23,37 @@ interface CartItem {
   discountAmount: number;
 }
 
+interface InvoiceData {
+  saleNumber: string;
+  date: string;
+  customerName: string;
+  customerPhone?: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  items: Array<{
+    name: string;
+    sku: string;
+    quantity: number;
+    unitPrice: number;
+    discountAmount: number;
+    total: number;
+  }>;
+  subtotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  paidAmount: number;
+  changeAmount: number;
+  notes?: string;
+}
+
 const POSPage = () => {
-  const { formatCurrency } = useSettings();
+  const { formatCurrency, settings, currencySymbol } = useSettings();
   const { user } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [barcode, setBarcode] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searching, setSearching] = useState(false);
   const [customers, setCustomers] = useState<any[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string | undefined>(undefined);
   const [paymentOpen, setPaymentOpen] = useState(false);
@@ -36,6 +62,8 @@ const POSPage = () => {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [notes, setNotes] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [invoice, setInvoice] = useState<InvoiceData | null>(null);
+  const [printing, setPrinting] = useState(false);
 
   useEffect(() => {
     loadCustomers();
@@ -50,8 +78,21 @@ const POSPage = () => {
     }
   };
 
+  const tryAddVariant = (variant: any): boolean => {
+    if (!variant) return false;
+    if ((variant.stock ?? 0) <= 0) {
+      toast.error('Variant out of stock!');
+      return false;
+    }
+    addToCart(variant);
+    setBarcode('');
+    setSearchResults([]);
+    toast.success('Product added to cart');
+    return true;
+  };
+
   const addToCart = (variant: any) => {
-    // variant comes from searchVariantByBarcode or manual lookup.
+    // variant comes from searchVariantByBarcode / SKU / name lookup.
     // Needs: id (variantId), productFlatId, parent.name, sku, sellingPrice, taxRate
     const variantId    = variant.id;
     const productFlatId = variant.productFlatId;
@@ -90,23 +131,41 @@ const POSPage = () => {
   };
 
   const handleBarcodeSearch = async () => {
-    if (!barcode.trim()) return;
+    const q = barcode.trim();
+    if (!q) return;
+    setSearching(true);
+    setSearchResults([]);
     try {
-      // Try variant barcode first (new path), fall back to legacy product barcode
-      const response = await window.electron.searchVariantByBarcode(barcode);
-      if (response.success && response.data) {
-        if (response.data.stock <= 0) {
-          toast.error('Variant out of stock!');
+      // 1) Exact barcode (scanner)
+      const byBarcode = await window.electron.searchVariantByBarcode(q);
+      if (byBarcode.success && byBarcode.data) {
+        tryAddVariant(byBarcode.data);
+        return;
+      }
+
+      // 2) Exact SKU / item code
+      const bySku = await window.electron.searchVariantBySKU(q);
+      if (bySku.success && bySku.data) {
+        tryAddVariant(bySku.data);
+        return;
+      }
+
+      // 3) Partial match on SKU, barcode, variant name, or product name
+      const fuzzy = await window.electron.searchVariants(q, 25);
+      if (fuzzy.success && Array.isArray(fuzzy.data) && fuzzy.data.length > 0) {
+        if (fuzzy.data.length === 1) {
+          tryAddVariant(fuzzy.data[0]);
           return;
         }
-        addToCart(response.data);
-        setBarcode('');
-        toast.success('Product added to cart');
-      } else {
-        toast.error('Product not found');
+        setSearchResults(fuzzy.data);
+        return;
       }
+
+      toast.error('Product not found');
     } catch (error) {
       toast.error('Failed to search product');
+    } finally {
+      setSearching(false);
     }
   };
 
@@ -161,6 +220,34 @@ const POSPage = () => {
 
       const res = await window.electron.createSale(saleData);
       if (res.success) {
+        const sale = res.data || {};
+        const customer = customers.find((c) => c.id === selectedCustomer);
+        const invoiceItems = cart.map((item) => ({
+          name: item.name,
+          sku: item.sku,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discountAmount: item.discountAmount,
+          total: item.quantity * item.unitPrice - item.discountAmount,
+        }));
+
+        setInvoice({
+          saleNumber: sale.saleNumber || sale.sale_number || '—',
+          date: new Date(sale.saleDate || sale.createdAt || Date.now()).toLocaleString(),
+          customerName: customer?.name || 'Walk-in Customer',
+          customerPhone: customer?.phone,
+          paymentMethod: sale.paymentMethod || paymentMethod,
+          paymentStatus: sale.paymentStatus || (paidAmount >= total ? 'paid' : 'partial'),
+          items: invoiceItems,
+          subtotal,
+          taxAmount: totalTax,
+          discountAmount,
+          totalAmount: sale.totalAmount ?? total,
+          paidAmount: sale.paidAmount ?? paidAmount,
+          changeAmount: sale.changeAmount ?? Math.max(0, paidAmount - total),
+          notes: notes || undefined,
+        });
+
         toast.success('Sale completed successfully!');
         setCart([]);
         setSelectedCustomer(undefined);
@@ -169,6 +256,8 @@ const POSPage = () => {
         setPaymentOpen(false);
         setPaidAmount(0);
         setPaymentMethod('cash');
+        setSearchResults([]);
+        setBarcode('');
       } else {
         toast.error(res.error || 'Failed to complete sale');
       }
@@ -178,6 +267,26 @@ const POSPage = () => {
       setProcessing(false);
     }
   };
+
+  const handlePrintInvoice = async () => {
+    if (!invoice) return;
+    setPrinting(true);
+    try {
+      const res = await window.electron.printInvoice({
+        businessName: settings.business_name || 'My Business',
+        footer: settings.invoice_footer || 'Thank you for your business!',
+        currencySymbol: currencySymbol || settings.currency_symbol || 'Rs.',
+        ...invoice,
+      });
+      if (!res.success) toast.error(res.error || 'Failed to print invoice');
+    } catch {
+      toast.error('Failed to print invoice');
+    } finally {
+      setPrinting(false);
+    }
+  };
+
+  const closeInvoice = () => setInvoice(null);
 
   const changeAmount = Math.max(0, paidAmount - total);
   const balanceDue = Math.max(0, total - paidAmount);
@@ -202,15 +311,58 @@ const POSPage = () => {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" size={20} />
                   <Input
-                    placeholder="Scan barcode or search product..."
+                    placeholder="Scan barcode, or search by SKU / product name…"
                     value={barcode}
-                    onChange={(e) => setBarcode(e.target.value)}
+                    onChange={(e) => {
+                      setBarcode(e.target.value);
+                      if (searchResults.length) setSearchResults([]);
+                    }}
                     onKeyDown={(e) => e.key === 'Enter' && handleBarcodeSearch()}
                     className="pl-10"
+                    autoFocus
                   />
                 </div>
-                <Button onClick={handleBarcodeSearch}>Search</Button>
+                <Button onClick={handleBarcodeSearch} disabled={searching}>
+                  {searching ? '…' : 'Search'}
+                </Button>
               </div>
+
+              {searchResults.length > 0 && (
+                <div className="mt-3 border border-ink/[0.08] rounded-xl overflow-hidden max-h-72 overflow-y-auto">
+                  {searchResults.map((v) => {
+                    const name = v.parent?.name ?? '—';
+                    const variantLabel = [v.variantName, v.color, v.size]
+                      .filter((x) => x && x !== 'Default')
+                      .join(' / ');
+                    const price = v.sellingPrice ?? v.parent?.sellingPrice ?? 0;
+                    const out = (v.stock ?? 0) <= 0;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        disabled={out}
+                        onClick={() => tryAddVariant(v)}
+                        className="w-full text-left px-4 py-3 flex items-center justify-between gap-3 border-b border-ink/[0.06] last:border-0 hover:bg-ink/[0.03] disabled:opacity-45 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <div className="min-w-0">
+                          <p className="font-medium text-ink truncate">{name}</p>
+                          <p className="text-xs text-ink/50 mt-0.5 truncate">
+                            {v.sku}
+                            {variantLabel ? ` · ${variantLabel}` : ''}
+                            {v.barcode ? ` · ${v.barcode}` : ''}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-sm font-semibold text-ink">{formatCurrency(price)}</p>
+                          <p className={`text-[11px] ${out ? 'text-danger-text' : 'text-ink/45'}`}>
+                            {out ? 'Out of stock' : `Stock ${v.stock}`}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -377,6 +529,108 @@ const POSPage = () => {
             <Button type="button" variant="outline" onClick={() => setPaymentOpen(false)} disabled={processing}>Cancel</Button>
             <Button onClick={handleCompleteSale} disabled={processing}>
               {processing ? 'Processing...' : 'Complete Sale'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invoice preview after successful sale */}
+      <Dialog open={!!invoice} onOpenChange={(o) => { if (!o) closeInvoice(); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Sale Invoice</DialogTitle>
+          </DialogHeader>
+          {invoice && (
+            <div className="space-y-4 py-1">
+              <div className="text-center border-b border-ink/[0.08] pb-3">
+                <p className="font-display font-bold text-lg text-ink">
+                  {settings.business_name || 'My Business'}
+                </p>
+                <p className="text-xs text-ink/50 mt-0.5">Sales Invoice</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-ink/50 text-xs uppercase tracking-wide">Invoice</span>
+                  <p className="font-mono font-semibold text-ink">{invoice.saleNumber}</p>
+                  <p className="text-xs text-ink/55">{invoice.date}</p>
+                </div>
+                <div>
+                  <span className="text-ink/50 text-xs uppercase tracking-wide">Customer</span>
+                  <p className="font-semibold text-ink">{invoice.customerName}</p>
+                  {invoice.customerPhone && (
+                    <p className="text-xs text-ink/55">{invoice.customerPhone}</p>
+                  )}
+                </div>
+                <div>
+                  <span className="text-ink/50 text-xs uppercase tracking-wide">Payment</span>
+                  <p className="capitalize text-ink">{invoice.paymentMethod.replace(/_/g, ' ')}</p>
+                </div>
+                <div>
+                  <span className="text-ink/50 text-xs uppercase tracking-wide">Status</span>
+                  <p className="capitalize text-ink">{invoice.paymentStatus}</p>
+                </div>
+              </div>
+
+              <div className="border border-ink/[0.08] rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-[#faf9f5] border-b border-ink/[0.08]">
+                      <th className="text-left py-2 px-3 text-[11px] font-bold uppercase text-ink/45">Item</th>
+                      <th className="text-center py-2 px-2 text-[11px] font-bold uppercase text-ink/45">Qty</th>
+                      <th className="text-right py-2 px-3 text-[11px] font-bold uppercase text-ink/45">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoice.items.map((item, i) => (
+                      <tr key={i} className="border-b border-ink/[0.05]">
+                        <td className="py-2 px-3">
+                          <p className="font-medium text-ink">{item.name}</p>
+                          <p className="text-[11px] font-mono text-ink/40">{item.sku}</p>
+                        </td>
+                        <td className="py-2 px-2 text-center text-ink">{item.quantity}</td>
+                        <td className="py-2 px-3 text-right font-medium text-ink">
+                          {formatCurrency(item.total)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="space-y-1.5 text-sm">
+                <div className="flex justify-between text-ink/70">
+                  <span>Subtotal</span><span>{formatCurrency(invoice.subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-ink/70">
+                  <span>Tax</span><span>{formatCurrency(invoice.taxAmount)}</span>
+                </div>
+                <div className="flex justify-between text-ink/70">
+                  <span>Discount</span><span>-{formatCurrency(invoice.discountAmount)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-base border-t border-ink/[0.08] pt-2 text-ink">
+                  <span>Total</span><span>{formatCurrency(invoice.totalAmount)}</span>
+                </div>
+                <div className="flex justify-between text-ink/70">
+                  <span>Paid</span><span>{formatCurrency(invoice.paidAmount)}</span>
+                </div>
+                <div className="flex justify-between text-success-text font-semibold">
+                  <span>Change</span><span>{formatCurrency(invoice.changeAmount)}</span>
+                </div>
+              </div>
+
+              {invoice.notes && (
+                <p className="text-xs text-ink/55 border-t border-ink/[0.08] pt-3">
+                  <span className="font-medium text-ink/70">Notes:</span> {invoice.notes}
+                </p>
+              )}
+            </div>
+          )}
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" onClick={closeInvoice}>Done</Button>
+            <Button onClick={handlePrintInvoice} disabled={printing}>
+              <Printer size={16} className="mr-2" />
+              {printing ? 'Printing…' : 'Print Invoice'}
             </Button>
           </DialogFooter>
         </DialogContent>
