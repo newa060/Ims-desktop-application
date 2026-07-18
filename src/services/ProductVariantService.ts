@@ -83,6 +83,15 @@ export class ProductVariantService {
     }
   }
 
+  async getVariantsByProductIds(productFlatIds: string[]): Promise<ProductVariant[]> {
+    try {
+      return await ProductVariantRepository.findByProductFlatIds(productFlatIds);
+    } catch (error) {
+      logger.error('getVariantsByProductIds error:', error);
+      throw error;
+    }
+  }
+
   async getVariantById(id: string): Promise<ProductVariant | null> {
     try {
       return await ProductVariantRepository.findById(id);

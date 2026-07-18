@@ -23,6 +23,7 @@ export interface ElectronAPI {
   // Product Variants (product_variant — desktop primary interface)
   getVariants: (params: any) => Promise<any>;
   getVariantsByProduct: (productFlatId: string) => Promise<any>;
+  getVariantsByProductIds: (ids: string[]) => Promise<any>;
   getVariantById: (id: string) => Promise<any>;
   createVariant: (data: any) => Promise<any>;
   updateVariant: (id: string, data: any) => Promise<any>;

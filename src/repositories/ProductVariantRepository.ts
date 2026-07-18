@@ -17,6 +17,7 @@ import {
   PaginationParams,
   PaginatedResponse,
 } from '../types';
+import { v4 as uuidv4 } from 'uuid';
 
 // ── Column selects ────────────────────────────────────────────────────────────
 
@@ -170,6 +171,22 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
     return (data || []).map(mapVariant);
   }
 
+  /** Fetch variants for multiple parent IDs in ONE query — used by VariantsPage */
+  async findByProductFlatIds(productFlatIds: string[]): Promise<ProductVariant[]> {
+    if (productFlatIds.length === 0) return [];
+
+    // Supabase .in() handles up to 1000 values; for a page of 50 parents this is fine
+    const { data, error } = await this.supabase
+      .from('product_variant')
+      .select(VARIANT_WITH_PARENT)
+      .in('product_flat_id', productFlatIds)
+      .order('product_flat_id', { ascending: true })
+      .order('created_at',     { ascending: true });
+
+    if (error) throw error;
+    return (data || []).map(mapVariant);
+  }
+
   // ── Single variant lookup ─────────────────────────────────────────────────
 
   async findById(id: string): Promise<ProductVariant | null> {
@@ -210,6 +227,9 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
   async createParent(data: ParentProductFormData & { id?: string }): Promise<ParentProduct> {
     const lookups = await this.loadLookups();
     const dbData: Record<string, any> = {
+      // Always supply an id — product_variant_flat has no auto-generate default in older Postgres versions.
+      // Use the uuid package (already a project dependency) which works in all Node versions.
+      id:              data.id || uuidv4(),
       name:            data.name,
       description:     data.description || '',
       purchase_price:  data.purchasePrice,
@@ -218,8 +238,6 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
       tax_rate:        data.taxRate ?? 0,
       status:          data.status ?? 'Active',
     };
-
-    if (data.id) dbData.id = data.id;
 
     // Resolve slug
     dbData.slug = this.slugify(`${data.name}-${Date.now().toString(36)}`);

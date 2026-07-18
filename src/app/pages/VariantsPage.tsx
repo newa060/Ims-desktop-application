@@ -82,32 +82,41 @@ const VariantsPage = () => {
   const loadData = useCallback(async (p = page, l = limit, s = search) => {
     setLoading(true);
     try {
-      const [parentsRes, variantsRes] = await Promise.all([
-        window.electron.getParentProducts({ page: p, limit: l, search: s }),
-        window.electron.getVariants({ page: 1, limit: 50000 }), // Increased limit to fetch all variants for the resolution map
-      ]);
+      // 1. Load parent products for this page only
+      const parentsRes = await window.electron.getParentProducts({ page: p, limit: l, search: s });
 
-      if (parentsRes.success) {
-        setParents(parentsRes.data?.data ?? parentsRes.data ?? []);
-        setTotal(parentsRes.data?.pagination?.total ?? parentsRes.data?.total ?? 0);
-        setTotalPages(parentsRes.data?.pagination?.totalPages ?? parentsRes.data?.totalPages ?? 1);
-        const activePage = parentsRes.data?.pagination?.page ?? parentsRes.data?.page ?? p;
-        setPage(activePage);
-        setJumpVal(String(activePage));
-      } else {
+      if (!parentsRes.success) {
         setParents([]);
         setTotal(0);
         setTotalPages(1);
+        setLoading(false);
+        return;
       }
 
+      const parentList: any[] = parentsRes.data?.data ?? parentsRes.data ?? [];
+      setParents(parentList);
+      setTotal(parentsRes.data?.pagination?.total ?? parentsRes.data?.total ?? 0);
+      setTotalPages(parentsRes.data?.pagination?.totalPages ?? parentsRes.data?.totalPages ?? 1);
+      const activePage = parentsRes.data?.pagination?.page ?? parentsRes.data?.page ?? p;
+      setPage(activePage);
+      setJumpVal(String(activePage));
+
+      if (parentList.length === 0) { setLoading(false); return; }
+
+      // 2. Fetch variants for ALL visible parents in ONE batch IPC call.
+      // We pass the parent IDs and the IPC handler does a single Supabase query
+      // with .in('product_flat_id', ids) — one round-trip instead of 50.
+      const parentIds = parentList.map((par: any) => par.id);
+      const variantsRes = await window.electron.getVariantsByProductIds(parentIds);
+
       if (variantsRes.success) {
-        const all: any[] = variantsRes.data?.data ?? [];
+        const all: any[] = variantsRes.data ?? [];
         const map: Record<string, any[]> = {};
+        // Pre-initialise every parent so those with 0 variants show correctly
+        for (const id of parentIds) map[id] = [];
         for (const v of all) {
           const pid: string = v.productFlatId || v.product_flat_id || '';
-          if (!pid) continue;
-          if (!map[pid]) map[pid] = [];
-          map[pid].push(v);
+          if (pid && map[pid] !== undefined) map[pid].push(v);
         }
         setVariantMap(prev => ({ ...prev, ...map }));
       }

@@ -78,6 +78,17 @@ export const setupVariantHandlers = () => {
     }
   });
 
+  // Batch variant fetch for multiple parent IDs — one Supabase query instead of N
+  ipcMain.handle('variants:getByProductIds', async (_event, productFlatIds: string[]) => {
+    try {
+      const data = await ProductVariantService.getVariantsByProductIds(productFlatIds);
+      return { success: true, data };
+    } catch (error) {
+      logger.error('variants:getByProductIds error:', error);
+      return { success: false, error: 'Failed to fetch variants for products' };
+    }
+  });
+
   ipcMain.handle('variants:getById', async (_event, id: string) => {
     try {
       const data = await ProductVariantService.getVariantById(id);

@@ -25,6 +25,7 @@ contextBridge.exposeInMainWorld('electron', {
   // Product Variants (product_variant — desktop primary interface)
   getVariants: (params: any) => ipcRenderer.invoke('variants:getAll', params),
   getVariantsByProduct: (productFlatId: string) => ipcRenderer.invoke('variants:getByProduct', productFlatId),
+  getVariantsByProductIds: (ids: string[]) => ipcRenderer.invoke('variants:getByProductIds', ids),
   getVariantById: (id: string) => ipcRenderer.invoke('variants:getById', id),
   createVariant: (data: any) => ipcRenderer.invoke('variants:create', data),
   updateVariant: (id: string, data: any) => ipcRenderer.invoke('variants:update', id, data),
