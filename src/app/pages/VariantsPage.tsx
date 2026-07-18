@@ -65,7 +65,7 @@ const VariantsPage = () => {
 
   // Pagination State
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(50);
+  const [limit] = useState(50);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [jumpVal, setJumpVal] = useState('1');
@@ -439,8 +439,8 @@ const VariantsPage = () => {
                                     </span>
                                     {code && (
                                       matches
-                                        ? <CheckCircle2 size={13} className="text-success-text" title="Matches expected pattern" />
-                                        : <AlertTriangle size={13} className="text-warning-text" title="SKU doesn't match expected pattern" />
+                                        ? <span title="Matches expected pattern"><CheckCircle2 size={13} className="text-success-text" /></span>
+                                        : <span title="SKU doesn't match expected pattern"><AlertTriangle size={13} className="text-warning-text" /></span>
                                     )}
                                   </>
                                 ) : (
