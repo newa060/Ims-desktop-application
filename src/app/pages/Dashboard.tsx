@@ -24,14 +24,13 @@ interface StockAlert {
   currentStock: number;
   minimumStock: number;
   category?: { name: string };
+  variantName?: string;
+  color?: string;
+  size?: string;
 }
 
-interface LowStockAlert {
-  id: string;
-  name: string;
-  currentStock: number;
-  minimumStock: number;
-}
+// Alias — same shape used for both the inline strip and the modal
+type LowStockAlert = StockAlert;
 
 interface ChartPoint {
   date: string;
@@ -77,7 +76,7 @@ const StockModal = ({ mode, items, onClose }: StockModalProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-paper rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col mx-4">
+      <div className="relative bg-paper rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col mx-4">
         {/* header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-ink/[0.08]">
           <div className="flex items-center gap-2.5">
@@ -105,6 +104,7 @@ const StockModal = ({ mode, items, onClose }: StockModalProps) => {
               <thead className="sticky top-0 bg-[#faf9f5]">
                 <tr className="border-b border-ink/[0.08]">
                   <th className="text-left py-3 px-5 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Product</th>
+                  <th className="text-left py-3 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Variant</th>
                   <th className="text-left py-3 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">SKU</th>
                   <th className="text-left py-3 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Category</th>
                   <th className="text-right py-3 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Current</th>
@@ -112,17 +112,30 @@ const StockModal = ({ mode, items, onClose }: StockModalProps) => {
                 </tr>
               </thead>
               <tbody>
-                {items.map((p) => (
-                  <tr key={p.id} className="border-b border-ink/[0.05] hover:bg-ink/[0.02]">
-                    <td className="py-3 px-5 font-medium text-ink">{p.name}</td>
-                    <td className="py-3 px-4 font-mono text-xs text-ink/50">{p.sku}</td>
-                    <td className="py-3 px-4 text-ink/55">{p.category?.name ?? '—'}</td>
-                    <td className={`py-3 px-4 text-right font-bold ${isOut ? 'text-danger-text' : 'text-warning-text'}`}>
-                      {p.currentStock}
-                    </td>
-                    <td className="py-3 px-5 text-right text-ink/45">{p.minimumStock}</td>
-                  </tr>
-                ))}
+                {items.map((p) => {
+                  // Build variant label from color + size + variantName
+                  const variantParts = [
+                    p.variantName,
+                    p.color,
+                    p.size,
+                  ].filter(Boolean);
+                  const variantLabel = variantParts.length > 0
+                    ? variantParts.join(' / ')
+                    : '—';
+
+                  return (
+                    <tr key={p.id} className="border-b border-ink/[0.05] hover:bg-ink/[0.02]">
+                      <td className="py-3 px-5 font-medium text-ink">{p.name}</td>
+                      <td className="py-3 px-4 text-xs text-ink/65">{variantLabel}</td>
+                      <td className="py-3 px-4 font-mono text-xs text-ink/50">{p.sku}</td>
+                      <td className="py-3 px-4 text-ink/55">{p.category?.name ?? '—'}</td>
+                      <td className={`py-3 px-4 text-right font-bold ${isOut ? 'text-danger-text' : 'text-warning-text'}`}>
+                        {p.currentStock}
+                      </td>
+                      <td className="py-3 px-5 text-right text-ink/45">{p.minimumStock}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -188,6 +201,9 @@ const Dashboard = () => {
           currentStock: v.stock ?? 0,
           minimumStock: v.minimumStock ?? v.minimum_stock ?? 0,
           category:     v.parent?.category ? { name: v.parent.category } : undefined,
+          variantName:  v.variantName && v.variantName !== 'Default' ? v.variantName : undefined,
+          color:        v.color ?? undefined,
+          size:         v.size  ?? undefined,
         }));
         setAllStockAlerts(all);
         setAlerts(all.slice(0, 5));
@@ -508,6 +524,12 @@ const Dashboard = () => {
                 />
                 <div className="flex-1 min-w-0">
                   <div className="text-[13.5px] font-semibold text-ink truncate">{a.name}</div>
+                  {/* Show variant details if available */}
+                  {(a.variantName || a.color || a.size) && (
+                    <div className="text-[11px] text-ink/40 font-medium">
+                      {[a.variantName, a.color, a.size].filter(Boolean).join(' · ')}
+                    </div>
+                  )}
                   <div className="text-xs text-ink/50">
                     {a.currentStock <= 0
                       ? 'Out of stock'
