@@ -30,7 +30,9 @@ export interface ElectronAPI {
   deleteVariant: (id: string) => Promise<any>;
   searchVariantByBarcode: (barcode: string) => Promise<any>;
   searchVariantBySKU: (sku: string) => Promise<any>;
+  searchVariants: (query: string, limit?: number) => Promise<any>;
   getVariantsLowStock: () => Promise<any>;
+  getVariantsOutOfStock: (params: any) => Promise<any>;
 
   // Sales
   getSales: (params: any) => Promise<any>;
@@ -50,7 +52,7 @@ export interface ElectronAPI {
   // Inventory
   getInventoryHistory: (params: any) => Promise<any>;
   adjustInventory: (data: any) => Promise<any>;
-  getLowStock: () => Promise<any>;
+  getLowStock: (params?: any) => Promise<any>;
 
   // Expenses
   getExpenses: (params: any) => Promise<any>;

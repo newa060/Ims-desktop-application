@@ -32,7 +32,9 @@ contextBridge.exposeInMainWorld('electron', {
   deleteVariant: (id: string) => ipcRenderer.invoke('variants:delete', id),
   searchVariantByBarcode: (barcode: string) => ipcRenderer.invoke('variants:searchByBarcode', barcode),
   searchVariantBySKU: (sku: string) => ipcRenderer.invoke('variants:searchBySKU', sku),
+  searchVariants: (query: string, limit?: number) => ipcRenderer.invoke('variants:search', query, limit),
   getVariantsLowStock: () => ipcRenderer.invoke('variants:getLowStock'),
+  getVariantsOutOfStock: (params: any) => ipcRenderer.invoke('variants:getOutOfStock', params),
 
   // Sales
   getSales: (params: any) => ipcRenderer.invoke('sales:getAll', params),
@@ -52,7 +54,7 @@ contextBridge.exposeInMainWorld('electron', {
   // Inventory
   getInventoryHistory: (params: any) => ipcRenderer.invoke('inventory:getHistory', params),
   adjustInventory: (data: any) => ipcRenderer.invoke('inventory:adjust', data),
-  getLowStock: () => ipcRenderer.invoke('inventory:getLowStock'),
+  getLowStock: (params?: any) => ipcRenderer.invoke('inventory:getLowStock', params),
 
   // Expenses
   getExpenses: (params: any) => ipcRenderer.invoke('expenses:getAll', params),

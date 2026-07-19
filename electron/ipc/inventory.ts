@@ -90,20 +90,15 @@ export const setupInventoryHandlers = () => {
     }
   });
 
-  // inventory:getLowStock — returns low-stock and out-of-stock variant rows
-  ipcMain.handle('inventory:getLowStock', async () => {
+  // inventory:getLowStock — paginated stock alerts (fast; does not load all 13k+ rows)
+  ipcMain.handle('inventory:getLowStock', async (_event, params: any = {}) => {
     try {
-      const [lowStock, outOfStock] = await Promise.all([
-        ProductVariantRepository.getLowStockVariants(),
-        ProductVariantRepository.getOutOfStockVariants(),
-      ]);
-      const seen = new Set<string>();
-      const combined = [...outOfStock, ...lowStock].filter((v) => {
-        if (seen.has(v.id)) return false;
-        seen.add(v.id);
-        return true;
+      const data = await ProductVariantRepository.getStockAlerts({
+        page:  params.page  ?? 1,
+        limit: params.limit ?? 50,
+        type:  params.type  ?? 'out',
       });
-      return { success: true, data: combined };
+      return { success: true, data };
     } catch (error) {
       logger.error('Get low stock handler error:', error);
       return { success: false, error: 'Failed to fetch low stock variants' };

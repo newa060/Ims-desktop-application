@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron';
+import supabase from '../../src/database/supabaseClient';
 import ProductVariantService from '../../src/services/ProductVariantService';
 import logger from '../../src/utils/logger';
 
@@ -119,6 +120,16 @@ export const setupVariantHandlers = () => {
     }
   });
 
+  ipcMain.handle('variants:search', async (_event, query: string, limit = 25) => {
+    try {
+      const data = await ProductVariantService.searchVariants(query, limit);
+      return { success: true, data };
+    } catch (error) {
+      logger.error('variants:search error:', error);
+      return { success: false, error: 'Failed to search variants' };
+    }
+  });
+
   ipcMain.handle('variants:create', async (_event, data) => {
     try {
       const variant = await ProductVariantService.createVariant(data);
@@ -149,21 +160,56 @@ export const setupVariantHandlers = () => {
     }
   });
 
-  // ── Stock / low-stock ────────────────────────────────────────────────────
+  // Out-of-stock variants — paginated, for the dashboard modal
+  ipcMain.handle('variants:getOutOfStock', async (_event, params: any = {}) => {
+    try {
+      const { page = 1, limit = 100 } = params;
+      const from = (page - 1) * limit;
+      const to   = from + limit - 1;
 
+      const VARIANT_WITH_PARENT =
+        'id, product_flat_id, sku, barcode, color, size, variant_name, stock, minimum_stock, created_at, updated_at' +
+        ', parent:product_variant_flat(id, name, category, purchase_price, selling_price, tax_rate, status)';
+
+      // Separate head count so joins never interfere with the exact total
+      const [countRes, dataRes] = await Promise.all([
+        supabase
+          .from('product_variant')
+          .select('*', { count: 'exact', head: true })
+          .eq('stock', 0),
+        supabase
+          .from('product_variant')
+          .select(VARIANT_WITH_PARENT)
+          .eq('stock', 0)
+          .order('created_at', { ascending: false })
+          .range(from, to),
+      ]);
+
+      if (countRes.error) throw countRes.error;
+      if (dataRes.error) throw dataRes.error;
+
+      const total = countRes.count || 0;
+      return {
+        success: true,
+        data: {
+          data:       dataRes.data || [],
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1,
+        },
+      };
+    } catch (error) {
+      logger.error('variants:getOutOfStock error:', error);
+      return { success: false, error: 'Failed to fetch out-of-stock variants' };
+    }
+  });
+
+  // Low-stock variants only (out-of-stock uses variants:getOutOfStock — paginated)
   ipcMain.handle('variants:getLowStock', async () => {
     try {
-      const [lowStock, outOfStock] = await Promise.all([
-        ProductVariantService.getLowStockVariants(),
-        ProductVariantService.getOutOfStockVariants(),
-      ]);
-      const seen = new Set<string>();
-      const combined = [...outOfStock, ...lowStock].filter((v) => {
-        if (seen.has(v.id)) return false;
-        seen.add(v.id);
-        return true;
-      });
-      return { success: true, data: combined };
+      const lowStock = await ProductVariantService.getLowStockVariants();
+      return { success: true, data: lowStock };
     } catch (error) {
       logger.error('variants:getLowStock error:', error);
       return { success: false, error: 'Failed to fetch low-stock variants' };

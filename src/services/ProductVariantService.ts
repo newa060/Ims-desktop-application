@@ -119,6 +119,15 @@ export class ProductVariantService {
     }
   }
 
+  async searchVariants(query: string, limit = 25): Promise<ProductVariant[]> {
+    try {
+      return await ProductVariantRepository.searchVariants(query, limit);
+    } catch (error) {
+      logger.error('searchVariants error:', error);
+      throw error;
+    }
+  }
+
   async createVariant(data: ProductVariantFormData): Promise<ProductVariant> {
     try {
       const variant = await ProductVariantRepository.createVariant(data);

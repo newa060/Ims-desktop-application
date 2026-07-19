@@ -17,6 +17,8 @@ const InventoryPage = () => {
   const [history, setHistory] = useState<any[]>([]);
   const [historyPagination, setHistoryPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
   const [lowStock, setLowStock] = useState<any[]>([]);
+  const [stockPagination, setStockPagination] = useState({ page: 1, limit: 50, total: 0, totalPages: 1 });
+  const [stockFilter, setStockFilter] = useState<'out' | 'low'>('out');
   const [historyLoading, setHistoryLoading] = useState(true);
   const [lowStockLoading, setLowStockLoading] = useState(true);
   const [adjustOpen, setAdjustOpen] = useState(false);
@@ -35,21 +37,32 @@ const InventoryPage = () => {
     finally { setHistoryLoading(false); }
   }, []);
 
-  const loadLowStock = useCallback(async () => {
+  const loadLowStock = useCallback(async (page = 1, type: 'out' | 'low' = stockFilter) => {
     setLowStockLoading(true);
     try {
-      // Use variant-level low stock (variants:getLowStock merges out-of-stock + low-stock)
-      const res = await window.electron.getVariantsLowStock();
-      if (res.success) setLowStock(res.data);
-      else toast.error('Failed to load low stock items');
+      const res = await window.electron.getLowStock({ page, limit: 50, type });
+      if (res.success) {
+        setLowStock(res.data.data || []);
+        setStockPagination({
+          page: res.data.page || 1,
+          limit: res.data.limit || 50,
+          total: res.data.total || 0,
+          totalPages: res.data.totalPages || 1,
+        });
+      } else toast.error('Failed to load low stock items');
     } catch { toast.error('An error occurred'); }
     finally { setLowStockLoading(false); }
-  }, []);
+  }, [stockFilter]);
 
   useEffect(() => {
     loadHistory();
-    loadLowStock();
+    loadLowStock(1, 'out');
   }, []);
+
+  const handleStockFilter = (type: 'out' | 'low') => {
+    setStockFilter(type);
+    loadLowStock(1, type);
+  };
 
   const loadProductsForAdjust = async () => {
     // Load variants instead of products — adjustments operate at variant level
@@ -77,7 +90,7 @@ const InventoryPage = () => {
       if (res.success) {
         toast.success('Stock adjusted successfully!');
         loadHistory();
-        loadLowStock();
+        loadLowStock(stockPagination.page, stockFilter);
         setAdjustOpen(false);
         setAdjForm({ productId: '', type: 'addition', quantity: 1, reason: '', notes: '' });
       } else toast.error(res.error || 'Failed to adjust stock');
@@ -180,44 +193,103 @@ const InventoryPage = () => {
         <TabsContent value="lowstock">
           <Card>
             <CardContent className="pt-6">
-              <Button variant="outline" onClick={loadLowStock} className="mb-4"><RefreshCw className="mr-2 h-4 w-4" /> Refresh</Button>
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <Button variant="outline" onClick={() => loadLowStock(stockPagination.page, stockFilter)}>
+                  <RefreshCw className="mr-2 h-4 w-4" /> Refresh
+                </Button>
+                <div className="flex gap-1 bg-ink/[0.04] rounded-lg p-1">
+                  <button
+                    type="button"
+                    onClick={() => handleStockFilter('out')}
+                    className={`text-[12px] font-medium px-3 py-1.5 rounded-md transition-colors ${
+                      stockFilter === 'out' ? 'bg-white text-ink shadow-sm' : 'text-ink/45 hover:text-ink/70'
+                    }`}
+                  >
+                    Out of Stock
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleStockFilter('low')}
+                    className={`text-[12px] font-medium px-3 py-1.5 rounded-md transition-colors ${
+                      stockFilter === 'low' ? 'bg-white text-ink shadow-sm' : 'text-ink/45 hover:text-ink/70'
+                    }`}
+                  >
+                    Low Stock
+                  </button>
+                </div>
+                {!lowStockLoading && (
+                  <span className="text-xs text-ink/45 ml-auto">
+                    {stockPagination.total.toLocaleString()} item(s)
+                  </span>
+                )}
+              </div>
               {lowStockLoading ? (
                 <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
               ) : lowStock.length === 0 ? (
                 <div className="text-center py-12 text-ink/55">
-                  <p className="text-lg font-medium text-success-text">All products are well-stocked!</p>
+                  <p className="text-lg font-medium text-success-text">
+                    {stockFilter === 'out' ? 'No products are out of stock.' : 'All products are well-stocked!'}
+                  </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
-                        <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Product</th>
-                        <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Variant</th>
-                        <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">SKU</th>
-                        <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Current Stock</th>
-                        <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Low Stock Limit</th>
-                        <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {lowStock.map((v) => (
-                        <tr key={v.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
-                          <td className="py-3 px-4 font-medium">{v.parent?.name ?? v.productName ?? '—'}</td>
-                          <td className="py-3 px-4 text-ink/55">{v.variantName || 'Default'}</td>
-                          <td className="py-3 px-4 font-mono text-xs text-ink/55">{v.sku}</td>
-                          <td className="py-3 px-4 text-right font-bold text-danger-text">{v.stock}</td>
-                          <td className="py-3 px-4 text-right text-ink/55">{v.minimumStock}</td>
-                          <td className="py-3 px-4 text-center">
-                            {v.stock === 0
-                              ? <Badge variant="danger"><AlertTriangle size={12} className="mr-1 inline" />Out of Stock</Badge>
-                              : <Badge variant="warning">Low Stock</Badge>
-                            }                          </td>
+                <>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
+                          <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Product</th>
+                          <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Variant</th>
+                          <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">SKU</th>
+                          <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Current Stock</th>
+                          <th className="text-right py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Low Stock Limit</th>
+                          <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Status</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {lowStock.map((v) => (
+                          <tr key={v.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
+                            <td className="py-3 px-4 font-medium">{v.parent?.name ?? v.productName ?? '—'}</td>
+                            <td className="py-3 px-4 text-ink/55">{v.variantName || 'Default'}</td>
+                            <td className="py-3 px-4 font-mono text-xs text-ink/55">{v.sku}</td>
+                            <td className="py-3 px-4 text-right font-bold text-danger-text">{v.stock}</td>
+                            <td className="py-3 px-4 text-right text-ink/55">{v.minimumStock}</td>
+                            <td className="py-3 px-4 text-center">
+                              {v.stock === 0
+                                ? <Badge variant="danger"><AlertTriangle size={12} className="mr-1 inline" />Out of Stock</Badge>
+                                : <Badge variant="warning">Low Stock</Badge>
+                              }
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="flex items-center justify-between mt-4 text-sm text-ink/55">
+                    <span>
+                      Page {stockPagination.page} / {stockPagination.totalPages}
+                      {' · '}
+                      {stockPagination.total.toLocaleString()} total
+                    </span>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={stockPagination.page <= 1 || lowStockLoading}
+                        onClick={() => loadLowStock(stockPagination.page - 1, stockFilter)}
+                      >
+                        <ChevronLeft size={16} />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={stockPagination.page >= stockPagination.totalPages || lowStockLoading}
+                        onClick={() => loadLowStock(stockPagination.page + 1, stockFilter)}
+                      >
+                        <ChevronRight size={16} />
+                      </Button>
+                    </div>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>

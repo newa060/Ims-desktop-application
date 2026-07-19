@@ -316,19 +316,19 @@ const ProductsPage = () => {
                         <>
                           <tr key={v.id}
                             className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
-                            <td className="py-3 px-3 text-ink/40 text-xs">{startItem + idx}</td>
+                            <td className="py-3 px-3 text-ink/40 text-sm">{startItem + idx}</td>
                             <td className="py-3 px-3 font-semibold text-ink max-w-[200px] truncate">
                               {productName}
                             </td>
-                            <td className="py-3 px-3 text-ink/75 text-xs">{v.category ?? '—'}</td>
-                            <td className="py-3 px-3 text-ink/75 text-xs">{v.brand ?? '—'}</td>
-                            <td className="py-3 px-3 text-right text-ink text-xs font-mono">
+                            <td className="py-3 px-3 text-ink/75 text-sm">{v.category ?? '—'}</td>
+                            <td className="py-3 px-3 text-ink/75 text-sm">{v.brand ?? '—'}</td>
+                            <td className="py-3 px-3 text-right text-ink text-sm tabular-nums">
                               {formatCurrency(v.purchasePrice ?? 0)}
                             </td>
-                            <td className="py-3 px-3 text-right font-bold text-olive-deep text-xs font-mono">
+                            <td className="py-3 px-3 text-right text-sm font-medium text-olive-deep tabular-nums">
                               {formatCurrency(v.sellingPrice ?? 0)}
                             </td>
-                            <td className="py-3 px-3 text-center font-semibold text-ink text-xs font-mono">
+                            <td className="py-3 px-3 text-center text-sm font-medium text-ink tabular-nums">
                               {v.totalStock ?? 0}
                             </td>
                             <td className="py-2 px-3 text-center">
@@ -383,12 +383,12 @@ const ProductsPage = () => {
                                   ) : expandedVariants.length === 0 ? (
                                     <p className="text-sm text-ink/50 py-2">No active variants.</p>
                                   ) : (
-                                    <table className="w-full text-xs">
+                                    <table className="w-full text-sm">
                                       <thead>
                                         <tr className="text-ink/45 border-b border-ink/[0.08]">
                                           {['Variant', 'SKU', 'Barcode', 'Color / Size', 'Stock', 'Min Stock', 'Actions']
                                             .map((h) => (
-                                              <th key={h} className="text-left py-2 px-2">{h}</th>
+                                              <th key={h} className="text-left py-2 px-2 text-[11.5px] font-bold uppercase tracking-wider">{h}</th>
                                             ))}
                                         </tr>
                                       </thead>
@@ -396,14 +396,14 @@ const ProductsPage = () => {
                                         {expandedVariants.map((ev: any) => (
                                           <tr key={ev.id}
                                             className="border-b border-ink/[0.04] hover:bg-white/50">
-                                            <td className="py-2 px-2 font-medium">{ev.variantName ?? 'Default'}</td>
-                                            <td className="py-2 px-2 font-mono">{ev.sku}</td>
+                                            <td className="py-2 px-2 font-medium text-ink">{ev.variantName ?? 'Default'}</td>
+                                            <td className="py-2 px-2 text-ink/70 tabular-nums font-mono">{ev.sku}</td>
                                             <td className="py-2 px-2 font-mono text-ink/75">{ev.barcode || '—'}</td>
                                             <td className="py-2 px-2 text-ink/55">
                                               {[ev.color, ev.size].filter(Boolean).join(' / ') || '—'}
                                             </td>
-                                            <td className="py-2 px-2 font-semibold">{ev.stock}</td>
-                                            <td className="py-2 px-2 text-ink/55">{ev.minimumStock}</td>
+                                            <td className="py-2 px-2 font-medium text-ink tabular-nums">{ev.stock}</td>
+                                            <td className="py-2 px-2 text-ink/55 tabular-nums">{ev.minimumStock}</td>
                                             <td className="py-2 px-2">
                                               <div className="flex gap-1">
                                                 <Button size="icon" variant="ghost" className="h-6 w-6"

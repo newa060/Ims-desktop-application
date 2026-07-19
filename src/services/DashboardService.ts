@@ -26,21 +26,33 @@ const countAllProducts = async (): Promise<number> => {
 };
 
 // Low stock = variants with 0 < stock <= minimum_stock
+// Uses pagination to handle catalogs > 1000 variants (Supabase 1000-row limit)
 const countLowStockVariants = async (): Promise<number> => {
-  const { data, error } = await supabase
-    .from('product_variant')
-    .select('stock, minimum_stock');
-
-  if (error) throw error;
-
+  const PAGE_SIZE = 1000;
   let count = 0;
-  for (const v of data || []) {
-    const stock = Number(v.stock);
-    const min   = Number(v.minimum_stock);
-    if (!isNaN(stock) && !isNaN(min) && min > 0 && stock > 0 && stock <= min) {
-      count++;
+  let page = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from('product_variant')
+      .select('stock, minimum_stock')
+      .gt('minimum_stock', 0)   // only variants with a minimum set
+      .gt('stock', 0)            // exclude out-of-stock (counted separately)
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+    if (error) throw error;
+    const rows = data || [];
+
+    for (const v of rows) {
+      const stock = Number(v.stock);
+      const min   = Number(v.minimum_stock);
+      if (stock > 0 && stock <= min) count++;
     }
+
+    if (rows.length < PAGE_SIZE) break;
+    page++;
   }
+
   return count;
 };
 

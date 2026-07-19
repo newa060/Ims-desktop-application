@@ -5,13 +5,24 @@ const SALE_SELECT =
   '*, customer:customers(*), user:users(*), ' +
   'items:sale_items(*, ' +
   '  variant:product_variant(sku, variant_name, color, size, ' +
-  '    product:product_variant_flat(name, purchase_price, selling_price)' +
+  '    parent:product_variant_flat(name, purchase_price, selling_price)' +
   '  )' +
   ')';
 
 export class SaleRepository extends BaseRepository<Sale> {
   protected getTableName(): string {
     return 'sales';
+  }
+
+  async findById(id: string): Promise<Sale | null> {
+    const { data, error } = await this.supabase
+      .from(this.getTableName())
+      .select(SALE_SELECT)
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data as unknown as Sale | null;
   }
 
   async findAllWithPagination(
@@ -83,14 +94,7 @@ export class SaleRepository extends BaseRepository<Sale> {
   async getSalesReport(startDate: Date, endDate: Date): Promise<any[]> {
     const { data, error } = await this.supabase
       .from(this.getTableName())
-      .select(
-        '*, customer:customers(*), ' +
-        'items:sale_items(*, ' +
-        '  variant:product_variant(sku, variant_name, color, size, ' +
-        '    product:product_variant_flat(name, purchase_price, selling_price)' +
-        '  )' +
-        ')'
-      )
+      .select(SALE_SELECT)
       .is('deletedAt', null)
       .gte('saleDate', startDate.toISOString())
       .lte('saleDate', endDate.toISOString());
