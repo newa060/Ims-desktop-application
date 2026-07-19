@@ -1,8 +1,6 @@
 import { BaseRepository } from './BaseRepository';
 import {
   StaffMember,
-  StaffIdentityDocument,
-  StaffEmergencyContact,
   StaffAttendanceRecord,
   StaffTask,
   StaffPurchase,

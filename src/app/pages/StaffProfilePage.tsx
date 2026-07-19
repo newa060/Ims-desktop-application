@@ -36,12 +36,11 @@ import {
   FileText,
   History,
   AlertCircle,
-  User,
   Plus,
   X,
   Trash2,
 } from 'lucide-react';
-import type { StaffMember, StaffAttendanceRecord, StaffTask, StaffPurchase, StaffSalaryRecord, StaffPayslip, StaffPurchasePaymentMethod } from '../../types';
+import type { StaffMember, StaffAttendanceRecord, StaffTask, StaffTaskStatus, StaffPurchase, StaffSalaryRecord, StaffPayslip, StaffPurchasePaymentMethod } from '../../types';
 import StaffNotifyModal from '../components/staff/StaffNotifyModal';
 
 // ─── Helper Functions ─────────────────────────────────────────────────────────
@@ -61,12 +60,7 @@ const getAvatarColor = (id: string): string => {
   return colors[hash % colors.length];
 };
 
-/** Format date for display */
-const formatDate = (dateString?: string): string => {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-};
+
 
 /** Format currency */
 const formatCurrency = (amount: number): string => {
@@ -563,7 +557,7 @@ const AttendanceTab = ({ staffId }: AttendanceTabProps) => {
 
 // ─── Tasks tab ────────────────────────────────────────────────────────────────
 
-type TaskStatus = 'pending' | 'in-progress' | 'completed';
+type TaskStatus = StaffTaskStatus;
 type TaskPriority = 'High' | 'Medium' | 'Low';
 
 const PRIORITY_STYLES: Record<TaskPriority, string> = {
@@ -576,6 +570,7 @@ const STATUS_CONFIG: Record<TaskStatus, { label: string; cardBorder: string; ico
   'pending':     { label: 'Pending',     cardBorder: 'border-ink/[0.08]',         iconColor: 'text-ink/35'        },
   'in-progress': { label: 'In Progress', cardBorder: 'border-[#93b4f0]/60',       iconColor: 'text-[#5b8dee]'     },
   'completed':   { label: 'Completed',   cardBorder: 'border-success-text/25',    iconColor: 'text-success-text'  },
+  'cancelled':   { label: 'Cancelled',   cardBorder: 'border-danger-text/25',     iconColor: 'text-danger-text'   },
 };
 
 const SUMMARY_CARDS: { status: TaskStatus; label: string; icon: React.ReactNode; countColor: string }[] = [
@@ -889,10 +884,11 @@ const TasksTab = ({ staffId, staffName }: TasksTabProps) => {
     }
   };
 
-  const counts = {
+  const counts: Record<TaskStatus, number> = {
     pending: tasks.filter((t) => t.status === 'pending').length,
     'in-progress': tasks.filter((t) => t.status === 'in-progress').length,
     completed: tasks.filter((t) => t.status === 'completed').length,
+    cancelled: tasks.filter((t) => t.status === 'cancelled').length,
   };
 
   const groups: TaskStatus[] = ['pending', 'in-progress', 'completed'];
@@ -1107,12 +1103,6 @@ const TasksTab = ({ staffId, staffName }: TasksTabProps) => {
 // ─── Purchases tab ────────────────────────────────────────────────────────────
 
 type DeductionStatus = 'Pending' | 'Deducted' | 'Waived';
-
-const DEDUCTION_BADGE: Record<DeductionStatus, string> = {
-  Pending:  'bg-warning-bg text-warning-text',
-  Deducted: 'bg-success-bg text-success-text',
-  Waived:   'bg-ink/[0.08] text-ink/50',
-};
 
 interface PurchasesTabProps {
   staffId: string;

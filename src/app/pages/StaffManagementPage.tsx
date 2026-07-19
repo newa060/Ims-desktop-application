@@ -130,16 +130,6 @@ const DOT_STYLES: Record<string, string> = {
   Late:       'bg-warning-text',
 };
 
-const AttendanceBadge = ({ status }: { status: string }) => {
-  const style = BADGE_STYLES[status] || 'bg-ink/10 text-ink/60';
-  const dot   = DOT_STYLES[status]   || 'bg-ink/40';
-  return (
-    <span className={`inline-flex items-center gap-1.5 text-[11.5px] font-semibold px-2.5 py-1 rounded-full ${style}`}>
-      <span className={`w-1.5 h-1.5 rounded-full flex-none ${dot}`} />
-      {status}
-    </span>
-  );
-};
 
 // ─── Attendance Toggle (interactive badge + portal dropdown) ─────────────────
 
@@ -203,7 +193,6 @@ const AttendanceToggle = ({ memberId, currentStatus, onStatusChange }: Attendanc
       <div className="py-1">
         {ATTENDANCE_OPTIONS.map((option) => {
           const isActive = option === currentStatus;
-          const bg   = BADGE_STYLES[option] || 'bg-ink/[0.06] text-ink/55';
           const dot  = DOT_STYLES[option]   || 'bg-ink/40';
 
           return (
@@ -610,7 +599,7 @@ const StaffManagementPage = () => {
         setStaff((prev) =>
           prev.map((m) =>
             m.id === pendingAttendance.memberId
-              ? { ...m, currentAttendanceStatus: pendingAttendance.newStatus }
+              ? { ...m, currentAttendanceStatus: pendingAttendance.newStatus as any }
               : m
           )
         );

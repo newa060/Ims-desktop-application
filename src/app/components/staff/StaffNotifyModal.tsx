@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Bell, Loader2, X, Search } from 'lucide-react';
 import { toast } from 'sonner';
-import type { StaffMember } from '../../types';
+import type { StaffMember } from '../../../types';
 
 export interface StaffNotifyModalProps {
   open: boolean;
@@ -145,7 +145,9 @@ export default function StaffNotifyModal({
         toast.error(res.error || 'Failed to send notification');
         return;
       }
-      const { sent, skipped, failed } = res.data;
+      const sent = res.data?.sent ?? 0;
+      const skipped = res.data?.skipped ?? 0;
+      const failed = res.data?.failed ?? 0;
       toast.success(
         `Sent to ${sent} · skipped ${skipped} (no device) · failed ${failed}`
       );
