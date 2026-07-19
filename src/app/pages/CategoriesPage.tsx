@@ -114,7 +114,6 @@ const CategoriesPage = () => {
                   <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
                     <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">#</th>
                     <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Name</th>
-                    <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Parent</th>
                     <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Description</th>
                     <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Actions</th>
                   </tr>
@@ -142,20 +141,6 @@ const CategoriesPage = () => {
                 <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
               </div>
               <div className="space-y-1">
-                <Label>Parent Category</Label>
-                <Select value={formData.parentId} onValueChange={(val) => setFormData({ ...formData, parentId: val })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="None (Root Category)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">None (Root Category)</SelectItem>
-                    {categories.filter((c) => c.id !== editId).map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1">
                 <Label>Description</Label>
                 <Textarea rows={3} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
               </div>
@@ -180,7 +165,6 @@ const RenderCategoryRow = ({ cat, idx, categories, onEdit, onDelete, level }: an
         <td className="py-3.5 px-4" style={{ paddingLeft: `${level * 1.5 + 1}rem` }}>
           <span className="text-sm font-semibold text-ink">{cat.name}</span>
         </td>
-        <td className="py-3.5 px-4 text-sm text-ink/55">{cat.parent?.name || '-'}</td>
         <td className="py-3.5 px-4 text-sm text-ink/55">{cat.description || '-'}</td>
         <td className="py-3.5 px-4">
           <div className="flex justify-center gap-1">

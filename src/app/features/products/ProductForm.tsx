@@ -246,10 +246,7 @@ const ProductForm = ({ open, onClose, onSuccess, product }: Props) => {
             {!isEdit && (
               <div className="col-span-2 space-y-1">
                 <Label>Default SKU *</Label>
-                <div className="flex gap-2">
-                  <Input placeholder="e.g. SHIRT-001" {...register('sku')} />
-                  <Button type="button" variant="outline" onClick={autoSKU} className="shrink-0">Auto</Button>
-                </div>
+                <Input placeholder="e.g. SHIRT-001" {...register('sku')} />
                 {errors.sku && <p className="text-xs text-danger-text">{errors.sku.message}</p>}
               </div>
             )}
@@ -300,13 +297,6 @@ const ProductForm = ({ open, onClose, onSuccess, product }: Props) => {
                   <SelectItem value="discontinued">Discontinued</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-
-            {/* Purchase Price */}
-            <div className="space-y-1">
-              <Label>Purchase Price</Label>
-              <Input type="number" step="0.01" placeholder="0.00" {...register('purchasePrice')} />
-              {errors.purchasePrice && <p className="text-xs text-danger-text">{errors.purchasePrice.message}</p>}
             </div>
 
             {/* Selling Price */}

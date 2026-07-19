@@ -93,7 +93,6 @@ const UnitsPage = () => {
                     <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">#</th>
                     <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Unit Name</th>
                     <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Short Name</th>
-                    <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Products</th>
                     <th className="text-center py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Actions</th>
                   </tr>
                 </thead>
@@ -103,7 +102,6 @@ const UnitsPage = () => {
                       <td className="py-3.5 px-4 text-sm text-ink/40">{i + 1}</td>
                       <td className="py-3.5 px-4 text-sm font-semibold text-ink">{unit.name}</td>
                       <td className="py-3.5 px-4 text-sm text-ink/60 font-mono">{unit.shortName}</td>
-                      <td className="py-3.5 px-4 text-sm text-ink/55">{unit._count?.products ?? (unit.products?.length ?? 0)}</td>
                       <td className="py-3.5 px-4">
                         <div className="flex justify-center gap-1">
                           <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(unit)}>
