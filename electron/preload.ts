@@ -7,13 +7,34 @@ contextBridge.exposeInMainWorld('electron', {
   getCurrentUser: () => ipcRenderer.invoke('auth:getCurrentUser'),
   setCurrentUser: (user: any) => ipcRenderer.invoke('auth:setCurrentUser', user),
 
-  // Products
+  // Products (legacy — still used by ProductForm for backward compat)
   getProducts: (params: any) => ipcRenderer.invoke('products:getAll', params),
   getProductById: (id: string) => ipcRenderer.invoke('products:getById', id),
   createProduct: (data: any) => ipcRenderer.invoke('products:create', data),
   updateProduct: (id: string, data: any) => ipcRenderer.invoke('products:update', id, data),
   deleteProduct: (id: string) => ipcRenderer.invoke('products:delete', id),
   searchProductByBarcode: (barcode: string) => ipcRenderer.invoke('products:searchByBarcode', barcode),
+
+  // Parent products (product_variant_flat)
+  getParentProducts: (params: any) => ipcRenderer.invoke('parents:getAll', params),
+  getParentById: (id: string) => ipcRenderer.invoke('parents:getById', id),
+  createParentProduct: (data: any) => ipcRenderer.invoke('parents:create', data),
+  updateParentProduct: (id: string, data: any) => ipcRenderer.invoke('parents:update', id, data),
+  deleteParentProduct: (id: string) => ipcRenderer.invoke('parents:delete', id),
+
+  // Product Variants (product_variant — desktop primary interface)
+  getVariants: (params: any) => ipcRenderer.invoke('variants:getAll', params),
+  getVariantsByProduct: (productFlatId: string) => ipcRenderer.invoke('variants:getByProduct', productFlatId),
+  getVariantsByProductIds: (ids: string[]) => ipcRenderer.invoke('variants:getByProductIds', ids),
+  getVariantById: (id: string) => ipcRenderer.invoke('variants:getById', id),
+  createVariant: (data: any) => ipcRenderer.invoke('variants:create', data),
+  updateVariant: (id: string, data: any) => ipcRenderer.invoke('variants:update', id, data),
+  deleteVariant: (id: string) => ipcRenderer.invoke('variants:delete', id),
+  searchVariantByBarcode: (barcode: string) => ipcRenderer.invoke('variants:searchByBarcode', barcode),
+  searchVariantBySKU: (sku: string) => ipcRenderer.invoke('variants:searchBySKU', sku),
+  searchVariants: (query: string, limit?: number) => ipcRenderer.invoke('variants:search', query, limit),
+  getVariantsLowStock: () => ipcRenderer.invoke('variants:getLowStock'),
+  getVariantsOutOfStock: (params: any) => ipcRenderer.invoke('variants:getOutOfStock', params),
 
   // Sales
   getSales: (params: any) => ipcRenderer.invoke('sales:getAll', params),
@@ -26,12 +47,14 @@ contextBridge.exposeInMainWorld('electron', {
   createPurchase: (data: any) => ipcRenderer.invoke('purchases:create', data),
   recordPurchasePayment: (data: any) => ipcRenderer.invoke('purchases:recordPayment', data),
   getPurchaseReturns: (purchaseId: string) => ipcRenderer.invoke('purchases:getReturns', purchaseId),
+  getPurchaseReturnsBatch: (purchaseIds: string[]) => ipcRenderer.invoke('purchases:getReturnsBatch', purchaseIds),
   createPurchaseReturn: (data: any) => ipcRenderer.invoke('purchases:createReturn', data),
+  createPurchaseRefundOrExchange: (data: any) => ipcRenderer.invoke('purchases:createRefundOrExchange', data),
 
   // Inventory
   getInventoryHistory: (params: any) => ipcRenderer.invoke('inventory:getHistory', params),
   adjustInventory: (data: any) => ipcRenderer.invoke('inventory:adjust', data),
-  getLowStock: () => ipcRenderer.invoke('inventory:getLowStock'),
+  getLowStock: (params?: any) => ipcRenderer.invoke('inventory:getLowStock', params),
 
   // Expenses
   getExpenses: (params: any) => ipcRenderer.invoke('expenses:getAll', params),

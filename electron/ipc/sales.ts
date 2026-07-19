@@ -23,6 +23,8 @@ export const setupSaleHandlers = () => {
     }
   });
 
+  // Uses create_sale_v2 which deducts from product_variants.stock.
+  // Each item in data.items MUST include variantId.
   ipcMain.handle('sales:create', async (_event, data) => {
     try {
       const sale = await SaleService.createSale(data);

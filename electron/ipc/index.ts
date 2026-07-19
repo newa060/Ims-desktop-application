@@ -1,5 +1,6 @@
 import { setupAuthHandlers } from './auth';
 import { setupProductHandlers } from './products';
+import { setupVariantHandlers } from './variants';
 import { setupSaleHandlers } from './sales';
 import { setupDashboardHandlers } from './dashboard';
 import { setupCategoryHandlers } from './categories';
@@ -22,6 +23,7 @@ export const setupIpcHandlers = () => {
   try {
     setupAuthHandlers();
     setupProductHandlers();
+    setupVariantHandlers();
     setupSaleHandlers();
     setupDashboardHandlers();
     setupCategoryHandlers();

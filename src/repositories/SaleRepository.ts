@@ -2,11 +2,27 @@ import { BaseRepository } from './BaseRepository';
 import { Sale, PaginationParams, PaginatedResponse } from '../types';
 
 const SALE_SELECT =
-  '*, customer:customers(*), user:users(*), items:sale_items(*, product:products(*))';
+  '*, customer:customers(*), user:users(*), ' +
+  'items:sale_items(*, ' +
+  '  variant:product_variant(sku, variant_name, color, size, ' +
+  '    parent:product_variant_flat(name, purchase_price, selling_price)' +
+  '  )' +
+  ')';
 
 export class SaleRepository extends BaseRepository<Sale> {
   protected getTableName(): string {
     return 'sales';
+  }
+
+  async findById(id: string): Promise<Sale | null> {
+    const { data, error } = await this.supabase
+      .from(this.getTableName())
+      .select(SALE_SELECT)
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data as unknown as Sale | null;
   }
 
   async findAllWithPagination(
@@ -30,7 +46,7 @@ export class SaleRepository extends BaseRepository<Sale> {
 
     if (error) throw error;
 
-    return this.toPaginatedResponse(data as Sale[], count || 0, page, limit);
+    return this.toPaginatedResponse(data as unknown as Sale[], count || 0, page, limit);
   }
 
   async findBySaleNumber(saleNumber: string): Promise<Sale | null> {
@@ -41,7 +57,7 @@ export class SaleRepository extends BaseRepository<Sale> {
       .maybeSingle();
 
     if (error) throw error;
-    return data as Sale | null;
+    return data as unknown as Sale | null;
   }
 
   async getTodaySales(): Promise<number> {
@@ -78,9 +94,7 @@ export class SaleRepository extends BaseRepository<Sale> {
   async getSalesReport(startDate: Date, endDate: Date): Promise<any[]> {
     const { data, error } = await this.supabase
       .from(this.getTableName())
-      .select(
-        '*, customer:customers(*), items:sale_items(*, product:products(*))'
-      )
+      .select(SALE_SELECT)
       .is('deletedAt', null)
       .gte('saleDate', startDate.toISOString())
       .lte('saleDate', endDate.toISOString());

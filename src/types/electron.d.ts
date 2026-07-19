@@ -5,13 +5,34 @@ export interface ElectronAPI {
   getCurrentUser: () => Promise<any>;
   setCurrentUser: (user: any) => Promise<any>;
 
-  // Products
+  // Products (legacy — still used for backward compat)
   getProducts: (params: any) => Promise<any>;
   getProductById: (id: string) => Promise<any>;
   createProduct: (data: any) => Promise<any>;
   updateProduct: (id: string, data: any) => Promise<any>;
   deleteProduct: (id: string) => Promise<any>;
   searchProductByBarcode: (barcode: string) => Promise<any>;
+
+  // Parent products (product_variant_flat)
+  getParentProducts: (params: any) => Promise<any>;
+  getParentById: (id: string) => Promise<any>;
+  createParentProduct: (data: any) => Promise<any>;
+  updateParentProduct: (id: string, data: any) => Promise<any>;
+  deleteParentProduct: (id: string) => Promise<any>;
+
+  // Product Variants (product_variant — desktop primary interface)
+  getVariants: (params: any) => Promise<any>;
+  getVariantsByProduct: (productFlatId: string) => Promise<any>;
+  getVariantsByProductIds: (ids: string[]) => Promise<any>;
+  getVariantById: (id: string) => Promise<any>;
+  createVariant: (data: any) => Promise<any>;
+  updateVariant: (id: string, data: any) => Promise<any>;
+  deleteVariant: (id: string) => Promise<any>;
+  searchVariantByBarcode: (barcode: string) => Promise<any>;
+  searchVariantBySKU: (sku: string) => Promise<any>;
+  searchVariants: (query: string, limit?: number) => Promise<any>;
+  getVariantsLowStock: () => Promise<any>;
+  getVariantsOutOfStock: (params: any) => Promise<any>;
 
   // Sales
   getSales: (params: any) => Promise<any>;
@@ -24,12 +45,14 @@ export interface ElectronAPI {
   createPurchase: (data: any) => Promise<any>;
   recordPurchasePayment: (data: { purchaseId: string; amount: number }) => Promise<any>;
   getPurchaseReturns: (purchaseId: string) => Promise<any>;
+  getPurchaseReturnsBatch: (purchaseIds: string[]) => Promise<any>;
   createPurchaseReturn: (data: any) => Promise<any>;
+  createPurchaseRefundOrExchange: (data: any) => Promise<any>;
 
   // Inventory
   getInventoryHistory: (params: any) => Promise<any>;
   adjustInventory: (data: any) => Promise<any>;
-  getLowStock: () => Promise<any>;
+  getLowStock: (params?: any) => Promise<any>;
 
   // Expenses
   getExpenses: (params: any) => Promise<any>;

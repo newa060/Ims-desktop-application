@@ -142,14 +142,39 @@ const SalesPage = () => {
                     <th className="text-right py-2 px-4">Total</th>
                   </tr></thead>
                   <tbody>
-                    {(detailSale.items || []).map((item: any) => (
-                      <tr key={item.id} className="border-b">
-                        <td className="py-2 px-4">{item.product?.name}</td>
-                        <td className="py-2 px-4 text-center">{item.quantity}</td>
-                        <td className="py-2 px-4 text-right">{formatCurrency(item.unitPrice)}</td>
-                        <td className="py-2 px-4 text-right">{formatCurrency(item.totalAmount)}</td>
+                    {(detailSale.items || []).length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="py-6 px-4 text-center text-ink/45 text-sm">
+                          No line items found for this sale
+                        </td>
                       </tr>
-                    ))}
+                    ) : (
+                      (detailSale.items || []).map((item: any) => {
+                        const v = item.variant;
+                        const parentName =
+                          v?.parent?.name ??
+                          v?.product?.name ??
+                          item.product?.name ??
+                          '—';
+                        const variantName = v?.variant_name ?? v?.variantName;
+                        const variantSuffix =
+                          variantName && variantName !== 'Default' ? ` – ${variantName}` : '';
+                        const colorSize = [v?.color, v?.size].filter(Boolean).join(' / ');
+                        const sku = v?.sku ?? item.sku;
+                        return (
+                          <tr key={item.id} className="border-b">
+                            <td className="py-2 px-4">
+                              <div className="font-medium">{parentName}{variantSuffix}</div>
+                              {colorSize && <div className="text-xs text-ink/45">{colorSize}</div>}
+                              {sku && <div className="text-xs text-ink/35 font-mono">{sku}</div>}
+                            </td>
+                            <td className="py-2 px-4 text-center">{item.quantity}</td>
+                            <td className="py-2 px-4 text-right">{formatCurrency(item.unitPrice)}</td>
+                            <td className="py-2 px-4 text-right">{formatCurrency(item.totalAmount)}</td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>

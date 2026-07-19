@@ -3,15 +3,19 @@ import { Sale, PaginationParams } from '../types';
 import logger from '../utils/logger';
 import supabase from '../database/supabaseClient';
 
+interface CreateSaleItem {
+  productId: string;
+  /** Required — references the specific variant being sold */
+  variantId: string;
+  quantity: number;
+  unitPrice: number;
+  taxRate: number;
+  discountAmount: number;
+}
+
 interface CreateSaleData {
   customerId?: string;
-  items: Array<{
-    productId: string;
-    quantity: number;
-    unitPrice: number;
-    taxRate: number;
-    discountAmount: number;
-  }>;
+  items: CreateSaleItem[];
   paymentMethod: string;
   paidAmount: number;
   discountAmount?: number;
@@ -40,13 +44,10 @@ export class SaleService {
 
   async createSale(data: CreateSaleData): Promise<Sale> {
     try {
-      // Sale creation, stock decrement, and inventory history must happen
-      // atomically. Supabase's REST layer has no client-side transactions,
-      // so this is done in a single Postgres function (see create_sale in
-      // the Supabase SQL schema) that rolls back entirely on any failure
-      // (e.g. insufficient stock).
+      // create_sale_v2 deducts stock from product_variants and writes
+      // variant_id into sale_items + inventory_history — all atomically.
       const { data: sale, error } = await supabase
-        .rpc('create_sale', { payload: data })
+        .rpc('create_sale_v2', { payload: data })
         .single();
 
       if (error) throw new Error(error.message);

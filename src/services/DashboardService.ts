@@ -1,4 +1,3 @@
-import ProductRepository from '../repositories/ProductRepository';
 import SaleRepository from '../repositories/SaleRepository';
 import PurchaseRepository from '../repositories/PurchaseRepository';
 import { DashboardStats } from '../types';
@@ -15,13 +14,54 @@ const countActive = async (table: string): Promise<number> => {
   return count || 0;
 };
 
-// Count all non-archived products so the Total Products KPI reflects the
-// live catalog (Active + Draft) but excludes anything soft-deleted from the IMS.
+// Count distinct parent products for the Total Products KPI.
 const countAllProducts = async (): Promise<number> => {
   const { count, error } = await supabase
-    .from('products')
+    .from('product_variant_flat')
     .select('*', { count: 'exact', head: true })
     .neq('status', 'Archived');
+
+  if (error) throw error;
+  return count || 0;
+};
+
+// Low stock = variants with 0 < stock <= minimum_stock
+// Uses pagination to handle catalogs > 1000 variants (Supabase 1000-row limit)
+const countLowStockVariants = async (): Promise<number> => {
+  const PAGE_SIZE = 1000;
+  let count = 0;
+  let page = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from('product_variant')
+      .select('stock, minimum_stock')
+      .gt('minimum_stock', 0)   // only variants with a minimum set
+      .gt('stock', 0)            // exclude out-of-stock (counted separately)
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+    if (error) throw error;
+    const rows = data || [];
+
+    for (const v of rows) {
+      const stock = Number(v.stock);
+      const min   = Number(v.minimum_stock);
+      if (stock > 0 && stock <= min) count++;
+    }
+
+    if (rows.length < PAGE_SIZE) break;
+    page++;
+  }
+
+  return count;
+};
+
+// Out of stock = variants with stock === 0
+const countOutOfStockVariants = async (): Promise<number> => {
+  const { count, error } = await supabase
+    .from('product_variant')
+    .select('*', { count: 'exact', head: true })
+    .eq('stock', 0);
 
   if (error) throw error;
   return count || 0;
@@ -46,8 +86,8 @@ export class DashboardService {
         totalSuppliers,
       ] = await Promise.all([
         countAllProducts(),
-        ProductRepository.getLowStockProducts().then((p) => p.length),
-        ProductRepository.getOutOfStockProducts().then((p) => p.length),
+        countLowStockVariants(),
+        countOutOfStockVariants(),
         SaleRepository.getTodaySales(),
         PurchaseRepository.getTodayPurchases(),
         SaleRepository.getMonthlySales(currentYear, currentMonth),
@@ -140,7 +180,7 @@ export class DashboardService {
 
   async getTopProducts(limit: number = 5) {
     try {
-      const { data, error } = await supabase.rpc('get_top_products', {
+      const { data, error } = await supabase.rpc('get_top_products_v2', {
         limit_count: limit,
       });
 

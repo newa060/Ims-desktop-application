@@ -1,3 +1,11 @@
+// ============================================================================
+// Core domain types for the IMS desktop app.
+//
+// Architecture after refactor:
+//   product_variant_flat  — one row per PARENT product (website / pricing)
+//   product_variant       — one row per sellable VARIANT (desktop / stock)
+// ============================================================================
+
 export interface User {
   id: string;
   email: string;
@@ -34,29 +42,70 @@ export interface Permission {
   canDelete: boolean;
 }
 
-export interface Product {
-  id: string;
+// ── Parent product (product_variant_flat table) ──────────────────────────────
+
+/** Mirrors the product_variant_flat table.  No stock lives here. */
+export interface ParentProduct {
+  id: string;              // text PK — same as public.products.id
   name: string;
-  sku: string;
-  barcode?: string;
+  slug?: string;
   description?: string;
-  categoryId: string;
-  category?: Category;
-  brandId?: string;
-  brand?: Brand;
-  unitId: string;
-  unit?: Unit;
+  category?: string;
+  brand?: string;
+  baseUnit?: string;
+  altUnit?: string;
+  cFactor?: number;
   purchasePrice: number;
   sellingPrice: number;
   wholesalePrice?: number;
   taxRate: number;
-  minimumStock: number;
-  currentStock: number;
+  image?: string;
+  images?: string[];
+  sizes?: string[];
   status: string;
-  images?: ProductImage[];
+  totalStock?: number;     // Sum of variant stocks
   variants?: ProductVariant[];
   createdAt: Date;
   updatedAt: Date;
+}
+
+// ── Variant (product_variant table) ─────────────────────────────────────────
+
+/** Mirrors the product_variant table.  Stock lives here only. */
+export interface ProductVariant {
+  id: string;              // uuid
+  productFlatId: string;   // FK → product_variant_flat.id
+  variantName: string;     // e.g. "Black / M"
+  sku: string;
+  barcode?: string;
+  color?: string;
+  size?: string;
+  stock: number;
+  minimumStock: number;
+  image?: string;
+  status: string;
+  // Denormalised from parent (filled by repository join)
+  purchasePrice?: number;
+  sellingPrice?: number;
+  wholesalePrice?: number;
+  taxRate?: number;
+  productName?: string;
+  parent?: ParentProduct;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ── Legacy alias (keeps old code that references Product compiling) ──────────
+
+/** @deprecated Use ParentProduct instead */
+export interface Product extends ParentProduct {
+  sku: string;             // first variant SKU, kept for compat
+  barcode?: string;
+  categoryId: string;
+  brandId?: string;
+  unitId: string;
+  minimumStock: number;
+  currentStock: number;
 }
 
 export interface ProductImage {
@@ -65,19 +114,6 @@ export interface ProductImage {
   imageUrl: string;
   isPrimary: boolean;
   sortOrder: number;
-}
-
-export interface ProductVariant {
-  id: string;
-  productId: string;
-  name: string;
-  sku: string;
-  barcode?: string;
-  purchasePrice: number;
-  sellingPrice: number;
-  wholesalePrice?: number;
-  currentStock: number;
-  attributes: string;
 }
 
 export interface Category {
@@ -169,8 +205,10 @@ export interface Purchase {
 export interface PurchaseItem {
   id: string;
   purchaseId: string;
-  productId: string;
-  product?: Product;
+  productId: string;        // product_variant_flat.id
+  product?: ParentProduct;
+  variantId?: string;       // product_variant.id
+  variant?: ProductVariant;
   quantity: number;
   unitPrice: number;
   taxRate: number;
@@ -205,8 +243,10 @@ export interface Sale {
 export interface SaleItem {
   id: string;
   saleId: string;
-  productId: string;
-  product?: Product;
+  productId: string;        // product_variant_flat.id
+  product?: ParentProduct;
+  variantId?: string;       // product_variant.id
+  variant?: ProductVariant;
   quantity: number;
   unitPrice: number;
   taxRate: number;
@@ -242,7 +282,9 @@ export interface ExpenseCategory {
 export interface InventoryHistory {
   id: string;
   productId: string;
-  product?: Product;
+  product?: ParentProduct;
+  variantId?: string;
+  variant?: ProductVariant;
   type: string;
   quantityChange: number;
   quantityBefore: number;
@@ -256,7 +298,9 @@ export interface InventoryHistory {
 export interface StockAdjustment {
   id: string;
   productId: string;
-  product?: Product;
+  product?: ParentProduct;
+  variantId?: string;
+  variant?: ProductVariant;
   type: string;
   quantity: number;
   reason: string;
@@ -337,17 +381,18 @@ export interface RecentTransaction {
   status: string;
 }
 
-// Form Types
+// ── Form data ────────────────────────────────────────────────────────────────
+
 export interface LoginFormData {
   email: string;
   password: string;
   rememberMe?: boolean;
 }
 
-export interface ProductFormData {
+/** Form for creating/editing the parent product (product_variant_flat) */
+export interface ParentProductFormData {
   name: string;
-  sku: string;
-  barcode?: string;
+  slug?: string;
   description?: string;
   categoryId: string;
   brandId?: string;
@@ -356,9 +401,41 @@ export interface ProductFormData {
   sellingPrice: number;
   wholesalePrice?: number;
   taxRate: number;
+  status: string;
+}
+
+/** @deprecated Use ParentProductFormData */
+export interface ProductFormData extends ParentProductFormData {
+  sku: string;
+  barcode?: string;
   minimumStock: number;
   currentStock: number;
+}
+
+/** Form for creating/editing a variant (product_variant) */
+export interface ProductVariantFormData {
+  productFlatId: string;
+  variantName: string;
+  sku: string;
+  barcode?: string;
+  color?: string;
+  size?: string;
+  stock: number;
+  minimumStock: number;
+  image?: string;
   status: string;
+}
+
+/** POS cart item — must carry both productFlatId and variantId */
+export interface PosCartItem {
+  productFlatId: string;
+  variantId: string;
+  name: string;
+  sku: string;
+  unitPrice: number;
+  quantity: number;
+  taxRate: number;
+  discountAmount: number;
 }
 
 export interface PaginationParams {
