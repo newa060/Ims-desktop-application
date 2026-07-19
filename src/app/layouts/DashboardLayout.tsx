@@ -4,11 +4,7 @@ import Logo from '../components/common/Logo';
 import {
   LayoutDashboard, Package, Tag, Award, Ruler, ShoppingCart,
   TrendingUp, ShoppingBag, Users, Truck, BarChart2, DollarSign,
-<<<<<<< HEAD
-  FileText, UserCheck, Settings, BadgeCheck,
-=======
-  FileText, UserCheck, Settings, Hash,
->>>>>>> 1039a439d8c8283c86cd3afef9cac67118045c5f
+  FileText, UserCheck, Settings, BadgeCheck, Hash,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
