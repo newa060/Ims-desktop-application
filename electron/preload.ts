@@ -47,6 +47,12 @@ contextBridge.exposeInMainWorld('electron', {
   updateUser: (id: string, data: any) => ipcRenderer.invoke('users:update', id, data),
   deleteUser: (id: string) => ipcRenderer.invoke('users:delete', id),
   getRoles: () => ipcRenderer.invoke('roles:getAll'),
+  createStaffUserAccount: (params: any) => ipcRenderer.invoke('staff:createUserAccount', params),
+  inspectStaffSchema: () => ipcRenderer.invoke('staff:inspectSchema'),
+  uploadToCloudinary: (params: { filePath: string; folder: string; publicId?: string }) =>
+    ipcRenderer.invoke('staff:uploadToCloudinary', params),
+  uploadToCloudinaryBase64: (params: { base64: string; fileName: string; folder: string; publicId?: string }) =>
+    ipcRenderer.invoke('staff:uploadToCloudinaryBase64', params),
 
   // Dashboard
   getDashboardStats: () => ipcRenderer.invoke('dashboard:getStats'),
@@ -101,6 +107,40 @@ contextBridge.exposeInMainWorld('electron', {
   // Settings
   getSettings: () => ipcRenderer.invoke('settings:getAll'),
   updateSetting: (key: string, value: string) => ipcRenderer.invoke('settings:update', key, value),
+
+  // Staff Management
+  getStaff: (params: any) => ipcRenderer.invoke('staff:getAll', params),
+  getStaffById: (id: string) => ipcRenderer.invoke('staff:getById', id),
+  getStaffStats: () => ipcRenderer.invoke('staff:getStats'),
+  getStaffPresentToday: () => ipcRenderer.invoke('staff:getPresentToday'),
+  getStaffOnLeave: () => ipcRenderer.invoke('staff:getOnLeave'),
+  getStaffAllPendingTasks: () => ipcRenderer.invoke('staff:getAllPendingTasks'),
+  createStaff: (data: any) => ipcRenderer.invoke('staff:create', data),
+  updateStaff: (id: string, data: any) => ipcRenderer.invoke('staff:update', id, data),
+  deleteStaff: (id: string) => ipcRenderer.invoke('staff:delete', id),
+  hardDeleteStaff: (staffId: string, portalUserId?: string) => ipcRenderer.invoke('staff:hardDelete', staffId, portalUserId),
+  getStaffAttendance: (staffId: string, year: number, month: number) => ipcRenderer.invoke('staff:getAttendance', staffId, year, month),
+  recordStaffAttendance: (data: any) => ipcRenderer.invoke('staff:recordAttendance', data),
+  getStaffTasks: (staffId: string) => ipcRenderer.invoke('staff:getTasks', staffId),
+  createStaffTask: (data: any) => ipcRenderer.invoke('staff:createTask', data),
+  updateStaffTaskStatus: (taskId: string, status: string) => ipcRenderer.invoke('staff:updateTaskStatus', taskId, status),
+  deleteStaffTask: (taskId: string) => ipcRenderer.invoke('staff:deleteTask', taskId),
+  getStaffPurchases: (staffId: string, params?: any) => ipcRenderer.invoke('staff:getPurchases', staffId, params),
+  recordStaffPurchase: (data: any) => ipcRenderer.invoke('staff:recordPurchase', data),
+  updateStaffPurchaseStatus: (purchaseId: string, status: string, paymentMethod?: string) => ipcRenderer.invoke('staff:updatePurchaseStatus', purchaseId, status, paymentMethod),
+  getStaffSalaryHistory: (staffId: string) => ipcRenderer.invoke('staff:getSalaryHistory', staffId),
+  getStaffSalaryForPeriod: (staffId: string, year: number, month: number) => ipcRenderer.invoke('staff:getSalaryForPeriod', staffId, year, month),
+  processStaffSalary: (staffId: string, year: number, month: number, bonus?: number, deductions?: number, notes?: string) => ipcRenderer.invoke('staff:processSalary', staffId, year, month, bonus, deductions, notes),
+  getStaffPayslips: (staffId: string) => ipcRenderer.invoke('staff:getPayslips', staffId),
+  generateStaffPayslip: (staffId: string, salaryRecordId: string, generatedByUserId?: string) => ipcRenderer.invoke('staff:generatePayslip', staffId, salaryRecordId, generatedByUserId),
+  getStaffPushCapableIds: () => ipcRenderer.invoke('staff:getPushCapableIds'),
+  sendStaffNotification: (data: {
+    title: string;
+    body: string;
+    recipientMode: 'all' | 'selected';
+    staffIds?: string[];
+    sentByUserId?: string;
+  }) => ipcRenderer.invoke('staff:sendNotification', data),
 
   // Notifications
   onNotification: (callback: (notification: any) => void) => {

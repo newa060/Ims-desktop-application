@@ -45,6 +45,10 @@ export interface ElectronAPI {
   updateUser: (id: string, data: any) => Promise<any>;
   deleteUser: (id: string) => Promise<any>;
   getRoles: () => Promise<any>;
+  createStaffUserAccount: (params: any) => Promise<any>;
+  inspectStaffSchema: () => Promise<any>;
+  uploadToCloudinary: (params: { filePath: string; folder: string; publicId?: string }) => Promise<{ success: boolean; url?: string; publicId?: string; error?: string }>;
+  uploadToCloudinaryBase64: (params: { base64: string; fileName: string; folder: string; publicId?: string }) => Promise<{ success: boolean; url?: string; publicId?: string; error?: string }>;
 
   // Dashboard
   getDashboardStats: () => Promise<any>;
@@ -99,6 +103,44 @@ export interface ElectronAPI {
   // Settings
   getSettings: () => Promise<any>;
   updateSetting: (key: string, value: string) => Promise<any>;
+
+  // Staff Management
+  getStaff: (params: any) => Promise<any>;
+  getStaffById: (id: string) => Promise<any>;
+  getStaffStats: () => Promise<any>;
+  getStaffPresentToday: () => Promise<any>;
+  getStaffOnLeave: () => Promise<any>;
+  getStaffAllPendingTasks: () => Promise<any>;
+  createStaff: (data: any) => Promise<any>;
+  updateStaff: (id: string, data: any) => Promise<any>;
+  deleteStaff: (id: string) => Promise<any>;
+  hardDeleteStaff: (staffId: string, portalUserId?: string) => Promise<any>;
+  getStaffAttendance: (staffId: string, year: number, month: number) => Promise<any>;
+  recordStaffAttendance: (data: any) => Promise<any>;
+  getStaffTasks: (staffId: string) => Promise<any>;
+  createStaffTask: (data: any) => Promise<any>;
+  updateStaffTaskStatus: (taskId: string, status: string) => Promise<any>;
+  deleteStaffTask: (taskId: string) => Promise<any>;
+  getStaffPurchases: (staffId: string, params?: any) => Promise<any>;
+  recordStaffPurchase: (data: any) => Promise<any>;
+  updateStaffPurchaseStatus: (purchaseId: string, status: string, paymentMethod?: string) => Promise<any>;
+  getStaffSalaryHistory: (staffId: string) => Promise<any>;
+  getStaffSalaryForPeriod: (staffId: string, year: number, month: number) => Promise<any>;
+  processStaffSalary: (staffId: string, year: number, month: number, bonus?: number, deductions?: number, notes?: string) => Promise<any>;
+  getStaffPayslips: (staffId: string) => Promise<any>;
+  generateStaffPayslip: (staffId: string, salaryRecordId: string, generatedByUserId?: string) => Promise<any>;
+  getStaffPushCapableIds: () => Promise<{ success: boolean; data?: string[]; error?: string }>;
+  sendStaffNotification: (data: {
+    title: string;
+    body: string;
+    recipientMode: 'all' | 'selected';
+    staffIds?: string[];
+    sentByUserId?: string;
+  }) => Promise<{
+    success: boolean;
+    data?: { notificationId: string; sent: number; skipped: number; failed: number };
+    error?: string;
+  }>;
 
   // Notifications
   onNotification: (callback: (notification: any) => void) => void;

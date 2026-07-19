@@ -57,6 +57,11 @@ export const ROUTES = {
   REPORTS_PROFIT: '/reports/profit',
   REPORTS_EXPENSES: '/reports/expenses',
   
+  // Staff Management
+  STAFF: '/staff',
+  STAFF_NEW: '/staff/new',
+  STAFF_PROFILE: '/staff/:id',
+
   // Users & Roles
   USERS: '/users',
   ROLES: '/roles',

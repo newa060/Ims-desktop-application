@@ -20,6 +20,9 @@ import ExpensesPage from './app/pages/ExpensesPage';
 import UsersPage from './app/pages/UsersPage';
 import ReportsPage from './app/pages/ReportsPage';
 import SettingsPage from './app/pages/SettingsPage';
+import StaffManagementPage from './app/pages/StaffManagementPage';
+import AddStaffPage from './app/pages/AddStaffPage';
+import StaffProfilePage from './app/pages/StaffProfilePage';
 import ErrorBoundary from './app/components/common/ErrorBoundary';
 import UpdateNotifier from './app/components/common/UpdateNotifier';
 import { Loader } from './app/components/common/Loader';
@@ -77,6 +80,10 @@ function AppContent() {
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/staff" element={<StaffManagementPage />} />
+                <Route path="/staff/new" element={<AddStaffPage />} />
+                <Route path="/staff/edit/:id" element={<AddStaffPage />} />
+                <Route path="/staff/:id" element={<StaffProfilePage />} />
               </Routes>
             </DashboardLayout>
           </PrivateRoute>

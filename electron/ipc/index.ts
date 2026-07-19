@@ -14,6 +14,8 @@ import { setupPurchaseHandlers } from './purchases';
 import { setupInventoryHandlers } from './inventory';
 import { setupExpenseHandlers } from './expenses';
 import { setupUserHandlers } from './users';
+import { setupStaffHandlers } from './staff';
+import { setupCloudinaryHandlers } from './cloudinary';
 import logger from '../../src/utils/logger';
 
 export const setupIpcHandlers = () => {
@@ -34,6 +36,8 @@ export const setupIpcHandlers = () => {
     setupInventoryHandlers();
     setupExpenseHandlers();
     setupUserHandlers();
+    setupStaffHandlers();
+    setupCloudinaryHandlers();
 
     logger.info('IPC handlers initialized');
   } catch (error) {

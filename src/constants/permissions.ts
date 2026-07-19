@@ -15,6 +15,7 @@ export const RESOURCES = {
   ROLES: 'roles',
   SETTINGS: 'settings',
   BACKUP: 'backup',
+  STAFF: 'staff',
 } as const;
 
 export const ACTIONS = {
