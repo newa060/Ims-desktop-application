@@ -11,17 +11,18 @@ import { Plus, Search, RefreshCw, Trash2, ChevronLeft, ChevronRight, Eye, Dollar
 import { toast } from 'sonner';
 import { useSettings } from '../contexts/SettingsContext';
 
+// Per-variant quantity selection within a purchase item
+interface VariantQty {
+  variantId: string;
+  qty: number;
+}
+
 interface PurchaseItem {
-  productId: string;         // product_variant_flat.id (FK)
-  variantId: string;         // product_variant.id — required by create_purchase_v2
-  selectedFlatId: string;    // UI-only: which parent product is selected in the first dropdown
+  selectedFlatId: string;      // parent product (product_variant_flat.id)
   productName: string;
-  quantity: number;
+  selectedVariants: VariantQty[];  // checked variants + their qtys
   unitPrice: number;
   taxRate: number;
-  isNew: boolean;
-  newName: string;
-  sellingPrice: number;
 }
 
 const PurchasesPage = () => {
@@ -77,36 +78,50 @@ const PurchasesPage = () => {
   }, []);
 
   const addItem = () => {
-    setItems([...items, { productId: '', variantId: '', selectedFlatId: '', productName: '', quantity: 1, unitPrice: 0, taxRate: 0, isNew: false, newName: '', sellingPrice: 0 }]);
+    setItems([...items, { selectedFlatId: '', productName: '', selectedVariants: [], unitPrice: 0, taxRate: 0 }]);
   };
 
-  const removeItem = (idx: number) => {
-    setItems(items.filter((_, i) => i !== idx));
-  };
+  const removeItem = (idx: number) => setItems(items.filter((_, i) => i !== idx));
 
-  const updateItem = (idx: number, field: keyof PurchaseItem, value: any) => {
-    const newItems = [...items];
+  const updateItemField = (idx: number, field: 'selectedFlatId' | 'unitPrice' | 'taxRate', value: any) => {
+    const next = [...items];
     if (field === 'selectedFlatId') {
-      // Parent product changed — reset variant selection
-      newItems[idx].selectedFlatId = value;
-      newItems[idx].variantId      = '';
-      newItems[idx].productId      = value;  // product_variant_flat.id
-      newItems[idx].productName    = '';
-    } else if (field === 'variantId') {
-      // Variant selected — auto-fill names
-      const v = variants.find((v) => v.id === value);
-      newItems[idx].variantId   = value;
-      newItems[idx].productId   = v?.productFlatId || newItems[idx].selectedFlatId;
-      newItems[idx].productName = v
-        ? `${v.parent?.name ?? v.productName ?? ''}${v.variantName && v.variantName !== 'Default' ? ` – ${v.variantName}` : ''}`
-        : '';
-    } else if (field === 'isNew') {
-      newItems[idx] = { ...newItems[idx], isNew: value, productId: '', variantId: '', selectedFlatId: '', productName: '', newName: '', sellingPrice: 0 };
+      const parentName = uniqueParents.find(p => p.id === value)?.name ?? '';
+      next[idx] = { ...next[idx], selectedFlatId: value, productName: parentName, selectedVariants: [] };
     } else {
-      newItems[idx] = { ...newItems[idx], [field]: value };
+      next[idx] = { ...next[idx], [field]: value };
     }
-    setItems(newItems);
+    setItems(next);
   };
+
+  const toggleVariant = (itemIdx: number, variantId: string) => {
+    const next = [...items];
+    const exists = next[itemIdx].selectedVariants.find(v => v.variantId === variantId);
+    if (exists) {
+      next[itemIdx].selectedVariants = next[itemIdx].selectedVariants.filter(v => v.variantId !== variantId);
+    } else {
+      next[itemIdx].selectedVariants = [...next[itemIdx].selectedVariants, { variantId, qty: 1 }];
+    }
+    setItems(next);
+  };
+
+  const updateVariantQty = (itemIdx: number, variantId: string, qty: number) => {
+    const next = [...items];
+    next[itemIdx].selectedVariants = next[itemIdx].selectedVariants.map(v =>
+      v.variantId === variantId ? { ...v, qty: Math.max(1, qty) } : v
+    );
+    setItems(next);
+  };
+
+  // Unique parent products derived from variants list (used in dropdowns)
+  const uniqueParents = Array.from(
+    new Map(
+      variants.map((v) => [
+        v.productFlatId || v.parent?.id,
+        { id: v.productFlatId || v.parent?.id, name: v.parent?.name ?? v.productName ?? '—' },
+      ])
+    ).values()
+  ).sort((a, b) => a.name.localeCompare(b.name));
 
   const viewDetail = async (id: string) => {
     try {
@@ -135,7 +150,6 @@ const PurchasesPage = () => {
           `Payment of ${formatCurrency(payAmount)} recorded. Status: ${res.data.newPaymentStatus}`
         );
         setPayDialogOpen(false);
-        // Refresh both the list and the open detail view
         loadPurchases(pagination.page);
         const updated = await window.electron.getPurchaseById(detailPurchase.id);
         if (updated.success) setDetailPurchase(updated.data);
@@ -151,82 +165,45 @@ const PurchasesPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!supplierId) {
-      toast.error('Please select a supplier');
-      return;
-    }
-    if (items.length === 0) {
-      toast.error('Please add at least one item');
-      return;
-    }
-
-    // Validate new product rows
+    if (!supplierId) { toast.error('Please select a supplier'); return; }
+    if (items.length === 0) { toast.error('Please add at least one item'); return; }
     for (const it of items) {
-      if (it.isNew && !it.newName.trim()) {
-        toast.error('Please enter a product name for all new items');
-        return;
-      }
-      if (!it.isNew && !it.variantId) {
-        toast.error('Please select a variant for all existing items');
-        return;
-      }
+      if (!it.selectedFlatId) { toast.error('Please select a product for all items'); return; }
+      if (it.selectedVariants.length === 0) { toast.error('Please select at least one variant for each item'); return; }
     }
 
     try {
-      // For each "new product" row, create the product + default variant first
-      const resolvedItems = await Promise.all(
-        items.map(async (it) => {
-          if (!it.isNew) return it;
-          // 1. Create parent product (product_variant_flat)
-          const newProd = await window.electron.createParentProduct({
-            name:          it.newName.trim(),
-            sellingPrice:  it.sellingPrice || it.unitPrice,
-            purchasePrice: it.unitPrice,
-            taxRate:       it.taxRate || 0,
-            status:        'inactive',
-          });
-          if (!newProd.success) throw new Error(`Failed to create product "${it.newName}"`);
-
-          // 2. Create default variant (product_variant)
-          const newVariant = await window.electron.createVariant({
-            productFlatId: newProd.data.id,   // correct FK
-            variantName:   'Default',
-            sku:           `SKU-${Date.now().toString(36).toUpperCase()}`,
-            stock:         0,
-            minimumStock:  0,
-            status:        'Active',
-          });
-          if (!newVariant.success) throw new Error(`Failed to create variant for "${it.newName}"`);
-
-          await loadVariantsList();
+      // Flatten items × variants into individual purchase line items
+      const lineItems = items.flatMap((it) =>
+        it.selectedVariants.map(({ variantId, qty }) => {
+          const taxAmount = qty * it.unitPrice * (it.taxRate / 100);
           return {
-            ...it,
-            productId:   newProd.data.id,     // product_variant_flat.id
-            variantId:   newVariant.data.id,
-            productName: newProd.data.name,
+            productId: it.selectedFlatId,
+            variantId,
+            quantity: qty,
+            unitPrice: it.unitPrice,
+            taxRate: it.taxRate,
+            taxAmount,
+            discountAmount: 0,
+            totalAmount: qty * it.unitPrice * (1 + it.taxRate / 100),
           };
         })
       );
+
+      const sub  = lineItems.reduce((s, l) => s + l.quantity * l.unitPrice, 0);
+      const tax  = lineItems.reduce((s, l) => s + l.taxAmount, 0);
+      const tot  = sub + tax;
 
       const payload = {
         supplierId,
         purchaseDate: new Date().toISOString(),
         status: 'received',
-        subtotal,
-        taxAmount: totalTax,
+        subtotal: sub,
+        taxAmount: tax,
         discountAmount: 0,
         shippingCost: 0,
-        totalAmount: total,
-        items: resolvedItems.map((it) => ({
-          productId: it.productId,
-          variantId: it.variantId,
-          quantity: it.quantity,
-          unitPrice: it.unitPrice,
-          taxRate: it.taxRate,
-          taxAmount: it.quantity * it.unitPrice * (it.taxRate / 100),
-          discountAmount: 0,
-          totalAmount: (it.quantity * it.unitPrice) * (1 + it.taxRate / 100),
-        })),
+        totalAmount: tot,
+        items: lineItems,
         paidAmount,
         notes: '',
         userId: user?.id,
@@ -251,9 +228,12 @@ const PurchasesPage = () => {
     setItems([]);
     setPaidAmount(0);
   };
-  const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-  const totalTax = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice * (item.taxRate / 100)), 0);
+
+  // Totals derived from flattened line items
+  const subtotal = items.flatMap(it => it.selectedVariants.map(sv => sv.qty * it.unitPrice)).reduce((a, b) => a + b, 0);
+  const totalTax = items.flatMap(it => it.selectedVariants.map(sv => sv.qty * it.unitPrice * (it.taxRate / 100))).reduce((a, b) => a + b, 0);
   const total = subtotal + totalTax;
+
 
   return (
     <div className="space-y-6">
@@ -356,136 +336,95 @@ const PurchasesPage = () => {
                 <Button type="button" size="sm" onClick={addItem}>Add Item</Button>
               </div>
               <div className="space-y-3">
-                {items.map((item, idx) => (
-                  <div key={idx} className="border rounded-lg p-3 bg-white/60 space-y-3">
-                    {/* Toggle: existing vs new product */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-1 text-xs bg-paper rounded-md p-0.5">
-                        <button
-                          type="button"
-                          onClick={() => updateItem(idx, 'isNew', false)}
-                          className={`px-3 py-1 rounded transition-colors ${
-                            !item.isNew ? 'bg-ink text-white font-semibold' : 'text-ink/60 hover:text-ink'
-                          }`}
-                        >
-                          Existing Product
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => updateItem(idx, 'isNew', true)}
-                          className={`px-3 py-1 rounded transition-colors ${
-                            item.isNew ? 'bg-ink text-white font-semibold' : 'text-ink/60 hover:text-ink'
-                          }`}
-                        >
-                          + New Product
-                        </button>
+                {items.map((item, idx) => {
+                  const productVariants = variants.filter(
+                    (v) => (v.productFlatId || v.parent?.id) === item.selectedFlatId
+                  );
+                  const totalQty = item.selectedVariants.reduce((s, v) => s + v.qty, 0);
+
+                  return (
+                    <div key={idx} className="border rounded-lg p-4 bg-white/60 space-y-4">
+                      {/* Header row: product selector + cost/tax + remove */}
+                      <div className="flex items-end gap-3">
+                        <div className="flex-1 space-y-1">
+                          <Label className="text-xs">Product</Label>
+                          <Select value={item.selectedFlatId} onValueChange={(v) => updateItemField(idx, 'selectedFlatId', v)}>
+                            <SelectTrigger className="h-9"><SelectValue placeholder="Select Product" /></SelectTrigger>
+                            <SelectContent>
+                              {uniqueParents.map((p) => (
+                                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="w-28 space-y-1">
+                          <Label className="text-xs">Cost Price</Label>
+                          <Input type="number" step="0.01" min="0" value={item.unitPrice} onChange={(e) => updateItemField(idx, 'unitPrice', parseFloat(e.target.value) || 0)} className="h-9" />
+                        </div>
+                        <div className="w-24 space-y-1">
+                          <Label className="text-xs">Tax Rate (%)</Label>
+                          <Input type="number" min="0" value={item.taxRate} onChange={(e) => updateItemField(idx, 'taxRate', parseFloat(e.target.value) || 0)} className="h-9" />
+                        </div>
+                        <div className="w-24 space-y-1">
+                          <Label className="text-xs">Total Qty</Label>
+                          <Input type="number" value={totalQty} readOnly className="h-9 bg-ink/5 cursor-not-allowed text-center font-semibold" />
+                        </div>
+                        <Button type="button" size="icon" variant="ghost" className="h-9 w-9 text-danger-text shrink-0" onClick={() => removeItem(idx)}>
+                          <Trash2 size={14} />
+                        </Button>
                       </div>
-                      <Button type="button" size="icon" variant="ghost" className="h-7 w-7 text-danger-text" onClick={() => removeItem(idx)}>
-                        <Trash2 size={14} />
-                      </Button>
-                    </div>
 
-                    <div className="grid grid-cols-12 gap-3 items-end">
-                      {/* Product selector or new product name */}
-                      {!item.isNew ? (
-                        <>
-                          {/* Step 1 — Parent product */}
-                          <div className="col-span-3 space-y-1">
-                            <Label className="text-xs">Product</Label>
-                            <Select value={item.selectedFlatId} onValueChange={(v) => updateItem(idx, 'selectedFlatId', v)}>
-                              <SelectTrigger className="h-9"><SelectValue placeholder="Select Product" /></SelectTrigger>
-                              <SelectContent>
-                                {/* Unique parent products, sorted A-Z */}
-                                {Array.from(
-                                  new Map(
-                                    variants.map((v) => [
-                                      v.productFlatId || v.parent?.id,
-                                      { id: v.productFlatId || v.parent?.id, name: v.parent?.name ?? v.productName ?? '—' }
-                                    ])
-                                  ).values()
-                                )
-                                  .sort((a, b) => a.name.localeCompare(b.name))
-                                  .map((p) => (
-                                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Step 2 — Variant (grouped by color / size) */}
-                          <div className="col-span-2 space-y-1">
-                            <Label className="text-xs">Variant</Label>
-                            <Select
-                              value={item.variantId}
-                              onValueChange={(v) => updateItem(idx, 'variantId', v)}
-                              disabled={!item.selectedFlatId}
-                            >
-                              <SelectTrigger className="h-9">
-                                <SelectValue placeholder={item.selectedFlatId ? 'Select Variant' : '—'} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {(() => {
-                                  const productVariants = variants.filter(
-                                    (v) => (v.productFlatId || v.parent?.id) === item.selectedFlatId
-                                  );
-                                  // If only 1 variant (Default), show it simply
-                                  if (productVariants.length === 1) {
-                                    const v = productVariants[0];
-                                    return <SelectItem key={v.id} value={v.id}>Default</SelectItem>;
-                                  }
-                                  // Group by color then size
-                                  const grouped = productVariants.reduce<Record<string, typeof productVariants>>((acc, v) => {
-                                    const group = [v.color, v.size].filter(Boolean).join(' / ') || 'Other';
-                                    if (!acc[group]) acc[group] = [];
-                                    acc[group].push(v);
-                                    return acc;
-                                  }, {});
-                                  return Object.entries(grouped).map(([group, gVariants]) => (
-                                    <>
-                                      <div key={`g-${group}`} className="px-2 pt-2 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-ink/40">
-                                        {group}
+                      {/* Variant checkboxes + per-variant qty */}
+                      {item.selectedFlatId && (
+                        <div className="space-y-2 pt-1 border-t border-ink/[0.06]">
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-ink/40 mb-2">Select Variants & Quantities</p>
+                          {productVariants.length === 0 ? (
+                            <p className="text-xs text-ink/40 italic">No variants found for this product.</p>
+                          ) : (
+                            <div className="grid grid-cols-1 gap-2">
+                              {productVariants.map((v) => {
+                                const isChecked = !!item.selectedVariants.find(sv => sv.variantId === v.id);
+                                const svEntry = item.selectedVariants.find(sv => sv.variantId === v.id);
+                                const label = [
+                                  v.variantName && v.variantName !== 'Default' ? v.variantName : 'Default',
+                                  v.color, v.size
+                                ].filter(Boolean).join(' · ');
+                                return (
+                                  <div key={v.id} className={`flex items-center gap-3 rounded-md px-3 py-2 transition-colors ${isChecked ? 'bg-primary/8 border border-primary/20' : 'bg-ink/[0.02] border border-transparent'}`}>
+                                    <input
+                                      type="checkbox"
+                                      id={`var-${idx}-${v.id}`}
+                                      checked={isChecked}
+                                      onChange={() => toggleVariant(idx, v.id)}
+                                      className="h-4 w-4 rounded accent-primary cursor-pointer"
+                                    />
+                                    <label htmlFor={`var-${idx}-${v.id}`} className="flex-1 text-sm cursor-pointer">
+                                      <span className="font-medium text-ink">{label}</span>
+                                      {v.sku && <span className="ml-2 font-mono text-xs text-ink/40">{v.sku}</span>}
+                                      <span className="ml-2 text-xs text-ink/35">Stock: {v.stock ?? 0}</span>
+                                    </label>
+                                    {isChecked && (
+                                      <div className="flex items-center gap-1.5">
+                                        <Label className="text-xs text-ink/55 whitespace-nowrap">Qty</Label>
+                                        <Input
+                                          type="number"
+                                          min="1"
+                                          value={svEntry?.qty ?? 1}
+                                          onChange={(e) => updateVariantQty(idx, v.id, parseInt(e.target.value) || 1)}
+                                          className="h-8 w-20 text-center font-semibold"
+                                        />
                                       </div>
-                                      {gVariants.map((v) => (
-                                        <SelectItem key={v.id} value={v.id}>
-                                          {v.variantName && v.variantName !== 'Default' ? v.variantName : 'Default'}
-                                          {v.sku ? ` (${v.sku})` : ''}
-                                        </SelectItem>
-                                      ))}
-                                    </>
-                                  ));
-                                })()}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="col-span-3 space-y-1">
-                            <Label className="text-xs">New Product Name *</Label>
-                            <Input placeholder="e.g. Blue Shirt XL" value={item.newName} onChange={(e) => updateItem(idx, 'newName', e.target.value)} className="h-9" />
-                          </div>
-                          <div className="col-span-2 space-y-1">
-                            <Label className="text-xs">Selling Price</Label>
-                            <Input type="number" step="0.01" min="0" placeholder="0" value={item.sellingPrice || ''} onChange={(e) => updateItem(idx, 'sellingPrice', parseFloat(e.target.value) || 0)} className="h-9" />
-                          </div>
-                        </>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       )}
-                      <div className="col-span-2 space-y-1">
-                        <Label className="text-xs">Quantity</Label>
-                        <Input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(idx, 'quantity', parseInt(e.target.value) || 0)} className="h-9" />
-                      </div>
-                      <div className="col-span-2 space-y-1">
-                        <Label className="text-xs">Cost Price</Label>
-                        <Input type="number" step="0.01" min="0" value={item.unitPrice} onChange={(e) => updateItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)} className="h-9" />
-                      </div>
-                      <div className="col-span-2 space-y-1">
-                        <Label className="text-xs">Tax Rate (%)</Label>
-                        <Input type="number" min="0" value={item.taxRate} onChange={(e) => updateItem(idx, 'taxRate', parseFloat(e.target.value) || 0)} className="h-9" />
-                      </div>
-                      {!item.isNew && <div className="col-span-1" />}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

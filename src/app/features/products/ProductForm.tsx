@@ -209,11 +209,7 @@ const ProductForm = ({ open, onClose, onSuccess, product }: Props) => {
     }
   };
 
-  const autoSKU = () => {
-    const ts  = Date.now().toString(36).toUpperCase();
-    const rnd = Math.random().toString(36).substring(2, 5).toUpperCase();
-    setValue('sku', `PRD-${ts}-${rnd}`);
-  };
+
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
