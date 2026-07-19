@@ -33,10 +33,8 @@ const schema = z.object({
   categoryId:     z.string().min(1, 'Category is required'),
   brandId:        z.string().optional(),
   unitId:         z.string().min(1, 'Unit is required'),
-  purchasePrice:  z.coerce.number().min(0),
-  sellingPrice:   z.coerce.number().min(0),
-  wholesalePrice: z.coerce.number().optional(),
-  taxRate:        z.coerce.number().min(0).max(100),
+  purchasePrice:  z.preprocess((val) => (val === '' || val === null || val === undefined) ? undefined : Number(val), z.number().min(0).optional()),
+  sellingPrice:   z.preprocess((val) => (val === '' || val === null || val === undefined) ? undefined : Number(val), z.number().min(0).optional()),
   status:         z.string().default('active'),
   // Default variant fields (create-only)
   sku:            z.string().optional(),
@@ -85,8 +83,8 @@ const ProductForm = ({ open, onClose, onSuccess, product }: Props) => {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      taxRate: 0, status: 'active',
-      purchasePrice: 0, sellingPrice: 0,
+      status: 'active',
+      purchasePrice: undefined, sellingPrice: undefined,
       stock: 0, minimumStock: 0, sku: '',
     },
   });
@@ -111,10 +109,8 @@ const ProductForm = ({ open, onClose, onSuccess, product }: Props) => {
           categoryId:     catObj?.id             || product.categoryId || '',
           brandId:        brandObj?.id           || product.brandId    || '',
           unitId:         unitObj?.id            || product.unitId     || '',
-          purchasePrice:  product.purchasePrice   ?? 0,
-          sellingPrice:   product.sellingPrice    ?? 0,
-          wholesalePrice: product.wholesalePrice  ?? 0,
-          taxRate:        product.taxRate         ?? 0,
+          purchasePrice:  product.purchasePrice   ?? undefined,
+          sellingPrice:   product.sellingPrice    ?? undefined,
           status:         STATUS_FROM_DB[product.status] || product.status || 'active',
           sku:            product.sku            || '',
           barcode:        product.barcode        || '',
@@ -123,8 +119,8 @@ const ProductForm = ({ open, onClose, onSuccess, product }: Props) => {
         });
       } else {
         reset({
-          taxRate: 0, status: 'active',
-          purchasePrice: 0, sellingPrice: 0,
+          status: 'active',
+          purchasePrice: undefined, sellingPrice: undefined,
           stock: 0, minimumStock: 0, sku: '',
         });
       }
@@ -170,10 +166,8 @@ const ProductForm = ({ open, onClose, onSuccess, product }: Props) => {
           categoryId:     data.categoryId,
           brandId:        data.brandId,
           unitId:         data.unitId,
-          purchasePrice:  data.purchasePrice,
-          sellingPrice:   data.sellingPrice,
-          wholesalePrice: data.wholesalePrice,
-          taxRate:        data.taxRate,
+          purchasePrice:  data.purchasePrice ?? 0,
+          sellingPrice:   data.sellingPrice ?? 0,
           status:         dbStatus,
         });
         if (!res.success) throw new Error(res.error || 'Update failed');
@@ -186,10 +180,8 @@ const ProductForm = ({ open, onClose, onSuccess, product }: Props) => {
           categoryId:     data.categoryId,
           brandId:        data.brandId,
           unitId:         data.unitId,
-          purchasePrice:  data.purchasePrice,
-          sellingPrice:   data.sellingPrice,
-          wholesalePrice: data.wholesalePrice,
-          taxRate:        data.taxRate,
+          purchasePrice:  data.purchasePrice ?? 0,
+          sellingPrice:   data.sellingPrice ?? 0,
           status:         dbStatus,
         });
         if (!parentRes.success) throw new Error(parentRes.error || 'Failed to create product');
@@ -250,22 +242,16 @@ const ProductForm = ({ open, onClose, onSuccess, product }: Props) => {
               {errors.name && <p className="text-xs text-danger-text">{errors.name.message}</p>}
             </div>
 
-            {/* SKU + Barcode (create only — variants carry these after creation) */}
+            {/* SKU (create only — variants carry these after creation) */}
             {!isEdit && (
-              <>
-                <div className="space-y-1">
-                  <Label>Default SKU *</Label>
-                  <div className="flex gap-2">
-                    <Input placeholder="e.g. SHIRT-001" {...register('sku')} />
-                    <Button type="button" variant="outline" onClick={autoSKU} className="shrink-0">Auto</Button>
-                  </div>
-                  {errors.sku && <p className="text-xs text-danger-text">{errors.sku.message}</p>}
+              <div className="col-span-2 space-y-1">
+                <Label>Default SKU *</Label>
+                <div className="flex gap-2">
+                  <Input placeholder="e.g. SHIRT-001" {...register('sku')} />
+                  <Button type="button" variant="outline" onClick={autoSKU} className="shrink-0">Auto</Button>
                 </div>
-                <div className="space-y-1">
-                  <Label>Default Barcode</Label>
-                  <Input placeholder="e.g. 1234567890123" {...register('barcode')} />
-                </div>
-              </>
+                {errors.sku && <p className="text-xs text-danger-text">{errors.sku.message}</p>}
+              </div>
             )}
 
             {/* Category */}
@@ -318,28 +304,16 @@ const ProductForm = ({ open, onClose, onSuccess, product }: Props) => {
 
             {/* Purchase Price */}
             <div className="space-y-1">
-              <Label>Purchase Price *</Label>
+              <Label>Purchase Price</Label>
               <Input type="number" step="0.01" placeholder="0.00" {...register('purchasePrice')} />
               {errors.purchasePrice && <p className="text-xs text-danger-text">{errors.purchasePrice.message}</p>}
             </div>
 
             {/* Selling Price */}
             <div className="space-y-1">
-              <Label>Selling Price *</Label>
+              <Label>Selling Price</Label>
               <Input type="number" step="0.01" placeholder="0.00" {...register('sellingPrice')} />
               {errors.sellingPrice && <p className="text-xs text-danger-text">{errors.sellingPrice.message}</p>}
-            </div>
-
-            {/* Wholesale Price */}
-            <div className="space-y-1">
-              <Label>Wholesale Price</Label>
-              <Input type="number" step="0.01" placeholder="0.00" {...register('wholesalePrice')} />
-            </div>
-
-            {/* Tax Rate */}
-            <div className="space-y-1">
-              <Label>Tax Rate (%)</Label>
-              <Input type="number" step="0.01" placeholder="0" {...register('taxRate')} />
             </div>
 
             {/* Default stock (create only) */}

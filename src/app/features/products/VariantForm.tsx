@@ -47,6 +47,7 @@ const VariantForm = ({
   open, onClose, onSuccess, productFlatId, productName, variant,
 }: VariantFormProps) => {
   const [loading, setLoading] = useState(false);
+  const [existingVariants, setExistingVariants] = useState<any[]>([]);
 
   const {
     register, handleSubmit, setValue, reset,
@@ -62,6 +63,12 @@ const VariantForm = ({
 
   useEffect(() => {
     if (!open) return;
+    window.electron.getVariantsByProduct(productFlatId).then((res) => {
+      if (res.success && res.data) {
+        setExistingVariants(res.data);
+      }
+    });
+
     if (variant) {
       reset({
         variantName:  variant.variantName  ?? variant.variant_name  ?? 'Default',
@@ -79,12 +86,72 @@ const VariantForm = ({
         color: '', size: '', stock: 0, minimumStock: 0,
       });
     }
-  }, [open, variant]);
+  }, [open, variant, productFlatId]);
 
   const autoSKU = () => {
-    const ts  = Date.now().toString(36).toUpperCase();
-    const rnd = Math.random().toString(36).substring(2, 5).toUpperCase();
-    setValue('sku', `VAR-${ts}-${rnd}`);
+    if (existingVariants.length === 0) {
+      const ts  = Date.now().toString(36).toUpperCase();
+      const rnd = Math.random().toString(36).substring(2, 5).toUpperCase();
+      setValue('sku', `VAR-${ts}-${rnd}`);
+      return;
+    }
+
+    let baseCode = '';
+    let separator = '-';
+    let maxSuffix = 0;
+
+    const mainVariant = existingVariants.find(v => (!v.color && !v.size) || v.variantName === 'Default' || v.variant_name === 'Default');
+    const rawBaseSku = mainVariant?.sku || (existingVariants.length > 0 ? existingVariants[0].sku : '') || '';
+
+    if (rawBaseSku) {
+      const m = rawBaseSku.match(/^(.*)([.-])(\d+)$/);
+      if (m) {
+        baseCode = m[1];
+        separator = m[2];
+        maxSuffix = parseInt(m[3]);
+      } else {
+        baseCode = rawBaseSku;
+      }
+
+      for (const v of existingVariants) {
+        const sku = v.sku || '';
+        if (sku === baseCode) continue;
+        if (sku.startsWith(baseCode)) {
+          const rest = sku.slice(baseCode.length);
+          const matchRest = rest.match(/^([.-])(\d+)$/);
+          if (matchRest) {
+            separator = matchRest[1];
+            const num = parseInt(matchRest[2]);
+            if (num > maxSuffix) {
+              maxSuffix = num;
+            }
+          }
+        }
+      }
+    }
+
+    const nextSuffix = maxSuffix + 1;
+    if (!baseCode) {
+      const ts  = Date.now().toString(36).toUpperCase();
+      const rnd = Math.random().toString(36).substring(2, 5).toUpperCase();
+      setValue('sku', `VAR-${ts}-${rnd}`);
+    } else {
+      setValue('sku', `${baseCode}${separator}${nextSuffix}`);
+    }
+  };
+
+  const autoBarcode = () => {
+    let code = '20';
+    for (let i = 0; i < 10; i++) {
+      code += Math.floor(Math.random() * 10).toString();
+    }
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+      const digit = parseInt(code[i]);
+      sum += (i % 2 === 0) ? digit : digit * 3;
+    }
+    const checksum = (10 - (sum % 10)) % 10;
+    setValue('barcode', code + checksum);
   };
 
   const onSubmit = async (data: VariantFormData) => {
@@ -176,7 +243,12 @@ const VariantForm = ({
             {/* Barcode */}
             <div className="col-span-2 space-y-1">
               <Label>Barcode</Label>
-              <Input placeholder="e.g. 1234567890123" {...register('barcode')} />
+              <div className="flex gap-2">
+                <Input placeholder="e.g. 1234567890123" {...register('barcode')} />
+                <Button type="button" variant="outline" onClick={autoBarcode} className="shrink-0">
+                  Auto
+                </Button>
+              </div>
             </div>
 
             {/* Stock */}

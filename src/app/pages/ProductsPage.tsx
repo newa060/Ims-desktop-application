@@ -21,9 +21,10 @@ import {
 } from '../components/ui/select';
 import {
   Plus, Search, Edit, Trash2, RefreshCw,
-  ChevronLeft, ChevronRight, Layers, ChevronUp,
+  ChevronLeft, ChevronRight, Layers, ChevronUp, Printer,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import JsBarcode from 'jsbarcode';
 import ProductForm from '../features/products/ProductForm';
 import VariantForm from '../features/products/VariantForm';
 import { useSettings } from '../contexts/SettingsContext';
@@ -103,8 +104,14 @@ const ProductsPage = () => {
     setExpandLoading(true);
     try {
       const res = await window.electron.getVariantsByProduct(productFlatId);
-      if (res.success) setExpandedVariants(res.data);
-      else toast.error('Failed to load variants');
+      if (res.success) {
+        const sorted = [...(res.data || [])].sort((a, b) => 
+          (b.sku || '').localeCompare(a.sku || '', undefined, { numeric: true, sensitivity: 'base' })
+        );
+        setExpandedVariants(sorted);
+      } else {
+        toast.error('Failed to load variants');
+      }
     } catch {
       toast.error('An error occurred');
     } finally {
@@ -115,7 +122,12 @@ const ProductsPage = () => {
   const refreshExpanded = async (productFlatId: string) => {
     if (expandedFlatId !== productFlatId) return;
     const res = await window.electron.getVariantsByProduct(productFlatId);
-    if (res.success) setExpandedVariants(res.data);
+    if (res.success) {
+      const sorted = [...(res.data || [])].sort((a, b) => 
+        (b.sku || '').localeCompare(a.sku || '', undefined, { numeric: true, sensitivity: 'base' })
+      );
+      setExpandedVariants(sorted);
+    }
   };
 
   // ── Actions ────────────────────────────────────────────────────────────────
@@ -179,6 +191,43 @@ const ProductsPage = () => {
         loadVariants(page, limit, search);
       } else toast.error('Failed to archive product');
     } catch { toast.error('An error occurred'); }
+  };
+
+  const handlePrintBarcode = (ev: any, productName: string) => {
+    if (!ev.barcode) {
+      toast.error(`Variant "${ev.variantName || 'Default'}" has no barcode. Please set a barcode first.`);
+      return;
+    }
+    
+    // Generate barcode SVG content using JSBarcode
+    const container = document.createElement('div');
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    container.appendChild(svg);
+    
+    try {
+      JsBarcode(svg, ev.barcode, {
+        format: "CODE128",
+        width: 2,
+        height: 60,
+        displayValue: true,
+        fontSize: 14,
+        margin: 10
+      });
+      
+      const svgHtml = container.innerHTML;
+      const printContent = `
+        <div style="text-align: center; font-family: sans-serif; padding: 10px; width: 280px; margin: 0 auto;">
+          <div style="font-weight: bold; font-size: 14px; margin-bottom: 2px;">${productName}</div>
+          <div style="font-size: 12px; margin-bottom: 8px;">${ev.variantName || 'Default'} (${ev.sku})</div>
+          <div>${svgHtml}</div>
+        </div>
+      `;
+      
+      window.electron.printReceipt({ content: printContent });
+    } catch (error) {
+      toast.error('Failed to generate barcode print payload');
+      console.error(error);
+    }
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -337,7 +386,7 @@ const ProductsPage = () => {
                                     <table className="w-full text-xs">
                                       <thead>
                                         <tr className="text-ink/45 border-b border-ink/[0.08]">
-                                          {['Variant', 'SKU', 'Color / Size', 'Stock', 'Min Stock', 'Actions']
+                                          {['Variant', 'SKU', 'Barcode', 'Color / Size', 'Stock', 'Min Stock', 'Actions']
                                             .map((h) => (
                                               <th key={h} className="text-left py-2 px-2">{h}</th>
                                             ))}
@@ -349,6 +398,7 @@ const ProductsPage = () => {
                                             className="border-b border-ink/[0.04] hover:bg-white/50">
                                             <td className="py-2 px-2 font-medium">{ev.variantName ?? 'Default'}</td>
                                             <td className="py-2 px-2 font-mono">{ev.sku}</td>
+                                            <td className="py-2 px-2 font-mono text-ink/75">{ev.barcode || '—'}</td>
                                             <td className="py-2 px-2 text-ink/55">
                                               {[ev.color, ev.size].filter(Boolean).join(' / ') || '—'}
                                             </td>
@@ -356,6 +406,11 @@ const ProductsPage = () => {
                                             <td className="py-2 px-2 text-ink/55">{ev.minimumStock}</td>
                                             <td className="py-2 px-2">
                                               <div className="flex gap-1">
+                                                <Button size="icon" variant="ghost" className="h-6 w-6"
+                                                  title="Print Barcode"
+                                                  onClick={() => handlePrintBarcode(ev, productName)}>
+                                                  <Printer className="h-3 w-3 text-ink/50" />
+                                                </Button>
                                                 <Button size="icon" variant="ghost" className="h-6 w-6"
                                                   onClick={() => handleEditVariant(ev, productName)}>
                                                   <Edit className="h-3 w-3 text-ink/50" />
