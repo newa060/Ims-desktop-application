@@ -268,7 +268,7 @@ const PurchasesPage = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" size={18} />
               <Input placeholder="Search purchase number..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && loadPurchases()} className="pl-10" />
             </div>
-            <Button variant="outline" onClick={() => loadPurchases()}><RefreshCw className="mr-2 h-4 w-4" /> Refresh</Button>
+            <Button variant="outline" onClick={() => { loadPurchases(); loadVariantsList(); }}><RefreshCw className="mr-2 h-4 w-4" /> Refresh</Button>
           </div>
 
           {loading ? (
@@ -592,7 +592,12 @@ const PurchasesPage = () => {
           onSuccess={async () => {
             const refreshed = await loadVariantsList();
             if (!refreshed) {
-              toast.error('Variant was created, but refreshing the variant list failed. Please refresh manually.');
+              toast.error('Variant was created, but refreshing the variant list failed. Please refresh manually.', {
+                action: {
+                  label: 'Retry',
+                  onClick: () => loadVariantsList(),
+                },
+              });
             }
           }}
           productFlatId={activeProductForVariant.id}
