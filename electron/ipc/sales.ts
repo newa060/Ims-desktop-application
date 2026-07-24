@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron';
 import SaleService from '../../src/services/SaleService';
 import logger from '../../src/utils/logger';
+import supabase from '../../src/database/supabaseClient';
 
 export const setupSaleHandlers = () => {
   ipcMain.handle('sales:getAll', async (_event, params) => {
@@ -35,6 +36,202 @@ export const setupSaleHandlers = () => {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to create sale',
       };
+    }
+  });
+
+  // ── sales:processReturnOrExchange ─────────────────────────────────────────
+  ipcMain.handle('sales:processReturnOrExchange', async (_event, params: any) => {
+    try {
+      const {
+        saleId,
+        customerId,
+        returnItems = [],
+        exchangeItems = [],
+        settlementType = 'cash', // 'cash' | 'card' | 'store_credit'
+        refundAmount = 0,
+        additionalAmountPaid = 0,
+        notes = '',
+      } = params;
+
+      if (!saleId) throw new Error('saleId is required');
+      if (returnItems.length === 0 && exchangeItems.length === 0) {
+        throw new Error('At least one return or exchange item is required');
+      }
+
+      // 1. Process Returned Items
+      for (const item of returnItems) {
+        const { variantId, productFlatId, quantity, condition, reason } = item;
+        const qty = Number(quantity);
+        if (!variantId || qty <= 0) continue;
+
+        if (condition === 'resellable') {
+          // Restore stock for sellable return
+          const { data: updatedVariant, error: stockErr } = await supabase
+            .rpc('increment_variant_stock', { p_variant_id: variantId, p_delta: qty })
+            .single();
+
+          if (!stockErr) {
+            await supabase.from('inventory_history').insert({
+              productId: productFlatId,
+              variant_id: variantId,
+              type: 'sale_return',
+              quantityChange: qty,
+              quantityBefore: (updatedVariant as any)?.stock ? (updatedVariant as any).stock - qty : 0,
+              quantityAfter: (updatedVariant as any)?.stock || 0,
+              reference: 'Customer Return',
+              referenceId: saleId,
+              notes: reason || 'Customer Return (Resellable)',
+            });
+          }
+        } else {
+          // Log damaged return without adding to sellable stock
+          await supabase.from('inventory_history').insert({
+            productId: productFlatId,
+            variant_id: variantId,
+            type: 'sale_return_damaged',
+            quantityChange: 0,
+            quantityBefore: 0,
+            quantityAfter: 0,
+            reference: 'Customer Return (Damaged)',
+            referenceId: saleId,
+            notes: reason || 'Customer Return (Damaged)',
+          });
+        }
+      }
+
+      // 2. Process Exchanged Replacement Items
+      for (const exItem of exchangeItems) {
+        const { variantId, productFlatId, quantity } = exItem;
+        const qty = Number(quantity);
+        if (!variantId || qty <= 0) continue;
+
+        // Deduct replacement variant stock
+        const { data: decVariant, error: decErr } = await supabase
+          .rpc('increment_variant_stock', { p_variant_id: variantId, p_delta: -qty })
+          .single();
+
+        if (!decErr) {
+          await supabase.from('inventory_history').insert({
+            productId: productFlatId,
+            variant_id: variantId,
+            type: 'sale_exchange',
+            quantityChange: -qty,
+            quantityBefore: (decVariant as any)?.stock ? (decVariant as any).stock + qty : 0,
+            quantityAfter: (decVariant as any)?.stock || 0,
+            reference: 'Customer Exchange',
+            referenceId: saleId,
+            notes: notes || 'Given in customer exchange',
+          });
+        }
+      }
+
+      // 3. Process Store Credit if applicable
+      if (settlementType === 'store_credit' && customerId && refundAmount > 0) {
+        const { data: cust } = await supabase
+          .from('customers')
+          .select('creditBalance')
+          .eq('id', customerId)
+          .single();
+
+        if (cust) {
+          const currentCredit = Number((cust as any).creditBalance || 0);
+          await supabase
+            .from('customers')
+            .update({ creditBalance: currentCredit + Number(refundAmount) })
+            .eq('id', customerId);
+        }
+      }
+
+      // 4. Update Original Sale Note / Status reference
+      const { data: currentSale } = await supabase
+        .from('sales')
+        .select('notes, status')
+        .eq('id', saleId)
+        .single();
+
+      if (currentSale) {
+        const returnSummary = `[Return/Exchange: Refund ${settlementType.toUpperCase()} ${refundAmount}${additionalAmountPaid > 0 ? `, Additional Paid ${additionalAmountPaid}` : ''}]`;
+        const updatedNotes = currentSale.notes
+          ? `${currentSale.notes}\n${returnSummary}`
+          : returnSummary;
+
+        await supabase
+          .from('sales')
+          .update({ notes: updatedNotes })
+          .eq('id', saleId);
+      }
+
+      return { success: true };
+    } catch (error) {
+      logger.error('processReturnOrExchange error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to process return/exchange',
+      };
+    }
+  });
+
+  // ── sales:getReturnsBatch ──────────────────────────────────────────────────
+  ipcMain.handle('sales:getReturnsBatch', async (_event, saleIds: string[]) => {
+    try {
+      if (!saleIds || saleIds.length === 0) return { success: true, data: {} };
+
+      const { data, error } = await supabase
+        .from('inventory_history')
+        .select('*')
+        .in('referenceId', saleIds)
+        .in('reference', ['Customer Return', 'Customer Return (Damaged)', 'Customer Exchange']);
+
+      if (error) throw error;
+
+      // Map variants and parent products for history items
+      const rawItems = data || [];
+      const variantIds = Array.from(new Set(rawItems.map((i: any) => i.variant_id || i.variantId).filter(Boolean)));
+      const variantMap: Record<string, any> = {};
+
+      if (variantIds.length > 0) {
+        const { data: vars } = await supabase
+          .from('product_variants')
+          .select('id, variant_name, color, size, sku, retail_price, productId')
+          .in('id', variantIds as string[]);
+
+        if (vars && vars.length > 0) {
+          const parentIds = Array.from(new Set(vars.map((v: any) => v.productId).filter(Boolean)));
+          const parentMap: Record<string, any> = {};
+          if (parentIds.length > 0) {
+            const { data: parents } = await supabase
+              .from('product_variant_flat')
+              .select('id, name')
+              .in('id', parentIds as string[]);
+            (parents || []).forEach((p: any) => { parentMap[p.id] = p; });
+          }
+          vars.forEach((v: any) => {
+            variantMap[v.id] = {
+              ...v,
+              parent: parentMap[v.productId] || null,
+            };
+          });
+        }
+      }
+
+      // Enrich items and group by saleId (referenceId)
+      const returnsMap: Record<string, any[]> = {};
+      for (const id of saleIds) returnsMap[id] = [];
+      for (const item of rawItems) {
+        const vId = item.variant_id || item.variantId;
+        const enriched = {
+          ...item,
+          variant: vId ? variantMap[vId] || null : null,
+        };
+        if (item.referenceId && returnsMap[item.referenceId]) {
+          returnsMap[item.referenceId].push(enriched);
+        }
+      }
+
+      return { success: true, data: returnsMap };
+    } catch (error) {
+      logger.error('getReturnsBatch error:', error);
+      return { success: false, error: 'Failed to fetch returns batch' };
     }
   });
 };

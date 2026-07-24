@@ -38,6 +38,8 @@ export interface ElectronAPI {
   getSales: (params: any) => Promise<any>;
   getSaleById: (id: string) => Promise<any>;
   createSale: (data: any) => Promise<any>;
+  processSaleReturnOrExchange: (data: any) => Promise<any>;
+  getSaleReturnsBatch: (saleIds: string[]) => Promise<any>;
 
   // Purchases
   getPurchases: (params: any) => Promise<any>;

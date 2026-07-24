@@ -40,6 +40,8 @@ contextBridge.exposeInMainWorld('electron', {
   getSales: (params: any) => ipcRenderer.invoke('sales:getAll', params),
   getSaleById: (id: string) => ipcRenderer.invoke('sales:getById', id),
   createSale: (data: any) => ipcRenderer.invoke('sales:create', data),
+  processSaleReturnOrExchange: (data: any) => ipcRenderer.invoke('sales:processReturnOrExchange', data),
+  getSaleReturnsBatch: (saleIds: string[]) => ipcRenderer.invoke('sales:getReturnsBatch', saleIds),
 
   // Purchases
   getPurchases: (params: any) => ipcRenderer.invoke('purchases:getAll', params),

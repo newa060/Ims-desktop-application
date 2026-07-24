@@ -25,7 +25,14 @@ import {
   SendStaffNotificationResult,
 } from '../types';
 import logger from '../utils/logger';
-import webpush from 'web-push';
+
+let webpush: any;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  webpush = require('web-push');
+} catch {
+  // optional dependency
+}
 
 export class StaffService {
   // ── Staff directory ────────────────────────────────────────────────────────
@@ -345,8 +352,8 @@ export class StaffService {
     const publicKey = process.env.VAPID_PUBLIC_KEY;
     const privateKey = process.env.VAPID_PRIVATE_KEY;
     const subject = process.env.VAPID_SUBJECT || 'mailto:admin@stockflow.pro';
-    if (!publicKey || !privateKey) {
-      throw new Error('VAPID keys are not configured');
+    if (!webpush) {
+      throw new Error('Web Push notifications library is not installed');
     }
 
     webpush.setVapidDetails(subject, publicKey, privateKey);
