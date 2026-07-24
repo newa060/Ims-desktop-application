@@ -3,7 +3,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Search, RefreshCw, ChevronLeft, ChevronRight, Eye, ArrowRightLeft, CornerUpLeft, FileText, Filter } from 'lucide-react';
+import { Search, RefreshCw, ChevronLeft, ChevronRight, Eye, ArrowRightLeft, CornerUpLeft, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { toast } from 'sonner';
 import { useSettings } from '../contexts/SettingsContext';
@@ -20,6 +20,7 @@ const SalesPage = () => {
   const [detailSale, setDetailSale] = useState<any>(null);
   const [detailReturns, setDetailReturns] = useState<any[]>([]);
   const [returnModalOpen, setReturnModalOpen] = useState(false);
+  const [showReturnHistory, setShowReturnHistory] = useState(false);
 
   const loadSales = useCallback(async (page = 1) => {
     setLoading(true);
@@ -35,7 +36,6 @@ const SalesPage = () => {
           totalPages: res.data.totalPages || 1
         });
 
-        // Batch load return/exchange history for loaded sales
         if (loadedSales.length > 0 && window.electron?.getSaleReturnsBatch) {
           const saleIds = loadedSales.map((s: any) => s.id);
           const retRes = await window.electron.getSaleReturnsBatch(saleIds);
@@ -60,6 +60,7 @@ const SalesPage = () => {
       const res = await window.electron.getSaleById(id);
       if (res.success) {
         setDetailSale(res.data);
+        setShowReturnHistory(false);
         if (window.electron?.getSaleReturnsBatch) {
           const retRes = await window.electron.getSaleReturnsBatch([id]);
           if (retRes.success && retRes.data) {
@@ -74,10 +75,10 @@ const SalesPage = () => {
 
   const getPaymentBadge = (status: string) => {
     switch (status) {
-      case 'paid': return <Badge variant="success">Paid</Badge>;
-      case 'partial': return <Badge variant="warning">Partial</Badge>;
-      case 'due': return <Badge variant="danger">Due</Badge>;
-      default: return <Badge variant="secondary">{status}</Badge>;
+      case 'paid': return <Badge variant="success" className="cursor-default">Paid</Badge>;
+      case 'partial': return <Badge variant="warning" className="cursor-default">Partial</Badge>;
+      case 'due': return <Badge variant="danger" className="cursor-default">Due</Badge>;
+      default: return <Badge variant="secondary" className="cursor-default">{status}</Badge>;
     }
   };
 
@@ -89,14 +90,14 @@ const SalesPage = () => {
     const hasExchange = history.some((h: any) => h.reference === 'Customer Exchange');
 
     return (
-      <div className="flex items-center justify-center gap-1 mt-1">
+      <div className="flex items-center justify-center gap-1 mt-1 cursor-default select-none">
         {hasReturn && (
-          <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-[10px] px-1.5 py-0">
+          <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-[10px] px-1.5 py-0 font-normal">
             <CornerUpLeft className="w-2.5 h-2.5 mr-0.5" /> Returned
           </Badge>
         )}
         {hasExchange && (
-          <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-[10px] px-1.5 py-0">
+          <Badge className="bg-purple-50 text-purple-700 border-purple-200 text-[10px] px-1.5 py-0 font-normal">
             <ArrowRightLeft className="w-2.5 h-2.5 mr-0.5" /> Exchanged
           </Badge>
         )}
@@ -104,12 +105,10 @@ const SalesPage = () => {
     );
   };
 
-  // Filter sales if activeTab === 'returns'
   const filteredSales = activeTab === 'returns'
     ? sales.filter(s => (returnsMap[s.id] || []).length > 0)
     : sales;
 
-  // Compute return & exchange summary details for detailSale modal
   const returnedHistory = detailReturns.filter(h => h.reference === 'Customer Return' || h.reference === 'Customer Return (Damaged)');
   const exchangedHistory = detailReturns.filter(h => h.reference === 'Customer Exchange');
 
@@ -118,7 +117,7 @@ const SalesPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-[34px] font-bold tracking-tight text-ink">Sales</h1>
-          <p className="text-[14.5px] text-ink/55 mt-1.5">View and manage customer invoices, returns & exchanges</p>
+          <p className="text-[14.5px] text-ink/55 mt-1.5">View and manage customer invoices</p>
         </div>
       </div>
 
@@ -170,7 +169,7 @@ const SalesPage = () => {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm select-none">
                   <thead>
                     <tr className="border-b border-ink/[0.08] bg-[#faf9f5]">
                       <th className="text-left py-4 px-4 text-[11.5px] font-bold uppercase tracking-wider text-ink/45">Invoice #</th>
@@ -184,7 +183,7 @@ const SalesPage = () => {
                   </thead>
                   <tbody>
                     {filteredSales.map((sale) => (
-                      <tr key={sale.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors">
+                      <tr key={sale.id} className="border-b border-ink/[0.06] hover:bg-[#faf9f5] transition-colors cursor-default">
                         <td className="py-3 px-4 font-mono text-xs text-ink/60">{sale.saleNumber}</td>
                         <td className="py-3 px-4">{sale.customer?.name || 'Walk-in'}</td>
                         <td className="py-3 px-4 text-ink/55">{new Date(sale.saleDate || sale.createdAt).toLocaleString()}</td>
@@ -219,33 +218,39 @@ const SalesPage = () => {
 
       {/* Invoice Detail Dialog */}
       <Dialog open={!!detailSale} onOpenChange={(o) => !o && setDetailSale(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle className="text-xl font-bold">Invoice Details & Return History</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
+          <DialogHeader className="p-5 pb-3 border-b border-ink/10">
+            <DialogTitle className="text-lg font-bold">Invoice #{detailSale?.saleNumber}</DialogTitle>
+          </DialogHeader>
+
           {detailSale && (
-            <div className="space-y-5">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#faf9f5] p-3 rounded-lg text-xs">
-                <div><span className="text-ink/55 block">Invoice Number</span><p className="font-mono font-bold text-sm">{detailSale.saleNumber}</p></div>
-                <div><span className="text-ink/55 block">Date</span><p className="font-medium">{new Date(detailSale.saleDate || detailSale.createdAt).toLocaleString()}</p></div>
-                <div><span className="text-ink/55 block">Customer</span><p className="font-medium">{detailSale.customer?.name || 'Walk-in'}</p></div>
-                <div><span className="text-ink/55 block">Payment Method</span><p className="font-medium capitalize">{detailSale.paymentMethod}</p></div>
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 max-h-[calc(85vh-120px)]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-[#faf9f5] p-3 rounded-lg text-xs">
+                <div><span className="text-ink/55 block">Invoice #</span><p className="font-mono font-bold">{detailSale.saleNumber}</p></div>
+                <div><span className="text-ink/55 block">Date</span><p>{new Date(detailSale.saleDate || detailSale.createdAt).toLocaleDateString()}</p></div>
+                <div><span className="text-ink/55 block">Customer</span><p className="font-medium truncate">{detailSale.customer?.name || 'Walk-in'}</p></div>
+                <div><span className="text-ink/55 block">Payment</span><p className="capitalize font-medium">{detailSale.paymentMethod}</p></div>
               </div>
 
-              {/* Items Table */}
+              {/* Top Section: Original Invoice Items */}
               <div className="border rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
+                <div className="bg-[#faf9f5] px-3 py-2 border-b text-xs font-bold text-ink/70 flex justify-between items-center">
+                  <span>Original Sold Items</span>
+                </div>
+                <table className="w-full text-xs">
                   <thead>
-                    <tr className="bg-[#faf9f5] border-b text-xs font-bold text-ink/60">
-                      <th className="text-left py-2.5 px-4">Item & Action Status</th>
-                      <th className="text-center py-2.5 px-4">Sold Qty</th>
-                      <th className="text-right py-2.5 px-4">Unit Price</th>
-                      <th className="text-right py-2.5 px-4">Line Total</th>
+                    <tr className="border-b bg-gray-50/50 text-[11px] font-bold text-ink/55">
+                      <th className="text-left py-2 px-3">Product Item</th>
+                      <th className="text-center py-2 px-2">Qty</th>
+                      <th className="text-right py-2 px-3">Price</th>
+                      <th className="text-right py-2 px-3">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     {(detailSale.items || []).length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="py-6 px-4 text-center text-ink/45 text-sm">
-                          No line items found for this sale
+                        <td colSpan={4} className="py-6 px-4 text-center text-ink/45 text-xs">
+                          No line items found
                         </td>
                       </tr>
                     ) : (
@@ -261,116 +266,160 @@ const SalesPage = () => {
                         const variantSuffix =
                           variantName && variantName !== 'Default' ? ` – ${variantName}` : '';
                         const colorSize = [v?.color, v?.size].filter(Boolean).join(' / ');
-                        const sku = v?.sku ?? item.sku;
 
-                        // Calculate returns for this line item
+                        // Check if item was returned or exchanged
                         const itemReturns = returnedHistory.filter(h => (h.variant_id || h.variantId) === variantId);
+                        
+                        // For simplicity, sum all returns from this original variant
                         const totalReturnedQty = itemReturns.reduce((sum, h) => sum + Math.abs(h.quantityChange || 1), 0);
-                        const isDamaged = itemReturns.some(h => h.reference === 'Customer Return (Damaged)');
+                        const isReturned = totalReturnedQty > 0;
+                        const isExchangedItem = exchangedHistory.length > 0 && !isReturned; // Simplistic check if we assume it was exchanged
+
+                        const isAffected = isReturned || isExchangedItem;
 
                         return (
-                          <React.Fragment key={item.id}>
-                            <tr className={`border-b ${totalReturnedQty > 0 ? 'bg-amber-50/30' : ''}`}>
-                              <td className="py-3 px-4">
-                                <div className="font-medium text-ink">{parentName}{variantSuffix}</div>
-                                {colorSize && <div className="text-xs text-ink/50">{colorSize}</div>}
-                                {sku && <div className="text-xs text-ink/45 font-mono">{sku}</div>}
+                          <tr key={item.id} className={`border-b ${isAffected ? 'bg-slate-50/80 text-ink/40' : ''}`}>
+                            <td className="py-2.5 px-3">
+                              <div className={`font-medium ${isAffected ? 'line-through text-ink/45' : 'text-ink'}`}>
+                                {parentName}{variantSuffix}
+                              </div>
+                              {colorSize && <div className="text-[11px] text-ink/45">{colorSize}</div>}
 
-                                {totalReturnedQty > 0 && (
-                                  <div className="mt-1 flex items-center gap-1.5">
-                                    <Badge variant="outline" className="bg-amber-100/80 text-amber-800 border-amber-300 text-[11px]">
-                                      <CornerUpLeft className="w-3 h-3 mr-1" />
-                                      Returned: {totalReturnedQty} {isDamaged ? '(Damaged)' : '(Resellable)'}
-                                    </Badge>
-                                    {itemReturns[0]?.notes && (
-                                      <span className="text-[11px] text-amber-700 italic">"{itemReturns[0].notes}"</span>
-                                    )}
-                                  </div>
-                                )}
-                              </td>
-                              <td className="py-3 px-4 text-center font-medium">{item.quantity}</td>
-                              <td className="py-3 px-4 text-right">{formatCurrency(item.unitPrice)}</td>
-                              <td className="py-3 px-4 text-right font-semibold">{formatCurrency(item.totalAmount)}</td>
-                            </tr>
-                          </React.Fragment>
+                              {isReturned && (
+                                <div className="mt-1">
+                                  <Badge variant="outline" className="bg-amber-100/80 text-amber-800 border-amber-300 text-[10px] px-1.5 py-0 font-normal">
+                                    <CornerUpLeft className="w-2.5 h-2.5 mr-1" />
+                                    Returned ({totalReturnedQty} qty)
+                                  </Badge>
+                                </div>
+                              )}
+                              {!isReturned && isAffected && (
+                                <div className="mt-1">
+                                  <Badge variant="outline" className="bg-purple-100/80 text-purple-800 border-purple-300 text-[10px] px-1.5 py-0 font-normal">
+                                    <ArrowRightLeft className="w-2.5 h-2.5 mr-1" />
+                                    Exchanged
+                                  </Badge>
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-2.5 px-2 text-center font-medium">{item.quantity}</td>
+                            <td className={`py-2.5 px-3 text-right ${isAffected ? 'line-through text-ink/40' : ''}`}>{formatCurrency(item.unitPrice)}</td>
+                            <td className={`py-2.5 px-3 text-right font-semibold ${isAffected ? 'line-through text-ink/40' : ''}`}>
+                              {formatCurrency(item.unitPrice * item.quantity)}
+                            </td>
+                          </tr>
                         );
                       })
-                    )}
-
-                    {/* Exchanged Items Section (rendered below original items) */}
-                    {exchangedHistory.length > 0 && (
-                      <>
-                        <tr className="bg-purple-100/60 border-y border-purple-200">
-                          <td colSpan={4} className="py-2 px-4 text-xs font-bold text-purple-900 flex items-center gap-1.5">
-                            <ArrowRightLeft className="w-3.5 h-3.5 text-purple-700" />
-                            Exchanged Replacement Items (Issued to Customer):
-                          </td>
-                        </tr>
-                        {exchangedHistory.map((ex: any, idx: number) => {
-                          const exVar = ex.variant;
-                          const exName = exVar?.parent?.name 
-                            ? `${exVar.parent.name}${exVar.variant_name ? ` – ${exVar.variant_name}` : ''}`
-                            : (exVar?.variant_name || 'Replacement Item');
-                          const exColorSize = [exVar?.color, exVar?.size].filter(Boolean).join(' / ');
-                          const exQty = Math.abs(ex.quantityChange || 1);
-                          return (
-                            <tr key={ex.id || idx} className="bg-purple-50/40 border-b border-purple-100 text-xs">
-                              <td className="py-2.5 px-6">
-                                <div className="font-semibold text-purple-950 flex items-center gap-1.5">
-                                  <span>⇄ {exName}</span>
-                                  <Badge className="bg-purple-200 text-purple-800 border-none text-[10px] px-1 py-0">Issued</Badge>
-                                </div>
-                                {exColorSize && <div className="text-purple-700/70">{exColorSize}</div>}
-                                {ex.notes && <div className="text-purple-600 italic mt-0.5">{ex.notes}</div>}
-                              </td>
-                              <td className="py-2.5 px-4 text-center font-bold text-purple-900">{exQty}</td>
-                              <td className="py-2.5 px-4 text-right text-purple-700">{formatCurrency(exVar?.retail_price || 0)}</td>
-                              <td className="py-2.5 px-4 text-right font-bold text-purple-900">{formatCurrency((exVar?.retail_price || 0) * exQty)}</td>
-                            </tr>
-                          );
-                        })}
-                      </>
                     )}
                   </tbody>
                 </table>
               </div>
 
-              {/* Payment Summary & Changes Breakdown */}
-              <div className="bg-[#faf9f5] border rounded-lg p-3.5 space-y-2 text-sm">
-                <h4 className="font-bold text-xs uppercase tracking-wider text-ink/50 border-b pb-1">Payment & Adjustment Summary</h4>
-                <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(detailSale.subtotal)}</span></div>
-                <div className="flex justify-between"><span>Tax:</span><span>{formatCurrency(detailSale.taxAmount)}</span></div>
-                <div className="flex justify-between"><span>Discount:</span><span>-{formatCurrency(detailSale.discountAmount)}</span></div>
-                <div className="flex justify-between text-base font-bold border-t pt-1.5"><span>Original Invoice Total:</span><span>{formatCurrency(detailSale.totalAmount)}</span></div>
+              {/* Bottom Section: Expandable Exchanged Items History */}
+              {exchangedHistory.length > 0 && (
+                <div className="border rounded-lg overflow-hidden bg-purple-50/30">
+                  <button
+                    type="button"
+                    className="w-full px-3 py-2 text-xs font-semibold text-purple-900/80 hover:bg-purple-100/50 flex items-center justify-between transition-colors"
+                    onClick={() => setShowReturnHistory(prev => !prev)}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <ArrowRightLeft className="w-3.5 h-3.5 text-purple-600" />
+                      Replacement Items Taken by Customer ({exchangedHistory.length} item{exchangedHistory.length > 1 ? 's' : ''})
+                    </span>
+                    <span className="flex items-center text-purple-900/50 text-[11px]">
+                      {showReturnHistory ? 'Collapse' : 'Expand'}
+                      {showReturnHistory ? <ChevronUp size={14} className="ml-1" /> : <ChevronDown size={14} className="ml-1" />}
+                    </span>
+                  </button>
 
-                {detailReturns.length > 0 && (
-                  <div className="pt-2 mt-2 border-t border-ink/10 space-y-1 text-xs bg-amber-50/50 p-2.5 rounded border border-amber-200">
-                    <div className="font-semibold text-amber-900 mb-1 flex items-center gap-1">
-                      <ArrowRightLeft className="w-3.5 h-3.5" /> Return & Exchange Payment Adjustments
+                  {showReturnHistory && (
+                    <div className="border-t border-purple-100 bg-white p-0 text-xs">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="bg-purple-50/40 border-b border-purple-100/80 text-[11px] text-purple-900/60">
+                            <th className="text-left py-2 px-3">Replacement Item</th>
+                            <th className="text-center py-2 px-2">Qty</th>
+                            <th className="text-right py-2 px-3">Price</th>
+                            <th className="text-right py-2 px-3">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {exchangedHistory.map((ex: any, idx: number) => {
+                            const exVar = ex.variant;
+                            const parentName = exVar?.parent?.name || exVar?.product?.name || ex.product?.name;
+                            const variantName = exVar?.variant_name || exVar?.variantName;
+                            const variantSuffix = variantName && variantName !== 'Default' ? ` – ${variantName}` : '';
+                            const rawName = parentName ? `${parentName}${variantSuffix}` : (variantName && variantName !== 'Default' ? variantName : null);
+                            const exName = rawName || 'Replacement Item';
+                            const exColorSize = [exVar?.color, exVar?.size].filter(Boolean).join(' / ');
+                            const exQty = Math.abs(ex.quantityChange || 1);
+
+                            // Extract price recorded in notes or from variant / parent price fields
+                            const notePriceMatch = ex.notes?.match(/\[Price:\s*NRs\s*([\d.]+)\]/i);
+                            const parsedNotePrice = notePriceMatch ? parseFloat(notePriceMatch[1]) : null;
+                            const unitPrice =
+                              parsedNotePrice ??
+                              exVar?.selling_price ??
+                              exVar?.sellingPrice ??
+                              exVar?.retail_price ??
+                              exVar?.parent?.selling_price ??
+                              exVar?.parent?.sellingPrice ??
+                              exVar?.parent?.retail_price ??
+                              0;
+
+                            const displayNotes = ex.notes?.replace(/\[Price:\s*NRs\s*[\d.]+\]/i, '').trim();
+
+                            return (
+                              <tr key={`ex-new-${ex.id || idx}`} className="border-b border-purple-50">
+                                <td className="py-2.5 px-3">
+                                  <div className="font-semibold text-purple-950 flex items-center gap-1.5">
+                                    {exName}
+                                  </div>
+                                  {exColorSize && <div className="text-[11px] text-purple-700/60">{exColorSize}</div>}
+                                  {displayNotes && displayNotes !== 'Given in customer exchange' && (
+                                    <div className="text-[10px] text-purple-500 italic mt-0.5">{displayNotes}</div>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-2 text-center font-bold text-purple-900">{exQty}</td>
+                                <td className="py-2.5 px-3 text-right text-purple-800">{formatCurrency(unitPrice)}</td>
+                                <td className="py-2.5 px-3 text-right font-bold text-purple-900">{formatCurrency(unitPrice * exQty)}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
                     </div>
-                    {detailSale.notes && detailSale.notes.includes('[Return/Exchange:') && (
-                      <div className="text-amber-800 font-mono text-[11.5px] bg-white/80 p-1.5 rounded border border-amber-200/60 mb-1">
-                        {detailSale.notes.split('\n').filter((n: string) => n.includes('[Return/Exchange:')).join('\n')}
-                      </div>
-                    )}
+                  )}
+                </div>
+              )}
+
+              {/* Payment Summary */}
+              <div className="bg-[#faf9f5] border rounded-lg p-3 space-y-1.5 text-xs">
+                <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(detailSale.subtotal)}</span></div>
+                <div className="flex justify-between"><span>Tax / Discount:</span><span>{formatCurrency(detailSale.taxAmount - detailSale.discountAmount)}</span></div>
+                <div className="flex justify-between text-sm font-bold border-t pt-1.5"><span>Invoice Total:</span><span>{formatCurrency(detailSale.totalAmount)}</span></div>
+
+                {detailSale.notes && detailSale.notes.includes('[Return/Exchange:') && (
+                  <div className="mt-2 pt-2 border-t text-[11px] text-amber-800 font-mono bg-amber-50/60 p-2 rounded border border-amber-200">
+                    {detailSale.notes.split('\n').filter((n: string) => n.includes('[Return/Exchange:')).join('\n')}
                   </div>
                 )}
-
-                <div className="flex justify-between text-ink/70 pt-1"><span>Amount Paid:</span><span>{formatCurrency(detailSale.paidAmount)}</span></div>
-                <div className="flex justify-between font-semibold text-success-text"><span>Change Given:</span><span>{formatCurrency(detailSale.changeAmount)}</span></div>
-              </div>
-
-              <div className="pt-2 border-t">
-                <Button
-                  variant="outline"
-                  className="w-full text-xs font-semibold flex items-center justify-center gap-2 py-5"
-                  onClick={() => setReturnModalOpen(true)}
-                >
-                  <ArrowRightLeft size={16} /> Process Return or Exchange
-                </Button>
               </div>
             </div>
           )}
+
+          {/* Right-aligned Footer */}
+          <div className="p-4 border-t bg-[#faf9f5] flex justify-end items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs font-semibold flex items-center gap-1.5"
+              onClick={() => setReturnModalOpen(true)}
+            >
+              <ArrowRightLeft size={14} /> Process Return / Exchange
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 

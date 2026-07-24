@@ -101,7 +101,7 @@ export const setupSaleHandlers = () => {
 
       // 2. Process Exchanged Replacement Items
       for (const exItem of exchangeItems) {
-        const { variantId, productFlatId, quantity } = exItem;
+        const { variantId, productFlatId, quantity, unitPrice } = exItem;
         const qty = Number(quantity);
         if (!variantId || qty <= 0) continue;
 
@@ -111,6 +111,7 @@ export const setupSaleHandlers = () => {
           .single();
 
         if (!decErr) {
+          const priceNote = unitPrice ? ` [Price: NRs ${unitPrice}]` : '';
           await supabase.from('inventory_history').insert({
             productId: productFlatId,
             variant_id: variantId,
@@ -120,7 +121,7 @@ export const setupSaleHandlers = () => {
             quantityAfter: (decVariant as any)?.stock || 0,
             reference: 'Customer Exchange',
             referenceId: saleId,
-            notes: notes || 'Given in customer exchange',
+            notes: (notes || 'Given in customer exchange') + priceNote,
           });
         }
       }
@@ -176,55 +177,117 @@ export const setupSaleHandlers = () => {
     try {
       if (!saleIds || saleIds.length === 0) return { success: true, data: {} };
 
-      const { data, error } = await supabase
-        .from('inventory_history')
-        .select('*')
-        .in('referenceId', saleIds)
-        .in('reference', ['Customer Return', 'Customer Return (Damaged)', 'Customer Exchange']);
+      let rawItems: any[] = [];
+      try {
+        const { data } = await supabase
+          .from('inventory_history')
+          .select(
+            '*, ' +
+            'product:product_variant_flat(*), ' +
+            'variant:product_variant(*, parent:product_variant_flat(*))'
+          )
+          .in('referenceId', saleIds);
+        rawItems = data || [];
+      } catch {}
 
-      if (error) throw error;
+      if (!rawItems || rawItems.length === 0) {
+        const { data: raw } = await supabase
+          .from('inventory_history')
+          .select('*')
+          .in('referenceId', saleIds);
+        rawItems = (raw as any[]) || [];
+      }
 
-      // Map variants and parent products for history items
-      const rawItems = data || [];
-      const variantIds = Array.from(new Set(rawItems.map((i: any) => i.variant_id || i.variantId).filter(Boolean)));
+      // Filter relevant exchange / return references
+      rawItems = (rawItems || []).filter((i: any) =>
+        ['Customer Return', 'Customer Return (Damaged)', 'Customer Exchange'].includes(i.reference)
+      );
+
+      // Collect IDs for manual fallback maps
+      const variantIds = Array.from(
+        new Set(rawItems.map((i: any) => i.variant_id || i.variantId).filter(Boolean))
+      );
+      const productFlatIds = Array.from(
+        new Set(rawItems.map((i: any) => i.productId || i.product_id || i.product_flat_id).filter(Boolean))
+      );
+
       const variantMap: Record<string, any> = {};
+      const productFlatMap: Record<string, any> = {};
+
+      if (productFlatIds.length > 0) {
+        const { data: flats } = await supabase
+          .from('product_variant_flat')
+          .select('*')
+          .in('id', productFlatIds as string[]);
+        (flats || []).forEach((f: any) => { productFlatMap[f.id] = f; });
+      }
 
       if (variantIds.length > 0) {
         const { data: vars } = await supabase
-          .from('product_variants')
-          .select('id, variant_name, color, size, sku, retail_price, productId')
+          .from('product_variant')
+          .select('*')
           .in('id', variantIds as string[]);
 
         if (vars && vars.length > 0) {
-          const parentIds = Array.from(new Set(vars.map((v: any) => v.productId).filter(Boolean)));
-          const parentMap: Record<string, any> = {};
+          const parentIds = Array.from(
+            new Set(vars.map((v: any) => v.product_flat_id || v.productId || v.product_id).filter(Boolean))
+          );
           if (parentIds.length > 0) {
-            const { data: parents } = await supabase
-              .from('product_variant_flat')
-              .select('id, name')
-              .in('id', parentIds as string[]);
-            (parents || []).forEach((p: any) => { parentMap[p.id] = p; });
+            const missingParentIds = parentIds.filter(id => !productFlatMap[id]);
+            if (missingParentIds.length > 0) {
+              const { data: parents } = await supabase
+                .from('product_variant_flat')
+                .select('*')
+                .in('id', missingParentIds as string[]);
+              (parents || []).forEach((p: any) => { productFlatMap[p.id] = p; });
+            }
           }
           vars.forEach((v: any) => {
+            const parentId = v.product_flat_id || v.productId || v.product_id;
             variantMap[v.id] = {
               ...v,
-              parent: parentMap[v.productId] || null,
+              parent: productFlatMap[parentId] || null,
             };
           });
         }
       }
 
-      // Enrich items and group by saleId (referenceId)
+      // Group enriched items by saleId (referenceId)
       const returnsMap: Record<string, any[]> = {};
       for (const id of saleIds) returnsMap[id] = [];
+
       for (const item of rawItems) {
         const vId = item.variant_id || item.variantId;
+        const pId = item.productId || item.product_id || item.product_flat_id;
+
+        // Try embedded variant first, then manual variantMap, then productFlatMap
+        let finalVariant = item.variant;
+        if (!finalVariant || !finalVariant.parent) {
+          if (vId && variantMap[vId]) {
+            finalVariant = variantMap[vId];
+          } else if (pId && productFlatMap[pId]) {
+            finalVariant = {
+              id: vId || pId,
+              variant_name: 'Default',
+              parent: productFlatMap[pId],
+            };
+          } else if (item.product) {
+            finalVariant = {
+              id: vId || pId,
+              variant_name: 'Default',
+              parent: item.product,
+            };
+          }
+        }
+
         const enriched = {
           ...item,
-          variant: vId ? variantMap[vId] || null : null,
+          variant: finalVariant || null,
         };
-        if (item.referenceId && returnsMap[item.referenceId]) {
-          returnsMap[item.referenceId].push(enriched);
+
+        const refId = item.referenceId || item.reference_id;
+        if (refId && returnsMap[refId]) {
+          returnsMap[refId].push(enriched);
         }
       }
 

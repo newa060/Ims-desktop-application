@@ -5,7 +5,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Search, Plus, Trash2, ArrowRightLeft, RefreshCw } from 'lucide-react';
+import { Search, Trash2, ArrowRightLeft, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSettings } from '../contexts/SettingsContext';
 
@@ -334,7 +334,11 @@ export const SaleReturnModal: React.FC<SaleReturnModalProps> = ({
             </div>
 
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" size={16} />
+              {isSearching ? (
+                <RefreshCw className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/35 animate-spin" size={16} />
+              ) : (
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/35" size={16} />
+              )}
               <Input
                 placeholder="Search replacement variant to add for exchange..."
                 value={searchVariantQuery}
