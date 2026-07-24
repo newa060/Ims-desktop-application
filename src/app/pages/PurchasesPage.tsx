@@ -10,6 +10,7 @@ import { Badge } from '../components/ui/badge';
 import { Plus, Search, RefreshCw, Trash2, ChevronLeft, ChevronRight, Eye, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSettings } from '../contexts/SettingsContext';
+import VariantForm from '../features/products/VariantForm';
 
 // Per-variant quantity selection within a purchase item
 interface VariantQty {
@@ -45,6 +46,10 @@ const PurchasesPage = () => {
   const [payAmount, setPayAmount] = useState<number>(0);
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
+  // Add Variant modal state
+  const [variantFormOpen, setVariantFormOpen] = useState(false);
+  const [activeProductForVariant, setActiveProductForVariant] = useState<{ id: string; name: string } | null>(null);
+
   const loadPurchases = useCallback(async (page = 1) => {
     setLoading(true);
     try {
@@ -64,11 +69,20 @@ const PurchasesPage = () => {
     } catch {}
   };
 
-  const loadVariantsList = async () => {
+  const loadVariantsList = async (): Promise<boolean> => {
     try {
       const res = await window.electron.getVariants({ page: 1, limit: 500 });
-      if (res.success) setVariants(res.data.data);
-    } catch {}
+      if (res.success) {
+        setVariants(res.data.data);
+        return true;
+      } else {
+        toast.error(res.error || 'Failed to refresh variants list');
+        return false;
+      }
+    } catch {
+      toast.error('An error occurred while refreshing variants list');
+      return false;
+    }
   };
 
   useEffect(() => {
@@ -377,7 +391,22 @@ const PurchasesPage = () => {
                       {/* Variant checkboxes + per-variant qty */}
                       {item.selectedFlatId && (
                         <div className="space-y-2 pt-1 border-t border-ink/[0.06]">
-                          <p className="text-[11px] font-bold uppercase tracking-wider text-ink/40 mb-2">Select Variants & Quantities</p>
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-ink/40">Select Variants & Quantities</p>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="h-7 text-xs px-2.5"
+                              onClick={() => {
+                                const prodName = item.productName || uniqueParents.find(p => p.id === item.selectedFlatId)?.name || 'Product';
+                                setActiveProductForVariant({ id: item.selectedFlatId, name: prodName });
+                                setVariantFormOpen(true);
+                              }}
+                            >
+                              <Plus className="mr-1 h-3 w-3" /> Add Variant
+                            </Button>
+                          </div>
                           {productVariants.length === 0 ? (
                             <p className="text-xs text-ink/40 italic">No variants found for this product.</p>
                           ) : (
@@ -551,6 +580,25 @@ const PurchasesPage = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Variant Creation Modal */}
+      {activeProductForVariant && (
+        <VariantForm
+          open={variantFormOpen}
+          onClose={() => {
+            setVariantFormOpen(false);
+            setActiveProductForVariant(null);
+          }}
+          onSuccess={async () => {
+            const refreshed = await loadVariantsList();
+            if (!refreshed) {
+              toast.error('Variant was created, but refreshing the variant list failed. Please refresh manually.');
+            }
+          }}
+          productFlatId={activeProductForVariant.id}
+          productName={activeProductForVariant.name}
+        />
+      )}
     </div>
   );
 };
